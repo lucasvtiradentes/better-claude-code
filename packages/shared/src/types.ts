@@ -1,4 +1,5 @@
 export type Repository = {
+  id: string;
   name: string;
   path: string;
   sessionsCount: number;
@@ -11,11 +12,7 @@ export type Session = {
   title: string;
   messageCount: number;
   createdAt: number;
-  tokenUsage?: {
-    used: number;
-    total: number;
-    percentage: number;
-  };
+  tokenPercentage?: number;
 };
 
 export type MessageType = 'user' | 'assistant';

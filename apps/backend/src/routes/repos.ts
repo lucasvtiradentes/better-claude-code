@@ -80,6 +80,7 @@ reposRouter.get('/', async (_req, res) => {
       const displayPath = realPath.replace(os.homedir(), '~');
 
       repos.push({
+        id: folder,
         name,
         path: displayPath,
         sessionsCount,

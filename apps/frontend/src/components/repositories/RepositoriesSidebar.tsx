@@ -33,7 +33,7 @@ export const RepositoriesSidebar = ({
           return (
             <TimeGroup key={timeGroup} label={TIME_GROUP_LABELS[timeGroup]} groupKey={timeGroup}>
               {groupRepos.map((repo) => (
-                <RepositoryCard key={repo.name} repository={repo} onClick={() => onSelectRepo(repo.name)} />
+                <RepositoryCard key={repo.id} repository={repo} onClick={() => onSelectRepo(repo.id)} />
               ))}
             </TimeGroup>
           );

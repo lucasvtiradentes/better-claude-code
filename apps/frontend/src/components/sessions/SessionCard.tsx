@@ -74,8 +74,8 @@ export const SessionCard = ({ session, onClick, isActive }: SessionCardProps) =>
         ))}
       </div>
       <div className="flex items-center justify-end text-[11px]">
-        {session.tokenUsage && (
-          <span className={getTokenColor(session.tokenUsage.percentage)}>{session.tokenUsage.percentage}%</span>
+        {session.tokenPercentage !== undefined && (
+          <span className={getTokenColor(session.tokenPercentage)}>{session.tokenPercentage}%</span>
         )}
       </div>
     </button>

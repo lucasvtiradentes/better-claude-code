@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RepositoriesRouteImport } from './routes/repositories'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as RepositoriesRepoNameSessionIdRouteImport } from './routes/repositories.$repoName.$sessionId'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -29,52 +28,34 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RepositoriesRepoNameSessionIdRoute =
-  RepositoriesRepoNameSessionIdRouteImport.update({
-    id: '/$repoName/$sessionId',
-    path: '/$repoName/$sessionId',
-    getParentRoute: () => RepositoriesRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/repositories': typeof RepositoriesRouteWithChildren
+  '/repositories': typeof RepositoriesRoute
   '/settings': typeof SettingsRoute
-  '/repositories/$repoName/$sessionId': typeof RepositoriesRepoNameSessionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/repositories': typeof RepositoriesRouteWithChildren
+  '/repositories': typeof RepositoriesRoute
   '/settings': typeof SettingsRoute
-  '/repositories/$repoName/$sessionId': typeof RepositoriesRepoNameSessionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/repositories': typeof RepositoriesRouteWithChildren
+  '/repositories': typeof RepositoriesRoute
   '/settings': typeof SettingsRoute
-  '/repositories/$repoName/$sessionId': typeof RepositoriesRepoNameSessionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/repositories'
-    | '/settings'
-    | '/repositories/$repoName/$sessionId'
+  fullPaths: '/' | '/repositories' | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/repositories' | '/settings' | '/repositories/$repoName/$sessionId'
-  id:
-    | '__root__'
-    | '/'
-    | '/repositories'
-    | '/settings'
-    | '/repositories/$repoName/$sessionId'
+  to: '/' | '/repositories' | '/settings'
+  id: '__root__' | '/' | '/repositories' | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  RepositoriesRoute: typeof RepositoriesRouteWithChildren
+  RepositoriesRoute: typeof RepositoriesRoute
   SettingsRoute: typeof SettingsRoute
 }
 
@@ -101,31 +82,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/repositories/$repoName/$sessionId': {
-      id: '/repositories/$repoName/$sessionId'
-      path: '/$repoName/$sessionId'
-      fullPath: '/repositories/$repoName/$sessionId'
-      preLoaderRoute: typeof RepositoriesRepoNameSessionIdRouteImport
-      parentRoute: typeof RepositoriesRoute
-    }
   }
 }
 
-interface RepositoriesRouteChildren {
-  RepositoriesRepoNameSessionIdRoute: typeof RepositoriesRepoNameSessionIdRoute
-}
-
-const RepositoriesRouteChildren: RepositoriesRouteChildren = {
-  RepositoriesRepoNameSessionIdRoute: RepositoriesRepoNameSessionIdRoute,
-}
-
-const RepositoriesRouteWithChildren = RepositoriesRoute._addFileChildren(
-  RepositoriesRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  RepositoriesRoute: RepositoriesRouteWithChildren,
+  RepositoriesRoute: RepositoriesRoute,
   SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport

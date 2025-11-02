@@ -10,6 +10,7 @@ type SessionsSidebarProps = {
   isLoading: boolean;
   error: unknown;
   repoName: string;
+  selectedSessionId?: string;
   onBack: () => void;
   onSelectSession: (sessionId: string) => void;
 };
@@ -20,12 +21,13 @@ export const SessionsSidebar = ({
   isLoading,
   error,
   repoName,
+  selectedSessionId,
   onBack,
   onSelectSession
 }: SessionsSidebarProps) => {
   return (
     <MiddleSidebar
-      title={`${sessions?.length || 0} sessions`}
+      title={`${repoName} (${sessions?.length || 0})`}
       backButton={{
         label: '← Back',
         onClick: onBack
@@ -47,6 +49,7 @@ export const SessionsSidebar = ({
                   key={session.id}
                   session={session}
                   repoName={repoName}
+                  isActive={session.id === selectedSessionId}
                   onClick={() => onSelectSession(session.id)}
                 />
               ))}
