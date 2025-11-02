@@ -33,7 +33,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
 
     let filtered = projects;
 
-    if (settings.filters.hideNonGitProjects) {
+    if (settings.filters.showOnlyGitProjects) {
       filtered = filtered.filter((p) => p.isGitRepo);
     }
 
@@ -165,6 +165,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
                   onClick={() => onSelectProject(project.id)}
                   labels={settings?.labels || []}
                   displaySettings={settings?.display}
+                  showPathInCards={settings?.display.showPathInCards}
                 />
               ))}
             </TimeGroup>

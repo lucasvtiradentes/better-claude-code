@@ -14,15 +14,15 @@ const DEFAULT_SETTINGS: AppSettings = {
   projects: {
     groupBy: 'date',
     filters: {
-      hideNonGitProjects: false,
-      hidePathInCards: false,
+      showOnlyGitProjects: false,
       selectedLabels: []
     },
     display: {
       showSessionCount: true,
       showCurrentBranch: true,
       showActionButtons: true,
-      showProjectLabel: true
+      showProjectLabel: true,
+      showPathInCards: true
     },
     search: '',
     labels: [

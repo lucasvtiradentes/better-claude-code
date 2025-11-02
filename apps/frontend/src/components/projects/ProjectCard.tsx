@@ -14,6 +14,7 @@ type ProjectCardProps = {
     showActionButtons: boolean;
     showProjectLabel: boolean;
   };
+  showPathInCards?: boolean;
 };
 
 export const ProjectCard = ({
@@ -27,7 +28,8 @@ export const ProjectCard = ({
     showCurrentBranch: true,
     showActionButtons: true,
     showProjectLabel: true
-  }
+  },
+  showPathInCards = true
 }: ProjectCardProps) => {
   const handleGitHubClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -55,7 +57,7 @@ export const ProjectCard = ({
     <button
       type="button"
       onClick={onClick}
-      title={project.path}
+      title={showPathInCards ? project.path : undefined}
       className={twMerge(
         className,
         `w-full text-left px-4 py-3 cursor-pointer border-b border-border transition-all duration-100 hover:bg-accent`,
@@ -84,6 +86,12 @@ export const ProjectCard = ({
             </span>
           ))}
           {remainingCount > 0 && <span className="text-[10px] text-muted-foreground">+{remainingCount} more</span>}
+        </div>
+      )}
+
+      {showPathInCards && (
+        <div className="text-[10px] text-muted-foreground mb-2 truncate">
+          {project.path}
         </div>
       )}
 

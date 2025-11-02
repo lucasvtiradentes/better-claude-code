@@ -8,8 +8,8 @@ import { useProjectsStore } from '../../stores/projects-store';
 
 type SettingsFormData = {
   groupBy: ProjectsConfig['groupBy'];
-  hideNonGitProjects: boolean;
-  hidePathInCards: boolean;
+  showOnlyGitProjects: boolean;
+  showPathInCards: boolean;
   showSessionCount: boolean;
   showCurrentBranch: boolean;
   showActionButtons: boolean;
@@ -22,8 +22,8 @@ export const SettingsTab = () => {
   const form = useForm<SettingsFormData>({
     defaultValues: {
       groupBy: settings?.groupBy || 'date',
-      hideNonGitProjects: settings?.filters.hideNonGitProjects || false,
-      hidePathInCards: settings?.filters.hidePathInCards || false,
+      showOnlyGitProjects: settings?.filters.showOnlyGitProjects || false,
+      showPathInCards: settings?.display.showPathInCards ?? true,
       showSessionCount: settings?.display.showSessionCount ?? true,
       showCurrentBranch: settings?.display.showCurrentBranch ?? true,
       showActionButtons: settings?.display.showActionButtons ?? true,
@@ -35,8 +35,8 @@ export const SettingsTab = () => {
     if (settings) {
       form.reset({
         groupBy: settings.groupBy,
-        hideNonGitProjects: settings.filters.hideNonGitProjects,
-        hidePathInCards: settings.filters.hidePathInCards,
+        showOnlyGitProjects: settings.filters.showOnlyGitProjects,
+        showPathInCards: settings.display.showPathInCards,
         showSessionCount: settings.display.showSessionCount,
         showCurrentBranch: settings.display.showCurrentBranch,
         showActionButtons: settings.display.showActionButtons,
@@ -50,7 +50,7 @@ export const SettingsTab = () => {
 
     if (field === 'groupBy') {
       updateSettings({ groupBy: value as ProjectsConfig['groupBy'] });
-    } else if (field === 'hideNonGitProjects' || field === 'hidePathInCards') {
+    } else if (field === 'showOnlyGitProjects') {
       updateSettings({
         filters: {
           ...settings.filters,
@@ -106,7 +106,7 @@ export const SettingsTab = () => {
 
           <FormField
             control={form.control}
-            name="hideNonGitProjects"
+            name="showOnlyGitProjects"
             render={({ field }) => (
               <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                 <FormControl>
@@ -114,35 +114,12 @@ export const SettingsTab = () => {
                     checked={field.value}
                     onCheckedChange={(checked) => {
                       field.onChange(checked);
-                      handleChange('hideNonGitProjects', checked as boolean);
+                      handleChange('showOnlyGitProjects', checked as boolean);
                     }}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel>Hide non-git projects</FormLabel>
-                  <FormDescription>Only show projects that are Git repositories</FormDescription>
-                </div>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="hidePathInCards"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={(checked) => {
-                      field.onChange(checked);
-                      handleChange('hidePathInCards', checked as boolean);
-                    }}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Hide path in cards</FormLabel>
-                  <FormDescription>Hide the full path tooltip from project cards</FormDescription>
+                  <FormLabel>Show only git projects</FormLabel>
                 </div>
               </FormItem>
             )}
@@ -231,6 +208,27 @@ export const SettingsTab = () => {
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel>Show project labels</FormLabel>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="showPathInCards"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked);
+                      handleChange('showPathInCards', checked as boolean);
+                    }}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Show path in cards</FormLabel>
                 </div>
               </FormItem>
             )}
