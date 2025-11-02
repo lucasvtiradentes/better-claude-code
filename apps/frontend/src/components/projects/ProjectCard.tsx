@@ -1,17 +1,17 @@
-import type { Repository } from '@bcc/shared';
+import type { Project } from '@bcc/shared';
 import { GitBranch, Github } from 'lucide-react';
 
-type RepositoryCardProps = {
-  repository: Repository;
+type ProjectCardProps = {
+  project: Project;
   onClick: () => void;
   isActive?: boolean;
 };
 
-export const RepositoryCard = ({ repository, onClick, isActive }: RepositoryCardProps) => {
+export const ProjectCard = ({ project, onClick, isActive }: ProjectCardProps) => {
   const handleGitHubClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (repository.githubUrl) {
-      window.open(repository.githubUrl, '_blank', 'noopener,noreferrer');
+    if (project.githubUrl) {
+      window.open(project.githubUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -26,12 +26,12 @@ export const RepositoryCard = ({ repository, onClick, isActive }: RepositoryCard
         ${isActive ? 'bg-[#094771]' : ''}
       `}
     >
-      <div className="text-sm font-semibold mb-1 break-words line-clamp-2">{repository.name}</div>
-      <div className="text-[11px] text-[#858585] mb-1.5 break-all font-[Courier_New,monospace]">{repository.path}</div>
+      <div className="text-sm font-semibold mb-1 break-words line-clamp-2">{project.name}</div>
+      <div className="text-[11px] text-[#858585] mb-1.5 break-all font-[Courier_New,monospace]">{project.path}</div>
       <div className="flex items-center justify-between gap-2 text-[11px] text-[#858585]">
-        <span>{repository.sessionsCount} sessions</span>
+        <span>{project.sessionsCount} sessions</span>
         <div className="flex items-center gap-1.5">
-          {repository.githubUrl && (
+          {project.githubUrl && (
             <button
               type="button"
               onClick={handleGitHubClick}
@@ -41,7 +41,7 @@ export const RepositoryCard = ({ repository, onClick, isActive }: RepositoryCard
               <Github size={14} />
             </button>
           )}
-          {repository.isGitRepo && (
+          {project.isGitRepo && (
             <span className="cursor-default" title="This project is a Git repository">
               <GitBranch size={14} className="text-[#0e639c]" />
             </span>

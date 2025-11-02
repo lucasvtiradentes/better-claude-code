@@ -10,7 +10,7 @@ type SessionsSidebarProps = {
   groupedSessions: Record<string, Session[]> | undefined;
   isLoading: boolean;
   error: unknown;
-  repoName: string;
+  projectName: string;
   selectedSessionId?: string;
   totalSessions: number;
   hasNextPage?: boolean;
@@ -24,7 +24,7 @@ export const SessionsSidebar = ({
   groupedSessions,
   isLoading,
   error,
-  repoName,
+  projectName,
   selectedSessionId,
   totalSessions,
   hasNextPage,
@@ -54,7 +54,7 @@ export const SessionsSidebar = ({
 
   return (
     <MiddleSidebar
-      title={`${repoName} (${totalSessions})`}
+      title={`${projectName} (${totalSessions})`}
       backButton={{
         label: '← Back',
         onClick: onBack
@@ -77,7 +77,7 @@ export const SessionsSidebar = ({
                   <SessionCard
                     key={session.id}
                     session={session}
-                    repoName={repoName}
+                    projectName={projectName}
                     isActive={session.id === selectedSessionId}
                     onClick={() => onSelectSession(session.id)}
                   />

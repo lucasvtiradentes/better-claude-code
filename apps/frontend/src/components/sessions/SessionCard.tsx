@@ -2,7 +2,7 @@ import type { Session } from '@bcc/shared';
 
 type SessionCardProps = {
   session: Session;
-  repoName: string;
+  projectName: string;
   onClick: () => void;
   isActive?: boolean;
 };

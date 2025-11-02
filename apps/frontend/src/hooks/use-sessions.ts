@@ -11,19 +11,19 @@ type SessionsResponse = {
   };
 };
 
-const fetchSessions = async (repoName: string, page: number): Promise<SessionsResponse> => {
-  const response = await fetch(`/api/sessions/${encodeURIComponent(repoName)}?page=${page}&limit=20`);
+const fetchSessions = async (projectName: string, page: number): Promise<SessionsResponse> => {
+  const response = await fetch(`/api/sessions/${encodeURIComponent(projectName)}?page=${page}&limit=20`);
   if (!response.ok) {
     throw new Error('Failed to fetch sessions');
   }
   return response.json();
 };
 
-export const useSessions = (repoName: string) => {
+export const useSessions = (projectName: string) => {
   return useInfiniteQuery({
-    queryKey: ['sessions', repoName],
-    queryFn: ({ pageParam = 1 }) => fetchSessions(repoName, pageParam),
-    enabled: !!repoName,
+    queryKey: ['sessions', projectName],
+    queryFn: ({ pageParam = 1 }) => fetchSessions(projectName, pageParam),
+    enabled: !!projectName,
     getNextPageParam: (lastPage) => {
       if (lastPage.meta.page < lastPage.meta.totalPages) {
         return lastPage.meta.page + 1;

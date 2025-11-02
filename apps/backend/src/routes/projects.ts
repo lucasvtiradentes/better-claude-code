@@ -1,4 +1,4 @@
-import type { Repository } from '@bcc/shared';
+import type { Project } from '@bcc/shared';
 import { exec } from 'child_process';
 import { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
@@ -8,7 +8,7 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
-export const reposRouter: RouterType = Router();
+export const projectsRouter: RouterType = Router();
 
 async function getRealPathFromSession(folderPath: string): Promise<string | null> {
   try {
@@ -38,14 +38,14 @@ async function getRealPathFromSession(folderPath: string): Promise<string | null
   }
 }
 
-function extractRepoName(fullPath: string): string {
+function extractProjectName(fullPath: string): string {
   const parts = fullPath.split('/').filter(Boolean);
   return parts[parts.length - 1] || fullPath;
 }
 
-async function getGitHubUrl(repoPath: string): Promise<string | undefined> {
+async function getGitHubUrl(projectPath: string): Promise<string | undefined> {
   try {
-    const { stdout } = await execAsync('git config --get remote.origin.url', { cwd: repoPath });
+    const { stdout } = await execAsync('git config --get remote.origin.url', { cwd: projectPath });
     const url = stdout.trim();
 
     if (!url) return undefined;
@@ -64,12 +64,12 @@ async function getGitHubUrl(repoPath: string): Promise<string | undefined> {
   }
 }
 
-reposRouter.get('/', async (_req, res) => {
+projectsRouter.get('/', async (_req, res) => {
   try {
     const projectsPath = path.join(os.homedir(), '.claude', 'projects');
     const folders = await fs.readdir(projectsPath);
 
-    const repos: Repository[] = [];
+    const projects: Project[] = [];
 
     for (const folder of folders) {
       const folderPath = path.join(projectsPath, folder);
@@ -103,10 +103,10 @@ reposRouter.get('/', async (_req, res) => {
         isGitRepo = false;
       }
 
-      const name = extractRepoName(realPath);
+      const name = extractProjectName(realPath);
       const displayPath = realPath.replace(os.homedir(), '~');
 
-      repos.push({
+      projects.push({
         id: folder,
         name,
         path: displayPath,
@@ -117,10 +117,10 @@ reposRouter.get('/', async (_req, res) => {
       });
     }
 
-    repos.sort((a, b) => b.lastModified - a.lastModified);
+    projects.sort((a, b) => b.lastModified - a.lastModified);
 
-    res.json(repos);
+    res.json(projects);
   } catch (_error) {
-    res.status(500).json({ error: 'Failed to read repositories' });
+    res.status(500).json({ error: 'Failed to read projects' });
   }
 });

@@ -1,10 +1,10 @@
 import type { SessionData } from '@bcc/shared';
 import { useQuery } from '@tanstack/react-query';
 
-const fetchSessionData = async (repoName: string, sessionId: string): Promise<SessionData> => {
+const fetchSessionData = async (projectName: string, sessionId: string): Promise<SessionData> => {
   const [messagesRes, imagesRes] = await Promise.all([
-    fetch(`/api/sessions/${encodeURIComponent(repoName)}/${encodeURIComponent(sessionId)}`),
-    fetch(`/api/sessions/${encodeURIComponent(repoName)}/${encodeURIComponent(sessionId)}/images`)
+    fetch(`/api/sessions/${encodeURIComponent(projectName)}/${encodeURIComponent(sessionId)}`),
+    fetch(`/api/sessions/${encodeURIComponent(projectName)}/${encodeURIComponent(sessionId)}/images`)
   ]);
 
   if (!messagesRes.ok || !imagesRes.ok) {
@@ -17,10 +17,10 @@ const fetchSessionData = async (repoName: string, sessionId: string): Promise<Se
   return { messages, images };
 };
 
-export const useSessionData = (repoName: string, sessionId: string) => {
+export const useSessionData = (projectName: string, sessionId: string) => {
   return useQuery({
-    queryKey: ['session', repoName, sessionId],
-    queryFn: () => fetchSessionData(repoName, sessionId),
-    enabled: !!repoName && !!sessionId
+    queryKey: ['session', projectName, sessionId],
+    queryFn: () => fetchSessionData(projectName, sessionId),
+    enabled: !!projectName && !!sessionId
   });
 };

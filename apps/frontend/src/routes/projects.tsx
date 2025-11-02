@@ -7,18 +7,18 @@ import { FilterButtons } from '../components/FilterButtons';
 import { FolderModal } from '../components/FolderModal';
 import { ImageModal } from '../components/ImageModal';
 import { Layout } from '../components/layout/Layout';
-import { RepositoriesSidebar } from '../components/repositories/RepositoriesSidebar';
+import { ProjectsSidebar } from '../components/projects/ProjectsSidebar';
 import { SessionMessage } from '../components/sessions/SessionMessage';
 import { SessionsSidebar } from '../components/sessions/SessionsSidebar';
-import { useRepositories } from '../hooks/use-repositories';
+import { useProjects } from '../hooks/use-projects';
 import { useSessionData } from '../hooks/use-session-data';
 import { useSessions } from '../hooks/use-sessions';
 import { useFilterStore } from '../stores/filter-store';
 
-export const Route = createFileRoute('/repositories')({
-  component: RepositoriesComponent,
+export const Route = createFileRoute('/projects')({
+  component: ProjectsComponent,
   validateSearch: (search: Record<string, unknown>) => ({
-    repo: (search.repo as string) || undefined,
+    project: (search.project as string) || undefined,
     sessionId: (search.sessionId as string) || undefined,
     imageIndex: (search.imageIndex as number) || undefined,
     folderPath: (search.folderPath as string) || undefined,
@@ -26,10 +26,10 @@ export const Route = createFileRoute('/repositories')({
   })
 });
 
-function RepositoriesComponent() {
+function ProjectsComponent() {
   const navigate = useNavigate();
   const {
-    repo: selectedRepo,
+    project: selectedProject,
     sessionId,
     imageIndex,
     folderPath: urlFolderPath,
@@ -41,7 +41,7 @@ function RepositoriesComponent() {
   const [folderModalPath, setFolderModalPath] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const { data: repos, isLoading: reposLoading, error: reposError } = useRepositories();
+  const { data: projects, isLoading: projectsLoading, error: projectsError } = useProjects();
   const {
     data: sessionsData,
     isLoading: sessionsLoading,
@@ -49,19 +49,19 @@ function RepositoriesComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useSessions(selectedRepo || '');
+  } = useSessions(selectedProject || '');
   const {
     data: sessionData,
     isLoading: sessionLoading,
     error: sessionError
-  } = useSessionData(selectedRepo || '', sessionId || '');
+  } = useSessionData(selectedProject || '', sessionId || '');
 
   const sessions = sessionsData?.pages.flatMap((page) => page.items) || [];
   const totalSessions = sessionsData?.pages[0]?.meta.totalItems || 0;
 
-  const selectedRepoData = repos?.find((r) => r.id === selectedRepo);
+  const selectedProjectData = projects?.find((p) => p.id === selectedProject);
 
-  const scrollKey = selectedRepo && sessionId ? `scroll-${selectedRepo}-${sessionId}` : '';
+  const scrollKey = selectedProject && sessionId ? `scroll-${selectedProject}-${sessionId}` : '';
 
   useEffect(() => {
     if (!scrollKey || !contentRef.current) return;
@@ -100,14 +100,14 @@ function RepositoriesComponent() {
     }
   }, [urlFolderPath, urlFilePath]);
 
-  const groupedRepos = repos?.reduce(
-    (acc, repo) => {
-      const group = getTimeGroup(repo.lastModified);
+  const groupedProjects = projects?.reduce(
+    (acc, project) => {
+      const group = getTimeGroup(project.lastModified);
       if (!acc[group]) acc[group] = [];
-      acc[group].push(repo);
+      acc[group].push(project);
       return acc;
     },
-    {} as Record<string, typeof repos>
+    {} as Record<string, typeof projects>
   );
 
   const groupedSessions = sessions?.reduce(
@@ -121,16 +121,16 @@ function RepositoriesComponent() {
   );
 
   const updateSearch = (updates: {
-    repo?: string;
+    project?: string;
     sessionId?: string;
     imageIndex?: number;
     folderPath?: string;
     filePath?: string;
   }) => {
     navigate({
-      to: '/repositories',
+      to: '/projects',
       search: {
-        repo: selectedRepo,
+        project: selectedProject,
         sessionId,
         imageIndex: undefined,
         folderPath: undefined,
@@ -151,17 +151,17 @@ function RepositoriesComponent() {
     }
   };
 
-  const sidebar = !selectedRepo ? (
-    <RepositoriesSidebar
-      repos={repos}
-      groupedRepos={groupedRepos}
-      isLoading={reposLoading}
-      error={reposError}
-      onSelectRepo={(repoId) =>
+  const sidebar = !selectedProject ? (
+    <ProjectsSidebar
+      projects={projects}
+      groupedProjects={groupedProjects}
+      isLoading={projectsLoading}
+      error={projectsError}
+      onSelectProject={(projectId) =>
         navigate({
-          to: '/repositories',
+          to: '/projects',
           search: {
-            repo: repoId,
+            project: projectId,
             sessionId: undefined,
             imageIndex: undefined,
             folderPath: undefined,
@@ -176,7 +176,7 @@ function RepositoriesComponent() {
       groupedSessions={groupedSessions}
       isLoading={sessionsLoading}
       error={sessionsError}
-      repoName={selectedRepoData?.name || selectedRepo}
+      projectName={selectedProjectData?.name || selectedProject}
       selectedSessionId={sessionId}
       totalSessions={totalSessions}
       hasNextPage={hasNextPage}
@@ -184,9 +184,9 @@ function RepositoriesComponent() {
       onLoadMore={() => fetchNextPage()}
       onBack={() =>
         navigate({
-          to: '/repositories',
+          to: '/projects',
           search: {
-            repo: undefined,
+            project: undefined,
             sessionId: undefined,
             imageIndex: undefined,
             folderPath: undefined,
@@ -196,9 +196,9 @@ function RepositoriesComponent() {
       }
       onSelectSession={(sid) =>
         navigate({
-          to: '/repositories',
+          to: '/projects',
           search: {
-            repo: selectedRepo,
+            project: selectedProject,
             sessionId: sid,
             imageIndex: undefined,
             folderPath: undefined,
@@ -212,10 +212,10 @@ function RepositoriesComponent() {
   const currentSession = sessions?.find((s) => s.id === sessionId);
 
   let content: ReactNode;
-  if (!selectedRepo) {
+  if (!selectedProject) {
     content = (
       <div className="flex items-center justify-center h-full text-[#858585] text-sm">
-        Select a repository to view sessions
+        Select a project to view sessions
       </div>
     );
   } else if (!sessionId) {
@@ -316,7 +316,7 @@ function RepositoriesComponent() {
 
         {fileModalPath && (
           <FileModal
-            repoId={selectedRepo}
+            projectId={selectedProject}
             sessionId={sessionId}
             filePath={fileModalPath}
             onClose={() => {
@@ -328,7 +328,7 @@ function RepositoriesComponent() {
 
         {folderModalPath && (
           <FolderModal
-            repoId={selectedRepo}
+            projectId={selectedProject}
             sessionId={sessionId}
             folderPath={folderModalPath}
             onClose={() => {

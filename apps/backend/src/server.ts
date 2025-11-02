@@ -1,6 +1,6 @@
 import express, { type Express } from 'express';
 import path from 'path';
-import { reposRouter } from './routes/repos.js';
+import { projectsRouter } from './routes/projects.js';
 import { sessionsRouter } from './routes/sessions.js';
 
 export type ServerOptions = {
@@ -15,7 +15,7 @@ export const createServer = (options: ServerOptions): Express => {
     app.use(express.static(options.staticPath));
   }
 
-  app.use('/api/repos', reposRouter);
+  app.use('/api/projects', projectsRouter);
   app.use('/api/sessions', sessionsRouter);
 
   if (options.staticPath) {

@@ -104,13 +104,13 @@ function extractTextContent(content: any): string {
   return '';
 }
 
-sessionsRouter.get('/:repoName', async (req, res) => {
+sessionsRouter.get('/:projectName', async (req, res) => {
   try {
-    const { repoName } = req.params;
+    const { projectName } = req.params;
     const page = Number.parseInt(req.query.page as string, 10) || 1;
     const limit = Number.parseInt(req.query.limit as string, 10) || 20;
 
-    const sessionsPath = path.join(os.homedir(), '.claude', 'projects', repoName);
+    const sessionsPath = path.join(os.homedir(), '.claude', 'projects', projectName);
     const files = await fs.readdir(sessionsPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
@@ -205,10 +205,10 @@ sessionsRouter.get('/:repoName', async (req, res) => {
   }
 });
 
-sessionsRouter.get('/:repoName/:sessionId', async (req, res) => {
+sessionsRouter.get('/:projectName/:sessionId', async (req, res) => {
   try {
-    const { repoName, sessionId } = req.params;
-    const filePath = path.join(os.homedir(), '.claude', 'projects', repoName, `${sessionId}.jsonl`);
+    const { projectName, sessionId } = req.params;
+    const filePath = path.join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
 
     const content = await fs.readFile(filePath, 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
@@ -254,10 +254,10 @@ sessionsRouter.get('/:repoName/:sessionId', async (req, res) => {
   }
 });
 
-sessionsRouter.get('/:repoName/:sessionId/images', async (req, res) => {
+sessionsRouter.get('/:projectName/:sessionId/images', async (req, res) => {
   try {
-    const { repoName, sessionId } = req.params;
-    const filePath = path.join(os.homedir(), '.claude', 'projects', repoName, `${sessionId}.jsonl`);
+    const { projectName, sessionId } = req.params;
+    const filePath = path.join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
 
     const content = await fs.readFile(filePath, 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
@@ -289,25 +289,25 @@ sessionsRouter.get('/:repoName/:sessionId/images', async (req, res) => {
   }
 });
 
-sessionsRouter.get('/:repoName/:sessionId/file', async (req, res) => {
+sessionsRouter.get('/:projectName/:sessionId/file', async (req, res) => {
   try {
-    const { repoName } = req.params;
+    const { projectName } = req.params;
     const filePath = req.query.path as string;
 
     if (!filePath) {
       return res.status(400).json({ error: 'Path parameter is required' });
     }
 
-    const projectPath = path.join(os.homedir(), '.claude', 'projects', repoName);
-    const repoPath = await getRealPathFromSession(projectPath);
+    const projectPath = path.join(os.homedir(), '.claude', 'projects', projectName);
+    const realProjectPath = await getRealPathFromSession(projectPath);
 
-    if (!repoPath) {
-      return res.status(404).json({ error: 'Repository path not found' });
+    if (!realProjectPath) {
+      return res.status(404).json({ error: 'Project path not found' });
     }
 
-    const fullPath = path.resolve(repoPath, filePath.startsWith('/') ? filePath.slice(1) : filePath);
+    const fullPath = path.resolve(realProjectPath, filePath.startsWith('/') ? filePath.slice(1) : filePath);
 
-    if (!fullPath.startsWith(repoPath)) {
+    if (!fullPath.startsWith(realProjectPath)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -318,25 +318,25 @@ sessionsRouter.get('/:repoName/:sessionId/file', async (req, res) => {
   }
 });
 
-sessionsRouter.get('/:repoName/:sessionId/folder', async (req, res) => {
+sessionsRouter.get('/:projectName/:sessionId/folder', async (req, res) => {
   try {
-    const { repoName } = req.params;
+    const { projectName } = req.params;
     const folderPath = req.query.path as string;
 
     if (!folderPath) {
       return res.status(400).json({ error: 'Path parameter is required' });
     }
 
-    const projectPath = path.join(os.homedir(), '.claude', 'projects', repoName);
-    const repoPath = await getRealPathFromSession(projectPath);
+    const projectPath = path.join(os.homedir(), '.claude', 'projects', projectName);
+    const realProjectPath = await getRealPathFromSession(projectPath);
 
-    if (!repoPath) {
-      return res.status(404).json({ error: 'Repository path not found' });
+    if (!realProjectPath) {
+      return res.status(404).json({ error: 'Project path not found' });
     }
 
-    const fullPath = path.resolve(repoPath, folderPath.startsWith('/') ? folderPath.slice(1) : folderPath);
+    const fullPath = path.resolve(realProjectPath, folderPath.startsWith('/') ? folderPath.slice(1) : folderPath);
 
-    if (!fullPath.startsWith(repoPath)) {
+    if (!fullPath.startsWith(realProjectPath)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 

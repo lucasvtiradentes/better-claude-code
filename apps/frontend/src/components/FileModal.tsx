@@ -3,7 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 type FileModalProps = {
-  repoId: string;
+  projectId: string;
   sessionId: string;
   filePath: string;
   onClose: () => void;
@@ -65,7 +65,7 @@ const getLanguageFromPath = (path: string): string => {
   return langMap[ext || ''] || 'text';
 };
 
-export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalProps) => {
+export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModalProps) => {
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +100,7 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
         const { cleanPath, startLine, endLine } = parseFilePath(filePath);
 
         const res = await fetch(
-          `/api/sessions/${encodeURIComponent(repoId)}/${sessionId}/file?path=${encodeURIComponent(cleanPath)}`
+          `/api/sessions/${encodeURIComponent(projectId)}/${sessionId}/file?path=${encodeURIComponent(cleanPath)}`
         );
         if (!res.ok) {
           throw new Error('Failed to load file');
@@ -147,7 +147,7 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
     };
 
     fetchContent();
-  }, [repoId, sessionId, filePath]);
+  }, [projectId, sessionId, filePath]);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

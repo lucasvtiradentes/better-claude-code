@@ -7,7 +7,7 @@ type FolderEntry = {
 };
 
 type FolderModalProps = {
-  repoId: string;
+  projectId: string;
   sessionId: string;
   folderPath: string;
   onClose: () => void;
@@ -15,7 +15,7 @@ type FolderModalProps = {
   onFolderClick: (folderPath: string) => void;
 };
 
-export const FolderModal = ({ repoId, sessionId, folderPath, onClose, onFileClick }: FolderModalProps) => {
+export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileClick }: FolderModalProps) => {
   const [entries, setEntries] = useState<FolderEntry[]>([]);
   const [previousEntries, setPreviousEntries] = useState<FolderEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ export const FolderModal = ({ repoId, sessionId, folderPath, onClose, onFileClic
           return currentEntries;
         });
         const res = await fetch(
-          `/api/sessions/${encodeURIComponent(repoId)}/${sessionId}/folder?path=${encodeURIComponent(path)}`
+          `/api/sessions/${encodeURIComponent(projectId)}/${sessionId}/folder?path=${encodeURIComponent(path)}`
         );
         if (!res.ok) {
           throw new Error('Failed to load folder');
@@ -51,7 +51,7 @@ export const FolderModal = ({ repoId, sessionId, folderPath, onClose, onFileClic
     };
 
     fetchFolderContents(currentPath);
-  }, [currentPath, repoId, sessionId]);
+  }, [currentPath, projectId, sessionId]);
 
   const handleBack = useCallback(() => {
     if (pathHistory.length > 1) {

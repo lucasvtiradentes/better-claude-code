@@ -8,7 +8,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { path: '/', icon: '🏠', label: 'Home' },
-  { path: '/repositories', icon: '📁', label: 'Repositories' },
+  { path: '/projects', icon: '📁', label: 'Projects' },
   { path: '/settings', icon: '⚙️', label: 'Settings' }
 ];
 
