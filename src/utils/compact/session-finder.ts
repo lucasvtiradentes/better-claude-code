@@ -149,6 +149,10 @@ export async function findSessions(limit?: number): Promise<SessionInfo[]> {
       } catch {}
     }
 
+    if (title.startsWith('CLAUDE_CODE_SESSION_COMPACTION_ID')) {
+      continue;
+    }
+
     sessions.push({
       id,
       file,

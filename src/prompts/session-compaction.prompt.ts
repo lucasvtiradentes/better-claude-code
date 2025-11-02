@@ -4,8 +4,10 @@ interface SessionCompactionPromptParams {
   cleanupId: string;
 }
 
+const CLAUDE_CODE_SESSION_COMPACTION_ID="CLAUDE_CODE_SESSION_COMPACTION_ID"
+
 export function buildSessionCompactionPrompt(params: SessionCompactionPromptParams): string {
-  return `CLAUDE_CODE_SESSION_COMPACTION_ID: ${params.cleanupId}
+  return `${CLAUDE_CODE_SESSION_COMPACTION_ID}: ${params.cleanupId}
 
 You are analyzing a parsed Claude Code session to extract important information.
 
