@@ -1,5 +1,14 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-background: #1e1e1e;
+  --color-surface: #252526;
+  --color-border: #3e3e42;
+  --color-text-primary: #cccccc;
+  --color-text-secondary: #858585;
+  --color-text-accent: #4fc1ff;
+}
+
 * {
   margin: 0;
   padding: 0;
