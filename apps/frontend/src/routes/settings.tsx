@@ -8,9 +8,7 @@ export const Route = createFileRoute('/settings')({
 function SettingsComponent() {
   return (
     <Layout>
-      <div className="p-4 border-b border-border font-semibold text-sm flex items-center justify-between">
-        Settings
-      </div>
+      <div className="p-4 border-b border-border font-semibold text-sm flex items-center justify-between">Settings</div>
       <div className="flex-1 overflow-y-auto p-4">
         <div className="max-w-[600px]">
           <div className="mb-8">

@@ -102,7 +102,7 @@ export const SettingsTab = () => {
         />
 
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold">Filters</h3>
+          <h3 className="text-sm font-semibold text-foreground">Filters</h3>
 
           <FormField
             control={form.control}
@@ -150,7 +150,7 @@ export const SettingsTab = () => {
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold">Display Options</h3>
+          <h3 className="text-sm font-semibold text-foreground">Display Options</h3>
 
           <FormField
             control={form.control}

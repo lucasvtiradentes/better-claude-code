@@ -118,10 +118,10 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
   return (
     <button
       type="button"
-      className="fixed inset-0 bg-background/95 flex items-center justify-center z-50 p-4 border-0"
+      className="fixed inset-0 bg-overlay/50 flex items-center justify-center z-50 p-4 border-0"
       onClick={handleBackdropClick}
     >
-      <div className="bg-card rounded-lg max-w-4xl w-full h-[600px] flex flex-col overflow-hidden shadow-2xl">
+      <div className="bg-modal rounded-lg max-w-4xl w-full h-[600px] flex flex-col overflow-hidden shadow-2xl">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {pathHistory.length > 1 && (
@@ -165,7 +165,7 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
                   key={entry.path}
                   type="button"
                   onClick={() => handleEntryClick(entry)}
-                  className="w-full text-left px-3 py-2 rounded hover:bg-accent transition-colors flex items-center gap-2 group"
+                  className="w-full text-left px-3 py-2 rounded transition-colors flex items-center gap-2 group"
                   disabled={loading}
                 >
                   <span className="text-lg">{entry.type === 'directory' ? '📁' : getFileIcon(entry.name)}</span>

@@ -104,7 +104,7 @@ export const LabelsTab = () => {
             ) : (
               <>
                 <div className="w-6 h-6 rounded" style={{ backgroundColor: label.color }} />
-                <span className="flex-1 text-sm">{label.name}</span>
+                <span className="flex-1 text-sm text-foreground">{label.name}</span>
                 <Button
                   type="button"
                   size="icon"

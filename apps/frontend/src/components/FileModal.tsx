@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { prism, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 type FileModalProps = {
   projectId: string;
@@ -69,6 +69,7 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isDarkMode = document.documentElement.classList.contains('dark');
   const [copied, setCopied] = useState(false);
   const [highlightLines, setHighlightLines] = useState<number[]>([]);
   const [displayContent, setDisplayContent] = useState<string>('');
@@ -227,10 +228,10 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
   return (
     <button
       type="button"
-      className="fixed inset-0 bg-background/95 flex items-center justify-center z-[60] p-4 border-0"
+      className="fixed inset-0 bg-overlay/50 flex items-center justify-center z-[60] p-4 border-0"
       onClick={handleBackdropClick}
     >
-      <div className="bg-card rounded-lg max-w-6xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <div className="bg-modal rounded-lg max-w-6xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex-1 min-w-0">
             <h2 className="text-base font-semibold text-foreground truncate">{filePath.split('/').pop()}</h2>
@@ -257,7 +258,9 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
         </div>
 
         <div className="flex-1 overflow-auto" ref={contentContainerRef}>
-          {loading && <div className="flex items-center justify-center h-full text-muted-foreground">Loading file...</div>}
+          {loading && (
+            <div className="flex items-center justify-center h-full text-muted-foreground">Loading file...</div>
+          )}
           {error && (
             <div className="flex items-center justify-center h-full">
               <p className="text-destructive">{error}</p>
@@ -266,7 +269,7 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
           {!loading && !error && (
             <>
               {hasTopRemaining && (
-                <div className="sticky top-0 z-10 bg-card border-b border-border px-4 py-2 flex justify-center">
+                <div className="sticky top-0 z-10 bg-modal border-b border-border px-4 py-2 flex justify-center">
                   <button
                     type="button"
                     onClick={() => setShowTopRemaining(!showTopRemaining)}
@@ -278,7 +281,7 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
               )}
               <SyntaxHighlighter
                 language={getLanguageFromPath(filePath.split('#')[0])}
-                style={vscDarkPlus}
+                style={isDarkMode ? vscDarkPlus : prism}
                 showLineNumbers
                 startingLineNumber={getStartingLineNumber()}
                 wrapLines={highlightLines.length > 0}
@@ -295,7 +298,7 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
                 customStyle={{
                   margin: 0,
                   borderRadius: 0,
-                  background: 'hsl(var(--card))',
+                  background: 'hsl(var(--modal))',
                   fontSize: '13px',
                   lineHeight: '1.5',
                   userSelect: 'text'
@@ -309,7 +312,7 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
                 {getFullDisplayContent()}
               </SyntaxHighlighter>
               {hasBottomRemaining && (
-                <div className="sticky bottom-0 z-10 bg-card border-t border-border px-4 py-2 flex justify-center">
+                <div className="sticky bottom-0 z-10 bg-modal border-t border-border px-4 py-2 flex justify-center">
                   <button
                     type="button"
                     onClick={() => setShowBottomRemaining(!showBottomRemaining)}

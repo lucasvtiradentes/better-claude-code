@@ -1,4 +1,5 @@
 import type { Message } from '@bcc/shared';
+import { MESSAGE_COLORS } from '@/lib/message-colors';
 
 type SessionMessageProps = {
   message: Message;
@@ -71,10 +72,7 @@ function formatMessage(text: string): { html: string; imageRefs: Array<{ placeho
       `[Tool: ${tool}] <span class="text-primary font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">${escapeHtml(filePath)}</span>`
   );
 
-  formatted = formatted.replace(
-    /pattern: "([^"]+)"/g,
-    'pattern: "<span class="text-primary font-semibold">$1</span>"'
-  );
+  formatted = formatted.replace(/pattern: "([^"]+)"/g, 'pattern: "<span class="text-primary font-semibold">$1</span>"');
 
   formatted = formatted.replace(
     /path: (\/[^\s<>,]+)/g,
@@ -140,7 +138,7 @@ export const SessionMessage = ({ message, onImageClick, onPathClick }: SessionMe
             (content, { placeholder, index }) =>
               content.replace(
                 placeholder,
-                `<span data-image-index="${index}" class="inline-block text-sm px-2 py-1 bg-chart-4/20 text-chart-4 rounded border border-chart-4/30 hover:bg-chart-4/30 transition-colors font-semibold cursor-pointer">[Image #${index}]</span>`
+                `<span data-image-index="${index}" class="inline-block text-sm px-2 py-1 rounded border transition-colors font-semibold cursor-pointer ${MESSAGE_COLORS.IMAGE_TAG}">[Image #${index}]</span>`
               ),
             html
           )

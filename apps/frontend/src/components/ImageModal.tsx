@@ -27,7 +27,7 @@ export const ImageModal = ({ images, currentIndex, onClose, onNext, onPrev }: Im
 
   return (
     <div
-      className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center"
+      className="fixed inset-0 bg-overlay/90 z-[9999] flex items-center justify-center"
       onClick={onClose}
       onKeyDown={(e) => e.key === 'Escape' && onClose()}
       role="dialog"
@@ -39,16 +39,13 @@ export const ImageModal = ({ images, currentIndex, onClose, onNext, onPrev }: Im
           e.stopPropagation();
           onClose();
         }}
-        className="absolute top-5 right-9 text-[#f1f1f1] text-[40px] font-bold cursor-pointer z-[10000] hover:text-[#bbb] transition-colors"
+        className="absolute top-5 right-9 text-foreground text-[40px] font-bold cursor-pointer z-[10000] hover:text-muted-foreground transition-colors"
         aria-label="Close modal"
       >
         ×
       </button>
 
-      <div
-        className="absolute top-5 left-1/2 -translate-x-1/2 text-[#f1f1f1] text-lg font-semibold z-[10000]"
-        style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)' }}
-      >
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 text-foreground text-lg font-semibold z-[10000]">
         {currentImageIndex + 1} / {images.length}
       </div>
 
@@ -60,7 +57,7 @@ export const ImageModal = ({ images, currentIndex, onClose, onNext, onPrev }: Im
               e.stopPropagation();
               onPrev();
             }}
-            className="absolute left-5 top-1/2 -translate-y-1/2 bg-white/20 text-white border-0 text-[30px] px-[15px] py-5 cursor-pointer rounded transition-all z-[10000] hover:bg-white/40"
+            className="absolute left-5 top-1/2 -translate-y-1/2 bg-primary/20 text-foreground border-0 text-[30px] px-[15px] py-5 cursor-pointer rounded transition-all z-[10000] hover:bg-primary/40"
             aria-label="Previous image"
           >
             &#10094;
@@ -71,7 +68,7 @@ export const ImageModal = ({ images, currentIndex, onClose, onNext, onPrev }: Im
               e.stopPropagation();
               onNext();
             }}
-            className="absolute right-5 top-1/2 -translate-y-1/2 bg-white/20 text-white border-0 text-[30px] px-[15px] py-5 cursor-pointer rounded transition-all z-[10000] hover:bg-white/40"
+            className="absolute right-5 top-1/2 -translate-y-1/2 bg-primary/20 text-foreground border-0 text-[30px] px-[15px] py-5 cursor-pointer rounded transition-all z-[10000] hover:bg-primary/40"
             aria-label="Next image"
           >
             &#10095;

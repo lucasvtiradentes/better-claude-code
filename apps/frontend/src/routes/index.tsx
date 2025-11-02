@@ -14,9 +14,7 @@ function DashboardComponent() {
 
   return (
     <Layout>
-      <div className="p-4 border-b border-border font-semibold text-sm flex items-center justify-between">
-        Welcome
-      </div>
+      <div className="p-4 border-b border-border font-semibold text-sm flex items-center justify-between">Welcome</div>
       <div className="flex-1 overflow-y-auto p-4">
         {error ? (
           <div className="flex items-center justify-center h-full">
