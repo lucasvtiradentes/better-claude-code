@@ -30,6 +30,44 @@ function extractTextContent(content: any): string {
     for (const item of content) {
       if (item.type === 'text' && item.text) {
         textParts.push(item.text);
+      } else if (item.type === 'tool_use') {
+        const toolName = item.name;
+        const input = item.input || {};
+        let toolInfo = `[Tool: ${toolName}]`;
+
+        if (toolName === 'Edit' || toolName === 'Read' || toolName === 'Write') {
+          if (input.file_path) {
+            toolInfo = `[Tool: ${toolName}] ${input.file_path}`;
+          }
+        } else if (toolName === 'Glob') {
+          const parts = [];
+          if (input.pattern) parts.push(`pattern: "${input.pattern}"`);
+          if (input.path) parts.push(`path: ${input.path}`);
+          if (parts.length > 0) {
+            toolInfo = `[Tool: ${toolName}] ${parts.join(', ')}`;
+          }
+        } else if (toolName === 'Grep') {
+          const parts = [];
+          if (input.pattern) parts.push(`pattern: "${input.pattern}"`);
+          if (input.path) parts.push(`path: ${input.path}`);
+          if (parts.length > 0) {
+            toolInfo = `[Tool: ${toolName}] ${parts.join(', ')}`;
+          }
+        } else if (toolName === 'Task') {
+          if (input.description) {
+            toolInfo = `[Tool: ${toolName}] ${input.description}`;
+          }
+        } else if (toolName === 'WebSearch') {
+          if (input.query) {
+            toolInfo = `[Tool: ${toolName}] "${input.query}"`;
+          }
+        } else if (toolName === 'Bash') {
+          if (input.description) {
+            toolInfo = `[Tool: ${toolName}] ${input.description}`;
+          }
+        }
+
+        textParts.push(toolInfo);
       }
     }
     return textParts.join('\n');
@@ -129,24 +167,41 @@ sessionsRouter.get('/:repoName/:sessionId', async (req, res) => {
     const lines = content.trim().split('\n').filter(Boolean);
     const events = lines.map((line) => JSON.parse(line));
 
-    const messages: Message[] = events
-      .filter((e: any) => e.type === 'user' || e.type === 'assistant')
-      .filter((e: any) => {
-        const messageContent = e.message?.content || e.content;
-        if (typeof messageContent === 'string') {
-          return messageContent !== 'Warmup';
-        }
-        return true;
-      })
-      .map((e: any) => ({
-        type: e.type,
-        content: e.message?.content || e.content,
-        timestamp: e.timestamp,
-        model: e.message?.model,
-        stop_reason: e.message?.stop_reason
-      }));
+    const messages: Array<{ type: 'user' | 'assistant'; content: string; timestamp?: number }> = [];
 
-    res.json({ messages });
+    for (const event of events) {
+      if (event.type === 'user' || event.type === 'assistant') {
+        const textContent = extractTextContent(event.message?.content || event.content);
+        if (textContent && textContent !== 'Warmup') {
+          messages.push({
+            type: event.type,
+            content: textContent,
+            timestamp: event.timestamp
+          });
+        }
+      }
+    }
+
+    const groupedMessages: Message[] = [];
+    for (const msg of messages) {
+      const lastMsg = groupedMessages[groupedMessages.length - 1];
+      if (lastMsg && lastMsg.type === msg.type) {
+        if (typeof lastMsg.content === 'string' && typeof msg.content === 'string') {
+          lastMsg.content = `${lastMsg.content}\n---\n${msg.content}`;
+        }
+      } else {
+        groupedMessages.push({ ...msg } as Message);
+      }
+    }
+
+    const filteredMessages = groupedMessages.filter((msg) => {
+      if (typeof msg.content === 'string') {
+        return msg.content.trim().length > 0;
+      }
+      return true;
+    });
+
+    res.json({ messages: filteredMessages });
   } catch (_error) {
     res.status(500).json({ error: 'Failed to read session' });
   }

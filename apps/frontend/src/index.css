@@ -23,8 +23,8 @@ code {
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -32,12 +32,12 @@ code {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #424242;
+  background: #D97757;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4e4e4e;
+  background: #e88768;
 }
 
 @keyframes rainbow {

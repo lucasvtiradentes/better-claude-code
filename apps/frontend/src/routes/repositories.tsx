@@ -9,7 +9,7 @@ import { RepositoriesSidebar } from '../components/repositories/RepositoriesSide
 import { SessionMessage } from '../components/sessions/SessionMessage';
 import { SessionsSidebar } from '../components/sessions/SessionsSidebar';
 import { useRepositories } from '../hooks/use-repositories';
-import { groupMessages, useSessionData } from '../hooks/use-session-data';
+import { useSessionData } from '../hooks/use-session-data';
 import { useSessions } from '../hooks/use-sessions';
 import { useFilterStore } from '../stores/filter-store';
 
@@ -24,7 +24,7 @@ export const Route = createFileRoute('/repositories')({
 function RepositoriesComponent() {
   const navigate = useNavigate();
   const { repo: selectedRepo, sessionId } = Route.useSearch();
-  const { showUserMessages, showAssistantMessages } = useFilterStore();
+  const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const [imageModalIndex, setImageModalIndex] = useState<number | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -139,12 +139,41 @@ function RepositoriesComponent() {
   } else if (sessionLoading || !sessionData) {
     content = <div className="flex items-center justify-center h-full text-[#858585]">Loading session...</div>;
   } else {
-    const grouped = groupMessages(sessionData.messages);
-    const filteredGroups = grouped.filter(
-      (group) => (group.type === 'user' && showUserMessages) || (group.type === 'assistant' && showAssistantMessages)
+    let filteredMessages = sessionData.messages.filter(
+      (msg) => (msg.type === 'user' && showUserMessages) || (msg.type === 'assistant' && showAssistantMessages)
     );
 
-    let imageOffset = 0;
+    if (!showToolCalls) {
+      filteredMessages = filteredMessages
+        .map((msg) => {
+          if (typeof msg.content !== 'string') return msg;
+
+          const lines = msg.content.split('\n');
+          const filtered = lines.filter((line) => !line.trim().startsWith('[Tool:'));
+
+          let cleaned = filtered.join('\n');
+
+          while (cleaned.includes('---\n---')) {
+            cleaned = cleaned.replace(/---\n---/g, '---');
+          }
+
+          cleaned = cleaned
+            .split('\n---\n')
+            .filter((part) => part.trim().length > 0)
+            .join('\n---\n')
+            .replace(/^\n*---\n*/g, '')
+            .replace(/\n*---\n*$/g, '')
+            .trim();
+
+          return { ...msg, content: cleaned };
+        })
+        .filter((msg) => {
+          if (typeof msg.content === 'string') {
+            return msg.content.trim().length > 0;
+          }
+          return true;
+        });
+    }
 
     content = (
       <>
@@ -153,26 +182,13 @@ function RepositoriesComponent() {
           <FilterButtons />
         </div>
         <div ref={contentRef} className="flex-1 overflow-y-auto p-4">
-          {filteredGroups.map((group, groupIdx) => (
-            <div key={`${group.type}-${groupIdx}`}>
-              {group.messages.map((message, msgIdx) => {
-                const currentOffset = imageOffset;
-                const content =
-                  typeof message.content === 'string'
-                    ? message.content
-                    : message.content.filter((c) => c.type === 'image').length;
-                if (typeof content === 'number') imageOffset += content;
-
-                return (
-                  <SessionMessage
-                    key={`${group.type}-${groupIdx}-${msgIdx}`}
-                    message={message}
-                    imageOffset={currentOffset}
-                    onImageClick={setImageModalIndex}
-                  />
-                );
-              })}
-            </div>
+          {filteredMessages.map((message, msgIdx) => (
+            <SessionMessage
+              key={`${message.type}-${msgIdx}`}
+              message={message}
+              imageOffset={0}
+              onImageClick={setImageModalIndex}
+            />
           ))}
         </div>
 

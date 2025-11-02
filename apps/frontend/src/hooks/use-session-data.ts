@@ -1,4 +1,4 @@
-import type { Message, SessionData } from '@bcc/shared';
+import type { SessionData } from '@bcc/shared';
 import { useQuery } from '@tanstack/react-query';
 
 const fetchSessionData = async (repoName: string, sessionId: string): Promise<SessionData> => {
@@ -23,25 +23,4 @@ export const useSessionData = (repoName: string, sessionId: string) => {
     queryFn: () => fetchSessionData(repoName, sessionId),
     enabled: !!repoName && !!sessionId
   });
-};
-
-type GroupedMessage = {
-  type: 'user' | 'assistant';
-  messages: Message[];
-};
-
-export const groupMessages = (messages: Message[]): GroupedMessage[] => {
-  const groups: GroupedMessage[] = [];
-  let currentGroup: GroupedMessage | null = null;
-
-  for (const message of messages) {
-    if (!currentGroup || currentGroup.type !== message.type) {
-      currentGroup = { type: message.type, messages: [message] };
-      groups.push(currentGroup);
-    } else {
-      currentGroup.messages.push(message);
-    }
-  }
-
-  return groups;
 };
