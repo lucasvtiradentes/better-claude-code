@@ -2,6 +2,7 @@ import { Router as createRouter, type Router } from 'express';
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
+import { isCompactionSession } from '../utils/session-filter.js';
 
 export const reposRouter: Router = createRouter();
 
@@ -65,9 +66,11 @@ reposRouter.get('/', (_req, res) => {
     const stat = statSync(entryPath);
 
     if (stat.isDirectory()) {
-      const sessions = readdirSync(entryPath).filter((file) => file.endsWith('.jsonl') && !file.startsWith('agent-'));
+      const allSessions = readdirSync(entryPath).filter((file) => file.endsWith('.jsonl') && !file.startsWith('agent-'));
 
-      const lastModified = Math.max(...sessions.map((s) => statSync(join(entryPath, s)).mtimeMs), stat.mtimeMs);
+      const sessions = allSessions.filter((file) => !isCompactionSession(join(entryPath, file)));
+
+      const lastModified = Math.max(...allSessions.map((s) => statSync(join(entryPath, s)).mtimeMs), stat.mtimeMs);
 
       const realPath = getRealPathFromSession(entryPath);
 

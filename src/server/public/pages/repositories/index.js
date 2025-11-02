@@ -267,10 +267,12 @@ export async function renderRepositories() {
     state.repos = data.repos;
 
     if (data.repos.length === 0) {
+      document.getElementById('sidebarHeader').innerHTML = '<span class="sidebar-title">Repositories (0)</span>';
       document.getElementById('sidebarContent').innerHTML = '<div class="empty-state">No repositories found</div>';
       return;
     }
 
+    document.getElementById('sidebarHeader').innerHTML = `<span class="sidebar-title">Repositories (${data.repos.length})</span>`;
     document.getElementById('sidebarContent').innerHTML = renderReposList(state.repos);
   } catch (error) {
     document.getElementById('sidebarContent').innerHTML = '<div class="empty-state">Error loading repos</div>';
@@ -311,10 +313,18 @@ export async function renderSessions(repoId) {
     const data = await res.json();
 
     if (data.sessions.length === 0) {
+      document.getElementById('sidebarHeader').innerHTML = `
+        <span class="back-button" onclick="window.navigateTo('/repositories')">← Back</span>
+        <span class="sidebar-title">${repoName} (0)</span>
+      `;
       document.getElementById('sidebarContent').innerHTML = '<div class="empty-state">No sessions found</div>';
       return;
     }
 
+    document.getElementById('sidebarHeader').innerHTML = `
+      <span class="back-button" onclick="window.navigateTo('/repositories')">← Back</span>
+      <span class="sidebar-title">${repoName} (${data.sessions.length})</span>
+    `;
     document.getElementById('sidebarContent').innerHTML = renderSessionsList(data.sessions);
   } catch (error) {
     document.getElementById('sidebarContent').innerHTML = '<div class="empty-state">Error loading sessions</div>';
@@ -398,10 +408,6 @@ export async function renderSession(repoId, sessionId) {
   const repo = state.repos.find(r => r.id === repoId);
   const repoName = repo ? repo.name : repoId;
 
-  document.getElementById('sidebarHeader').innerHTML = `
-    <span class="back-button" onclick="window.navigateTo('/repositories?repo=${encodeURIComponent(repoId)}')">← Back</span>
-    <span class="sidebar-title">${repoName}</span>
-  `;
   document.getElementById('contentHeader').innerHTML = `
     <span>Session - ${sessionId.slice(-12)}</span>
     <div class="filter-controls">
@@ -437,6 +443,11 @@ export async function renderSession(repoId, sessionId) {
   try {
     const sessionsRes = await fetch(`/api/sessions/${encodeURIComponent(repoId)}`);
     const sessionsData = await sessionsRes.json();
+
+    document.getElementById('sidebarHeader').innerHTML = `
+      <span class="back-button" onclick="window.navigateTo('/repositories')">← Back</span>
+      <span class="sidebar-title">${repoName} (${sessionsData.sessions.length})</span>
+    `;
 
     document.getElementById('sidebarContent').innerHTML = renderSessionsList(sessionsData.sessions, sessionId);
 

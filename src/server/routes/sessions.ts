@@ -2,6 +2,7 @@ import { Router as createRouter, type Router } from 'express';
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
+import { isCompactionSession } from '../utils/session-filter.js';
 
 export const sessionsRouter: Router = createRouter();
 
@@ -125,6 +126,10 @@ sessionsRouter.get('/:repoName', (req, res) => {
   const sessions: SessionListItem[] = [];
 
   for (const { file, id, mtime } of files) {
+    if (isCompactionSession(file)) {
+      continue;
+    }
+
     const content = readFileSync(file, 'utf-8');
     const lines = content.trim().split('\n');
 
@@ -162,10 +167,6 @@ sessionsRouter.get('/:repoName', (req, res) => {
           }
         }
       } catch {}
-    }
-
-    if (title.startsWith('CLAUDE_CODE_SESSION_COMPACTION_ID')) {
-      continue;
     }
 
     sessions.push({
