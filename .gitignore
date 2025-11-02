@@ -1,0 +1,18 @@
+# FOLDERS ======================================================================
+
+node_modules/
+dist/
+.turbo/
+.claude/
+.git/
+docs/
+completions/
+.claude
+.vscode
+.ignore
+
+# FILES ========================================================================
+
+.env.e2e
+CLAUDE.md
+

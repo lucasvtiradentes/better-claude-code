@@ -1,0 +1,59 @@
+{
+  "name": "sheet-cmd",
+  "version": "1.1.5",
+  "packageManager": "pnpm@10.11.0",
+  "description": "A CLI tool to interact with Google Sheets - perfect for LLM integrations",
+  "type": "module",
+  "main": "dist/cli.js",
+  "bin": {
+    "sheet-cmd": "./dist/cli.js",
+    "sheet": "./dist/cli.js"
+  },
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "rimraf ./dist && tsc",
+    "postbuild": "pnpm run update-docs",
+    "update-docs": "tsx scripts/update-docs.ts",
+    "start": "node dist/cli.js",
+    "format": "biome format --write .",
+    "lint": "biome check --write .",
+    "changeset": "changeset",
+    "release": "pnpm run build && changeset publish"
+  },
+  "keywords": [
+    "google-sheets",
+    "llm",
+    "tool",
+    "cli"
+  ],
+  "author": "Lucas Vieira",
+  "license": "MIT",
+  "homepage": "https://github.com/lucasvtiradentes/sheet-cmd#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucasvtiradentes/sheet-cmd.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lucasvtiradentes/sheet-cmd/issues"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
+    "google-auth-library": "^9.14.2",
+    "google-spreadsheet": "^4.1.4",
+    "googleapis": "^164.1.0",
+    "inquirer": "^12.7.0",
+    "zod": "^4.0.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.2",
+    "@changesets/cli": "^2.29.7",
+    "@types/inquirer": "^9.0.8",
+    "@types/node": "^22.18.8",
+    "dotenv": "^17.2.3",
+    "rimraf": "^5.0.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
