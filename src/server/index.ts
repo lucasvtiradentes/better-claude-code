@@ -23,6 +23,14 @@ export function createServer(_port = 3000): Application {
     res.render('index');
   });
 
+  app.get('/repositories', (_req, res) => {
+    res.render('index');
+  });
+
+  app.get('/settings', (_req, res) => {
+    res.render('index');
+  });
+
   return app;
 }
 
