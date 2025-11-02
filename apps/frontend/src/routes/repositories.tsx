@@ -28,7 +28,13 @@ export const Route = createFileRoute('/repositories')({
 
 function RepositoriesComponent() {
   const navigate = useNavigate();
-  const { repo: selectedRepo, sessionId, imageIndex, folderPath: urlFolderPath, filePath: urlFilePath } = Route.useSearch();
+  const {
+    repo: selectedRepo,
+    sessionId,
+    imageIndex,
+    folderPath: urlFolderPath,
+    filePath: urlFilePath
+  } = Route.useSearch();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const [imageModalIndex, setImageModalIndex] = useState<number | null>(null);
   const [fileModalPath, setFileModalPath] = useState<string | null>(null);
@@ -144,7 +150,13 @@ function RepositoriesComponent() {
       onSelectRepo={(repoId) =>
         navigate({
           to: '/repositories',
-          search: { repo: repoId, sessionId: undefined, imageIndex: undefined, folderPath: undefined, filePath: undefined }
+          search: {
+            repo: repoId,
+            sessionId: undefined,
+            imageIndex: undefined,
+            folderPath: undefined,
+            filePath: undefined
+          }
         })
       }
     />
@@ -159,13 +171,25 @@ function RepositoriesComponent() {
       onBack={() =>
         navigate({
           to: '/repositories',
-          search: { repo: undefined, sessionId: undefined, imageIndex: undefined, folderPath: undefined, filePath: undefined }
+          search: {
+            repo: undefined,
+            sessionId: undefined,
+            imageIndex: undefined,
+            folderPath: undefined,
+            filePath: undefined
+          }
         })
       }
       onSelectSession={(sid) =>
         navigate({
           to: '/repositories',
-          search: { repo: selectedRepo, sessionId: sid, imageIndex: undefined, folderPath: undefined, filePath: undefined }
+          search: {
+            repo: selectedRepo,
+            sessionId: sid,
+            imageIndex: undefined,
+            folderPath: undefined,
+            filePath: undefined
+          }
         })
       }
     />

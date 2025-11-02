@@ -29,6 +29,12 @@ export const FolderModal = ({ repoId, sessionId, folderPath, onClose, onFileClic
       try {
         setLoading(true);
         setError(null);
+        setEntries((currentEntries) => {
+          if (currentEntries.length > 0) {
+            setPreviousEntries(currentEntries);
+          }
+          return currentEntries;
+        });
         const res = await fetch(
           `/api/sessions/${encodeURIComponent(repoId)}/${sessionId}/folder?path=${encodeURIComponent(path)}`
         );
@@ -36,7 +42,6 @@ export const FolderModal = ({ repoId, sessionId, folderPath, onClose, onFileClic
           throw new Error('Failed to load folder');
         }
         const data = await res.json();
-        setPreviousEntries(entries);
         setEntries(data.entries);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');

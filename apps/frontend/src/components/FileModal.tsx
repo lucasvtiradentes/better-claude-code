@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -11,6 +11,7 @@ type FileModalProps = {
 
 const CopyIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <title>Copy</title>
     <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
   </svg>
@@ -18,6 +19,7 @@ const CopyIcon = () => (
 
 const CheckIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <title>Copied</title>
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
@@ -66,20 +68,48 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [highlightLines, setHighlightLines] = useState<number[]>([]);
+  const contentContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const parseFilePath = (path: string) => {
+      const match = path.match(/^(.+?)(?:#L(\d+)(?:-(\d+))?)?$/);
+      if (!match) return { cleanPath: path, startLine: null, endLine: null };
+
+      const [, cleanPath, startLine, endLine] = match;
+      return {
+        cleanPath,
+        startLine: startLine ? Number.parseInt(startLine, 10) : null,
+        endLine: endLine ? Number.parseInt(endLine, 10) : null
+      };
+    };
+
     const fetchContent = async () => {
       try {
         setLoading(true);
         setError(null);
+
+        const { cleanPath, startLine, endLine } = parseFilePath(filePath);
+
         const res = await fetch(
-          `/api/sessions/${encodeURIComponent(repoId)}/${sessionId}/file?path=${encodeURIComponent(filePath)}`
+          `/api/sessions/${encodeURIComponent(repoId)}/${sessionId}/file?path=${encodeURIComponent(cleanPath)}`
         );
         if (!res.ok) {
           throw new Error('Failed to load file');
         }
         const data = await res.json();
         setContent(data.content);
+
+        if (startLine) {
+          const lines: number[] = [];
+          const end = endLine || startLine;
+          for (let i = startLine; i <= end; i++) {
+            lines.push(i);
+          }
+          setHighlightLines(lines);
+        } else {
+          setHighlightLines([]);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
@@ -100,6 +130,20 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [onClose]);
+
+  useEffect(() => {
+    if (!loading && !error && highlightLines.length > 0 && contentContainerRef.current) {
+      setTimeout(() => {
+        const firstHighlightedLine = highlightLines[0];
+        const lineHeight = 20;
+        const scrollPosition = (firstHighlightedLine - 3) * lineHeight;
+
+        if (contentContainerRef.current) {
+          contentContainerRef.current.scrollTop = Math.max(0, scrollPosition);
+        }
+      }, 100);
+    }
+  }, [loading, error, highlightLines]);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (e.target === e.currentTarget) {
@@ -149,7 +193,7 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto" ref={contentContainerRef}>
           {loading && <div className="flex items-center justify-center h-full text-[#858585]">Loading file...</div>}
           {error && (
             <div className="flex items-center justify-center h-full">
@@ -158,9 +202,20 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
           )}
           {!loading && !error && (
             <SyntaxHighlighter
-              language={getLanguageFromPath(filePath)}
+              language={getLanguageFromPath(filePath.split('#')[0])}
               style={vscDarkPlus}
               showLineNumbers
+              wrapLines={highlightLines.length > 0}
+              lineNumberStyle={(lineNumber) => {
+                const isHighlighted = highlightLines.includes(lineNumber);
+                return isHighlighted
+                  ? {
+                      backgroundColor: 'rgba(255, 152, 0, 0.3)',
+                      color: '#ff9800',
+                      fontWeight: 'bold'
+                    }
+                  : {};
+              }}
               customStyle={{
                 margin: 0,
                 borderRadius: 0,
