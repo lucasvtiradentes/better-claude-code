@@ -11,10 +11,11 @@ type SessionsResponse = {
   };
 };
 
-const fetchSessions = async (projectName: string, page: number, search: string): Promise<SessionsResponse> => {
+const fetchSessions = async (projectName: string, page: number, search: string, sortBy: string): Promise<SessionsResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
-    limit: '20'
+    limit: '20',
+    sortBy
   });
 
   if (search) {
@@ -28,10 +29,10 @@ const fetchSessions = async (projectName: string, page: number, search: string):
   return response.json();
 };
 
-export const useSessions = (projectName: string, search: string = '') => {
+export const useSessions = (projectName: string, search: string = '', sortBy: string = 'date') => {
   return useInfiniteQuery({
-    queryKey: ['sessions', projectName, search],
-    queryFn: ({ pageParam = 1 }) => fetchSessions(projectName, pageParam, search),
+    queryKey: ['sessions', projectName, search, sortBy],
+    queryFn: ({ pageParam = 1 }) => fetchSessions(projectName, pageParam, search, sortBy),
     enabled: !!projectName,
     getNextPageParam: (lastPage) => {
       if (lastPage.meta.page < lastPage.meta.totalPages) {

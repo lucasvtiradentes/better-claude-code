@@ -14,6 +14,7 @@ import { useScrollPersistence } from '../hooks/use-scroll-persistence';
 import { useSessionData } from '../hooks/use-session-data';
 import { useSessions } from '../hooks/use-sessions';
 import { useFilterStore } from '../stores/filter-store';
+import { useSessionsStore } from '../stores/sessions-store';
 
 export const Route = createFileRoute('/projects')({
   component: ProjectsComponent,
@@ -37,7 +38,10 @@ function ProjectsComponent() {
     search: searchQuery
   } = Route.useSearch();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
+  const { settings } = useSessionsStore();
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const sortBy = settings?.groupBy === 'token-percentage' ? 'token-percentage' : 'date';
 
   const { data: projects, isLoading: projectsLoading, error: projectsError } = useProjects();
   const {
@@ -47,7 +51,7 @@ function ProjectsComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useSessions(selectedProject || '', searchQuery || '');
+  } = useSessions(selectedProject || '', searchQuery || '', sortBy);
   const {
     data: sessionData,
     isLoading: sessionLoading,

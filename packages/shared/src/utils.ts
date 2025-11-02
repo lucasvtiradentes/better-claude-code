@@ -58,7 +58,7 @@ export const SESSION_COUNT_GROUP_LABELS: Record<SessionCountGroup, string> = {
   '500+': '500+ sessions'
 };
 
-export const SESSION_COUNT_GROUP_ORDER: SessionCountGroup[] = ['0-10', '10-50', '50-200', '200-500', '500+'];
+export const SESSION_COUNT_GROUP_ORDER: SessionCountGroup[] = ['500+', '200-500', '50-200', '10-50', '0-10'];
 
 export type TokenPercentageGroup = '0-25' | '25-50' | '50-75' | '75-100';
 
@@ -77,4 +77,4 @@ export const TOKEN_PERCENTAGE_GROUP_LABELS: Record<TokenPercentageGroup, string>
   '75-100': '75-100%'
 };
 
-export const TOKEN_PERCENTAGE_GROUP_ORDER: TokenPercentageGroup[] = ['0-25', '25-50', '50-75', '75-100'];
+export const TOKEN_PERCENTAGE_GROUP_ORDER: TokenPercentageGroup[] = ['75-100', '50-75', '25-50', '0-25'];

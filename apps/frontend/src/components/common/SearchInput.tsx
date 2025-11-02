@@ -48,7 +48,7 @@ export const SearchInput = ({
           placeholder={placeholder}
           value={value}
           onChange={(e) => handleChange(e.target.value)}
-          className="w-70 pl-9 pr-3 py-1.5 bg-background border border-border rounded text-sm focus:outline-none focus:border-primary"
+          className="w-86 pl-9 pr-3 py-1.5 bg-background border border-border rounded text-sm focus:outline-none focus:border-primary"
         />
       </div>
       {value && (

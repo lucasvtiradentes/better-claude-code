@@ -110,6 +110,7 @@ sessionsRouter.get('/:projectName', async (req, res) => {
     const page = Number.parseInt(req.query.page as string, 10) || 1;
     const limit = Number.parseInt(req.query.limit as string, 10) || 20;
     const search = (req.query.search as string) || '';
+    const sortBy = (req.query.sortBy as string) || 'date';
 
     const sessionsPath = path.join(os.homedir(), '.claude', 'projects', projectName);
     const files = await fs.readdir(sessionsPath);
@@ -237,7 +238,15 @@ sessionsRouter.get('/:projectName', async (req, res) => {
       });
     }
 
-    sessions.sort((a, b) => b.createdAt - a.createdAt);
+    if (sortBy === 'token-percentage') {
+      sessions.sort((a, b) => {
+        const aToken = a.tokenPercentage ?? -1;
+        const bToken = b.tokenPercentage ?? -1;
+        return bToken - aToken;
+      });
+    } else {
+      sessions.sort((a, b) => b.createdAt - a.createdAt);
+    }
 
     const totalItems = sessions.length;
     const totalPages = Math.ceil(totalItems / limit);
