@@ -35,7 +35,8 @@ export interface Command {
 export const CommandNames = {
   HELLO: 'hello',
   UPDATE: 'update',
-  COMPLETION: 'completion'
+  COMPLETION: 'completion',
+  COMPACT: 'compact'
 } as const;
 
 export const SubCommandNames = {

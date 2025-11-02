@@ -1,17 +1,15 @@
-import { exec } from 'child_process';
 import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { platform } from 'os';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { promisify } from 'util';
 
 import { createCommandFromSchema } from '../definitions/command-builder.js';
 import { CommandNames } from '../definitions/types.js';
+import { execAsync } from '../utils/exec.js';
 import { Logger } from '../utils/logger.js';
 import { reinstallCompletionSilently } from './completion.js';
 
-const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export function createUpdateCommand(): Command {

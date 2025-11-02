@@ -1,13 +1,13 @@
 import { accessSync, constants, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import chalk from 'chalk';
 import { Command } from 'commander';
 
 import { ConfigManager } from '../config/config-manager.js';
 import { createCommandFromSchema, createSubCommandFromSchema } from '../definitions/command-builder.js';
 import { generateBashCompletion, generateZshCompletion } from '../definitions/generators/completion-generator.js';
 import { CommandNames, SubCommandNames } from '../definitions/types.js';
+import { colors } from '../utils/colors.js';
 import { Logger } from '../utils/logger.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
@@ -97,11 +97,11 @@ async function installZshCompletion(): Promise<void> {
   Logger.success(`Zsh completion installed to ${completionFile}`);
   Logger.info('');
   Logger.info('To activate completion, add this to your ~/.zshrc:');
-  Logger.info(chalk.cyan(`  fpath=(${targetDir} $fpath)`));
-  Logger.info(chalk.cyan('  autoload -U compinit && compinit'));
+  Logger.info(colors.cyan(`  fpath=(${targetDir} $fpath)`));
+  Logger.info(colors.cyan('  autoload -U compinit && compinit'));
   Logger.info('');
   Logger.info('Then restart your shell or run:');
-  Logger.info(chalk.cyan('  source ~/.zshrc'));
+  Logger.info(colors.cyan('  source ~/.zshrc'));
 
   try {
     const zshrc = join(homeDir, '.zshrc');
@@ -149,10 +149,10 @@ async function installBashCompletion(): Promise<void> {
   Logger.success(`Bash completion installed to ${completionFile}`);
   Logger.info('');
   Logger.info('To activate completion, add this to your ~/.bashrc:');
-  Logger.info(chalk.cyan(`  source ${completionFile}`));
+  Logger.info(colors.cyan(`  source ${completionFile}`));
   Logger.info('');
   Logger.info('Then restart your shell or run:');
-  Logger.info(chalk.cyan('  source ~/.bashrc'));
+  Logger.info(colors.cyan('  source ~/.bashrc'));
 }
 
 export async function reinstallCompletionSilently(): Promise<boolean> {

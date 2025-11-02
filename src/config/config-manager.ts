@@ -26,8 +26,9 @@ export class ConfigManager {
 
     try {
       const data = fs.readFileSync(CONFIG_PATHS.defaultConfigFile, 'utf-8');
-      this.config = JSON.parse(data);
-      return this.config!;
+      const parsedConfig: BccConfig = JSON.parse(data);
+      this.config = parsedConfig;
+      return parsedConfig;
     } catch (error) {
       throw new Error(`Failed to load config: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

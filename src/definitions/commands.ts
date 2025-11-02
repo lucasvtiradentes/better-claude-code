@@ -1,3 +1,4 @@
+import { compactCommandDefinition } from './commands/compact.definition.js';
 import { completionCommandDefinition } from './commands/completion.definition.js';
 import { helloCommandDefinition } from './commands/hello.definition.js';
 import { updateCommandDefinition } from './commands/update.definition.js';
@@ -6,7 +7,8 @@ import type { Command, SubCommand } from './types.js';
 export const COMMANDS_SCHEMA: Command[] = [
   helloCommandDefinition,
   updateCommandDefinition,
-  completionCommandDefinition
+  completionCommandDefinition,
+  compactCommandDefinition
 ];
 
 export function getAllCommands(): Command[] {
