@@ -1,5 +1,6 @@
 import type { Session } from '@bcc/shared';
 import { TIME_GROUP_LABELS, TIME_GROUP_ORDER } from '@bcc/shared';
+import { useEffect, useRef } from 'react';
 import { MiddleSidebar } from '../layout/MiddleSidebar';
 import { TimeGroup } from '../TimeGroup';
 import { SessionCard } from './SessionCard';
@@ -11,51 +12,81 @@ type SessionsSidebarProps = {
   error: unknown;
   repoName: string;
   selectedSessionId?: string;
+  totalSessions: number;
+  hasNextPage?: boolean;
+  isFetchingNextPage: boolean;
+  onLoadMore: () => void;
   onBack: () => void;
   onSelectSession: (sessionId: string) => void;
 };
 
 export const SessionsSidebar = ({
-  sessions,
   groupedSessions,
   isLoading,
   error,
   repoName,
   selectedSessionId,
+  totalSessions,
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
   onBack,
   onSelectSession
 }: SessionsSidebarProps) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+
+      if (isNearBottom && hasNextPage && !isFetchingNextPage) {
+        onLoadMore();
+      }
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll);
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, [hasNextPage, isFetchingNextPage, onLoadMore]);
+
   return (
     <MiddleSidebar
-      title={`${repoName} (${sessions?.length || 0})`}
+      title={`${repoName} (${totalSessions})`}
       backButton={{
         label: '← Back',
         onClick: onBack
       }}
+      scrollRef={scrollRef}
     >
       {error ? (
         <div className="p-4 text-red-500">Failed to load sessions</div>
       ) : isLoading ? (
         <div className="p-4 text-[#858585]">Loading sessions...</div>
       ) : (
-        TIME_GROUP_ORDER.map((timeGroup) => {
-          const groupSessions = groupedSessions?.[timeGroup];
-          if (!groupSessions?.length) return null;
+        <>
+          {TIME_GROUP_ORDER.map((timeGroup) => {
+            const groupSessions = groupedSessions?.[timeGroup];
+            if (!groupSessions?.length) return null;
 
-          return (
-            <TimeGroup key={timeGroup} label={TIME_GROUP_LABELS[timeGroup]} groupKey={timeGroup}>
-              {groupSessions.map((session) => (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  repoName={repoName}
-                  isActive={session.id === selectedSessionId}
-                  onClick={() => onSelectSession(session.id)}
-                />
-              ))}
-            </TimeGroup>
-          );
-        })
+            return (
+              <TimeGroup key={timeGroup} label={TIME_GROUP_LABELS[timeGroup]} groupKey={timeGroup}>
+                {groupSessions.map((session) => (
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    repoName={repoName}
+                    isActive={session.id === selectedSessionId}
+                    onClick={() => onSelectSession(session.id)}
+                  />
+                ))}
+              </TimeGroup>
+            );
+          })}
+          {isFetchingNextPage && <div className="p-4 text-center text-[#858585]">Loading more...</div>}
+        </>
       )}
     </MiddleSidebar>
   );

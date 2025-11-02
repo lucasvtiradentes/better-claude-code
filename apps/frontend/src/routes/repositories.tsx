@@ -42,12 +42,22 @@ function RepositoriesComponent() {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const { data: repos, isLoading: reposLoading, error: reposError } = useRepositories();
-  const { data: sessions, isLoading: sessionsLoading, error: sessionsError } = useSessions(selectedRepo || '');
+  const {
+    data: sessionsData,
+    isLoading: sessionsLoading,
+    error: sessionsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useSessions(selectedRepo || '');
   const {
     data: sessionData,
     isLoading: sessionLoading,
     error: sessionError
   } = useSessionData(selectedRepo || '', sessionId || '');
+
+  const sessions = sessionsData?.pages.flatMap((page) => page.items) || [];
+  const totalSessions = sessionsData?.pages[0]?.meta.totalItems || 0;
 
   const selectedRepoData = repos?.find((r) => r.id === selectedRepo);
 
@@ -168,6 +178,10 @@ function RepositoriesComponent() {
       error={sessionsError}
       repoName={selectedRepoData?.name || selectedRepo}
       selectedSessionId={sessionId}
+      totalSessions={totalSessions}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      onLoadMore={() => fetchNextPage()}
       onBack={() =>
         navigate({
           to: '/repositories',

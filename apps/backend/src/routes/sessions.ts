@@ -107,6 +107,9 @@ function extractTextContent(content: any): string {
 sessionsRouter.get('/:repoName', async (req, res) => {
   try {
     const { repoName } = req.params;
+    const page = Number.parseInt(req.query.page as string, 10) || 1;
+    const limit = Number.parseInt(req.query.limit as string, 10) || 20;
+
     const sessionsPath = path.join(os.homedir(), '.claude', 'projects', repoName);
     const files = await fs.readdir(sessionsPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
@@ -180,7 +183,23 @@ sessionsRouter.get('/:repoName', async (req, res) => {
       });
     }
 
-    res.json(sessions);
+    sessions.sort((a, b) => b.createdAt - a.createdAt);
+
+    const totalItems = sessions.length;
+    const totalPages = Math.ceil(totalItems / limit);
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedSessions = sessions.slice(startIndex, endIndex);
+
+    res.json({
+      items: paginatedSessions,
+      meta: {
+        totalItems,
+        totalPages,
+        page,
+        limit
+      }
+    });
   } catch (_error) {
     res.status(500).json({ error: 'Failed to read sessions' });
   }

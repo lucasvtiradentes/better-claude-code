@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 type MiddleSidebarProps = {
   title?: string;
@@ -8,9 +8,10 @@ type MiddleSidebarProps = {
   };
   children: ReactNode;
   hidden?: boolean;
+  scrollRef?: RefObject<HTMLDivElement | null>;
 };
 
-export const MiddleSidebar = ({ title, backButton, children, hidden = false }: MiddleSidebarProps) => {
+export const MiddleSidebar = ({ title, backButton, children, hidden = false, scrollRef }: MiddleSidebarProps) => {
   if (hidden) {
     return null;
   }
@@ -31,7 +32,9 @@ export const MiddleSidebar = ({ title, backButton, children, hidden = false }: M
           {title && <span className="font-semibold text-sm text-[#cccccc]">{title}</span>}
         </div>
       )}
-      <div className="flex-1 overflow-y-auto">{children}</div>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+        {children}
+      </div>
     </aside>
   );
 };
