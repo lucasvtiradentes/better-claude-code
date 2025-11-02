@@ -3,8 +3,10 @@ import { homedir } from 'os';
 import { join } from 'path';
 
 import { ConfigManager } from '../../config/config-manager.js';
-import { MessageCountMode } from '../../config/types.js';
+import { MessageCountMode, TitleMessage } from '../../config/types.js';
 import { getGitRepoRoot } from '../git.js';
+
+const MAX_TITLE_LENGTH = 80;
 
 export interface SessionInfo {
   id: string;
@@ -86,7 +88,7 @@ function countMessages(lines: string[], mode: MessageCountMode): { userCount: nu
   }
 }
 
-export async function findSessions(limit?: number): Promise<SessionInfo[]> {
+export async function findSessions(limit?: number, useLastMessage?: boolean): Promise<SessionInfo[]> {
   const projectDir = await getProjectDir();
 
   if (!existsSync(projectDir)) {
@@ -95,6 +97,7 @@ export async function findSessions(limit?: number): Promise<SessionInfo[]> {
 
   const configManager = new ConfigManager();
   const countMode = configManager.getMessageCountMode();
+  const titleMode = useLastMessage ? TitleMessage.LAST_CC_MESSAGE : TitleMessage.FIRST_USER_MESSAGE;
 
   const files = readdirSync(projectDir)
     .filter((file) => file.endsWith('.jsonl') && !file.startsWith('agent-'))
@@ -134,23 +137,44 @@ export async function findSessions(limit?: number): Promise<SessionInfo[]> {
       } catch {}
     }
 
-    let title = '';
+    let firstUserMessage = '';
     for (const line of lines) {
       try {
         const parsed = JSON.parse(line);
         if (parsed.type === 'user' && typeof parsed.message?.content === 'string') {
           const content = parsed.message.content;
           if (content && content !== 'Warmup' && !content.includes('Caveat:')) {
-            title = content.replace(/\n/g, ' ').trim().substring(0, 60);
-            if (title.length === 60) title += '...';
+            firstUserMessage = content;
             break;
           }
         }
       } catch {}
     }
 
-    if (title.startsWith('CLAUDE_CODE_SESSION_COMPACTION_ID')) {
+    if (firstUserMessage.startsWith('CLAUDE_CODE_SESSION_COMPACTION_ID')) {
       continue;
+    }
+
+    let title = '';
+    if (titleMode === TitleMessage.LAST_CC_MESSAGE) {
+      for (let j = lines.length - 1; j >= 0; j--) {
+        try {
+          const parsed = JSON.parse(lines[j]);
+          if (parsed.type === 'assistant' && Array.isArray(parsed.message?.content)) {
+            for (const item of parsed.message.content) {
+              if (item.type === 'text' && item.text) {
+                title = item.text.replace(/\n/g, ' ').trim().substring(0, MAX_TITLE_LENGTH);
+                if (title.length === MAX_TITLE_LENGTH) title += '...';
+                break;
+              }
+            }
+            if (title) break;
+          }
+        } catch {}
+      }
+    } else {
+      title = firstUserMessage.replace(/\n/g, ' ').trim().substring(0, MAX_TITLE_LENGTH);
+      if (title.length === MAX_TITLE_LENGTH) title += '...';
     }
 
     sessions.push({

@@ -16,6 +16,7 @@ interface CompactOptions {
   all?: boolean;
   latest?: boolean;
   id?: string;
+  last?: boolean;
 }
 
 export function createCompactCommand(): Command {
@@ -59,10 +60,10 @@ export function createCompactCommand(): Command {
     if (options.id) {
       await compactById(options.id, currentDir);
     } else if (options.latest) {
-      await compactLatest(currentDir);
+      await compactLatest(currentDir, options.last);
     } else {
       const limit = options.all ? undefined : 20;
-      await compactInteractive(limit, currentDir);
+      await compactInteractive(limit, currentDir, options.last);
     }
   };
 
@@ -96,10 +97,10 @@ async function compactById(sessionId: string, repoRoot: string): Promise<void> {
   await performCompaction(session.id, session.file, repoRoot);
 }
 
-async function compactLatest(repoRoot: string): Promise<void> {
+async function compactLatest(repoRoot: string, useLastMessage?: boolean): Promise<void> {
   Logger.loading('Finding latest session...');
 
-  const sessions = await findSessions(1);
+  const sessions = await findSessions(1, useLastMessage);
 
   if (sessions.length === 0) {
     throw new Error('No sessions found');
@@ -116,10 +117,10 @@ async function compactLatest(repoRoot: string): Promise<void> {
   await performCompaction(session.id, session.file, repoRoot);
 }
 
-async function compactInteractive(limit: number | undefined, repoRoot: string): Promise<void> {
+async function compactInteractive(limit: number | undefined, repoRoot: string, useLastMessage?: boolean): Promise<void> {
   Logger.loading('Finding sessions...');
 
-  const sessions = await findSessions(limit);
+  const sessions = await findSessions(limit, useLastMessage);
 
   if (sessions.length === 0) {
     throw new Error('No sessions found');

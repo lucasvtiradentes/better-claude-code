@@ -13,7 +13,6 @@ export const compactCommandDefinition: Command = {
     },
     {
       name: 'latest',
-      alias: 'l',
       description: 'Compact the most recent session',
       type: 'boolean'
     },
@@ -22,12 +21,19 @@ export const compactCommandDefinition: Command = {
       alias: 'i',
       description: 'Compact a specific session by ID',
       type: 'string'
+    },
+    {
+      name: 'last',
+      alias: 'l',
+      description: 'Use last CC message as title instead of first user message',
+      type: 'boolean'
     }
   ],
   examples: [
     `${APP_INFO.name} compact`,
     `${APP_INFO.name} compact --all`,
     `${APP_INFO.name} compact --latest`,
-    `${APP_INFO.name} compact --id a1b2c3d4-e5f6`
+    `${APP_INFO.name} compact --id a1b2c3d4-e5f6`,
+    `${APP_INFO.name} compact --last`
   ]
 };
