@@ -1,8 +1,7 @@
+import { spawn } from 'child_process';
 import { existsSync } from 'fs';
 import { homedir, platform } from 'os';
 import { join } from 'path';
-
-import { execAsync } from './exec.js';
 
 export function getClaudePath(): string {
   const currentPlatform = platform();
@@ -31,7 +30,22 @@ export async function executePromptNonInteractively(prompt: string): Promise<voi
   validateClaudeBinary();
 
   const claudePath = getClaudePath();
-  const escapedPrompt = prompt.replace(/"/g, '\\"');
 
-  await execAsync(`"${claudePath}" --dangerously-skip-permissions -p "${escapedPrompt}"`);
+  return new Promise((resolve, reject) => {
+    const child = spawn(claudePath, ['--dangerously-skip-permissions', '-p', prompt], {
+      stdio: 'inherit'
+    });
+
+    child.on('exit', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Claude Code exited with code ${code}`));
+      }
+    });
+
+    child.on('error', (err) => {
+      reject(err);
+    });
+  });
 }

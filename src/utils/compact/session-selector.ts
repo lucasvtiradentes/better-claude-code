@@ -17,7 +17,20 @@ export function displaySessions(sessions: SessionInfo[]): void {
   console.log('');
   sessions.forEach((session, index) => {
     const timeAgo = formatTimeAgo(session.timestamp);
-    const line = `${colors.dim(`${index + 1})`.padStart(3))} ${colors.cyan(session.shortId)} · ${timeAgo.padStart(8)} · ${session.userCount.toString().padStart(3)} you · ${session.assistantCount.toString().padStart(3)} cc · ${session.title}`;
+
+    let tokenDisplay = '';
+    if (session.tokenPercentage !== undefined) {
+      const pct = session.tokenPercentage;
+      if (pct >= 90) {
+        tokenDisplay = ` · ${colors.magenta(`${pct}%`)}`;
+      } else if (pct >= 80) {
+        tokenDisplay = ` · ${colors.yellow(`${pct}%`)}`;
+      } else {
+        tokenDisplay = ` · ${pct}%`;
+      }
+    }
+
+    const line = `${colors.dim(`${index + 1})`.padStart(3))} ${colors.cyan(session.shortId)} · ${timeAgo.padStart(8)} · ${session.userCount.toString().padStart(3)} you · ${session.assistantCount.toString().padStart(3)} cc${tokenDisplay} · ${session.title}`;
     console.log(line);
   });
   console.log('');

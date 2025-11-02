@@ -5,6 +5,7 @@ export const colors = {
   green: (text: string) => chalk.green(text),
   blue: (text: string) => chalk.blue(text),
   yellow: (text: string) => chalk.yellow(text),
+  magenta: (text: string) => chalk.magenta(text),
   cyan: (text: string) => chalk.cyan(text),
   gray: (text: string) => chalk.gray(text),
   white: (text: string) => chalk.white(text),
