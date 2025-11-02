@@ -1,18 +1,21 @@
 #!/usr/bin/env tsx
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { APP_INFO } from '../src/config/constants.js';
 import { COMMANDS_SCHEMA } from '../src/definitions/commands.js';
 import { generateBashCompletion, generateZshCompletion } from '../src/definitions/generators/completion-generator.js';
 import { generateHelp } from '../src/definitions/generators/help-generator.js';
 import { generateReadmeSections } from '../src/definitions/generators/readme-generator.js';
-import { APP_INFO } from '../src/config/constants.js';
 
-const ROOT_DIR = process.cwd();
-const README_PATH = join(ROOT_DIR, 'README.md');
-const COMPLETIONS_DIR = join(ROOT_DIR, 'completions');
-const HELP_FILE = join(ROOT_DIR, 'docs', 'help.txt');
-const COMPLETION_FILE = `_${APP_INFO.name}`
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CLI_DIR = join(__dirname, '..');
+const MONOREPO_ROOT = join(CLI_DIR, '..', '..');
+const README_PATH = join(MONOREPO_ROOT, 'README.md');
+const COMPLETIONS_DIR = join(CLI_DIR, 'completions');
+const HELP_FILE = join(CLI_DIR, 'docs', 'help.txt');
+const COMPLETION_FILE = `_${APP_INFO.name}`;
 
 function validateSchema(): boolean {
   console.log('🔍 Validating commands schema...\n');
@@ -101,7 +104,7 @@ function generateCompletionScripts(): void {
 function generateHelpText(): void {
   console.log('📝 Generating help text...\n');
 
-  const docsDir = join(ROOT_DIR, 'docs');
+  const docsDir = join(CLI_DIR, 'docs');
   if (!existsSync(docsDir)) {
     mkdirSync(docsDir, { recursive: true });
   }

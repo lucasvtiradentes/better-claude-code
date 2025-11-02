@@ -182,7 +182,7 @@ sessionsRouter.get('/:repoName', (req, res) => {
             }
 
             if (title.length > 80) {
-              title = title.substring(0, 80) + '...';
+              title = `${title.substring(0, 80)}...`;
             }
             break;
           }

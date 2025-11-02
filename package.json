@@ -1,55 +1,22 @@
 {
-  "name": "bcc",
+  "name": "bcc-monorepo",
   "version": "0.1.0",
+  "private": true,
   "packageManager": "pnpm@10.20.0",
-  "description": "Better Claude Code - CLI auxiliary tools for Claude Code",
-  "type": "module",
-  "main": "dist/cli.js",
-  "bin": {
-    "bcc": "./dist/cli.js"
-  },
   "scripts": {
-    "dev": "tsx src/cli.ts",
-    "typecheck": "tsc --noEmit",
-    "build": "rimraf ./dist && tsc",
-    "postbuild": "pnpm run update-docs",
-    "update-docs": "tsx scripts/update-docs.ts",
-    "start": "node dist/cli.js",
+    "dev": "pnpm --filter @bcc/cli dev",
+    "dev:backend": "pnpm --filter @bcc/backend dev",
+    "dev:frontend": "pnpm --filter @bcc/frontend dev",
+    "build": "pnpm -r build",
+    "build:cli": "pnpm --filter @bcc/cli build",
+    "build:backend": "pnpm --filter @bcc/backend build",
+    "build:frontend": "pnpm --filter @bcc/frontend build",
+    "typecheck": "pnpm -r typecheck",
     "format": "biome format --write .",
-    "lint": "biome check --write .",
-    "changeset": "changeset",
-    "release": "pnpm run build && changeset publish"
-  },
-  "keywords": [
-    "claude-code",
-    "cli",
-    "tools",
-    "productivity"
-  ],
-  "author": "Lucas Vieira",
-  "license": "MIT",
-  "homepage": "https://github.com/lucasvtiradentes/bcc#readme",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lucasvtiradentes/bcc.git"
-  },
-  "bugs": {
-    "url": "https://github.com/lucasvtiradentes/bcc/issues"
-  },
-  "dependencies": {
-    "chalk": "^5.4.1",
-    "commander": "^14.0.0",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0"
+    "lint": "biome check --write ."
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.2",
-    "@changesets/cli": "^2.29.7",
-    "@types/ejs": "^3.1.5",
-    "@types/express": "^5.0.5",
-    "@types/node": "^22.18.8",
-    "rimraf": "^5.0.5",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "@changesets/cli": "^2.29.7"
   }
 }

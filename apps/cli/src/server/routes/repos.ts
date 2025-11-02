@@ -66,7 +66,9 @@ reposRouter.get('/', (_req, res) => {
     const stat = statSync(entryPath);
 
     if (stat.isDirectory()) {
-      const allSessions = readdirSync(entryPath).filter((file) => file.endsWith('.jsonl') && !file.startsWith('agent-'));
+      const allSessions = readdirSync(entryPath).filter(
+        (file) => file.endsWith('.jsonl') && !file.startsWith('agent-')
+      );
 
       const sessions = allSessions.filter((file) => !isCompactionSession(join(entryPath, file)));
 
