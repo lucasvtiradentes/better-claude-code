@@ -13,16 +13,11 @@ const SETTINGS_PATH = path.join(os.homedir(), '.config', 'bcc', 'settings.json')
 const DEFAULT_SETTINGS: AppSettings = {
   projects: {
     groupBy: 'date',
-    filters: {
-      showOnlyGitProjects: false,
-      selectedLabels: []
-    },
+    filters: {},
     display: {
       showSessionCount: true,
       showCurrentBranch: true,
-      showActionButtons: true,
-      showProjectLabel: true,
-      showPathInCards: true
+      showActionButtons: true
     },
     search: '',
     labels: [

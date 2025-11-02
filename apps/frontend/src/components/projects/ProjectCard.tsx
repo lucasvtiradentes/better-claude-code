@@ -1,5 +1,5 @@
-import type { Project, ProjectLabel } from '@bcc/shared';
-import { Code, FolderOpen, GitBranch, Github, Terminal } from 'lucide-react';
+import type { Project } from '@bcc/shared';
+import { Code, FolderOpen, Github, Terminal } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
 type ProjectCardProps = {
@@ -7,14 +7,11 @@ type ProjectCardProps = {
   onClick: () => void;
   isActive?: boolean;
   className?: string;
-  labels?: ProjectLabel[];
   displaySettings?: {
     showSessionCount: boolean;
     showCurrentBranch: boolean;
     showActionButtons: boolean;
-    showProjectLabel: boolean;
   };
-  showPathInCards?: boolean;
 };
 
 export const ProjectCard = ({
@@ -22,14 +19,11 @@ export const ProjectCard = ({
   onClick,
   isActive,
   className,
-  labels = [],
   displaySettings = {
     showSessionCount: true,
     showCurrentBranch: true,
-    showActionButtons: true,
-    showProjectLabel: true
-  },
-  showPathInCards = true
+    showActionButtons: true
+  }
 }: ProjectCardProps) => {
   const handleGitHubClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -49,15 +43,11 @@ export const ProjectCard = ({
     }
   };
 
-  const projectLabels = labels.filter((l) => project.labels?.includes(l.id));
-  const displayedLabels = projectLabels.slice(0, 2);
-  const remainingCount = projectLabels.length - 2;
-
   return (
     <button
       type="button"
       onClick={onClick}
-      title={showPathInCards ? project.path : undefined}
+      title={project.path}
       className={twMerge(
         className,
         `w-full text-left px-4 py-3 cursor-pointer border-b border-border transition-all duration-100 hover:bg-accent`,
@@ -66,55 +56,31 @@ export const ProjectCard = ({
     >
       <div className="flex items-center justify-between gap-2 mb-2">
         <div className="text-sm font-semibold break-words line-clamp-1">{project.name}</div>
-        {displaySettings.showCurrentBranch && project.isGitRepo && project.currentBranch && (
+        {displaySettings.showCurrentBranch && project.currentBranch && (
           <div className="text-[10px] text-muted-foreground flex items-center gap-1 flex-shrink-0">
-            <GitBranch size={10} />
             <span>{project.currentBranch}</span>
           </div>
         )}
       </div>
 
-      {displaySettings.showProjectLabel && projectLabels.length > 0 && (
-        <div className="flex items-center gap-1 mb-2 flex-wrap">
-          {displayedLabels.map((label) => (
-            <span
-              key={label.id}
-              className="text-[10px] px-2 py-0.5 rounded"
-              style={{ backgroundColor: `${label.color}33`, color: label.color }}
-            >
-              {label.name}
-            </span>
-          ))}
-          {remainingCount > 0 && <span className="text-[10px] text-muted-foreground">+{remainingCount} more</span>}
-        </div>
-      )}
-
-      {showPathInCards && (
-        <div className="text-[10px] text-muted-foreground mb-2 truncate">
-          {project.path}
-        </div>
-      )}
-
       <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-        {displaySettings.showSessionCount && <span>{project.sessionsCount} sessions</span>}
+        {displaySettings.showSessionCount ? (
+          <span>{project.sessionsCount} sessions</span>
+        ) : (
+          <span></span>
+        )}
 
         {displaySettings.showActionButtons && (
           <div className="flex items-center gap-1.5">
-            {project.githubUrl ? (
+            {project.githubUrl && (
               <button
                 type="button"
                 onClick={handleGitHubClick}
                 className="hover:text-white transition-colors cursor-pointer"
-                title="This project has a GitHub repository"
+                title="Open GitHub repository"
               >
                 <Github size={16} />
               </button>
-            ) : (
-              project.isGitRepo && (
-                <span className="cursor-default" title="This project is a Git repository">
-                  <GitBranch size={16} />
-                </span>
-              )
             )}
             {project.isGitRepo && (
               <button

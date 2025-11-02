@@ -33,14 +33,6 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
 
     let filtered = projects;
 
-    if (settings.filters.showOnlyGitProjects) {
-      filtered = filtered.filter((p) => p.isGitRepo);
-    }
-
-    if (settings.filters.selectedLabels.length > 0) {
-      filtered = filtered.filter((p) => p.labels?.some((l) => settings.filters.selectedLabels.includes(l)));
-    }
-
     if (settings.search) {
       const searchLower = settings.search.toLowerCase();
       filtered = filtered.filter(
@@ -163,9 +155,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
                   key={project.id}
                   project={project}
                   onClick={() => onSelectProject(project.id)}
-                  labels={settings?.labels || []}
                   displaySettings={settings?.display}
-                  showPathInCards={settings?.display.showPathInCards}
                 />
               ))}
             </TimeGroup>

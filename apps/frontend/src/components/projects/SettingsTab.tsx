@@ -8,12 +8,9 @@ import { useProjectsStore } from '../../stores/projects-store';
 
 type SettingsFormData = {
   groupBy: ProjectsConfig['groupBy'];
-  showOnlyGitProjects: boolean;
-  showPathInCards: boolean;
   showSessionCount: boolean;
   showCurrentBranch: boolean;
   showActionButtons: boolean;
-  showProjectLabel: boolean;
 };
 
 export const SettingsTab = () => {
@@ -22,12 +19,9 @@ export const SettingsTab = () => {
   const form = useForm<SettingsFormData>({
     defaultValues: {
       groupBy: settings?.groupBy || 'date',
-      showOnlyGitProjects: settings?.filters.showOnlyGitProjects || false,
-      showPathInCards: settings?.display.showPathInCards ?? true,
       showSessionCount: settings?.display.showSessionCount ?? true,
       showCurrentBranch: settings?.display.showCurrentBranch ?? true,
-      showActionButtons: settings?.display.showActionButtons ?? true,
-      showProjectLabel: settings?.display.showProjectLabel ?? true
+      showActionButtons: settings?.display.showActionButtons ?? true
     }
   });
 
@@ -35,12 +29,9 @@ export const SettingsTab = () => {
     if (settings) {
       form.reset({
         groupBy: settings.groupBy,
-        showOnlyGitProjects: settings.filters.showOnlyGitProjects,
-        showPathInCards: settings.display.showPathInCards,
         showSessionCount: settings.display.showSessionCount,
         showCurrentBranch: settings.display.showCurrentBranch,
-        showActionButtons: settings.display.showActionButtons,
-        showProjectLabel: settings.display.showProjectLabel
+        showActionButtons: settings.display.showActionButtons
       });
     }
   }, [settings, form]);
@@ -50,13 +41,6 @@ export const SettingsTab = () => {
 
     if (field === 'groupBy') {
       updateSettings({ groupBy: value as ProjectsConfig['groupBy'] });
-    } else if (field === 'showOnlyGitProjects') {
-      updateSettings({
-        filters: {
-          ...settings.filters,
-          [field]: value
-        }
-      });
     } else {
       updateSettings({
         display: {
@@ -72,62 +56,39 @@ export const SettingsTab = () => {
   return (
     <Form {...form}>
       <form className="space-y-6">
-        <FormField
-          control={form.control}
-          name="groupBy"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Group By</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  handleChange('groupBy', value);
-                }}
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select grouping" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="date">Date Range</SelectItem>
-                  <SelectItem value="label">Labels</SelectItem>
-                  <SelectItem value="session-count">Session Count</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>Choose how to group your projects</FormDescription>
-            </FormItem>
-          )}
-        />
-
-        <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-foreground">Filters</h3>
-
-          <FormField
-            control={form.control}
-            name="showOnlyGitProjects"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={(checked) => {
-                      field.onChange(checked);
-                      handleChange('showOnlyGitProjects', checked as boolean);
+        <div className="grid grid-cols-2 gap-8 items-start">
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="groupBy"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Group By</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      handleChange('groupBy', value);
                     }}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Show only git projects</FormLabel>
-                </div>
-              </FormItem>
-            )}
-          />
-        </div>
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select grouping" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="date">Date Range</SelectItem>
+                      <SelectItem value="label">Labels</SelectItem>
+                      <SelectItem value="session-count">Session Count</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+          </div>
 
-        <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-foreground">Display Options</h3>
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-foreground">Display Options</h3>
 
           <FormField
             control={form.control}
@@ -192,47 +153,7 @@ export const SettingsTab = () => {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="showProjectLabel"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={(checked) => {
-                      field.onChange(checked);
-                      handleChange('showProjectLabel', checked as boolean);
-                    }}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Show project labels</FormLabel>
-                </div>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="showPathInCards"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={(checked) => {
-                      field.onChange(checked);
-                      handleChange('showPathInCards', checked as boolean);
-                    }}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Show path in cards</FormLabel>
-                </div>
-              </FormItem>
-            )}
-          />
+          </div>
         </div>
       </form>
     </Form>

@@ -10,7 +10,7 @@ type ProjectSettingsModalProps = {
 export const ProjectSettingsModal = ({ onClose }: ProjectSettingsModalProps) => {
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Project Settings</DialogTitle>
         </DialogHeader>

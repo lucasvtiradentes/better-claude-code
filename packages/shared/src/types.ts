@@ -24,16 +24,11 @@ export type ProjectSettings = {
 
 export type ProjectsConfig = {
   groupBy: 'date' | 'label' | 'session-count';
-  filters: {
-    showOnlyGitProjects: boolean;
-    selectedLabels: string[];
-  };
+  filters: {};
   display: {
     showSessionCount: boolean;
     showCurrentBranch: boolean;
     showActionButtons: boolean;
-    showProjectLabel: boolean;
-    showPathInCards: boolean;
   };
   search: string;
   labels: ProjectLabel[];
