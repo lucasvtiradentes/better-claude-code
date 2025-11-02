@@ -221,5 +221,15 @@ sessionsRouter.get('/:repoName/:sessionId', (req, res) => {
     } catch {}
   }
 
-  res.json({ messages });
+  const groupedMessages: MessageItem[] = [];
+  for (const msg of messages) {
+    const lastMsg = groupedMessages[groupedMessages.length - 1];
+    if (lastMsg && lastMsg.type === msg.type) {
+      lastMsg.content += '\n---\n' + msg.content;
+    } else {
+      groupedMessages.push({ ...msg });
+    }
+  }
+
+  res.json({ messages: groupedMessages });
 });

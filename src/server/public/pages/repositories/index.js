@@ -31,6 +31,8 @@ function formatMessage(text) {
 
   formatted = formatted.replace(/ultrathink/gi, '<span class="rainbow-text">ultrathink</span>');
 
+  formatted = formatted.replace(/\n---\n/g, '<div class="message-separator"></div>');
+
   formatted = formatted.replace(/\n/g, '<br />');
 
   return formatted;
