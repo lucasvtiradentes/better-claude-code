@@ -7,6 +7,34 @@ import { isCompactionSession } from '../utils/session-filter.js';
 
 export const sessionsRouter: RouterType = Router();
 
+async function getRealPathFromSession(folderPath: string): Promise<string | null> {
+  try {
+    const files = await fs.readdir(folderPath);
+    const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
+
+    if (sessionFiles.length === 0) return null;
+
+    const firstSession = path.join(folderPath, sessionFiles[0]);
+    const content = await fs.readFile(firstSession, 'utf-8');
+    const lines = content.split('\n');
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+
+      try {
+        const parsed = JSON.parse(line);
+        if (parsed.cwd) {
+          return parsed.cwd;
+        }
+      } catch {}
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function parseCommandFromContent(content: string): string | null {
   const commandNameMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
   const commandArgsMatch = content.match(/<command-args>([^<]+)<\/command-args>/);
@@ -239,5 +267,75 @@ sessionsRouter.get('/:repoName/:sessionId/images', async (req, res) => {
     res.json(images);
   } catch (_error) {
     res.status(500).json({ error: 'Failed to extract images' });
+  }
+});
+
+sessionsRouter.get('/:repoName/:sessionId/file', async (req, res) => {
+  try {
+    const { repoName } = req.params;
+    const filePath = req.query.path as string;
+
+    if (!filePath) {
+      return res.status(400).json({ error: 'Path parameter is required' });
+    }
+
+    const projectPath = path.join(os.homedir(), '.claude', 'projects', repoName);
+    const repoPath = await getRealPathFromSession(projectPath);
+
+    if (!repoPath) {
+      return res.status(404).json({ error: 'Repository path not found' });
+    }
+
+    const fullPath = path.resolve(repoPath, filePath.startsWith('/') ? filePath.slice(1) : filePath);
+
+    if (!fullPath.startsWith(repoPath)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const content = await fs.readFile(fullPath, 'utf-8');
+    res.json({ content });
+  } catch (_error) {
+    res.status(500).json({ error: 'Failed to read file' });
+  }
+});
+
+sessionsRouter.get('/:repoName/:sessionId/folder', async (req, res) => {
+  try {
+    const { repoName } = req.params;
+    const folderPath = req.query.path as string;
+
+    if (!folderPath) {
+      return res.status(400).json({ error: 'Path parameter is required' });
+    }
+
+    const projectPath = path.join(os.homedir(), '.claude', 'projects', repoName);
+    const repoPath = await getRealPathFromSession(projectPath);
+
+    if (!repoPath) {
+      return res.status(404).json({ error: 'Repository path not found' });
+    }
+
+    const fullPath = path.resolve(repoPath, folderPath.startsWith('/') ? folderPath.slice(1) : folderPath);
+
+    if (!fullPath.startsWith(repoPath)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const dirEntries = await fs.readdir(fullPath, { withFileTypes: true });
+    const entries = dirEntries
+      .filter((entry) => !entry.name.startsWith('.'))
+      .map((entry) => ({
+        name: entry.name,
+        path: path.join(folderPath, entry.name),
+        type: entry.isDirectory() ? 'directory' : 'file'
+      }))
+      .sort((a, b) => {
+        if (a.type === b.type) return a.name.localeCompare(b.name);
+        return a.type === 'directory' ? -1 : 1;
+      });
+
+    res.json({ entries });
+  } catch (_error) {
+    res.status(500).json({ error: 'Failed to read folder' });
   }
 });

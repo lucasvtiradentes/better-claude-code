@@ -4,6 +4,7 @@ type SessionMessageProps = {
   message: Message;
   imageOffset: number;
   onImageClick: (imageIndex: number) => void;
+  onPathClick?: (path: string) => void;
 };
 
 function escapeHtml(text: string): string {
@@ -44,7 +45,8 @@ function applyCommonFormatting(text: string): {
 
   formatted = formatted.replace(
     /(^|\s)@([^\s<>]+)/g,
-    '$1<span class="text-[#ff9800] font-semibold cursor-pointer">@$2</span>'
+    (_match, prefix, filePath) =>
+      `${prefix}<span class="text-[#ff9800] font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">@${escapeHtml(filePath)}</span>`
   );
 
   formatted = formatted.replace(
@@ -65,7 +67,8 @@ function formatMessage(text: string): { html: string; imageRefs: Array<{ placeho
 
   formatted = formatted.replace(
     /\[Tool: ([^\]]+)\] (\/[^\s<>,]+)/g,
-    '[Tool: $1] <span class="text-[#ff9800] font-semibold cursor-pointer">$2</span>'
+    (_match, tool, filePath) =>
+      `[Tool: ${tool}] <span class="text-[#ff9800] font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">${escapeHtml(filePath)}</span>`
   );
 
   formatted = formatted.replace(
@@ -75,7 +78,8 @@ function formatMessage(text: string): { html: string; imageRefs: Array<{ placeho
 
   formatted = formatted.replace(
     /path: (\/[^\s<>,]+)/g,
-    'path: <span class="text-[#ff9800] font-semibold cursor-pointer">$1</span>'
+    (_match, filePath) =>
+      `path: <span class="text-[#ff9800] font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">${escapeHtml(filePath)}</span>`
   );
 
   formatted = formatted.replace(
@@ -93,7 +97,7 @@ function formatMessage(text: string): { html: string; imageRefs: Array<{ placeho
   return { html: formatted, imageRefs };
 }
 
-export const SessionMessage = ({ message, onImageClick }: SessionMessageProps) => {
+export const SessionMessage = ({ message, onImageClick, onPathClick }: SessionMessageProps) => {
   if (typeof message.content !== 'string') {
     return null;
   }
@@ -104,6 +108,8 @@ export const SessionMessage = ({ message, onImageClick }: SessionMessageProps) =
     const target = e.target as HTMLElement;
     if (target.dataset.imageIndex) {
       onImageClick(Number.parseInt(target.dataset.imageIndex, 10));
+    } else if (target.dataset.path && onPathClick) {
+      onPathClick(target.dataset.path);
     }
   };
 

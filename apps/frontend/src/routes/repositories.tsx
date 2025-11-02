@@ -2,7 +2,9 @@ import { getTimeGroup } from '@bcc/shared';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { FileModal } from '../components/FileModal';
 import { FilterButtons } from '../components/FilterButtons';
+import { FolderModal } from '../components/FolderModal';
 import { ImageModal } from '../components/ImageModal';
 import { Layout } from '../components/layout/Layout';
 import { RepositoriesSidebar } from '../components/repositories/RepositoriesSidebar';
@@ -18,15 +20,19 @@ export const Route = createFileRoute('/repositories')({
   validateSearch: (search: Record<string, unknown>) => ({
     repo: (search.repo as string) || undefined,
     sessionId: (search.sessionId as string) || undefined,
-    imageIndex: (search.imageIndex as number) || undefined
+    imageIndex: (search.imageIndex as number) || undefined,
+    folderPath: (search.folderPath as string) || undefined,
+    filePath: (search.filePath as string) || undefined
   })
 });
 
 function RepositoriesComponent() {
   const navigate = useNavigate();
-  const { repo: selectedRepo, sessionId, imageIndex } = Route.useSearch();
+  const { repo: selectedRepo, sessionId, imageIndex, folderPath: urlFolderPath, filePath: urlFilePath } = Route.useSearch();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const [imageModalIndex, setImageModalIndex] = useState<number | null>(null);
+  const [fileModalPath, setFileModalPath] = useState<string | null>(null);
+  const [folderModalPath, setFolderModalPath] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const { data: repos, isLoading: reposLoading, error: reposError } = useRepositories();
@@ -69,6 +75,15 @@ function RepositoriesComponent() {
     }
   }, [imageIndex, sessionData]);
 
+  useEffect(() => {
+    if (urlFolderPath) {
+      setFolderModalPath(urlFolderPath);
+    }
+    if (urlFilePath) {
+      setFileModalPath(urlFilePath);
+    }
+  }, [urlFolderPath, urlFilePath]);
+
   const groupedRepos = repos?.reduce(
     (acc, repo) => {
       const group = getTimeGroup(repo.lastModified);
@@ -89,6 +104,37 @@ function RepositoriesComponent() {
     {} as Record<string, typeof sessions>
   );
 
+  const updateSearch = (updates: {
+    repo?: string;
+    sessionId?: string;
+    imageIndex?: number;
+    folderPath?: string;
+    filePath?: string;
+  }) => {
+    navigate({
+      to: '/repositories',
+      search: {
+        repo: selectedRepo,
+        sessionId,
+        imageIndex: undefined,
+        folderPath: undefined,
+        filePath: undefined,
+        ...updates
+      }
+    });
+  };
+
+  const handlePathClick = (path: string) => {
+    const hasExtension = /\.[^./\\]+$/.test(path);
+    if (hasExtension) {
+      setFileModalPath(path);
+      updateSearch({ filePath: path, folderPath: folderModalPath || undefined });
+    } else {
+      setFolderModalPath(path);
+      updateSearch({ folderPath: path });
+    }
+  };
+
   const sidebar = !selectedRepo ? (
     <RepositoriesSidebar
       repos={repos}
@@ -98,7 +144,7 @@ function RepositoriesComponent() {
       onSelectRepo={(repoId) =>
         navigate({
           to: '/repositories',
-          search: { repo: repoId, sessionId: undefined, imageIndex: undefined }
+          search: { repo: repoId, sessionId: undefined, imageIndex: undefined, folderPath: undefined, filePath: undefined }
         })
       }
     />
@@ -113,13 +159,13 @@ function RepositoriesComponent() {
       onBack={() =>
         navigate({
           to: '/repositories',
-          search: { repo: undefined, sessionId: undefined, imageIndex: undefined }
+          search: { repo: undefined, sessionId: undefined, imageIndex: undefined, folderPath: undefined, filePath: undefined }
         })
       }
       onSelectSession={(sid) =>
         navigate({
           to: '/repositories',
-          search: { repo: selectedRepo, sessionId: sid, imageIndex: undefined }
+          search: { repo: selectedRepo, sessionId: sid, imageIndex: undefined, folderPath: undefined, filePath: undefined }
         })
       }
     />
@@ -199,11 +245,9 @@ function RepositoriesComponent() {
               imageOffset={0}
               onImageClick={(index) => {
                 setImageModalIndex(index);
-                navigate({
-                  to: '/repositories',
-                  search: { repo: selectedRepo, sessionId, imageIndex: index }
-                });
+                updateSearch({ imageIndex: index });
               }}
+              onPathClick={handlePathClick}
             />
           ))}
         </div>
@@ -214,29 +258,52 @@ function RepositoriesComponent() {
             currentIndex={imageModalIndex}
             onClose={() => {
               setImageModalIndex(null);
-              navigate({
-                to: '/repositories',
-                search: { repo: selectedRepo, sessionId, imageIndex: undefined }
-              });
+              updateSearch({});
             }}
             onNext={() => {
               const currentIdx = sessionData.images.findIndex((img) => img.index === imageModalIndex);
               const nextIndex = sessionData.images[(currentIdx + 1) % sessionData.images.length].index;
               setImageModalIndex(nextIndex);
-              navigate({
-                to: '/repositories',
-                search: { repo: selectedRepo, sessionId, imageIndex: nextIndex }
-              });
+              updateSearch({ imageIndex: nextIndex });
             }}
             onPrev={() => {
               const currentIdx = sessionData.images.findIndex((img) => img.index === imageModalIndex);
               const prevIndex =
                 sessionData.images[(currentIdx - 1 + sessionData.images.length) % sessionData.images.length].index;
               setImageModalIndex(prevIndex);
-              navigate({
-                to: '/repositories',
-                search: { repo: selectedRepo, sessionId, imageIndex: prevIndex }
-              });
+              updateSearch({ imageIndex: prevIndex });
+            }}
+          />
+        )}
+
+        {fileModalPath && (
+          <FileModal
+            repoId={selectedRepo}
+            sessionId={sessionId}
+            filePath={fileModalPath}
+            onClose={() => {
+              setFileModalPath(null);
+              updateSearch({ folderPath: folderModalPath || undefined });
+            }}
+          />
+        )}
+
+        {folderModalPath && (
+          <FolderModal
+            repoId={selectedRepo}
+            sessionId={sessionId}
+            folderPath={folderModalPath}
+            onClose={() => {
+              setFolderModalPath(null);
+              updateSearch({});
+            }}
+            onFileClick={(path) => {
+              setFileModalPath(path);
+              updateSearch({ filePath: path, folderPath: folderModalPath });
+            }}
+            onFolderClick={(path) => {
+              setFolderModalPath(path);
+              updateSearch({ folderPath: path });
             }}
           />
         )}
