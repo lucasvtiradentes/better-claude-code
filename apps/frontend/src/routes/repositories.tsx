@@ -1,9 +1,9 @@
 import { getTimeGroup } from '@bcc/shared';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Layout } from '../components/Layout';
-import { RepositoriesSidebar } from '../components/RepositoriesSidebar';
-import { SessionsSidebar } from '../components/SessionsSidebar';
+import { Layout } from '../components/layout/Layout';
+import { RepositoriesSidebar } from '../components/repositories/RepositoriesSidebar';
+import { SessionsSidebar } from '../components/sessions/SessionsSidebar';
 import { useRepositories } from '../hooks/use-repositories';
 import { useSessions } from '../hooks/use-sessions';
 

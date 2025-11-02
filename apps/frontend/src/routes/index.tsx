@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Layout } from '../components/Layout';
+import { Layout } from '../components/layout/Layout';
 import { useRepositories } from '../hooks/use-repositories';
 
 export const Route = createFileRoute('/')({

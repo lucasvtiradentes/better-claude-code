@@ -1,8 +1,8 @@
 import type { Session } from '@bcc/shared';
 import { TIME_GROUP_LABELS, TIME_GROUP_ORDER } from '@bcc/shared';
-import { MiddleSidebar } from './MiddleSidebar';
+import { MiddleSidebar } from '../layout/MiddleSidebar';
+import { TimeGroup } from '../TimeGroup';
 import { SessionCard } from './SessionCard';
-import { TimeGroup } from './TimeGroup';
 
 type SessionsSidebarProps = {
   sessions: Session[] | undefined;

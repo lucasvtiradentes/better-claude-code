@@ -1,5 +1,5 @@
 import type { Message } from '@bcc/shared';
-import { detectCommand, parseMessageContent } from '../utils/message-parser';
+import { detectCommand, parseMessageContent } from '../../utils/message-parser';
 
 type SessionMessageProps = {
   message: Message;
