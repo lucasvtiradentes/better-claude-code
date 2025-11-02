@@ -24,6 +24,8 @@ const CheckIcon = () => (
   </svg>
 );
 
+const CONTEXT_LINES_AROUND_HIGHLIGHT = 5;
+
 const getLanguageFromPath = (path: string): string => {
   const ext = path.split('.').pop()?.toLowerCase();
   const langMap: Record<string, string> = {
@@ -69,6 +71,12 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [highlightLines, setHighlightLines] = useState<number[]>([]);
+  const [displayContent, setDisplayContent] = useState<string>('');
+  const [firstDisplayLine, setFirstDisplayLine] = useState<number>(1);
+  const [showTopRemaining, setShowTopRemaining] = useState(false);
+  const [showBottomRemaining, setShowBottomRemaining] = useState(false);
+  const [hasTopRemaining, setHasTopRemaining] = useState(false);
+  const [hasBottomRemaining, setHasBottomRemaining] = useState(false);
   const contentContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -98,7 +106,8 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
           throw new Error('Failed to load file');
         }
         const data = await res.json();
-        setContent(data.content);
+        const fullContent = data.content;
+        setContent(fullContent);
 
         if (startLine) {
           const lines: number[] = [];
@@ -107,9 +116,29 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
             lines.push(i);
           }
           setHighlightLines(lines);
+
+          const allLines = fullContent.split('\n');
+          const firstLine = Math.max(1, startLine - CONTEXT_LINES_AROUND_HIGHLIGHT);
+          const lastLine = Math.min(allLines.length, end + CONTEXT_LINES_AROUND_HIGHLIGHT);
+
+          setHasTopRemaining(firstLine > 1);
+          setHasBottomRemaining(lastLine < allLines.length);
+
+          const startIndex = firstLine - 1;
+          const endIndex = lastLine;
+          const contentLines = allLines.slice(startIndex, endIndex);
+
+          setDisplayContent(contentLines.join('\n'));
+          setFirstDisplayLine(firstLine);
         } else {
           setHighlightLines([]);
+          setDisplayContent(fullContent);
+          setFirstDisplayLine(1);
+          setHasTopRemaining(false);
+          setHasBottomRemaining(false);
         }
+        setShowTopRemaining(false);
+        setShowBottomRemaining(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
@@ -161,6 +190,40 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
     }
   };
 
+  const getFullDisplayContent = () => {
+    if (highlightLines.length === 0) {
+      return displayContent;
+    }
+
+    const allLines = content.split('\n');
+    const contextLines = displayContent.split('\n');
+    const result: string[] = [];
+
+    if (hasTopRemaining) {
+      if (showTopRemaining) {
+        result.push(...allLines.slice(0, firstDisplayLine - 1));
+      }
+    }
+
+    result.push(...contextLines);
+
+    if (hasBottomRemaining) {
+      if (showBottomRemaining) {
+        const lastDisplayLine = firstDisplayLine + contextLines.length - 1;
+        result.push(...allLines.slice(lastDisplayLine));
+      }
+    }
+
+    return result.join('\n');
+  };
+
+  const getStartingLineNumber = () => {
+    if (highlightLines.length === 0 || !hasTopRemaining || !showTopRemaining) {
+      return firstDisplayLine;
+    }
+    return 1;
+  };
+
   return (
     <button
       type="button"
@@ -201,37 +264,62 @@ export const FileModal = ({ repoId, sessionId, filePath, onClose }: FileModalPro
             </div>
           )}
           {!loading && !error && (
-            <SyntaxHighlighter
-              language={getLanguageFromPath(filePath.split('#')[0])}
-              style={vscDarkPlus}
-              showLineNumbers
-              wrapLines={highlightLines.length > 0}
-              lineNumberStyle={(lineNumber) => {
-                const isHighlighted = highlightLines.includes(lineNumber);
-                return isHighlighted
-                  ? {
-                      backgroundColor: 'rgba(255, 152, 0, 0.3)',
-                      color: '#ff9800',
-                      fontWeight: 'bold'
-                    }
-                  : {};
-              }}
-              customStyle={{
-                margin: 0,
-                borderRadius: 0,
-                background: '#1e1e1e',
-                fontSize: '13px',
-                lineHeight: '1.5',
-                userSelect: 'text'
-              }}
-              codeTagProps={{
-                style: {
+            <>
+              {hasTopRemaining && (
+                <div className="sticky top-0 z-10 bg-[#1e1e1e] border-b border-[#3e3e42] px-4 py-2 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowTopRemaining(!showTopRemaining)}
+                    className="text-[#858585] hover:text-[#e0e0e0] text-sm flex items-center gap-2 hover:bg-[#3e3e42] px-3 py-1.5 rounded transition-colors"
+                  >
+                    {showTopRemaining ? '▼' : '▶'} {showTopRemaining ? 'Hide' : 'Show'} remaining code above
+                  </button>
+                </div>
+              )}
+              <SyntaxHighlighter
+                language={getLanguageFromPath(filePath.split('#')[0])}
+                style={vscDarkPlus}
+                showLineNumbers
+                startingLineNumber={getStartingLineNumber()}
+                wrapLines={highlightLines.length > 0}
+                lineNumberStyle={(lineNumber) => {
+                  const isHighlighted = highlightLines.includes(lineNumber);
+                  return isHighlighted
+                    ? {
+                        backgroundColor: 'rgba(255, 152, 0, 0.3)',
+                        color: '#ff9800',
+                        fontWeight: 'bold'
+                      }
+                    : {};
+                }}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: 0,
+                  background: '#1e1e1e',
+                  fontSize: '13px',
+                  lineHeight: '1.5',
                   userSelect: 'text'
-                }
-              }}
-            >
-              {content}
-            </SyntaxHighlighter>
+                }}
+                codeTagProps={{
+                  style: {
+                    userSelect: 'text'
+                  }
+                }}
+              >
+                {getFullDisplayContent()}
+              </SyntaxHighlighter>
+              {hasBottomRemaining && (
+                <div className="sticky bottom-0 z-10 bg-[#1e1e1e] border-t border-[#3e3e42] px-4 py-2 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowBottomRemaining(!showBottomRemaining)}
+                    className="text-[#858585] hover:text-[#e0e0e0] text-sm flex items-center gap-2 hover:bg-[#3e3e42] px-3 py-1.5 rounded transition-colors"
+                  >
+                    {showBottomRemaining ? '▼' : '▶'} {showBottomRemaining ? 'Hide' : 'Show'} remaining code below
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
