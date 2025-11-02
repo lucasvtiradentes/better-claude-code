@@ -1,4 +1,5 @@
 import type { Repository } from '@bcc/shared';
+import { GitBranch, Github } from 'lucide-react';
 
 type RepositoryCardProps = {
   repository: Repository;
@@ -7,6 +8,13 @@ type RepositoryCardProps = {
 };
 
 export const RepositoryCard = ({ repository, onClick, isActive }: RepositoryCardProps) => {
+  const handleGitHubClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (repository.githubUrl) {
+      window.open(repository.githubUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <button
       type="button"
@@ -22,11 +30,23 @@ export const RepositoryCard = ({ repository, onClick, isActive }: RepositoryCard
       <div className="text-[11px] text-[#858585] mb-1.5 break-all font-[Courier_New,monospace]">{repository.path}</div>
       <div className="flex items-center justify-between gap-2 text-[11px] text-[#858585]">
         <span>{repository.sessionsCount} sessions</span>
-        {repository.isGitRepo && (
-          <span className="bg-[#0e639c] text-white px-1.5 py-0.5 rounded-[3px] text-[10px] font-semibold uppercase">
-            Git Repo
-          </span>
-        )}
+        <div className="flex items-center gap-1.5">
+          {repository.githubUrl && (
+            <button
+              type="button"
+              onClick={handleGitHubClick}
+              className="hover:text-white transition-colors cursor-pointer"
+              title="This project has a GitHub repository"
+            >
+              <Github size={14} />
+            </button>
+          )}
+          {repository.isGitRepo && (
+            <span className="cursor-default" title="This project is a Git repository">
+              <GitBranch size={14} className="text-[#0e639c]" />
+            </span>
+          )}
+        </div>
       </div>
     </button>
   );

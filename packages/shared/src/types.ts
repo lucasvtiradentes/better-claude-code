@@ -5,6 +5,7 @@ export type Repository = {
   sessionsCount: number;
   lastModified: number;
   isGitRepo: boolean;
+  githubUrl?: string;
 };
 
 export type Session = {

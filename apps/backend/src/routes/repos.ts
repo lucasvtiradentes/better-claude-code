@@ -1,8 +1,12 @@
 import type { Repository } from '@bcc/shared';
+import { exec } from 'child_process';
 import { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 export const reposRouter: RouterType = Router();
 
@@ -39,6 +43,27 @@ function extractRepoName(fullPath: string): string {
   return parts[parts.length - 1] || fullPath;
 }
 
+async function getGitHubUrl(repoPath: string): Promise<string | undefined> {
+  try {
+    const { stdout } = await execAsync('git config --get remote.origin.url', { cwd: repoPath });
+    const url = stdout.trim();
+
+    if (!url) return undefined;
+
+    if (url.startsWith('https://github.com/')) {
+      return url.replace(/\.git$/, '');
+    }
+
+    if (url.startsWith('git@github.com:')) {
+      return url.replace('git@github.com:', 'https://github.com/').replace(/\.git$/, '');
+    }
+
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 reposRouter.get('/', async (_req, res) => {
   try {
     const projectsPath = path.join(os.homedir(), '.claude', 'projects');
@@ -69,9 +94,11 @@ reposRouter.get('/', async (_req, res) => {
       const lastModified = Math.max(...fileStats, stats.mtimeMs);
 
       let isGitRepo = false;
+      let githubUrl: string | undefined;
       try {
         await fs.access(path.join(realPath, '.git'));
         isGitRepo = true;
+        githubUrl = await getGitHubUrl(realPath);
       } catch {
         isGitRepo = false;
       }
@@ -85,7 +112,8 @@ reposRouter.get('/', async (_req, res) => {
         path: displayPath,
         sessionsCount,
         lastModified,
-        isGitRepo
+        isGitRepo,
+        githubUrl
       });
     }
 
