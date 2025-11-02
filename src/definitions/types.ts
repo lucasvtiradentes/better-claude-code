@@ -36,7 +36,8 @@ export const CommandNames = {
   HELLO: 'hello',
   UPDATE: 'update',
   COMPLETION: 'completion',
-  COMPACT: 'compact'
+  COMPACT: 'compact',
+  SERVE: 'serve'
 } as const;
 
 export const SubCommandNames = {

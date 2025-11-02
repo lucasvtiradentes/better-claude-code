@@ -117,7 +117,11 @@ async function compactLatest(repoRoot: string, useLastMessage?: boolean): Promis
   await performCompaction(session.id, session.file, repoRoot);
 }
 
-async function compactInteractive(limit: number | undefined, repoRoot: string, useLastMessage?: boolean): Promise<void> {
+async function compactInteractive(
+  limit: number | undefined,
+  repoRoot: string,
+  useLastMessage?: boolean
+): Promise<void> {
   Logger.loading('Finding sessions...');
 
   const sessions = await findSessions(limit, useLastMessage);

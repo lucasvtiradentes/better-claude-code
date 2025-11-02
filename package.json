@@ -38,11 +38,15 @@
   },
   "dependencies": {
     "chalk": "^5.4.1",
-    "commander": "^14.0.0"
+    "commander": "^14.0.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.2",
     "@changesets/cli": "^2.29.7",
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.5",
     "@types/node": "^22.18.8",
     "rimraf": "^5.0.5",
     "tsx": "^4.19.2",

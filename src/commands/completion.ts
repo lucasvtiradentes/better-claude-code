@@ -1,4 +1,4 @@
-import { accessSync, constants, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { accessSync, constants, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { Command } from 'commander';
@@ -106,8 +106,7 @@ async function installZshCompletion(): Promise<void> {
   try {
     const zshrc = join(homeDir, '.zshrc');
     if (existsSync(zshrc)) {
-      const fs = await import('fs');
-      const zshrcContent = fs.readFileSync(zshrc, 'utf8');
+      const zshrcContent = readFileSync(zshrc, 'utf8');
       if (!zshrcContent.includes(targetDir)) {
         Logger.info('');
         Logger.warning('Remember to add the fpath line to your ~/.zshrc for autocompletion to work!');
@@ -250,8 +249,7 @@ async function clearZshCompletionCache(): Promise<void> {
 
   try {
     if (existsSync(zshCacheFile)) {
-      const fs = await import('fs');
-      fs.unlinkSync(zshCacheFile);
+      unlinkSync(zshCacheFile);
     }
   } catch {}
 }

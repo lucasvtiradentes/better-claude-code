@@ -4,7 +4,7 @@ interface SessionCompactionPromptParams {
   cleanupId: string;
 }
 
-const CLAUDE_CODE_SESSION_COMPACTION_ID="CLAUDE_CODE_SESSION_COMPACTION_ID"
+const CLAUDE_CODE_SESSION_COMPACTION_ID = 'CLAUDE_CODE_SESSION_COMPACTION_ID';
 
 export function buildSessionCompactionPrompt(params: SessionCompactionPromptParams): string {
   return `${CLAUDE_CODE_SESSION_COMPACTION_ID}: ${params.cleanupId}
