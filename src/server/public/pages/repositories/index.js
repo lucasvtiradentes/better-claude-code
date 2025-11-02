@@ -238,6 +238,30 @@ export function selectSession(repoId, sessionId) {
   navigateTo(`/repositories?repo=${encodeURIComponent(repoId)}&sessionId=${sessionId}`);
 }
 
+let showToolCalls = localStorage.getItem('showToolCalls') !== 'false';
+
+window.toggleToolCalls = function() {
+  showToolCalls = !showToolCalls;
+  localStorage.setItem('showToolCalls', showToolCalls);
+
+  const checkbox = document.getElementById('toolCallsToggle');
+  if (checkbox) checkbox.checked = showToolCalls;
+
+  const contentBody = document.getElementById('contentBody');
+  const scrollPos = contentBody ? contentBody.scrollTop : 0;
+
+  const currentUrl = new URLSearchParams(window.location.search);
+  const repoId = currentUrl.get('repo');
+  const sessionId = currentUrl.get('sessionId');
+  if (repoId && sessionId) {
+    renderSession(repoId, sessionId).then(() => {
+      if (contentBody) {
+        contentBody.scrollTop = scrollPos;
+      }
+    });
+  }
+};
+
 export async function renderSession(repoId, sessionId) {
   document.getElementById('mainSidebar').classList.remove('hidden');
   state.selectedRepo = repoId;
@@ -259,7 +283,16 @@ export async function renderSession(repoId, sessionId) {
     <span class="back-button" onclick="window.navigateTo('/repositories?repo=${encodeURIComponent(repoId)}')">← Back</span>
     <span class="sidebar-title">${repoName}</span>
   `;
-  document.getElementById('contentHeader').textContent = `Session - ${sessionId.slice(-12)}`;
+  document.getElementById('contentHeader').innerHTML = `
+    <span>Session - ${sessionId.slice(-12)}</span>
+    <label class="toggle-container">
+      <span class="toggle-label">Show tool calls</span>
+      <div class="toggle-switch">
+        <input type="checkbox" id="toolCallsToggle" ${showToolCalls ? 'checked' : ''} onchange="window.toggleToolCalls()">
+        <span class="toggle-slider"></span>
+      </div>
+    </label>
+  `;
   document.getElementById('contentBody').innerHTML = '<div class="loading">Loading...</div>';
 
   try {
@@ -276,9 +309,33 @@ export async function renderSession(repoId, sessionId) {
       return;
     }
 
+    const filteredMessages = data.messages.map(msg => {
+      if (!showToolCalls) {
+        const lines = msg.content.split('\n');
+        const filtered = lines.filter(line => !line.trim().startsWith('[Tool:'));
+
+        let cleaned = filtered.join('\n');
+
+        while (cleaned.includes('---\n---')) {
+          cleaned = cleaned.replace(/---\n---/g, '---');
+        }
+
+        cleaned = cleaned
+          .split('\n---\n')
+          .filter(part => part.trim().length > 0)
+          .join('\n---\n')
+          .replace(/^\n*---\n*/g, '')
+          .replace(/\n*---\n*$/g, '')
+          .trim();
+
+        return { ...msg, content: cleaned };
+      }
+      return msg;
+    }).filter(msg => msg.content.trim().length > 0);
+
     document.getElementById('contentBody').innerHTML = `
       <div class="messages">
-        ${data.messages.map(msg => `
+        ${filteredMessages.map(msg => `
           <div class="message ${msg.type}">
             <div class="message-header">${msg.type === 'user' ? 'You' : 'Claude Code'}</div>
             <div class="message-content">${formatMessage(msg.content)}</div>
