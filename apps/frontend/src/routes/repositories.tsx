@@ -17,13 +17,14 @@ export const Route = createFileRoute('/repositories')({
   component: RepositoriesComponent,
   validateSearch: (search: Record<string, unknown>) => ({
     repo: (search.repo as string) || undefined,
-    sessionId: (search.sessionId as string) || undefined
+    sessionId: (search.sessionId as string) || undefined,
+    imageIndex: (search.imageIndex as number) || undefined
   })
 });
 
 function RepositoriesComponent() {
   const navigate = useNavigate();
-  const { repo: selectedRepo, sessionId } = Route.useSearch();
+  const { repo: selectedRepo, sessionId, imageIndex } = Route.useSearch();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const [imageModalIndex, setImageModalIndex] = useState<number | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -59,6 +60,15 @@ function RepositoriesComponent() {
     return () => ref?.removeEventListener('scroll', handleScroll);
   }, [scrollKey]);
 
+  useEffect(() => {
+    if (imageIndex && sessionData?.images) {
+      const imageExists = sessionData.images.some((img) => img.index === imageIndex);
+      if (imageExists) {
+        setImageModalIndex(imageIndex);
+      }
+    }
+  }, [imageIndex, sessionData]);
+
   const groupedRepos = repos?.reduce(
     (acc, repo) => {
       const group = getTimeGroup(repo.lastModified);
@@ -88,7 +98,7 @@ function RepositoriesComponent() {
       onSelectRepo={(repoId) =>
         navigate({
           to: '/repositories',
-          search: { repo: repoId, sessionId: undefined }
+          search: { repo: repoId, sessionId: undefined, imageIndex: undefined }
         })
       }
     />
@@ -103,13 +113,13 @@ function RepositoriesComponent() {
       onBack={() =>
         navigate({
           to: '/repositories',
-          search: { repo: undefined, sessionId: undefined }
+          search: { repo: undefined, sessionId: undefined, imageIndex: undefined }
         })
       }
       onSelectSession={(sid) =>
         navigate({
           to: '/repositories',
-          search: { repo: selectedRepo, sessionId: sid }
+          search: { repo: selectedRepo, sessionId: sid, imageIndex: undefined }
         })
       }
     />
@@ -187,7 +197,13 @@ function RepositoriesComponent() {
               key={`${message.type}-${msgIdx}`}
               message={message}
               imageOffset={0}
-              onImageClick={setImageModalIndex}
+              onImageClick={(index) => {
+                setImageModalIndex(index);
+                navigate({
+                  to: '/repositories',
+                  search: { repo: selectedRepo, sessionId, imageIndex: index }
+                });
+              }}
             />
           ))}
         </div>
@@ -196,20 +212,32 @@ function RepositoriesComponent() {
           <ImageModal
             images={sessionData.images}
             currentIndex={imageModalIndex}
-            onClose={() => setImageModalIndex(null)}
-            onNext={() =>
-              setImageModalIndex((prev) => {
-                const currentIdx = sessionData.images.findIndex((img) => img.index === prev);
-                return sessionData.images[(currentIdx + 1) % sessionData.images.length].index;
-              })
-            }
-            onPrev={() =>
-              setImageModalIndex((prev) => {
-                const currentIdx = sessionData.images.findIndex((img) => img.index === prev);
-                return sessionData.images[(currentIdx - 1 + sessionData.images.length) % sessionData.images.length]
-                  .index;
-              })
-            }
+            onClose={() => {
+              setImageModalIndex(null);
+              navigate({
+                to: '/repositories',
+                search: { repo: selectedRepo, sessionId, imageIndex: undefined }
+              });
+            }}
+            onNext={() => {
+              const currentIdx = sessionData.images.findIndex((img) => img.index === imageModalIndex);
+              const nextIndex = sessionData.images[(currentIdx + 1) % sessionData.images.length].index;
+              setImageModalIndex(nextIndex);
+              navigate({
+                to: '/repositories',
+                search: { repo: selectedRepo, sessionId, imageIndex: nextIndex }
+              });
+            }}
+            onPrev={() => {
+              const currentIdx = sessionData.images.findIndex((img) => img.index === imageModalIndex);
+              const prevIndex =
+                sessionData.images[(currentIdx - 1 + sessionData.images.length) % sessionData.images.length].index;
+              setImageModalIndex(prevIndex);
+              navigate({
+                to: '/repositories',
+                search: { repo: selectedRepo, sessionId, imageIndex: prevIndex }
+              });
+            }}
           />
         )}
       </>

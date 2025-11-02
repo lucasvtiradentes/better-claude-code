@@ -214,22 +214,26 @@ sessionsRouter.get('/:repoName/:sessionId/images', async (req, res) => {
 
     const content = await fs.readFile(filePath, 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
-    const events = lines.map((line) => JSON.parse(line));
 
     const images: Array<{ index: number; data: string }> = [];
     let imageIndex = 1;
 
-    for (const event of events) {
-      if (event.type === 'user' && Array.isArray(event.content)) {
-        for (const part of event.content) {
-          if (part.type === 'image' && part.source?.data) {
-            images.push({
-              index: imageIndex++,
-              data: part.source.data
-            });
+    for (const line of lines) {
+      try {
+        const parsed = JSON.parse(line);
+        const messageContent = parsed.message?.content;
+
+        if (Array.isArray(messageContent)) {
+          for (const item of messageContent) {
+            if (item.type === 'image' && item.source?.type === 'base64') {
+              images.push({
+                index: imageIndex++,
+                data: item.source.data
+              });
+            }
           }
         }
-      }
+      } catch {}
     }
 
     res.json(images);
