@@ -1,4 +1,5 @@
 import { navigateTo, state } from '../../app.js';
+import { getTimeGroup, formatGroupHeader } from '../../utils/time-groups.js';
 
 function escapeHtml(text) {
   const div = document.createElement('div');
@@ -115,43 +116,6 @@ function formatMessage(text) {
   return formatted;
 }
 
-function getTimeGroup(timestamp) {
-  const oneDay = 24 * 60 * 60 * 1000;
-
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const yesterday = today - oneDay;
-
-  const dayOfWeek = now.getDay();
-  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-  const mondayThisWeek = today - (daysFromMonday * oneDay);
-
-  const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-
-  if (timestamp >= today) {
-    return 'today';
-  }
-
-  if (timestamp >= yesterday) {
-    return 'yesterday';
-  }
-
-  if (timestamp >= mondayThisWeek) {
-    return 'this week';
-  }
-
-  if (timestamp >= firstDayThisMonth) {
-    return 'this month';
-  }
-
-  const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime();
-  if (timestamp >= firstDayLastMonth) {
-    return 'last month';
-  }
-
-  return 'rest';
-}
-
 function groupReposByTime(repos) {
   const groups = {
     today: [],
@@ -177,7 +141,7 @@ function renderReposList(repos) {
   for (const [groupName, groupRepos] of Object.entries(groups)) {
     if (groupRepos.length === 0) continue;
 
-    html += `<div class="group-header">${groupName}</div>`;
+    html += `<div class="group-header">${formatGroupHeader(groupName, groupRepos.length)}</div>`;
     html += groupRepos.map(repo => {
       const escapedName = repo.name.replace(/'/g, '&#39;');
       return `
@@ -225,10 +189,8 @@ function renderSessionsList(sessions, selectedSessionId = null) {
   for (const [groupName, groupSessions] of Object.entries(groups)) {
     if (groupSessions.length === 0) continue;
 
-    html += `<div class="group-header">${groupName}</div>`;
+    html += `<div class="group-header">${formatGroupHeader(groupName, groupSessions.length)}</div>`;
     html += groupSessions.map(session => {
-      const dateObj = new Date(session.timestamp);
-      const date = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
       const percentage = session.tokenPercentage || 0;
       const isActive = session.id === selectedSessionId ? 'active' : '';
 
@@ -243,7 +205,6 @@ function renderSessionsList(sessions, selectedSessionId = null) {
         <div class="list-item ${isActive}" onclick="window.selectSession('${state.selectedRepo}', '${session.id}')">
           <div class="item-name">${formatTitle(session.title)}</div>
           <div class="session-footer">
-            <span>${date}</span>
             <span class="${percentageClass}">${percentage}%</span>
           </div>
         </div>
