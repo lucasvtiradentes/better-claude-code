@@ -153,10 +153,15 @@ sessionsRouter.get('/:repoName', (req, res) => {
     for (const line of lines) {
       try {
         const parsed = JSON.parse(line);
-        if (parsed.type === 'user' && typeof parsed.message?.content === 'string') {
-          const content = parsed.message.content;
+        if (parsed.type === 'user') {
+          const content = extractTextContent(parsed.message?.content);
           if (content && content !== 'Warmup' && !content.includes('Caveat:')) {
-            title = content.replace(/\n/g, ' ').trim().substring(0, 80);
+            title = content
+              .replace(/\\/g, '')
+              .replace(/\n/g, ' ')
+              .replace(/\s+/g, ' ')
+              .trim()
+              .substring(0, 80);
             if (title.length === 80) title += '...';
             break;
           }

@@ -184,8 +184,8 @@ body {
 }
 
 .filter-btn {
-  background: transparent;
-  border: none;
+  background: #2a2a2a;
+  border: 1px solid #3e3e42;
   border-radius: 6px;
   width: 32px;
   height: 32px;
@@ -316,6 +316,11 @@ body {
 
 .file-reference:hover {
   text-decoration: underline;
+}
+
+.image-reference {
+  color: #9966ff;
+  font-weight: 600;
 }
 
 .rainbow-text {

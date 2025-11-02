@@ -6,6 +6,22 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function applyCommonFormatting(text) {
+  let formatted = text;
+
+  formatted = formatted.replace(/\[Image #(\d+)\]/g, (_m, num) => {
+    return `<span class="image-reference">[Image #${num}]</span>`;
+  });
+
+  formatted = formatted.replace(/(^|\s)@([^\s<>]+)/g, (_m, prefix, path) => {
+    return `${prefix}<span class="file-reference" onclick="alert('@${path}')">@${path}</span>`;
+  });
+
+  formatted = formatted.replace(/ultrathink/gi, '<span class="rainbow-text">ultrathink</span>');
+
+  return formatted;
+}
+
 function formatMessage(text) {
   let formatted = escapeHtml(text).replace(/\\/g, '');
 
@@ -25,11 +41,7 @@ function formatMessage(text) {
     return `[Tool: ${tool}] "<span class="file-reference">${query}</span>"`;
   });
 
-  formatted = formatted.replace(/@([^\s<>]+)/g, (match, path) => {
-    return `<span class="file-reference" onclick="alert('${path}')">${match}</span>`;
-  });
-
-  formatted = formatted.replace(/ultrathink/gi, '<span class="rainbow-text">ultrathink</span>');
+  formatted = applyCommonFormatting(formatted);
 
   formatted = formatted.replace(/\n---\n/g, '<div class="message-separator"></div>');
 
@@ -137,6 +149,10 @@ function groupSessionsByTime(sessions) {
   return groups;
 }
 
+function formatTitle(title) {
+  return applyCommonFormatting(title);
+}
+
 function renderSessionsList(sessions, selectedSessionId = null) {
   const groups = groupSessionsByTime(sessions);
   let html = '';
@@ -152,7 +168,7 @@ function renderSessionsList(sessions, selectedSessionId = null) {
 
       return `
         <div class="list-item ${isActive}" onclick="window.selectSession('${state.selectedRepo}', '${session.id}')">
-          <div class="item-name">${session.title}</div>
+          <div class="item-name">${formatTitle(session.title)}</div>
           <div class="item-meta">
             <span>${session.userCount} you</span>
             <span>${session.assistantCount} cc</span>
