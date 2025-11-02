@@ -11,18 +11,27 @@ type SessionsResponse = {
   };
 };
 
-const fetchSessions = async (projectName: string, page: number): Promise<SessionsResponse> => {
-  const response = await fetch(`/api/sessions/${encodeURIComponent(projectName)}?page=${page}&limit=20`);
+const fetchSessions = async (projectName: string, page: number, search: string): Promise<SessionsResponse> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: '20'
+  });
+
+  if (search) {
+    params.append('search', search);
+  }
+
+  const response = await fetch(`/api/sessions/${encodeURIComponent(projectName)}?${params.toString()}`);
   if (!response.ok) {
     throw new Error('Failed to fetch sessions');
   }
   return response.json();
 };
 
-export const useSessions = (projectName: string) => {
+export const useSessions = (projectName: string, search: string = '') => {
   return useInfiniteQuery({
-    queryKey: ['sessions', projectName],
-    queryFn: ({ pageParam = 1 }) => fetchSessions(projectName, pageParam),
+    queryKey: ['sessions', projectName, search],
+    queryFn: ({ pageParam = 1 }) => fetchSessions(projectName, pageParam, search),
     enabled: !!projectName,
     getNextPageParam: (lastPage) => {
       if (lastPage.meta.page < lastPage.meta.totalPages) {

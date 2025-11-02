@@ -1,13 +1,15 @@
-import { getTimeGroup } from '@bcc/shared';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { FileText, Image, Search, Terminal } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { IconWithBadge } from '../components/common/IconWithBadge';
 import { FileModal } from '../components/FileModal';
 import { FilterButtons } from '../components/FilterButtons';
 import { FolderModal } from '../components/FolderModal';
 import { ImageModal } from '../components/ImageModal';
 import { Layout } from '../components/layout/Layout';
 import { ProjectsSidebar } from '../components/projects/ProjectsSidebar';
+import { SearchNavigation } from '../components/sessions/SearchNavigation';
 import { SessionMessage } from '../components/sessions/SessionMessage';
 import { SessionsSidebar } from '../components/sessions/SessionsSidebar';
 import { useProjects } from '../hooks/use-projects';
@@ -22,7 +24,8 @@ export const Route = createFileRoute('/projects')({
     sessionId: (search.sessionId as string) || undefined,
     imageIndex: (search.imageIndex as number) || undefined,
     folderPath: (search.folderPath as string) || undefined,
-    filePath: (search.filePath as string) || undefined
+    filePath: (search.filePath as string) || undefined,
+    search: (search.search as string) || undefined
   })
 });
 
@@ -33,12 +36,14 @@ function ProjectsComponent() {
     sessionId,
     imageIndex,
     folderPath: urlFolderPath,
-    filePath: urlFilePath
+    filePath: urlFilePath,
+    search: searchQuery
   } = Route.useSearch();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const [imageModalIndex, setImageModalIndex] = useState<number | null>(null);
   const [fileModalPath, setFileModalPath] = useState<string | null>(null);
   const [folderModalPath, setFolderModalPath] = useState<string | null>(null);
+  const [searchMatchIndex, setSearchMatchIndex] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const { data: projects, isLoading: projectsLoading, error: projectsError } = useProjects();
@@ -49,7 +54,7 @@ function ProjectsComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useSessions(selectedProject || '');
+  } = useSessions(selectedProject || '', searchQuery || '');
   const {
     data: sessionData,
     isLoading: sessionLoading,
@@ -100,22 +105,13 @@ function ProjectsComponent() {
     }
   }, [urlFolderPath, urlFilePath]);
 
-  const groupedSessions = sessions?.reduce(
-    (acc, session) => {
-      const group = getTimeGroup(session.createdAt);
-      if (!acc[group]) acc[group] = [];
-      acc[group].push(session);
-      return acc;
-    },
-    {} as Record<string, typeof sessions>
-  );
-
   const updateSearch = (updates: {
     project?: string;
     sessionId?: string;
     imageIndex?: number;
     folderPath?: string;
     filePath?: string;
+    search?: string;
   }) => {
     navigate({
       to: '/projects',
@@ -125,6 +121,7 @@ function ProjectsComponent() {
         imageIndex: undefined,
         folderPath: undefined,
         filePath: undefined,
+        search: searchQuery,
         ...updates
       }
     });
@@ -154,7 +151,8 @@ function ProjectsComponent() {
             sessionId: undefined,
             imageIndex: undefined,
             folderPath: undefined,
-            filePath: undefined
+            filePath: undefined,
+            search: undefined
           }
         })
       }
@@ -162,15 +160,16 @@ function ProjectsComponent() {
   ) : (
     <SessionsSidebar
       sessions={sessions}
-      groupedSessions={groupedSessions}
       isLoading={sessionsLoading}
       error={sessionsError}
       projectName={selectedProjectData?.name || selectedProject}
       selectedSessionId={sessionId}
       totalSessions={totalSessions}
+      searchValue={searchQuery}
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
       onLoadMore={() => fetchNextPage()}
+      onSearchChange={(value) => updateSearch({ search: value })}
       onBack={() =>
         navigate({
           to: '/projects',
@@ -179,7 +178,8 @@ function ProjectsComponent() {
             sessionId: undefined,
             imageIndex: undefined,
             folderPath: undefined,
-            filePath: undefined
+            filePath: undefined,
+            search: undefined
           }
         })
       }
@@ -191,10 +191,13 @@ function ProjectsComponent() {
             sessionId: sid,
             imageIndex: undefined,
             folderPath: undefined,
-            filePath: undefined
+            filePath: undefined,
+            search: searchQuery
           }
         })
       }
+      projectId={selectedProjectData?.id || selectedProject}
+      isGitRepo={selectedProjectData?.isGitRepo}
     />
   );
 
@@ -258,24 +261,95 @@ function ProjectsComponent() {
         });
     }
 
+    const searchMatches: number[] = [];
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
+      filteredMessages.forEach((msg, idx) => {
+        const content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
+        if (content.toLowerCase().includes(searchLower)) {
+          searchMatches.push(idx);
+        }
+      });
+    }
+
     content = (
       <>
         <div className="p-4 border-b border-border flex items-center justify-between">
-          <span className="font-semibold text-sm">{currentSession?.title || 'Session'}</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              {currentSession?.searchMatchCount !== undefined && currentSession.searchMatchCount > 0 && (
+                <span className="text-primary">
+                  <IconWithBadge
+                    icon={Search}
+                    count={currentSession.searchMatchCount}
+                    label={`${currentSession.searchMatchCount} matches`}
+                  />
+                </span>
+              )}
+              {currentSession?.imageCount !== undefined && currentSession.imageCount > 0 && (
+                <IconWithBadge
+                  icon={Image}
+                  count={currentSession.imageCount}
+                  label={`${currentSession.imageCount} images`}
+                />
+              )}
+              {currentSession?.customCommandCount !== undefined && currentSession.customCommandCount > 0 && (
+                <IconWithBadge
+                  icon={Terminal}
+                  count={currentSession.customCommandCount}
+                  label={`${currentSession.customCommandCount} custom commands`}
+                />
+              )}
+              {currentSession?.filesOrFoldersCount !== undefined && currentSession.filesOrFoldersCount > 0 && (
+                <IconWithBadge
+                  icon={FileText}
+                  count={currentSession.filesOrFoldersCount}
+                  label={`${currentSession.filesOrFoldersCount} files/folders`}
+                />
+              )}
+            </div>
+          </div>
           <FilterButtons />
         </div>
+        {searchQuery && searchMatches.length > 0 && (
+          <SearchNavigation
+            searchTerm={searchQuery}
+            currentIndex={searchMatchIndex}
+            totalMatches={searchMatches.length}
+            onNext={() => {
+              const nextIndex = Math.min(searchMatchIndex + 1, searchMatches.length - 1);
+              setSearchMatchIndex(nextIndex);
+              const messageElement = document.querySelector(
+                `[data-message-index="${searchMatches[nextIndex]}"]`
+              ) as HTMLElement;
+              messageElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }}
+            onPrevious={() => {
+              const prevIndex = Math.max(searchMatchIndex - 1, 0);
+              setSearchMatchIndex(prevIndex);
+              const messageElement = document.querySelector(
+                `[data-message-index="${searchMatches[prevIndex]}"]`
+              ) as HTMLElement;
+              messageElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }}
+            onClose={() => updateSearch({ search: undefined })}
+          />
+        )}
         <div ref={contentRef} className="flex-1 overflow-y-auto p-4">
           {filteredMessages.map((message, msgIdx) => (
-            <SessionMessage
-              key={`${message.type}-${msgIdx}`}
-              message={message}
-              imageOffset={0}
-              onImageClick={(index) => {
-                setImageModalIndex(index);
-                updateSearch({ imageIndex: index });
-              }}
-              onPathClick={handlePathClick}
-            />
+            <div key={`${message.type}-${msgIdx}`} data-message-index={msgIdx}>
+              <SessionMessage
+                message={message}
+                imageOffset={0}
+                onImageClick={(index) => {
+                  setImageModalIndex(index);
+                  updateSearch({ imageIndex: index });
+                }}
+                onPathClick={handlePathClick}
+                searchTerm={searchQuery}
+                isSearchMatch={searchMatches.includes(msgIdx)}
+              />
+            </div>
           ))}
         </div>
 

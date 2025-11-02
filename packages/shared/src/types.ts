@@ -24,27 +24,48 @@ export type ProjectSettings = {
 
 export type ProjectsConfig = {
   groupBy: 'date' | 'label' | 'session-count';
-  filters: {};
+  filters: {
+    selectedLabels: string[];
+  };
   display: {
     showSessionCount: boolean;
     showCurrentBranch: boolean;
     showActionButtons: boolean;
+    showProjectLabel: boolean;
   };
   search: string;
   labels: ProjectLabel[];
   projectSettings: Record<string, ProjectSettings>;
 };
 
+export type SessionsConfig = {
+  groupBy: 'date' | 'token-percentage' | 'label';
+  filters: Record<string, unknown>;
+  display: {
+    showTokenPercentage: boolean;
+    showAttachments: boolean;
+  };
+  labels: ProjectLabel[];
+};
+
 export type AppSettings = {
   projects: ProjectsConfig;
+  sessions: SessionsConfig;
 };
 
 export type Session = {
   id: string;
   title: string;
   messageCount: number;
+  userMessageCount?: number;
+  assistantMessageCount?: number;
   createdAt: number;
   tokenPercentage?: number;
+  searchMatchCount?: number;
+  imageCount?: number;
+  customCommandCount?: number;
+  filesOrFoldersCount?: number;
+  labels?: string[];
 };
 
 export type MessageType = 'user' | 'assistant';

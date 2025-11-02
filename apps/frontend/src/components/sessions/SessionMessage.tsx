@@ -6,6 +6,8 @@ type SessionMessageProps = {
   imageOffset: number;
   onImageClick: (imageIndex: number) => void;
   onPathClick?: (path: string) => void;
+  searchTerm?: string;
+  isSearchMatch?: boolean;
 };
 
 function escapeHtml(text: string): string {
@@ -31,7 +33,10 @@ function parseCommandFormat(text: string): string | null {
   return null;
 }
 
-function applyCommonFormatting(text: string): {
+function applyCommonFormatting(
+  text: string,
+  searchTerm?: string
+): {
   formatted: string;
   imageRefs: Array<{ placeholder: string; index: number }>;
 } {
@@ -55,10 +60,19 @@ function applyCommonFormatting(text: string): {
     '<span class="bg-gradient-to-r from-destructive via-primary to-chart-4 bg-clip-text text-transparent font-semibold">ultrathink</span>'
   );
 
+  if (searchTerm) {
+    const escapedTerm = escapeHtml(searchTerm);
+    const regex = new RegExp(`(${escapedTerm})`, 'gi');
+    formatted = formatted.replace(regex, '<mark class="bg-primary/30 font-semibold">$1</mark>');
+  }
+
   return { formatted, imageRefs };
 }
 
-function formatMessage(text: string): { html: string; imageRefs: Array<{ placeholder: string; index: number }> } {
+function formatMessage(
+  text: string,
+  searchTerm?: string
+): { html: string; imageRefs: Array<{ placeholder: string; index: number }> } {
   const parsedCommand = parseCommandFormat(text);
   if (parsedCommand) {
     return { html: parsedCommand, imageRefs: [] };
@@ -85,7 +99,7 @@ function formatMessage(text: string): { html: string; imageRefs: Array<{ placeho
     '[Tool: $1] "<span class="text-primary font-semibold">$2</span>"'
   );
 
-  const { formatted: withCommon, imageRefs } = applyCommonFormatting(formatted);
+  const { formatted: withCommon, imageRefs } = applyCommonFormatting(formatted, searchTerm);
   formatted = withCommon;
 
   formatted = formatted.replace(/\n---\n/g, '<div class="h-px bg-border my-3 w-[40%] mx-auto"></div>');
@@ -95,12 +109,18 @@ function formatMessage(text: string): { html: string; imageRefs: Array<{ placeho
   return { html: formatted, imageRefs };
 }
 
-export const SessionMessage = ({ message, onImageClick, onPathClick }: SessionMessageProps) => {
+export const SessionMessage = ({
+  message,
+  onImageClick,
+  onPathClick,
+  searchTerm,
+  isSearchMatch
+}: SessionMessageProps) => {
   if (typeof message.content !== 'string') {
     return null;
   }
 
-  const { html, imageRefs } = formatMessage(message.content);
+  const { html, imageRefs } = formatMessage(message.content, searchTerm);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -116,6 +136,7 @@ export const SessionMessage = ({ message, onImageClick, onPathClick }: SessionMe
       className={`
         mb-3 p-2 px-3 rounded-md break-words
         ${message.type === 'user' ? 'bg-secondary ml-10' : 'bg-card border-2 border-primary mr-10'}
+        ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
       `}
     >
       <div className="text-[11px] font-semibold mb-1 opacity-70 uppercase leading-none">

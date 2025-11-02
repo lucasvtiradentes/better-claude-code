@@ -1,13 +1,27 @@
 import type { Session } from '@bcc/shared';
+import { FileText, Image, Search, Terminal } from 'lucide-react';
+import { IconWithBadge } from '../common/IconWithBadge';
 
 type SessionCardProps = {
   session: Session;
   projectName: string;
   onClick: () => void;
   isActive?: boolean;
+  displaySettings?: {
+    showTokenPercentage: boolean;
+    showAttachments: boolean;
+  };
 };
 
-export const SessionCard = ({ session, onClick, isActive }: SessionCardProps) => {
+export const SessionCard = ({
+  session,
+  onClick,
+  isActive,
+  displaySettings = {
+    showTokenPercentage: true,
+    showAttachments: false
+  }
+}: SessionCardProps) => {
   const getTokenColor = (percentage: number) => {
     if (percentage >= 80) return 'text-destructive';
     if (percentage >= 50) return 'text-primary';
@@ -73,8 +87,41 @@ export const SessionCard = ({ session, onClick, isActive }: SessionCardProps) =>
           </span>
         ))}
       </div>
-      <div className="flex items-center justify-end text-[11px]">
-        {session.tokenPercentage !== undefined && (
+      <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-2">
+          {session.searchMatchCount !== undefined && (
+            <span className="text-primary">
+              <IconWithBadge
+                icon={Search}
+                count={session.searchMatchCount}
+                label={`${session.searchMatchCount} matches`}
+              />
+            </span>
+          )}
+          {displaySettings.showAttachments && (
+            <>
+              {session.imageCount !== undefined && session.imageCount > 0 && (
+                <IconWithBadge icon={Image} count={session.imageCount} label={`${session.imageCount} images`} />
+              )}
+              {session.customCommandCount !== undefined && session.customCommandCount > 0 && (
+                <IconWithBadge
+                  icon={Terminal}
+                  count={session.customCommandCount}
+                  label={`${session.customCommandCount} custom commands`}
+                />
+              )}
+              {session.filesOrFoldersCount !== undefined && session.filesOrFoldersCount > 0 && (
+                <IconWithBadge
+                  icon={FileText}
+                  count={session.filesOrFoldersCount}
+                  label={`${session.filesOrFoldersCount} files/folders`}
+                />
+              )}
+            </>
+          )}
+        </div>
+
+        {displaySettings.showTokenPercentage && session.tokenPercentage !== undefined && (
           <span className={getTokenColor(session.tokenPercentage)}>{session.tokenPercentage}%</span>
         )}
       </div>

@@ -1,27 +1,25 @@
-import type { ProjectsConfig } from '@bcc/shared';
+import type { SessionsConfig } from '@bcc/shared';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useProjectsStore } from '../../stores/projects-store';
+import { useSessionsStore } from '../../stores/sessions-store';
 
 type SettingsFormData = {
-  groupBy: ProjectsConfig['groupBy'];
-  showSessionCount: boolean;
-  showCurrentBranch: boolean;
-  showActionButtons: boolean;
+  groupBy: SessionsConfig['groupBy'];
+  showTokenPercentage: boolean;
+  showAttachments: boolean;
 };
 
-export const SettingsTab = () => {
-  const { settings, updateSettings } = useProjectsStore();
+export const SessionSettingsTab = () => {
+  const { settings, updateSettings } = useSessionsStore();
 
   const form = useForm<SettingsFormData>({
     defaultValues: {
       groupBy: settings?.groupBy || 'date',
-      showSessionCount: settings?.display.showSessionCount ?? true,
-      showCurrentBranch: settings?.display.showCurrentBranch ?? true,
-      showActionButtons: settings?.display.showActionButtons ?? true
+      showTokenPercentage: settings?.display.showTokenPercentage ?? true,
+      showAttachments: settings?.display.showAttachments ?? false
     }
   });
 
@@ -29,9 +27,8 @@ export const SettingsTab = () => {
     if (settings) {
       form.reset({
         groupBy: settings.groupBy,
-        showSessionCount: settings.display.showSessionCount,
-        showCurrentBranch: settings.display.showCurrentBranch,
-        showActionButtons: settings.display.showActionButtons
+        showTokenPercentage: settings.display.showTokenPercentage,
+        showAttachments: settings.display.showAttachments
       });
     }
   }, [settings, form]);
@@ -40,7 +37,7 @@ export const SettingsTab = () => {
     if (!settings) return;
 
     if (field === 'groupBy') {
-      updateSettings({ groupBy: value as ProjectsConfig['groupBy'] });
+      updateSettings({ groupBy: value as SessionsConfig['groupBy'] });
     } else {
       updateSettings({
         display: {
@@ -78,8 +75,8 @@ export const SettingsTab = () => {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="date">Date Range</SelectItem>
+                      <SelectItem value="token-percentage">Token Percentage</SelectItem>
                       <SelectItem value="label">Labels</SelectItem>
-                      <SelectItem value="session-count">Session Count</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
@@ -92,7 +89,7 @@ export const SettingsTab = () => {
 
             <FormField
               control={form.control}
-              name="showSessionCount"
+              name="showTokenPercentage"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
@@ -100,12 +97,12 @@ export const SettingsTab = () => {
                       checked={field.value}
                       onCheckedChange={(checked) => {
                         field.onChange(checked);
-                        handleChange('showSessionCount', checked as boolean);
+                        handleChange('showTokenPercentage', checked as boolean);
                       }}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Show session count</FormLabel>
+                    <FormLabel>Show token percentage</FormLabel>
                   </div>
                 </FormItem>
               )}
@@ -113,7 +110,7 @@ export const SettingsTab = () => {
 
             <FormField
               control={form.control}
-              name="showCurrentBranch"
+              name="showAttachments"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
@@ -121,33 +118,12 @@ export const SettingsTab = () => {
                       checked={field.value}
                       onCheckedChange={(checked) => {
                         field.onChange(checked);
-                        handleChange('showCurrentBranch', checked as boolean);
+                        handleChange('showAttachments', checked as boolean);
                       }}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Show current branch</FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="showActionButtons"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={(checked) => {
-                        field.onChange(checked);
-                        handleChange('showActionButtons', checked as boolean);
-                      }}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Show action buttons</FormLabel>
+                    <FormLabel>Show attachments count</FormLabel>
                   </div>
                 </FormItem>
               )}

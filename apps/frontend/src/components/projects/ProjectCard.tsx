@@ -64,11 +64,7 @@ export const ProjectCard = ({
       </div>
 
       <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-        {displaySettings.showSessionCount ? (
-          <span>{project.sessionsCount} sessions</span>
-        ) : (
-          <span></span>
-        )}
+        {displaySettings.showSessionCount ? <span>{project.sessionsCount} sessions</span> : <span></span>}
 
         {displaySettings.showActionButtons && (
           <div className="flex items-center gap-1.5">

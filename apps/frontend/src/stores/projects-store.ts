@@ -69,7 +69,7 @@ export const useProjectsStore = create<ProjectsStore>((set, get) => ({
 
     const newFilters = {
       ...current.filters,
-      [filter]: !current.filters[filter]
+      [filter]: current.filters[filter]
     };
 
     await get().updateSettings({ filters: newFilters });

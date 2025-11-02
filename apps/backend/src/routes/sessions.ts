@@ -109,6 +109,7 @@ sessionsRouter.get('/:projectName', async (req, res) => {
     const { projectName } = req.params;
     const page = Number.parseInt(req.query.page as string, 10) || 1;
     const limit = Number.parseInt(req.query.limit as string, 10) || 20;
+    const search = (req.query.search as string) || '';
 
     const sessionsPath = path.join(os.homedir(), '.claude', 'projects', projectName);
     const files = await fs.readdir(sessionsPath);
@@ -172,14 +173,67 @@ sessionsRouter.get('/:projectName', async (req, res) => {
         continue;
       }
 
+      let searchMatchCount: number | undefined;
+
+      if (search) {
+        const searchLower = search.toLowerCase();
+        const titleMatch = title.toLowerCase().includes(searchLower);
+        const contentLower = content.toLowerCase();
+        const contentMatches = contentLower.split(searchLower).length - 1;
+
+        if (!titleMatch && contentMatches === 0) {
+          continue;
+        }
+
+        searchMatchCount = contentMatches + (titleMatch ? 1 : 0);
+      }
+
       const stats = await fs.stat(filePath);
+
+      let imageCount = 0;
+      let customCommandCount = 0;
+      let filesOrFoldersCount = 0;
+
+      for (const line of lines) {
+        try {
+          const parsed = JSON.parse(line);
+          const messageContent = parsed.message?.content;
+
+          if (Array.isArray(messageContent)) {
+            for (const item of messageContent) {
+              if (item.type === 'image') {
+                imageCount++;
+              }
+            }
+          }
+
+          if (parsed.type === 'user') {
+            const content = extractTextContent(parsed.message?.content);
+            if (content) {
+              const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
+              if (commandMatch) {
+                customCommandCount++;
+              }
+
+              const fileOrFolderMatches = content.match(/\/([\w\-./]+)/g);
+              if (fileOrFolderMatches) {
+                filesOrFoldersCount += fileOrFolderMatches.length;
+              }
+            }
+          }
+        } catch {}
+      }
 
       sessions.push({
         id: file.replace('.jsonl', ''),
         title,
         messageCount: messages.length,
         createdAt: stats.birthtimeMs,
-        tokenPercentage
+        tokenPercentage,
+        searchMatchCount,
+        imageCount: imageCount > 0 ? imageCount : undefined,
+        customCommandCount: customCommandCount > 0 ? customCommandCount : undefined,
+        filesOrFoldersCount: filesOrFoldersCount > 0 ? filesOrFoldersCount : undefined
       });
     }
 
