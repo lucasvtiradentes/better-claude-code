@@ -31,7 +31,7 @@ export const ProjectCard = ({ project, onClick, isActive }: ProjectCardProps) =>
       <div className="flex items-center justify-between gap-2 text-[11px] text-[#858585]">
         <span>{project.sessionsCount} sessions</span>
         <div className="flex items-center gap-1.5">
-          {project.githubUrl && (
+          {project.githubUrl ? (
             <button
               type="button"
               onClick={handleGitHubClick}
@@ -40,11 +40,12 @@ export const ProjectCard = ({ project, onClick, isActive }: ProjectCardProps) =>
             >
               <Github size={14} />
             </button>
-          )}
-          {project.isGitRepo && (
-            <span className="cursor-default" title="This project is a Git repository">
-              <GitBranch size={14} className="text-[#0e639c]" />
-            </span>
+          ) : (
+            project.isGitRepo && (
+              <span className="cursor-default" title="This project is a Git repository">
+                <GitBranch size={14} className="text-[#0e639c]" />
+              </span>
+            )
           )}
         </div>
       </div>
