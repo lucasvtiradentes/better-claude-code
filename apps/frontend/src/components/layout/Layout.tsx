@@ -8,7 +8,7 @@ type LayoutProps = {
 
 export const Layout = ({ sidebar, children }: LayoutProps) => {
   return (
-    <div className="h-screen flex bg-[#1e1e1e] text-[#d4d4d4]">
+    <div className="h-screen flex bg-background text-foreground">
       <IconNavigation />
       {sidebar}
       <main className="flex-1 flex flex-col overflow-hidden">{children}</main>

@@ -27,21 +27,21 @@ export const IconNavigation = () => {
   };
 
   return (
-    <nav className="w-[60px] bg-[#333333] border-r border-[#3e3e42] flex flex-col">
+    <nav className="w-[60px] bg-card border-r border-border flex flex-col">
       {navItems.map((item) => (
         <Link
           key={item.path}
           to={item.path}
           className={`
             h-[60px] flex items-center justify-center cursor-pointer
-            border-b border-[#3e3e42] transition-all duration-100
+            border-b border-border transition-all duration-100
             relative
-            hover:bg-[#2a2a2a]
-            ${isActive(item.path) ? 'bg-[#094771]' : ''}
+            hover:bg-accent
+            ${isActive(item.path) ? 'bg-primary/20' : ''}
           `}
           aria-label={item.label}
         >
-          {isActive(item.path) && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#007acc]" />}
+          {isActive(item.path) && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary" />}
           <span className="text-2xl">{item.icon}</span>
         </Link>
       ))}
@@ -49,13 +49,13 @@ export const IconNavigation = () => {
       <button
         type="button"
         onClick={toggleTheme}
-        className="h-[60px] flex items-center justify-center cursor-pointer border-t border-[#3e3e42] transition-all duration-100 hover:bg-[#2a2a2a]"
+        className="h-[60px] flex items-center justify-center cursor-pointer border-t border-border transition-all duration-100 hover:bg-accent"
         aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       >
         {theme === 'dark' ? (
-          <Sun size={24} className="text-[#d4d4d4]" />
+          <Sun size={24} className="text-foreground" />
         ) : (
-          <Moon size={24} className="text-[#d4d4d4]" />
+          <Moon size={24} className="text-foreground" />
         )}
       </button>
     </nav>

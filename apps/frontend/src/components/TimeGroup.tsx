@@ -16,7 +16,7 @@ export const TimeGroup = ({ label, groupKey, children }: TimeGroupProps) => {
 
   return (
     <div>
-      <div className="px-4 py-2 text-[11px] font-semibold text-[#858585] uppercase bg-[#1e1e1e] border-b border-[#2d2d30] sticky top-0 z-10 flex justify-between items-center min-h-[32px]">
+      <div className="px-4 py-2 text-[11px] font-semibold text-muted-foreground uppercase bg-background border-b border-border sticky top-0 z-10 flex justify-between items-center min-h-[32px]">
         <span>{leftText}</span>
         <span className="font-normal opacity-70">({count})</span>
       </div>

@@ -150,7 +150,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
       {error ? (
         <div className="p-4 text-red-500">Failed to load projects</div>
       ) : isLoading ? (
-        <div className="p-4 text-[#858585]">Loading projects...</div>
+        <div className="p-4 text-muted-foreground">Loading projects...</div>
       ) : (
         getGroupOrder().map((groupKey) => {
           const groupProjects = groupedProjects?.[groupKey];

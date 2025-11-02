@@ -9,9 +9,9 @@ type SessionCardProps = {
 
 export const SessionCard = ({ session, onClick, isActive }: SessionCardProps) => {
   const getTokenColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-[#ff4444]';
-    if (percentage >= 50) return 'text-[#ffa500]';
-    return 'text-[#858585]';
+    if (percentage >= 80) return 'text-red-500';
+    if (percentage >= 50) return 'text-orange-500';
+    return 'text-muted-foreground';
   };
 
   const parseTitle = (title: string) => {
@@ -52,9 +52,9 @@ export const SessionCard = ({ session, onClick, isActive }: SessionCardProps) =>
       onClick={onClick}
       className={`
         w-full text-left px-4 py-3 cursor-pointer
-        border-b border-[#2d2d30] transition-all duration-100
-        hover:bg-[#2a2d2e]
-        ${isActive ? 'bg-[#094771]' : ''}
+        border-b border-border transition-all duration-100
+        hover:bg-accent
+        ${isActive ? 'bg-primary/20' : ''}
       `}
     >
       <div className="text-sm font-semibold mb-1 break-words line-clamp-2">

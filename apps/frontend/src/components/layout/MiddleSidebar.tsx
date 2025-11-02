@@ -17,19 +17,19 @@ export const MiddleSidebar = ({ title, backButton, children, hidden = false, scr
   }
 
   return (
-    <aside className="w-[420px] bg-[#252526] border-r border-[#3e3e42] flex flex-col">
+    <aside className="w-[420px] bg-card border-r border-border flex flex-col">
       {(title || backButton) && (
-        <div className="px-4 py-4 border-b border-[#3e3e42] flex items-center justify-between min-h-[48px]">
+        <div className="px-4 py-4 border-b border-border flex items-center justify-between min-h-[48px]">
           {backButton && (
             <button
               type="button"
               onClick={backButton.onClick}
-              className="px-2 py-1 bg-[#333333] rounded text-xs transition-all duration-100 hover:bg-[#404040]"
+              className="px-2 py-1 bg-secondary rounded text-xs transition-all duration-100 hover:bg-accent"
             >
               {backButton.label}
             </button>
           )}
-          {title && <span className="font-semibold text-sm text-[#cccccc]">{title}</span>}
+          {title && <span className="font-semibold text-sm text-foreground">{title}</span>}
         </div>
       )}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">

@@ -64,7 +64,7 @@ export const SessionsSidebar = ({
       {error ? (
         <div className="p-4 text-red-500">Failed to load sessions</div>
       ) : isLoading ? (
-        <div className="p-4 text-[#858585]">Loading sessions...</div>
+        <div className="p-4 text-muted-foreground">Loading sessions...</div>
       ) : (
         <>
           {TIME_GROUP_ORDER.map((timeGroup) => {
@@ -85,7 +85,7 @@ export const SessionsSidebar = ({
               </TimeGroup>
             );
           })}
-          {isFetchingNextPage && <div className="p-4 text-center text-[#858585]">Loading more...</div>}
+          {isFetchingNextPage && <div className="p-4 text-center text-muted-foreground">Loading more...</div>}
         </>
       )}
     </MiddleSidebar>

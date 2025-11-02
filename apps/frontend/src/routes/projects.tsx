@@ -203,13 +203,13 @@ function ProjectsComponent() {
   let content: ReactNode;
   if (!selectedProject) {
     content = (
-      <div className="flex items-center justify-center h-full text-[#858585] text-sm">
+      <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
         Select a project to view sessions
       </div>
     );
   } else if (!sessionId) {
     content = (
-      <div className="flex items-center justify-center h-full text-[#858585] text-sm">
+      <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
         Select a session to view messages
       </div>
     );
@@ -220,7 +220,7 @@ function ProjectsComponent() {
       </div>
     );
   } else if (sessionLoading || !sessionData) {
-    content = <div className="flex items-center justify-center h-full text-[#858585]">Loading session...</div>;
+    content = <div className="flex items-center justify-center h-full text-muted-foreground">Loading session...</div>;
   } else {
     let filteredMessages = sessionData.messages.filter(
       (msg) => (msg.type === 'user' && showUserMessages) || (msg.type === 'assistant' && showAssistantMessages)
@@ -260,7 +260,7 @@ function ProjectsComponent() {
 
     content = (
       <>
-        <div className="p-4 border-b border-[#3e3e42] flex items-center justify-between">
+        <div className="p-4 border-b border-border flex items-center justify-between">
           <span className="font-semibold text-sm">{currentSession?.title || 'Session'}</span>
           <FilterButtons />
         </div>

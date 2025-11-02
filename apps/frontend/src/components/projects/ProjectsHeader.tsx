@@ -13,7 +13,7 @@ export const ProjectsHeader = ({ projectCount }: ProjectsHeaderProps) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div className="p-4 border-b border-[#3e3e42]">
+    <div className="p-4 border-b border-border">
       <div className="flex items-center justify-between">
         <span className="font-semibold text-sm">Projects ({projectCount})</span>
         <div className="flex items-center gap-2">
@@ -25,7 +25,7 @@ export const ProjectsHeader = ({ projectCount }: ProjectsHeaderProps) => {
                   placeholder="Search projects..."
                   value={settings?.search || ''}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-48 px-3 py-1.5 bg-[#1e1e1e] border border-[#3e3e42] rounded text-sm focus:outline-none focus:border-[#007acc]"
+                  className="w-48 px-3 py-1.5 bg-background border border-border rounded text-sm focus:outline-none focus:border-primary"
                 />
                 <button
                   type="button"
@@ -33,7 +33,7 @@ export const ProjectsHeader = ({ projectCount }: ProjectsHeaderProps) => {
                     setShowSearch(false);
                     setSearch('');
                   }}
-                  className="p-1.5 hover:bg-[#2a2d2e] rounded transition-colors"
+                  className="p-1.5 hover:bg-accent rounded transition-colors"
                   title="Close search"
                 >
                   <X size={16} />
@@ -44,7 +44,7 @@ export const ProjectsHeader = ({ projectCount }: ProjectsHeaderProps) => {
               <button
                 type="button"
                 onClick={() => setShowSearch(true)}
-                className="p-1.5 hover:bg-[#2a2d2e] rounded transition-colors"
+                className="p-1.5 hover:bg-accent rounded transition-colors"
                 title="Search projects"
               >
                 <Search size={16} />
@@ -54,7 +54,7 @@ export const ProjectsHeader = ({ projectCount }: ProjectsHeaderProps) => {
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            className="p-1.5 hover:bg-[#2a2d2e] rounded transition-colors"
+            className="p-1.5 hover:bg-accent rounded transition-colors"
             title="Settings"
           >
             <Settings size={16} />
