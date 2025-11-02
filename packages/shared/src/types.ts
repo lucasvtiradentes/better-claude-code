@@ -6,6 +6,7 @@ export type Project = {
   lastModified: number;
   isGitRepo: boolean;
   githubUrl?: string;
+  currentBranch?: string;
 };
 
 export type Session = {

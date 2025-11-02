@@ -1,5 +1,5 @@
 import type { Project } from '@bcc/shared';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
 import os from 'os';
@@ -64,6 +64,15 @@ async function getGitHubUrl(projectPath: string): Promise<string | undefined> {
   }
 }
 
+async function getCurrentBranch(projectPath: string): Promise<string | undefined> {
+  try {
+    const { stdout } = await execAsync('git branch --show-current', { cwd: projectPath });
+    return stdout.trim() || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 projectsRouter.get('/', async (_req, res) => {
   try {
     const projectsPath = path.join(os.homedir(), '.claude', 'projects');
@@ -95,10 +104,12 @@ projectsRouter.get('/', async (_req, res) => {
 
       let isGitRepo = false;
       let githubUrl: string | undefined;
+      let currentBranch: string | undefined;
       try {
         await fs.access(path.join(realPath, '.git'));
         isGitRepo = true;
         githubUrl = await getGitHubUrl(realPath);
+        currentBranch = await getCurrentBranch(realPath);
       } catch {
         isGitRepo = false;
       }
@@ -113,7 +124,8 @@ projectsRouter.get('/', async (_req, res) => {
         sessionsCount,
         lastModified,
         isGitRepo,
-        githubUrl
+        githubUrl,
+        currentBranch
       });
     }
 
@@ -122,5 +134,76 @@ projectsRouter.get('/', async (_req, res) => {
     res.json(projects);
   } catch (_error) {
     res.status(500).json({ error: 'Failed to read projects' });
+  }
+});
+
+projectsRouter.post('/:projectId/action/:action', async (req, res) => {
+  try {
+    const { projectId, action } = req.params;
+
+    if (!['openFolder', 'openCodeEditor', 'openTerminal'].includes(action)) {
+      return res.status(400).json({ error: 'Invalid action' });
+    }
+
+    const projectPath = path.join(os.homedir(), '.claude', 'projects', projectId);
+    const realPath = await getRealPathFromSession(projectPath);
+
+    if (!realPath) {
+      return res.status(404).json({ error: 'Project path not found' });
+    }
+
+    const platform = process.platform;
+
+    let command: string;
+    let args: string[];
+
+    switch (action) {
+      case 'openFolder':
+        if (platform === 'darwin') {
+          command = 'open';
+          args = [realPath];
+        } else if (platform === 'win32') {
+          command = 'explorer';
+          args = [realPath];
+        } else {
+          command = 'xdg-open';
+          args = [realPath];
+        }
+        break;
+
+      case 'openTerminal':
+        if (platform === 'darwin') {
+          command = 'open';
+          args = ['-a', 'Terminal', realPath];
+        } else if (platform === 'win32') {
+          command = 'cmd';
+          args = ['/c', 'start', 'cmd', '/K', `cd /d "${realPath}"`];
+        } else {
+          command = 'sh';
+          args = [
+            '-c',
+            `cd "${realPath}" && (gnome-terminal --working-directory="${realPath}" || konsole --workdir "${realPath}" || xfce4-terminal --working-directory="${realPath}" || x-terminal-emulator || xterm)`
+          ];
+        }
+        break;
+
+      case 'openCodeEditor':
+        command = 'code';
+        args = [realPath];
+        break;
+
+      default:
+        return res.status(400).json({ error: 'Invalid action' });
+    }
+
+    spawn(command, args, {
+      detached: true,
+      stdio: 'ignore',
+      shell: platform === 'win32'
+    }).unref();
+
+    res.json({ success: true, action, path: realPath });
+  } catch (_error) {
+    res.status(500).json({ error: 'Failed to execute action' });
   }
 });
