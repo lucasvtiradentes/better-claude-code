@@ -1,39 +1,171 @@
 import type { Project } from '@bcc/shared';
-import { TIME_GROUP_LABELS, TIME_GROUP_ORDER } from '@bcc/shared';
+import {
+  getSessionCountGroup,
+  getTimeGroup,
+  SESSION_COUNT_GROUP_LABELS,
+  SESSION_COUNT_GROUP_ORDER,
+  TIME_GROUP_LABELS,
+  TIME_GROUP_ORDER
+} from '@bcc/shared';
+import { useEffect, useMemo } from 'react';
+import { useProjectsStore } from '../../stores/projects-store';
 import { MiddleSidebar } from '../layout/MiddleSidebar';
 import { TimeGroup } from '../TimeGroup';
 import { ProjectCard } from './ProjectCard';
+import { ProjectsHeader } from './ProjectsHeader';
 
 type ProjectsSidebarProps = {
   projects: Project[] | undefined;
-  groupedProjects: Record<string, Project[]> | undefined;
   isLoading: boolean;
   error: unknown;
   onSelectProject: (projectName: string) => void;
 };
 
-export const ProjectsSidebar = ({
-  projects,
-  groupedProjects,
-  isLoading,
-  error,
-  onSelectProject
-}: ProjectsSidebarProps) => {
+export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }: ProjectsSidebarProps) => {
+  const { settings, loadSettings } = useProjectsStore();
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
+
+  const filteredProjects = useMemo(() => {
+    if (!projects || !settings) return projects;
+
+    let filtered = projects;
+
+    if (settings.filters.hideNonGitProjects) {
+      filtered = filtered.filter((p) => p.isGitRepo);
+    }
+
+    if (settings.filters.selectedLabels.length > 0) {
+      filtered = filtered.filter((p) => p.labels?.some((l) => settings.filters.selectedLabels.includes(l)));
+    }
+
+    if (settings.search) {
+      const searchLower = settings.search.toLowerCase();
+      filtered = filtered.filter(
+        (p) => p.name.toLowerCase().includes(searchLower) || p.path.toLowerCase().includes(searchLower)
+      );
+    }
+
+    filtered = filtered.filter((p) => !p.hidden);
+
+    return filtered;
+  }, [projects, settings]);
+
+  const groupedProjects = useMemo(() => {
+    if (!filteredProjects || !settings) return undefined;
+
+    if (settings.groupBy === 'date') {
+      return filteredProjects.reduce(
+        (acc, project) => {
+          const group = getTimeGroup(project.lastModified);
+          if (!acc[group]) acc[group] = [];
+          acc[group].push(project);
+          return acc;
+        },
+        {} as Record<string, Project[]>
+      );
+    }
+
+    if (settings.groupBy === 'session-count') {
+      return filteredProjects.reduce(
+        (acc, project) => {
+          const group = getSessionCountGroup(project.sessionsCount);
+          if (!acc[group]) acc[group] = [];
+          acc[group].push(project);
+          return acc;
+        },
+        {} as Record<string, Project[]>
+      );
+    }
+
+    if (settings.groupBy === 'label') {
+      const grouped: Record<string, Project[]> = {
+        'no-label': []
+      };
+
+      filteredProjects.forEach((project) => {
+        if (!project.labels || project.labels.length === 0) {
+          grouped['no-label'].push(project);
+        } else {
+          project.labels.forEach((labelId) => {
+            const label = settings.labels.find((l) => l.id === labelId);
+            if (label) {
+              if (!grouped[label.id]) grouped[label.id] = [];
+              grouped[label.id].push(project);
+            }
+          });
+        }
+      });
+
+      return grouped;
+    }
+
+    return undefined;
+  }, [filteredProjects, settings]);
+
+  const getGroupLabel = (groupKey: string): string => {
+    if (!settings) return groupKey;
+
+    if (settings.groupBy === 'date') {
+      return TIME_GROUP_LABELS[groupKey as keyof typeof TIME_GROUP_LABELS] || groupKey;
+    }
+
+    if (settings.groupBy === 'session-count') {
+      return SESSION_COUNT_GROUP_LABELS[groupKey as keyof typeof SESSION_COUNT_GROUP_LABELS] || groupKey;
+    }
+
+    if (settings.groupBy === 'label') {
+      if (groupKey === 'no-label') return 'No Label';
+      const label = settings.labels.find((l) => l.id === groupKey);
+      return label ? label.name : groupKey;
+    }
+
+    return groupKey;
+  };
+
+  const getGroupOrder = (): string[] => {
+    if (!settings) return [];
+
+    if (settings.groupBy === 'date') {
+      return TIME_GROUP_ORDER;
+    }
+
+    if (settings.groupBy === 'session-count') {
+      return SESSION_COUNT_GROUP_ORDER;
+    }
+
+    if (settings.groupBy === 'label') {
+      const labelIds = settings.labels.map((l) => l.id);
+      return [...labelIds, 'no-label'];
+    }
+
+    return [];
+  };
+
   return (
-    <MiddleSidebar title={`Projects (${projects?.length || 0})`}>
+    <MiddleSidebar>
+      <ProjectsHeader projectCount={filteredProjects?.length || 0} />
       {error ? (
         <div className="p-4 text-red-500">Failed to load projects</div>
       ) : isLoading ? (
         <div className="p-4 text-[#858585]">Loading projects...</div>
       ) : (
-        TIME_GROUP_ORDER.map((timeGroup) => {
-          const groupProjects = groupedProjects?.[timeGroup];
+        getGroupOrder().map((groupKey) => {
+          const groupProjects = groupedProjects?.[groupKey];
           if (!groupProjects?.length) return null;
 
           return (
-            <TimeGroup key={timeGroup} label={TIME_GROUP_LABELS[timeGroup]} groupKey={timeGroup}>
+            <TimeGroup key={groupKey} label={getGroupLabel(groupKey)} groupKey={groupKey as any}>
               {groupProjects.map((project) => (
-                <ProjectCard key={project.id} project={project} onClick={() => onSelectProject(project.id)} />
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  onClick={() => onSelectProject(project.id)}
+                  labels={settings?.labels || []}
+                  displaySettings={settings?.display}
+                />
               ))}
             </TimeGroup>
           );

@@ -1,4 +1,4 @@
-import type { Project } from '@bcc/shared';
+import type { Project, ProjectLabel } from '@bcc/shared';
 import { Code, FolderOpen, GitBranch, Github, Terminal } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
@@ -7,9 +7,28 @@ type ProjectCardProps = {
   onClick: () => void;
   isActive?: boolean;
   className?: string;
+  labels?: ProjectLabel[];
+  displaySettings?: {
+    showSessionCount: boolean;
+    showCurrentBranch: boolean;
+    showActionButtons: boolean;
+    showProjectLabel: boolean;
+  };
 };
 
-export const ProjectCard = ({ project, onClick, isActive, className }: ProjectCardProps) => {
+export const ProjectCard = ({
+  project,
+  onClick,
+  isActive,
+  className,
+  labels = [],
+  displaySettings = {
+    showSessionCount: true,
+    showCurrentBranch: true,
+    showActionButtons: true,
+    showProjectLabel: true
+  }
+}: ProjectCardProps) => {
   const handleGitHubClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (project.githubUrl) {
@@ -28,6 +47,10 @@ export const ProjectCard = ({ project, onClick, isActive, className }: ProjectCa
     }
   };
 
+  const projectLabels = labels.filter((l) => project.labels?.includes(l.id));
+  const displayedLabels = projectLabels.slice(0, 2);
+  const remainingCount = projectLabels.length - 2;
+
   return (
     <button
       type="button"
@@ -41,59 +64,78 @@ export const ProjectCard = ({ project, onClick, isActive, className }: ProjectCa
     >
       <div className="flex items-center justify-between gap-2 mb-2">
         <div className="text-sm font-semibold break-words line-clamp-1">{project.name}</div>
-        {project.isGitRepo && project.currentBranch && (
+        {displaySettings.showCurrentBranch && project.isGitRepo && project.currentBranch && (
           <div className="text-[10px] text-[#858585] flex items-center gap-1 flex-shrink-0">
             <GitBranch size={10} />
             <span>{project.currentBranch}</span>
           </div>
         )}
       </div>
-      <div className="flex items-center justify-between gap-2 text-[11px] text-[#858585]">
-        <span>{project.sessionsCount} sessions</span>
-        <div className="flex items-center gap-1.5">
-          {project.githubUrl ? (
-            <button
-              type="button"
-              onClick={handleGitHubClick}
-              className="hover:text-white transition-colors cursor-pointer"
-              title="This project has a GitHub repository"
+
+      {displaySettings.showProjectLabel && projectLabels.length > 0 && (
+        <div className="flex items-center gap-1 mb-2 flex-wrap">
+          {displayedLabels.map((label) => (
+            <span
+              key={label.id}
+              className="text-[10px] px-2 py-0.5 rounded"
+              style={{ backgroundColor: `${label.color}33`, color: label.color }}
             >
-              <Github size={16} />
-            </button>
-          ) : (
-            project.isGitRepo && (
-              <span className="cursor-default" title="This project is a Git repository">
-                <GitBranch size={16} />
-              </span>
-            )
-          )}
-          {project.isGitRepo && (
-            <button
-              type="button"
-              onClick={(e) => handleAction(e, 'openCodeEditor')}
-              className="hover:text-white transition-colors cursor-pointer"
-              title="Open code editor"
-            >
-              <Code size={16} />
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={(e) => handleAction(e, 'openTerminal')}
-            className="hover:text-white transition-colors cursor-pointer"
-            title="Open terminal"
-          >
-            <Terminal size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={(e) => handleAction(e, 'openFolder')}
-            className="hover:text-white transition-colors cursor-pointer"
-            title="Open folder"
-          >
-            <FolderOpen size={16} />
-          </button>
+              {label.name}
+            </span>
+          ))}
+          {remainingCount > 0 && <span className="text-[10px] text-[#858585]">+{remainingCount} more</span>}
         </div>
+      )}
+
+      <div className="flex items-center justify-between gap-2 text-[11px] text-[#858585]">
+        {displaySettings.showSessionCount && <span>{project.sessionsCount} sessions</span>}
+
+        {displaySettings.showActionButtons && (
+          <div className="flex items-center gap-1.5">
+            {project.githubUrl ? (
+              <button
+                type="button"
+                onClick={handleGitHubClick}
+                className="hover:text-white transition-colors cursor-pointer"
+                title="This project has a GitHub repository"
+              >
+                <Github size={16} />
+              </button>
+            ) : (
+              project.isGitRepo && (
+                <span className="cursor-default" title="This project is a Git repository">
+                  <GitBranch size={16} />
+                </span>
+              )
+            )}
+            {project.isGitRepo && (
+              <button
+                type="button"
+                onClick={(e) => handleAction(e, 'openCodeEditor')}
+                className="hover:text-white transition-colors cursor-pointer"
+                title="Open code editor"
+              >
+                <Code size={16} />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={(e) => handleAction(e, 'openTerminal')}
+              className="hover:text-white transition-colors cursor-pointer"
+              title="Open terminal"
+            >
+              <Terminal size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleAction(e, 'openFolder')}
+              className="hover:text-white transition-colors cursor-pointer"
+              title="Open folder"
+            >
+              <FolderOpen size={16} />
+            </button>
+          </div>
+        )}
       </div>
     </button>
   );

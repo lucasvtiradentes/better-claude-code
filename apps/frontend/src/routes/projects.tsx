@@ -100,16 +100,6 @@ function ProjectsComponent() {
     }
   }, [urlFolderPath, urlFilePath]);
 
-  const groupedProjects = projects?.reduce(
-    (acc, project) => {
-      const group = getTimeGroup(project.lastModified);
-      if (!acc[group]) acc[group] = [];
-      acc[group].push(project);
-      return acc;
-    },
-    {} as Record<string, typeof projects>
-  );
-
   const groupedSessions = sessions?.reduce(
     (acc, session) => {
       const group = getTimeGroup(session.createdAt);
@@ -154,7 +144,6 @@ function ProjectsComponent() {
   const sidebar = !selectedProject ? (
     <ProjectsSidebar
       projects={projects}
-      groupedProjects={groupedProjects}
       isLoading={projectsLoading}
       error={projectsError}
       onSelectProject={(projectId) =>

@@ -7,6 +7,41 @@ export type Project = {
   isGitRepo: boolean;
   githubUrl?: string;
   currentBranch?: string;
+  labels?: string[];
+  hidden?: boolean;
+};
+
+export type ProjectLabel = {
+  id: string;
+  name: string;
+  color: string;
+};
+
+export type ProjectSettings = {
+  labels: string[];
+  hidden: boolean;
+};
+
+export type ProjectsConfig = {
+  groupBy: 'date' | 'label' | 'session-count';
+  filters: {
+    hideNonGitProjects: boolean;
+    hidePathInCards: boolean;
+    selectedLabels: string[];
+  };
+  display: {
+    showSessionCount: boolean;
+    showCurrentBranch: boolean;
+    showActionButtons: boolean;
+    showProjectLabel: boolean;
+  };
+  search: string;
+  labels: ProjectLabel[];
+  projectSettings: Record<string, ProjectSettings>;
+};
+
+export type AppSettings = {
+  projects: ProjectsConfig;
 };
 
 export type Session = {

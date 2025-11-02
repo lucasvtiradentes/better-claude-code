@@ -1,4 +1,4 @@
-import type { Project } from '@bcc/shared';
+import type { AppSettings, Project } from '@bcc/shared';
 import { exec, spawn } from 'child_process';
 import { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
@@ -7,6 +7,17 @@ import path from 'path';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
+
+const SETTINGS_PATH = path.join(os.homedir(), '.config', 'bcc', 'settings.json');
+
+async function readSettings(): Promise<AppSettings | null> {
+  try {
+    const content = await fs.readFile(SETTINGS_PATH, 'utf-8');
+    return JSON.parse(content);
+  } catch {
+    return null;
+  }
+}
 
 export const projectsRouter: RouterType = Router();
 
@@ -78,6 +89,8 @@ projectsRouter.get('/', async (_req, res) => {
     const projectsPath = path.join(os.homedir(), '.claude', 'projects');
     const folders = await fs.readdir(projectsPath);
 
+    const settings = await readSettings();
+
     const projects: Project[] = [];
 
     for (const folder of folders) {
@@ -117,6 +130,8 @@ projectsRouter.get('/', async (_req, res) => {
       const name = extractProjectName(realPath);
       const displayPath = realPath.replace(os.homedir(), '~');
 
+      const projectSettings = settings?.projects.projectSettings[folder];
+
       projects.push({
         id: folder,
         name,
@@ -125,7 +140,9 @@ projectsRouter.get('/', async (_req, res) => {
         lastModified,
         isGitRepo,
         githubUrl,
-        currentBranch
+        currentBranch,
+        labels: projectSettings?.labels || [],
+        hidden: projectSettings?.hidden || false
       });
     }
 

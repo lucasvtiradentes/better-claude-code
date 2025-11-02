@@ -1,4 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from '../../hooks/use-theme';
 
 type NavItem = {
   path: string;
@@ -15,6 +17,7 @@ const navItems: NavItem[] = [
 export const IconNavigation = () => {
   const router = useRouterState();
   const currentPath = router.location.pathname;
+  const { theme, toggleTheme } = useTheme();
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -42,6 +45,19 @@ export const IconNavigation = () => {
           <span className="text-2xl">{item.icon}</span>
         </Link>
       ))}
+      <div className="flex-1" />
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="h-[60px] flex items-center justify-center cursor-pointer border-t border-[#3e3e42] transition-all duration-100 hover:bg-[#2a2a2a]"
+        aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      >
+        {theme === 'dark' ? (
+          <Sun size={24} className="text-[#d4d4d4]" />
+        ) : (
+          <Moon size={24} className="text-[#d4d4d4]" />
+        )}
+      </button>
     </nav>
   );
 };
