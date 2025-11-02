@@ -177,62 +177,70 @@ body {
   justify-content: space-between;
 }
 
-.toggle-container {
+.filter-controls {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
-  font-weight: 400;
+}
+
+.filter-btn {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  user-select: none;
-}
-
-.toggle-label {
-  color: #cccccc;
-}
-
-.toggle-switch {
+  color: #858585;
+  transition: all 0.2s;
   position: relative;
-  width: 40px;
-  height: 20px;
 }
 
-.toggle-switch input[type="checkbox"] {
-  opacity: 0;
-  width: 0;
-  height: 0;
+.filter-btn svg {
+  stroke: currentColor;
+  fill: none;
+  transition: all 0.2s;
 }
 
-.toggle-slider {
+.filter-btn:hover {
+  color: #007acc;
+}
+
+.filter-btn.active {
+  color: #007acc;
+}
+
+.filter-btn.active svg {
+  stroke-width: 3;
+}
+
+.filter-btn[data-tooltip]:hover::before {
+  content: attr(data-tooltip);
   position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #3e3e42;
-  border-radius: 20px;
-  transition: background-color 0.2s;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e1e1e;
+  color: #cccccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  border: 1px solid #3e3e42;
+  z-index: 1000;
 }
 
-.toggle-slider::before {
-  position: absolute;
+.filter-btn[data-tooltip]:hover::after {
   content: "";
-  height: 14px;
-  width: 14px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  border-radius: 50%;
-  transition: transform 0.2s;
-}
-
-.toggle-switch input:checked + .toggle-slider {
-  background-color: #007acc;
-}
-
-.toggle-switch input:checked + .toggle-slider::before {
-  transform: translateX(20px);
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-bottom-color: #3e3e42;
+  z-index: 1000;
 }
 
 .content-body {

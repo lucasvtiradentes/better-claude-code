@@ -9,19 +9,19 @@ function escapeHtml(text) {
 function formatMessage(text) {
   let formatted = escapeHtml(text).replace(/\\/g, '');
 
-  formatted = formatted.replace(/\[Tool: ([^\]]+)\] (\/[^\s<>,]+)/g, (match, tool, path) => {
+  formatted = formatted.replace(/\[Tool: ([^\]]+)\] (\/[^\s<>,]+)/g, (_m, tool, path) => {
     return `[Tool: ${tool}] <span class="file-reference" onclick="alert('${path}')">${path}</span>`;
   });
 
-  formatted = formatted.replace(/pattern: "([^"]+)"/g, (match, pattern) => {
+  formatted = formatted.replace(/pattern: "([^"]+)"/g, (_m, pattern) => {
     return `pattern: "<span class="file-reference">${pattern}</span>"`;
   });
 
-  formatted = formatted.replace(/path: (\/[^\s<>,]+)/g, (match, path) => {
+  formatted = formatted.replace(/path: (\/[^\s<>,]+)/g, (_m, path) => {
     return `path: <span class="file-reference" onclick="alert('${path}')">${path}</span>`;
   });
 
-  formatted = formatted.replace(/\[Tool: ([^\]]+)\] "([^"]+)"/g, (match, tool, query) => {
+  formatted = formatted.replace(/\[Tool: ([^\]]+)\] "([^"]+)"/g, (_m, tool, query) => {
     return `[Tool: ${tool}] "<span class="file-reference">${query}</span>"`;
   });
 
@@ -238,21 +238,18 @@ export function selectSession(repoId, sessionId) {
   navigateTo(`/repositories?repo=${encodeURIComponent(repoId)}&sessionId=${sessionId}`);
 }
 
+let showUserMessages = localStorage.getItem('showUserMessages') !== 'false';
+let showAssistantMessages = localStorage.getItem('showAssistantMessages') !== 'false';
 let showToolCalls = localStorage.getItem('showToolCalls') !== 'false';
 
-window.toggleToolCalls = function() {
-  showToolCalls = !showToolCalls;
-  localStorage.setItem('showToolCalls', showToolCalls);
-
-  const checkbox = document.getElementById('toolCallsToggle');
-  if (checkbox) checkbox.checked = showToolCalls;
-
+function refreshSession() {
   const contentBody = document.getElementById('contentBody');
   const scrollPos = contentBody ? contentBody.scrollTop : 0;
 
   const currentUrl = new URLSearchParams(window.location.search);
   const repoId = currentUrl.get('repo');
   const sessionId = currentUrl.get('sessionId');
+
   if (repoId && sessionId) {
     renderSession(repoId, sessionId).then(() => {
       if (contentBody) {
@@ -260,7 +257,42 @@ window.toggleToolCalls = function() {
       }
     });
   }
+}
+
+window.toggleUserMessages = function() {
+  showUserMessages = !showUserMessages;
+  localStorage.setItem('showUserMessages', showUserMessages);
+  refreshSession();
 };
+
+window.toggleAssistantMessages = function() {
+  showAssistantMessages = !showAssistantMessages;
+  localStorage.setItem('showAssistantMessages', showAssistantMessages);
+  refreshSession();
+};
+
+window.toggleToolCalls = function() {
+  showToolCalls = !showToolCalls;
+  localStorage.setItem('showToolCalls', showToolCalls);
+  refreshSession();
+};
+
+function saveScrollPosition(sessionId) {
+  const contentBody = document.getElementById('contentBody');
+  if (contentBody) {
+    localStorage.setItem(`scroll_${sessionId}`, contentBody.scrollTop);
+  }
+}
+
+function restoreScrollPosition(sessionId) {
+  const savedScroll = localStorage.getItem(`scroll_${sessionId}`);
+  if (savedScroll) {
+    const contentBody = document.getElementById('contentBody');
+    if (contentBody) {
+      contentBody.scrollTop = parseInt(savedScroll, 10);
+    }
+  }
+}
 
 export async function renderSession(repoId, sessionId) {
   document.getElementById('mainSidebar').classList.remove('hidden');
@@ -285,13 +317,33 @@ export async function renderSession(repoId, sessionId) {
   `;
   document.getElementById('contentHeader').innerHTML = `
     <span>Session - ${sessionId.slice(-12)}</span>
-    <label class="toggle-container">
-      <span class="toggle-label">Show tool calls</span>
-      <div class="toggle-switch">
-        <input type="checkbox" id="toolCallsToggle" ${showToolCalls ? 'checked' : ''} onchange="window.toggleToolCalls()">
-        <span class="toggle-slider"></span>
-      </div>
-    </label>
+    <div class="filter-controls">
+      <button class="filter-btn ${showAssistantMessages ? 'active' : ''}" onclick="window.toggleAssistantMessages()" data-tooltip="Claude Code messages">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="4" y="4" width="16" height="16" rx="2"/>
+          <rect x="9" y="9" width="6" height="6"/>
+          <line x1="9" y1="1" x2="9" y2="4"/>
+          <line x1="15" y1="1" x2="15" y2="4"/>
+          <line x1="9" y1="20" x2="9" y2="23"/>
+          <line x1="15" y1="20" x2="15" y2="23"/>
+          <line x1="20" y1="9" x2="23" y2="9"/>
+          <line x1="20" y1="15" x2="23" y2="15"/>
+          <line x1="1" y1="9" x2="4" y2="9"/>
+          <line x1="1" y1="15" x2="4" y2="15"/>
+        </svg>
+      </button>
+      <button class="filter-btn ${showUserMessages ? 'active' : ''}" onclick="window.toggleUserMessages()" data-tooltip="Your messages">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+        </svg>
+      </button>
+      <button class="filter-btn ${showToolCalls ? 'active' : ''}" onclick="window.toggleToolCalls()" data-tooltip="Tool calls">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      </button>
+    </div>
   `;
   document.getElementById('contentBody').innerHTML = '<div class="loading">Loading...</div>';
 
@@ -309,7 +361,17 @@ export async function renderSession(repoId, sessionId) {
       return;
     }
 
-    const filteredMessages = data.messages.map(msg => {
+    let filteredMessages = data.messages;
+
+    if (!showUserMessages) {
+      filteredMessages = filteredMessages.filter(msg => msg.type !== 'user');
+    }
+
+    if (!showAssistantMessages) {
+      filteredMessages = filteredMessages.filter(msg => msg.type !== 'assistant');
+    }
+
+    filteredMessages = filteredMessages.map(msg => {
       if (!showToolCalls) {
         const lines = msg.content.split('\n');
         const filtered = lines.filter(line => !line.trim().startsWith('[Tool:'));
@@ -344,7 +406,22 @@ export async function renderSession(repoId, sessionId) {
       </div>
     `;
 
-    document.getElementById('contentBody').scrollTop = document.getElementById('contentBody').scrollHeight;
+    const contentBody = document.getElementById('contentBody');
+    const savedScroll = localStorage.getItem(`scroll_${sessionId}`);
+
+    if (savedScroll) {
+      restoreScrollPosition(sessionId);
+    } else {
+      contentBody.scrollTop = contentBody.scrollHeight;
+    }
+
+    let scrollTimeout;
+    contentBody.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => saveScrollPosition(sessionId), 300);
+    });
+
+    window.addEventListener('beforeunload', () => saveScrollPosition(sessionId));
   } catch (error) {
     document.getElementById('contentBody').innerHTML = '<div class="empty-state">Error loading session</div>';
   }
