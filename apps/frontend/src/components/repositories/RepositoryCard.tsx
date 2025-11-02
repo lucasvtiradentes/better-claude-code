@@ -12,7 +12,7 @@ export const RepositoryCard = ({ repository, onClick, isActive }: RepositoryCard
       type="button"
       onClick={onClick}
       className={`
-        w-full text-left mx-8 py-3 cursor-pointer
+        w-full text-left px-4 py-3 cursor-pointer
         border-b border-[#2d2d30] transition-all duration-100
         hover:bg-[#2a2d2e]
         ${isActive ? 'bg-[#094771]' : ''}
