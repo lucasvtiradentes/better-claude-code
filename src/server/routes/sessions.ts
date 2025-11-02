@@ -50,6 +50,19 @@ function countMessages(lines: string[]): { userCount: number; assistantCount: nu
   return { userCount, assistantCount };
 }
 
+function parseCommandFromContent(content: string): string | null {
+  const commandNameMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
+  const commandArgsMatch = content.match(/<command-args>([^<]+)<\/command-args>/);
+
+  if (commandNameMatch) {
+    const cmdName = commandNameMatch[1];
+    const cmdArgs = commandArgsMatch ? commandArgsMatch[1] : '';
+    return cmdArgs ? `/${cmdName} ${cmdArgs}` : `/${cmdName}`;
+  }
+
+  return null;
+}
+
 function extractTextContent(content: any): string {
   if (typeof content === 'string') {
     return content;
@@ -161,18 +174,30 @@ sessionsRouter.get('/:repoName', (req, res) => {
         if (parsed.type === 'user') {
           const content = extractTextContent(parsed.message?.content);
           if (content && content !== 'Warmup' && !content.includes('Caveat:')) {
-            title = content.replace(/\\/g, '').replace(/\n/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 80);
-            if (title.length === 80) title += '...';
+            const parsedCommand = parseCommandFromContent(content);
+            if (parsedCommand) {
+              title = parsedCommand;
+            } else {
+              title = content.replace(/\\/g, '').replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+            }
+
+            if (title.length > 80) {
+              title = title.substring(0, 80) + '...';
+            }
             break;
           }
         }
       } catch {}
     }
 
+    if (!title) {
+      continue;
+    }
+
     sessions.push({
       id,
       shortId: id.slice(-12),
-      title: title || 'Empty session',
+      title,
       userCount,
       assistantCount,
       timestamp: mtime,

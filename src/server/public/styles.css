@@ -353,6 +353,11 @@ body {
   font-weight: 600;
 }
 
+.command-text {
+  color: #4CAF50;
+  font-weight: 600;
+}
+
 .rainbow-text {
   background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #1e90ff, #ff00ff, #ff1493, #00ff7f, #ffd700);
   -webkit-background-clip: text;

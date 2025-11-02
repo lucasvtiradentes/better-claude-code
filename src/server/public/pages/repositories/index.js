@@ -7,6 +7,21 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function parseCommandFormat(text) {
+  const commandNameMatch = text.match(/<command-name>\/?([^<]+)<\/command-name>/);
+  const commandArgsMatch = text.match(/<command-args>([^<]+)<\/command-args>/);
+
+  if (commandNameMatch) {
+    const cmdName = commandNameMatch[1];
+    const cmdArgs = commandArgsMatch ? commandArgsMatch[1] : '';
+
+    const fullCommand = cmdArgs ? `/${cmdName} ${cmdArgs}` : `/${cmdName}`;
+    return `<span class="command-text">${escapeHtml(fullCommand)}</span>`;
+  }
+
+  return null;
+}
+
 let sessionImages = {};
 
 function applyCommonFormatting(text, includeClickHandlers = true) {
@@ -89,6 +104,11 @@ document.addEventListener('keydown', (e) => {
 });
 
 function formatMessage(text) {
+  const parsedCommand = parseCommandFormat(text);
+  if (parsedCommand) {
+    return parsedCommand;
+  }
+
   let formatted = escapeHtml(text).replace(/\\/g, '');
 
   formatted = formatted.replace(/\[Tool: ([^\]]+)\] (\/[^\s<>,]+)/g, (_m, tool, path) => {
@@ -179,7 +199,10 @@ function groupSessionsByTime(sessions) {
 }
 
 function formatTitle(title) {
-  return applyCommonFormatting(title, false);
+  if (title.startsWith('/')) {
+    return `<span class="command-text">${escapeHtml(title)}</span>`;
+  }
+  return applyCommonFormatting(escapeHtml(title), false);
 }
 
 function renderSessionsList(sessions, selectedSessionId = null) {
