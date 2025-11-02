@@ -60,7 +60,43 @@ function extractTextContent(content: any): string {
       if (item.type === 'text' && item.text) {
         textParts.push(item.text);
       } else if (item.type === 'tool_use') {
-        textParts.push(`[Tool: ${item.name}]`);
+        const toolName = item.name;
+        const input = item.input || {};
+        let toolInfo = `[Tool: ${toolName}]`;
+
+        if (toolName === 'Edit' || toolName === 'Read' || toolName === 'Write') {
+          if (input.file_path) {
+            toolInfo = `[Tool: ${toolName}] ${input.file_path}`;
+          }
+        } else if (toolName === 'Glob') {
+          const parts = [];
+          if (input.pattern) parts.push(`pattern: "${input.pattern}"`);
+          if (input.path) parts.push(`path: ${input.path}`);
+          if (parts.length > 0) {
+            toolInfo = `[Tool: ${toolName}] ${parts.join(', ')}`;
+          }
+        } else if (toolName === 'Grep') {
+          const parts = [];
+          if (input.pattern) parts.push(`pattern: "${input.pattern}"`);
+          if (input.path) parts.push(`path: ${input.path}`);
+          if (parts.length > 0) {
+            toolInfo = `[Tool: ${toolName}] ${parts.join(', ')}`;
+          }
+        } else if (toolName === 'Task') {
+          if (input.description) {
+            toolInfo = `[Tool: ${toolName}] ${input.description}`;
+          }
+        } else if (toolName === 'WebSearch') {
+          if (input.query) {
+            toolInfo = `[Tool: ${toolName}] "${input.query}"`;
+          }
+        } else if (toolName === 'Bash') {
+          if (input.description) {
+            toolInfo = `[Tool: ${toolName}] ${input.description}`;
+          }
+        }
+
+        textParts.push(toolInfo);
       }
     }
     return textParts.join('\n');

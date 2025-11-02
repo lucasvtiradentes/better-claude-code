@@ -213,11 +213,9 @@ body {
 }
 
 .message {
-  margin-bottom: 24px;
-  padding: 16px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
   border-radius: 6px;
-  line-height: 1.6;
-  white-space: pre-wrap;
   word-wrap: break-word;
 }
 
@@ -235,9 +233,28 @@ body {
 .message-header {
   font-size: 11px;
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   opacity: 0.7;
   text-transform: uppercase;
+  line-height: 1;
+}
+
+.file-reference {
+  color: #ff9800;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.file-reference:hover {
+  text-decoration: underline;
+}
+
+.rainbow-text {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #1e90ff, #ff00ff, #ff1493, #00ff7f, #ffd700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
 }
 
 .empty-state {

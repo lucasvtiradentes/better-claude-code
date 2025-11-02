@@ -6,6 +6,36 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function formatMessage(text) {
+  let formatted = escapeHtml(text).replace(/\\/g, '');
+
+  formatted = formatted.replace(/\[Tool: ([^\]]+)\] (\/[^\s<>,]+)/g, (match, tool, path) => {
+    return `[Tool: ${tool}] <span class="file-reference" onclick="alert('${path}')">${path}</span>`;
+  });
+
+  formatted = formatted.replace(/pattern: "([^"]+)"/g, (match, pattern) => {
+    return `pattern: "<span class="file-reference">${pattern}</span>"`;
+  });
+
+  formatted = formatted.replace(/path: (\/[^\s<>,]+)/g, (match, path) => {
+    return `path: <span class="file-reference" onclick="alert('${path}')">${path}</span>`;
+  });
+
+  formatted = formatted.replace(/\[Tool: ([^\]]+)\] "([^"]+)"/g, (match, tool, query) => {
+    return `[Tool: ${tool}] "<span class="file-reference">${query}</span>"`;
+  });
+
+  formatted = formatted.replace(/@([^\s<>]+)/g, (match, path) => {
+    return `<span class="file-reference" onclick="alert('${path}')">${match}</span>`;
+  });
+
+  formatted = formatted.replace(/ultrathink/gi, '<span class="rainbow-text">ultrathink</span>');
+
+  formatted = formatted.replace(/\n/g, '<br />');
+
+  return formatted;
+}
+
 function getTimeGroup(timestamp) {
   const oneDay = 24 * 60 * 60 * 1000;
 
@@ -249,7 +279,7 @@ export async function renderSession(repoId, sessionId) {
         ${data.messages.map(msg => `
           <div class="message ${msg.type}">
             <div class="message-header">${msg.type === 'user' ? 'You' : 'Claude Code'}</div>
-            <div class="message-content">${escapeHtml(msg.content)}</div>
+            <div class="message-content">${formatMessage(msg.content)}</div>
           </div>
         `).join('')}
       </div>
