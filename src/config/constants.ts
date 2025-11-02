@@ -10,8 +10,8 @@ const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
 export const APP_INFO = {
-  name: 'sheet-cmd',
-  display_name: 'Google Sheets CLI',
+  name: 'bcc',
+  display_name: 'Better Claude Code',
   version: packageJson.version
 };
 
@@ -55,35 +55,5 @@ export function getConfigDirectory(): string {
 
 export const CONFIG_PATHS = {
   configDir: getConfigDirectory(),
-  userMetadataFile: path.join(getConfigDirectory(), 'user_metadata.json'),
   defaultConfigFile: path.join(getConfigDirectory(), 'config.json')
 };
-
-export const OAUTH_SCOPES = {
-  SPREADSHEETS: 'https://www.googleapis.com/auth/spreadsheets',
-  DRIVE_READONLY: 'https://www.googleapis.com/auth/drive.readonly',
-  USERINFO_EMAIL: 'https://www.googleapis.com/auth/userinfo.email'
-};
-
-export const GOOGLE_API_URLS = {
-  USERINFO: 'https://www.googleapis.com/oauth2/v2/userinfo',
-  SHEETS_CREATE: 'https://sheets.google.com'
-};
-
-export const GOOGLE_CLOUD_CONSOLE_URLS = {
-  CREDENTIALS: 'https://console.cloud.google.com/apis/credentials',
-  CONSENT_SCREEN: 'https://console.cloud.google.com/apis/credentials/consent',
-  SCOPES: 'https://console.cloud.google.com/auth/scopes',
-  TEST_USERS: 'https://console.cloud.google.com/auth/audience',
-  ENABLE_SHEETS_API: 'https://console.cloud.google.com/apis/library/sheets.googleapis.com',
-  ENABLE_DRIVE_API: 'https://console.cloud.google.com/apis/library/drive.googleapis.com'
-};
-
-export const OAUTH_CONFIG = {
-  REDIRECT_HOST: '127.0.0.1',
-  REDIRECT_PATH: '/callback',
-  ACCESS_TYPE: 'offline' as const,
-  PROMPT: 'consent' as const
-};
-
-export const TOKEN_REFRESH_THRESHOLD_MS = 5 * 60 * 1000;

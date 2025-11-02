@@ -1,14 +1,10 @@
-import { accountCommandDefinition } from './commands/account.definition.js';
 import { completionCommandDefinition } from './commands/completion.definition.js';
-import { sheetCommandDefinition } from './commands/sheet.definition.js';
-import { spreadsheetCommandDefinition } from './commands/spreadsheet.definition.js';
+import { helloCommandDefinition } from './commands/hello.definition.js';
 import { updateCommandDefinition } from './commands/update.definition.js';
 import type { Command, SubCommand } from './types.js';
 
 export const COMMANDS_SCHEMA: Command[] = [
-  accountCommandDefinition,
-  spreadsheetCommandDefinition,
-  sheetCommandDefinition,
+  helloCommandDefinition,
   updateCommandDefinition,
   completionCommandDefinition
 ];

@@ -91,7 +91,7 @@ async function installZshCompletion(): Promise<void> {
     mkdirSync(targetDir, { recursive: true });
   }
 
-  const completionFile = join(targetDir, '_sheet-cmd');
+  const completionFile = join(targetDir, '_bcc');
   writeFileSync(completionFile, ZSH_COMPLETION_SCRIPT);
 
   Logger.success(`Zsh completion installed to ${completionFile}`);
@@ -143,7 +143,7 @@ async function installBashCompletion(): Promise<void> {
     mkdirSync(targetDir, { recursive: true });
   }
 
-  const completionFile = join(targetDir, 'sheet-cmd');
+  const completionFile = join(targetDir, 'bcc');
   writeFileSync(completionFile, BASH_COMPLETION_SCRIPT);
 
   Logger.success(`Bash completion installed to ${completionFile}`);
@@ -209,7 +209,7 @@ async function installZshCompletionSilent(): Promise<void> {
     mkdirSync(targetDir, { recursive: true });
   }
 
-  const completionFile = join(targetDir, '_sheet-cmd');
+  const completionFile = join(targetDir, '_bcc');
   writeFileSync(completionFile, ZSH_COMPLETION_SCRIPT);
 }
 
@@ -240,7 +240,7 @@ async function installBashCompletionSilent(): Promise<void> {
     mkdirSync(targetDir, { recursive: true });
   }
 
-  const completionFile = join(targetDir, 'sheet-cmd');
+  const completionFile = join(targetDir, 'bcc');
   writeFileSync(completionFile, BASH_COMPLETION_SCRIPT);
 }
 

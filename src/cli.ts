@@ -2,24 +2,20 @@
 
 import { Command } from 'commander';
 
-import { createAccountCommand } from './commands/account/index.js';
 import { createCompletionCommand } from './commands/completion.js';
 import { displayHelpText } from './commands/help-text.js';
-import { createSheetCommand } from './commands/sheet/index.js';
-import { createSpreadsheetCommand } from './commands/spreadsheet/index.js';
+import { createHelloCommand } from './commands/hello.js';
 import { createUpdateCommand } from './commands/update.js';
 import { APP_INFO } from './config/constants.js';
 
 const program = new Command();
 
 program
-  .name('sheet-cmd')
-  .description('Google Sheets CLI - A tool to interact with Google Sheets')
+  .name('bcc')
+  .description('Better Claude Code - CLI auxiliary tools for Claude Code')
   .version(APP_INFO.version);
 
-program.addCommand(createAccountCommand());
-program.addCommand(createSpreadsheetCommand());
-program.addCommand(createSheetCommand());
+program.addCommand(createHelloCommand());
 program.addCommand(createUpdateCommand());
 program.addCommand(createCompletionCommand());
 

@@ -36,7 +36,7 @@ export function createUpdateCommand(): Command {
     Logger.info(`📦 Latest version: ${latestVersion}`);
 
     if (currentVersion === latestVersion) {
-      Logger.success('sheet-cmd is already up to date!');
+      Logger.success('bcc is already up to date!');
       return;
     }
 
@@ -45,13 +45,13 @@ export function createUpdateCommand(): Command {
     const packageManager = await detectPackageManager();
 
     if (!packageManager) {
-      Logger.error('Could not detect how sheet-cmd was installed');
+      Logger.error('Could not detect how bcc was installed');
       Logger.dim('Please update manually using your package manager');
       return;
     }
 
     Logger.info(`📦 Detected package manager: ${packageManager}`);
-    Logger.loading(`Updating sheet-cmd from ${currentVersion} to ${latestVersion}...`);
+    Logger.loading(`Updating bcc from ${currentVersion} to ${latestVersion}...`);
 
     const updateCommand = getUpdateCommand(packageManager);
     const { stdout, stderr } = await execAsync(updateCommand);
@@ -61,7 +61,7 @@ export function createUpdateCommand(): Command {
       return;
     }
 
-    Logger.success(`sheet-cmd updated successfully from ${currentVersion} to ${latestVersion}!`);
+    Logger.success(`bcc updated successfully from ${currentVersion} to ${latestVersion}!`);
 
     if (stdout) {
       Logger.dim(stdout);
@@ -114,7 +114,7 @@ async function getGlobalNpmPath(): Promise<string | null> {
 
   try {
     const whereCommand = isWindows ? 'where' : 'which';
-    const { stdout } = await execAsync(`${whereCommand} sheet-cmd`);
+    const { stdout } = await execAsync(`${whereCommand} bcc`);
     const execPath = stdout.trim();
 
     if (execPath) {
@@ -130,8 +130,8 @@ async function getGlobalNpmPath(): Promise<string | null> {
     }
   } catch {
     try {
-      const { stdout } = await execAsync('npm list -g --depth=0 sheet-cmd');
-      if (stdout.includes('sheet-cmd')) {
+      const { stdout } = await execAsync('npm list -g --depth=0 bcc');
+      if (stdout.includes('bcc')) {
         return 'npm';
       }
     } catch {}
@@ -152,7 +152,7 @@ function getCurrentVersion(): string | null {
 
 async function getLatestVersion(): Promise<string | null> {
   try {
-    const { stdout } = await execAsync('npm view sheet-cmd version');
+    const { stdout } = await execAsync('npm view bcc version');
     return stdout.trim();
   } catch {
     return null;
@@ -162,12 +162,12 @@ async function getLatestVersion(): Promise<string | null> {
 function getUpdateCommand(packageManager: string): string {
   switch (packageManager) {
     case 'npm':
-      return 'npm update -g sheet-cmd';
+      return 'npm update -g bcc';
     case 'yarn':
-      return 'yarn global upgrade sheet-cmd';
+      return 'yarn global upgrade bcc';
     case 'pnpm':
-      return 'pnpm update -g sheet-cmd';
+      return 'pnpm update -g bcc';
     default:
-      return 'npm update -g sheet-cmd';
+      return 'npm update -g bcc';
   }
 }

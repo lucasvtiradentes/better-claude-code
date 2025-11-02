@@ -1,13 +1,12 @@
 {
-  "name": "sheet-cmd",
-  "version": "1.1.5",
-  "packageManager": "pnpm@10.11.0",
-  "description": "A CLI tool to interact with Google Sheets - perfect for LLM integrations",
+  "name": "bcc",
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.20.0",
+  "description": "Better Claude Code - CLI auxiliary tools for Claude Code",
   "type": "module",
   "main": "dist/cli.js",
   "bin": {
-    "sheet-cmd": "./dist/cli.js",
-    "sheet": "./dist/cli.js"
+    "bcc": "./dist/cli.js"
   },
   "scripts": {
     "dev": "tsx src/cli.ts",
@@ -22,36 +21,29 @@
     "release": "pnpm run build && changeset publish"
   },
   "keywords": [
-    "google-sheets",
-    "llm",
-    "tool",
-    "cli"
+    "claude-code",
+    "cli",
+    "tools",
+    "productivity"
   ],
   "author": "Lucas Vieira",
   "license": "MIT",
-  "homepage": "https://github.com/lucasvtiradentes/sheet-cmd#readme",
+  "homepage": "https://github.com/lucasvtiradentes/bcc#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lucasvtiradentes/sheet-cmd.git"
+    "url": "https://github.com/lucasvtiradentes/bcc.git"
   },
   "bugs": {
-    "url": "https://github.com/lucasvtiradentes/sheet-cmd/issues"
+    "url": "https://github.com/lucasvtiradentes/bcc/issues"
   },
   "dependencies": {
     "chalk": "^5.4.1",
-    "commander": "^14.0.0",
-    "google-auth-library": "^9.14.2",
-    "google-spreadsheet": "^4.1.4",
-    "googleapis": "^164.1.0",
-    "inquirer": "^12.7.0",
-    "zod": "^4.0.5"
+    "commander": "^14.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.2",
     "@changesets/cli": "^2.29.7",
-    "@types/inquirer": "^9.0.8",
     "@types/node": "^22.18.8",
-    "dotenv": "^17.2.3",
     "rimraf": "^5.0.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"

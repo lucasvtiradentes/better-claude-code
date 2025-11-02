@@ -33,40 +33,11 @@ export interface Command {
 }
 
 export const CommandNames = {
-  ACCOUNT: 'account',
-  SPREADSHEET: 'spreadsheet',
-  SHEET: 'sheet',
+  HELLO: 'hello',
   UPDATE: 'update',
   COMPLETION: 'completion'
 } as const;
 
 export const SubCommandNames = {
-  ACCOUNT_ADD: 'add',
-  ACCOUNT_LIST: 'list',
-  ACCOUNT_SELECT: 'select',
-  ACCOUNT_REMOVE: 'remove',
-  ACCOUNT_REAUTH: 'reauth',
-
-  SPREADSHEET_ADD: 'add',
-  SPREADSHEET_LIST: 'list',
-  SPREADSHEET_SELECT: 'select',
-  SPREADSHEET_ACTIVE: 'active',
-  SPREADSHEET_REMOVE: 'remove',
-
-  SHEET_LIST: 'list',
-  SHEET_SELECT: 'select',
-  SHEET_READ: 'read',
-  SHEET_ADD: 'add',
-  SHEET_REMOVE: 'remove',
-  SHEET_RENAME: 'rename',
-  SHEET_COPY: 'copy',
-  SHEET_WRITE: 'write',
-  SHEET_APPEND: 'append',
-  SHEET_IMPORT: 'import',
-  SHEET_EXPORT: 'export',
-
-  ROW_ADD: 'row-add',
-  ROW_REMOVE: 'row-remove',
-
   COMPLETION_INSTALL: 'install'
 } as const;
