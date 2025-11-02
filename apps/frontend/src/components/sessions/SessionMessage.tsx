@@ -24,7 +24,7 @@ function parseCommandFormat(text: string): string | null {
     const cmdName = commandNameMatch[1];
     const cmdArgs = commandArgsMatch ? commandArgsMatch[1] : '';
     const fullCommand = cmdArgs ? `/${cmdName} ${cmdArgs}` : `/${cmdName}`;
-    return `<span class="text-[#4CAF50] font-semibold">${escapeHtml(fullCommand)}</span>`;
+    return `<span class="text-chart-2 font-semibold">${escapeHtml(fullCommand)}</span>`;
   }
 
   return null;
@@ -46,12 +46,12 @@ function applyCommonFormatting(text: string): {
   formatted = formatted.replace(
     /(^|\s)@([^\s<>]+)/g,
     (_match, prefix, filePath) =>
-      `${prefix}<span class="text-[#ff9800] font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">@${escapeHtml(filePath)}</span>`
+      `${prefix}<span class="text-primary font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">@${escapeHtml(filePath)}</span>`
   );
 
   formatted = formatted.replace(
     /ultrathink/gi,
-    '<span class="bg-gradient-to-r from-red-500 via-yellow-500 to-purple-500 bg-clip-text text-transparent font-semibold">ultrathink</span>'
+    '<span class="bg-gradient-to-r from-destructive via-primary to-chart-4 bg-clip-text text-transparent font-semibold">ultrathink</span>'
   );
 
   return { formatted, imageRefs };
@@ -68,29 +68,29 @@ function formatMessage(text: string): { html: string; imageRefs: Array<{ placeho
   formatted = formatted.replace(
     /\[Tool: ([^\]]+)\] (\/[^\s<>,]+)/g,
     (_match, tool, filePath) =>
-      `[Tool: ${tool}] <span class="text-[#ff9800] font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">${escapeHtml(filePath)}</span>`
+      `[Tool: ${tool}] <span class="text-primary font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">${escapeHtml(filePath)}</span>`
   );
 
   formatted = formatted.replace(
     /pattern: "([^"]+)"/g,
-    'pattern: "<span class="text-[#ff9800] font-semibold">$1</span>"'
+    'pattern: "<span class="text-primary font-semibold">$1</span>"'
   );
 
   formatted = formatted.replace(
     /path: (\/[^\s<>,]+)/g,
     (_match, filePath) =>
-      `path: <span class="text-[#ff9800] font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">${escapeHtml(filePath)}</span>`
+      `path: <span class="text-primary font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">${escapeHtml(filePath)}</span>`
   );
 
   formatted = formatted.replace(
     /\[Tool: ([^\]]+)\] "([^"]+)"/g,
-    '[Tool: $1] "<span class="text-[#ff9800] font-semibold">$2</span>"'
+    '[Tool: $1] "<span class="text-primary font-semibold">$2</span>"'
   );
 
   const { formatted: withCommon, imageRefs } = applyCommonFormatting(formatted);
   formatted = withCommon;
 
-  formatted = formatted.replace(/\n---\n/g, '<div class="h-px bg-[#3e3e42] my-3 w-[40%] mx-auto"></div>');
+  formatted = formatted.replace(/\n---\n/g, '<div class="h-px bg-border my-3 w-[40%] mx-auto"></div>');
 
   formatted = formatted.replace(/\n/g, '<br />');
 
@@ -117,7 +117,7 @@ export const SessionMessage = ({ message, onImageClick, onPathClick }: SessionMe
     <div
       className={`
         mb-3 p-2 px-3 rounded-md break-words
-        ${message.type === 'user' ? 'bg-[#2a2a2a] ml-10' : 'bg-[#1a1a1a] border-2 border-[#D97757] mr-10'}
+        ${message.type === 'user' ? 'bg-secondary ml-10' : 'bg-card border-2 border-primary mr-10'}
       `}
     >
       <div className="text-[11px] font-semibold mb-1 opacity-70 uppercase leading-none">
@@ -140,7 +140,7 @@ export const SessionMessage = ({ message, onImageClick, onPathClick }: SessionMe
             (content, { placeholder, index }) =>
               content.replace(
                 placeholder,
-                `<span data-image-index="${index}" class="inline-block text-sm px-2 py-1 bg-[#9966ff]/20 text-[#9966ff] rounded border border-[#9966ff]/30 hover:bg-[#9966ff]/30 transition-colors font-semibold cursor-pointer">[Image #${index}]</span>`
+                `<span data-image-index="${index}" class="inline-block text-sm px-2 py-1 bg-chart-4/20 text-chart-4 rounded border border-chart-4/30 hover:bg-chart-4/30 transition-colors font-semibold cursor-pointer">[Image #${index}]</span>`
               ),
             html
           )

@@ -12,11 +12,11 @@ export const FilterButtons = () => {
 
   const buttonClass = (active: boolean) =>
     `
-      bg-[#2a2a2a] border border-[#3e3e42] rounded-md
+      bg-card border border-border rounded-md
       w-8 h-8 flex items-center justify-center
       cursor-pointer transition-all duration-200
       relative group
-      ${active ? 'text-[#007acc]' : 'text-[#858585] hover:text-[#007acc]'}
+      ${active ? 'text-primary' : 'text-muted-foreground hover:text-primary'}
     `;
 
   return (

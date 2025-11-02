@@ -118,32 +118,32 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
   return (
     <button
       type="button"
-      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 border-0"
+      className="fixed inset-0 bg-background/95 flex items-center justify-center z-50 p-4 border-0"
       onClick={handleBackdropClick}
     >
-      <div className="bg-[#1e1e1e] rounded-lg max-w-4xl w-full h-[600px] flex flex-col overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between p-4 border-b border-[#3e3e42]">
+      <div className="bg-card rounded-lg max-w-4xl w-full h-[600px] flex flex-col overflow-hidden shadow-2xl">
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {pathHistory.length > 1 && (
               <button
                 type="button"
                 onClick={handleBack}
-                className="text-[#858585] hover:text-[#e0e0e0] px-2 py-1 rounded hover:bg-[#3e3e42] transition-colors"
+                className="text-muted-foreground hover:text-foreground px-2 py-1 rounded hover:bg-accent transition-colors"
               >
                 ←
               </button>
             )}
             <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold text-[#e0e0e0] truncate">
+              <h2 className="text-base font-semibold text-foreground truncate">
                 {currentPath.split('/').pop() || currentPath}
               </h2>
-              <p className="text-xs text-[#858585] truncate mt-1">{currentPath}</p>
+              <p className="text-xs text-muted-foreground truncate mt-1">{currentPath}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="ml-4 text-[#858585] hover:text-[#e0e0e0] text-2xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-[#3e3e42] transition-colors"
+            className="ml-4 text-muted-foreground hover:text-foreground text-2xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-accent transition-colors"
           >
             ×
           </button>
@@ -152,11 +152,11 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
         <div className="flex-1 overflow-y-auto p-4 min-h-0">
           {error && (
             <div className="flex items-center justify-center h-full">
-              <p className="text-red-500">{error}</p>
+              <p className="text-destructive">{error}</p>
             </div>
           )}
           {!error && entries.length === 0 && !loading && (
-            <div className="flex items-center justify-center h-full text-[#858585]">Empty folder</div>
+            <div className="flex items-center justify-center h-full text-muted-foreground">Empty folder</div>
           )}
           {!error && (entries.length > 0 || (loading && previousEntries.length > 0)) && (
             <div className="space-y-1" style={{ opacity: loading ? 0.5 : 1 }}>
@@ -165,15 +165,15 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
                   key={entry.path}
                   type="button"
                   onClick={() => handleEntryClick(entry)}
-                  className="w-full text-left px-3 py-2 rounded hover:bg-[#2a2a2a] transition-colors flex items-center gap-2 group"
+                  className="w-full text-left px-3 py-2 rounded hover:bg-accent transition-colors flex items-center gap-2 group"
                   disabled={loading}
                 >
                   <span className="text-lg">{entry.type === 'directory' ? '📁' : getFileIcon(entry.name)}</span>
-                  <span className="text-sm text-[#e0e0e0] group-hover:text-[#ff9800] transition-colors">
+                  <span className="text-sm text-foreground group-hover:text-primary transition-colors">
                     {entry.name}
                   </span>
                   {entry.type === 'directory' && (
-                    <span className="ml-auto text-[#858585] group-hover:text-[#e0e0e0]">→</span>
+                    <span className="ml-auto text-muted-foreground group-hover:text-foreground">→</span>
                   )}
                 </button>
               ))}

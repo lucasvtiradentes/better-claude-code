@@ -56,7 +56,7 @@ export const LabelsTab = () => {
     <div className="space-y-4">
       <div className="space-y-2">
         {settings?.labels.map((label) => (
-          <div key={label.id} className="flex items-center gap-2 p-3 bg-[#1e1e1e] rounded-lg border border-[#3e3e42]">
+          <div key={label.id} className="flex items-center gap-2 p-3 bg-card rounded-lg border border-border">
             {editingId === label.id ? (
               <Form {...editForm}>
                 <form
@@ -119,7 +119,7 @@ export const LabelsTab = () => {
                   size="icon"
                   variant="ghost"
                   onClick={() => onDeleteLabel(label.id)}
-                  className="text-red-500 hover:text-red-600"
+                  className="text-destructive hover:text-destructive/80"
                   title="Delete label"
                 >
                   <Trash2 size={16} />
@@ -134,7 +134,7 @@ export const LabelsTab = () => {
         <Form {...addForm}>
           <form
             onSubmit={addForm.handleSubmit(onAddLabel)}
-            className="flex items-center gap-2 p-3 bg-[#1e1e1e] rounded-lg border border-[#3e3e42]"
+            className="flex items-center gap-2 p-3 bg-card rounded-lg border border-border"
           >
             <FormField
               control={addForm.control}

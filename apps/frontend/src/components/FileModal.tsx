@@ -227,20 +227,20 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
   return (
     <button
       type="button"
-      className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4 border-0"
+      className="fixed inset-0 bg-background/95 flex items-center justify-center z-[60] p-4 border-0"
       onClick={handleBackdropClick}
     >
-      <div className="bg-[#1e1e1e] rounded-lg max-w-6xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between p-4 border-b border-[#3e3e42]">
+      <div className="bg-card rounded-lg max-w-6xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex-1 min-w-0">
-            <h2 className="text-base font-semibold text-[#e0e0e0] truncate">{filePath.split('/').pop()}</h2>
-            <p className="text-xs text-[#858585] truncate mt-1">{filePath}</p>
+            <h2 className="text-base font-semibold text-foreground truncate">{filePath.split('/').pop()}</h2>
+            <p className="text-xs text-muted-foreground truncate mt-1">{filePath}</p>
           </div>
           <div className="flex items-center gap-2 ml-4">
             <button
               type="button"
               onClick={handleCopy}
-              className="text-[#858585] hover:text-[#e0e0e0] px-3 py-1.5 flex items-center gap-2 rounded hover:bg-[#3e3e42] transition-colors text-sm"
+              className="text-muted-foreground hover:text-foreground px-3 py-1.5 flex items-center gap-2 rounded hover:bg-accent transition-colors text-sm"
               disabled={loading || !!error}
             >
               {copied ? <CheckIcon /> : <CopyIcon />}
@@ -249,7 +249,7 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
             <button
               type="button"
               onClick={onClose}
-              className="text-[#858585] hover:text-[#e0e0e0] text-2xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-[#3e3e42] transition-colors"
+              className="text-muted-foreground hover:text-foreground text-2xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-accent transition-colors"
             >
               ×
             </button>
@@ -257,20 +257,20 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
         </div>
 
         <div className="flex-1 overflow-auto" ref={contentContainerRef}>
-          {loading && <div className="flex items-center justify-center h-full text-[#858585]">Loading file...</div>}
+          {loading && <div className="flex items-center justify-center h-full text-muted-foreground">Loading file...</div>}
           {error && (
             <div className="flex items-center justify-center h-full">
-              <p className="text-red-500">{error}</p>
+              <p className="text-destructive">{error}</p>
             </div>
           )}
           {!loading && !error && (
             <>
               {hasTopRemaining && (
-                <div className="sticky top-0 z-10 bg-[#1e1e1e] border-b border-[#3e3e42] px-4 py-2 flex justify-center">
+                <div className="sticky top-0 z-10 bg-card border-b border-border px-4 py-2 flex justify-center">
                   <button
                     type="button"
                     onClick={() => setShowTopRemaining(!showTopRemaining)}
-                    className="text-[#858585] hover:text-[#e0e0e0] text-sm flex items-center gap-2 hover:bg-[#3e3e42] px-3 py-1.5 rounded transition-colors"
+                    className="text-muted-foreground hover:text-foreground text-sm flex items-center gap-2 hover:bg-accent px-3 py-1.5 rounded transition-colors"
                   >
                     {showTopRemaining ? '▼' : '▶'} {showTopRemaining ? 'Hide' : 'Show'} remaining code above
                   </button>
@@ -286,8 +286,8 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
                   const isHighlighted = highlightLines.includes(lineNumber);
                   return isHighlighted
                     ? {
-                        backgroundColor: 'rgba(255, 152, 0, 0.3)',
-                        color: '#ff9800',
+                        backgroundColor: 'hsl(var(--primary) / 0.3)',
+                        color: 'hsl(var(--primary))',
                         fontWeight: 'bold'
                       }
                     : {};
@@ -295,7 +295,7 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
                 customStyle={{
                   margin: 0,
                   borderRadius: 0,
-                  background: '#1e1e1e',
+                  background: 'hsl(var(--card))',
                   fontSize: '13px',
                   lineHeight: '1.5',
                   userSelect: 'text'
@@ -309,11 +309,11 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
                 {getFullDisplayContent()}
               </SyntaxHighlighter>
               {hasBottomRemaining && (
-                <div className="sticky bottom-0 z-10 bg-[#1e1e1e] border-t border-[#3e3e42] px-4 py-2 flex justify-center">
+                <div className="sticky bottom-0 z-10 bg-card border-t border-border px-4 py-2 flex justify-center">
                   <button
                     type="button"
                     onClick={() => setShowBottomRemaining(!showBottomRemaining)}
-                    className="text-[#858585] hover:text-[#e0e0e0] text-sm flex items-center gap-2 hover:bg-[#3e3e42] px-3 py-1.5 rounded transition-colors"
+                    className="text-muted-foreground hover:text-foreground text-sm flex items-center gap-2 hover:bg-accent px-3 py-1.5 rounded transition-colors"
                   >
                     {showBottomRemaining ? '▼' : '▶'} {showBottomRemaining ? 'Hide' : 'Show'} remaining code below
                   </button>

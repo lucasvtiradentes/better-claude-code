@@ -9,8 +9,8 @@ type SessionCardProps = {
 
 export const SessionCard = ({ session, onClick, isActive }: SessionCardProps) => {
   const getTokenColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-red-500';
-    if (percentage >= 50) return 'text-orange-500';
+    if (percentage >= 80) return 'text-destructive';
+    if (percentage >= 50) return 'text-primary';
     return 'text-muted-foreground';
   };
 
@@ -63,9 +63,9 @@ export const SessionCard = ({ session, onClick, isActive }: SessionCardProps) =>
             key={`${part.text}-${i}`}
             className={
               part.type === 'file'
-                ? 'text-[#ff9800] font-semibold'
+                ? 'text-primary font-semibold'
                 : part.type === 'command'
-                  ? 'text-[#4CAF50] font-semibold'
+                  ? 'text-chart-2 font-semibold'
                   : ''
             }
           >
