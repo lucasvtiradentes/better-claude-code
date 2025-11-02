@@ -156,12 +156,7 @@ sessionsRouter.get('/:repoName', (req, res) => {
         if (parsed.type === 'user') {
           const content = extractTextContent(parsed.message?.content);
           if (content && content !== 'Warmup' && !content.includes('Caveat:')) {
-            title = content
-              .replace(/\\/g, '')
-              .replace(/\n/g, ' ')
-              .replace(/\s+/g, ' ')
-              .trim()
-              .substring(0, 80);
+            title = content.replace(/\\/g, '').replace(/\n/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 80);
             if (title.length === 80) title += '...';
             break;
           }
@@ -230,11 +225,44 @@ sessionsRouter.get('/:repoName/:sessionId', (req, res) => {
   for (const msg of messages) {
     const lastMsg = groupedMessages[groupedMessages.length - 1];
     if (lastMsg && lastMsg.type === msg.type) {
-      lastMsg.content += '\n---\n' + msg.content;
+      lastMsg.content += `\n---\n${msg.content}`;
     } else {
       groupedMessages.push({ ...msg });
     }
   }
 
   res.json({ messages: groupedMessages });
+});
+
+sessionsRouter.get('/:repoName/:sessionId/images', (req, res) => {
+  const { repoName, sessionId } = req.params;
+  const sessionFile = join(getClaudeProjectsDir(), repoName, `${sessionId}.jsonl`);
+
+  if (!existsSync(sessionFile)) {
+    return res.status(404).json({ error: 'Session not found' });
+  }
+
+  const content = readFileSync(sessionFile, 'utf-8');
+  const lines = content.trim().split('\n');
+
+  const images: Record<number, string> = {};
+  let imageCounter = 0;
+
+  for (const line of lines) {
+    try {
+      const parsed = JSON.parse(line);
+      const messageContent = parsed.message?.content;
+
+      if (Array.isArray(messageContent)) {
+        for (const item of messageContent) {
+          if (item.type === 'image' && item.source?.type === 'base64') {
+            imageCounter++;
+            images[imageCounter] = `data:${item.source.media_type};base64,${item.source.data}`;
+          }
+        }
+      }
+    } catch {}
+  }
+
+  res.json({ images });
 });

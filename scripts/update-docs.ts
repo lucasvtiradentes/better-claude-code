@@ -6,11 +6,13 @@ import { COMMANDS_SCHEMA } from '../src/definitions/commands.js';
 import { generateBashCompletion, generateZshCompletion } from '../src/definitions/generators/completion-generator.js';
 import { generateHelp } from '../src/definitions/generators/help-generator.js';
 import { generateReadmeSections } from '../src/definitions/generators/readme-generator.js';
+import { APP_INFO } from '../src/config/constants.js';
 
 const ROOT_DIR = process.cwd();
 const README_PATH = join(ROOT_DIR, 'README.md');
 const COMPLETIONS_DIR = join(ROOT_DIR, 'completions');
 const HELP_FILE = join(ROOT_DIR, 'docs', 'help.txt');
+const COMPLETION_FILE = `_${APP_INFO.name}`
 
 function validateSchema(): boolean {
   console.log('🔍 Validating commands schema...\n');
@@ -84,14 +86,14 @@ function generateCompletionScripts(): void {
   }
 
   const zshScript = generateZshCompletion();
-  const zshPath = join(COMPLETIONS_DIR, '_sheet-cmd');
+  const zshPath = join(COMPLETIONS_DIR, COMPLETION_FILE);
   writeFileSync(zshPath, zshScript, 'utf-8');
-  console.log(`  ✅ Zsh completion: completions/_sheet-cmd`);
+  console.log(`  ✅ Zsh completion: completions/${COMPLETION_FILE}`);
 
   const bashScript = generateBashCompletion();
-  const bashPath = join(COMPLETIONS_DIR, 'sheet-cmd.bash');
+  const bashPath = join(COMPLETIONS_DIR, `${COMPLETION_FILE}.bash`);
   writeFileSync(bashPath, bashScript, 'utf-8');
-  console.log(`  ✅ Bash completion: completions/sheet-cmd.bash`);
+  console.log(`  ✅ Bash completion: completions/${COMPLETION_FILE}.bash`);
 
   console.log();
 }
@@ -163,15 +165,15 @@ function printSummary(): void {
   console.log('═'.repeat(60));
   console.log();
   console.log('Generated files:');
-  console.log('  • completions/_sheet-cmd        (Zsh completion)');
-  console.log('  • completions/sheet-cmd.bash    (Bash completion)');
+  console.log(`  • completions/${COMPLETION_FILE}        (Zsh completion)`);
+  console.log(`  • completions/${COMPLETION_FILE}.bash    (Bash completion)`);
   console.log('  • docs/help.txt                 (Help reference)');
   console.log('  • README.md                     (Updated command sections)');
   console.log();
   console.log('✨ All command documentation updated successfully!');
   console.log();
   console.log('Next steps:');
-  console.log('  1. Test completions: source completions/sheet-cmd.bash');
+  console.log(`  1. Test completions: source completions/${COMPLETION_FILE}.bash`);
   console.log('  2. Commit the generated files if everything looks good');
   console.log();
 }

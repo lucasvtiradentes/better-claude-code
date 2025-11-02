@@ -35,6 +35,14 @@
     </div>
   </div>
 
+  <div id="imageModal" class="image-modal" onclick="window.closeImageModal()">
+    <span class="image-modal-close">&times;</span>
+    <div class="image-modal-title" id="imageModalTitle"></div>
+    <button class="image-modal-nav image-modal-prev" onclick="event.stopPropagation(); window.navigateImage(-1)">&#10094;</button>
+    <img class="image-modal-content" id="modalImage" onclick="event.stopPropagation()">
+    <button class="image-modal-nav image-modal-next" onclick="event.stopPropagation(); window.navigateImage(1)">&#10095;</button>
+  </div>
+
   <script type="module" src="/app.js"></script>
 </body>
 </html>

@@ -6,11 +6,13 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+let sessionImages = {};
+
 function applyCommonFormatting(text) {
   let formatted = text;
 
   formatted = formatted.replace(/\[Image #(\d+)\]/g, (_m, num) => {
-    return `<span class="image-reference">[Image #${num}]</span>`;
+    return `<span class="image-reference" onclick="window.showImage(${num})">[Image #${num}]</span>`;
   });
 
   formatted = formatted.replace(/(^|\s)@([^\s<>]+)/g, (_m, prefix, path) => {
@@ -21,6 +23,67 @@ function applyCommonFormatting(text) {
 
   return formatted;
 }
+
+window.showImage = function(imageNumber) {
+  const imageData = sessionImages[imageNumber];
+  if (!imageData) {
+    alert('Image not found');
+    return;
+  }
+
+  const modal = document.getElementById('imageModal');
+  const modalImg = document.getElementById('modalImage');
+  const imageTitle = document.getElementById('imageModalTitle');
+
+  if (modal && modalImg) {
+    modalImg.src = imageData;
+    const totalImages = Object.keys(sessionImages).length;
+    if (imageTitle) {
+      imageTitle.textContent = `Image ${imageNumber} / ${totalImages}`;
+    }
+    modal.style.display = 'flex';
+
+    const url = new URL(window.location);
+    url.searchParams.set('imageIndex', imageNumber);
+    window.history.pushState({}, '', url);
+  }
+};
+
+window.closeImageModal = function() {
+  const modal = document.getElementById('imageModal');
+  if (modal) {
+    modal.style.display = 'none';
+
+    const url = new URL(window.location);
+    url.searchParams.delete('imageIndex');
+    window.history.pushState({}, '', url);
+  }
+};
+
+window.navigateImage = function(direction) {
+  const url = new URL(window.location);
+  const currentIndex = parseInt(url.searchParams.get('imageIndex')) || 1;
+  const totalImages = Object.keys(sessionImages).length;
+
+  let newIndex = currentIndex + direction;
+  if (newIndex < 1) newIndex = totalImages;
+  if (newIndex > totalImages) newIndex = 1;
+
+  window.showImage(newIndex);
+};
+
+document.addEventListener('keydown', (e) => {
+  const modal = document.getElementById('imageModal');
+  if (modal && modal.style.display === 'flex') {
+    if (e.key === 'ArrowLeft') {
+      window.navigateImage(-1);
+    } else if (e.key === 'ArrowRight') {
+      window.navigateImage(1);
+    } else if (e.key === 'Escape') {
+      window.closeImageModal();
+    }
+  }
+});
 
 function formatMessage(text) {
   let formatted = escapeHtml(text).replace(/\\/g, '');
@@ -162,18 +225,24 @@ function renderSessionsList(sessions, selectedSessionId = null) {
 
     html += `<div class="group-header">${groupName}</div>`;
     html += groupSessions.map(session => {
-      const date = new Date(session.timestamp).toLocaleDateString();
-      const tokenBadge = session.tokenPercentage ? `${session.tokenPercentage}%` : '';
+      const dateObj = new Date(session.timestamp);
+      const date = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+      const percentage = session.tokenPercentage || 0;
       const isActive = session.id === selectedSessionId ? 'active' : '';
+
+      let percentageClass = 'percentage-badge';
+      if (percentage > 80) {
+        percentageClass += ' danger';
+      } else if (percentage > 50) {
+        percentageClass += ' warning';
+      }
 
       return `
         <div class="list-item ${isActive}" onclick="window.selectSession('${state.selectedRepo}', '${session.id}')">
           <div class="item-name">${formatTitle(session.title)}</div>
-          <div class="item-meta">
-            <span>${session.userCount} you</span>
-            <span>${session.assistantCount} cc</span>
-            ${tokenBadge ? `<span>${tokenBadge}</span>` : ''}
+          <div class="session-footer">
             <span>${date}</span>
+            <span class="${percentageClass}">${percentage}%</span>
           </div>
         </div>
       `;
@@ -372,6 +441,10 @@ export async function renderSession(repoId, sessionId) {
     const res = await fetch(`/api/sessions/${encodeURIComponent(repoId)}/${sessionId}`);
     const data = await res.json();
 
+    const imagesRes = await fetch(`/api/sessions/${encodeURIComponent(repoId)}/${sessionId}/images`);
+    const imagesData = await imagesRes.json();
+    sessionImages = imagesData.images || {};
+
     if (data.messages.length === 0) {
       document.getElementById('contentBody').innerHTML = '<div class="empty-state">No messages found</div>';
       return;
@@ -438,6 +511,12 @@ export async function renderSession(repoId, sessionId) {
     });
 
     window.addEventListener('beforeunload', () => saveScrollPosition(sessionId));
+
+    const url = new URL(window.location);
+    const imageIndex = url.searchParams.get('imageIndex');
+    if (imageIndex && sessionImages[imageIndex]) {
+      setTimeout(() => window.showImage(parseInt(imageIndex)), 100);
+    }
   } catch (error) {
     document.getElementById('contentBody').innerHTML = '<div class="empty-state">Error loading session</div>';
   }
