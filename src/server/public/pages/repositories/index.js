@@ -6,6 +6,135 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function getTimeGroup(timestamp) {
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const yesterday = today - oneDay;
+
+  const dayOfWeek = now.getDay();
+  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const mondayThisWeek = today - (daysFromMonday * oneDay);
+
+  const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+  if (timestamp >= today) {
+    return 'today';
+  }
+
+  if (timestamp >= yesterday) {
+    return 'yesterday';
+  }
+
+  if (timestamp >= mondayThisWeek) {
+    return 'this week';
+  }
+
+  if (timestamp >= firstDayThisMonth) {
+    return 'this month';
+  }
+
+  const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime();
+  if (timestamp >= firstDayLastMonth) {
+    return 'last month';
+  }
+
+  return 'rest';
+}
+
+function groupReposByTime(repos) {
+  const groups = {
+    today: [],
+    yesterday: [],
+    'this week': [],
+    'this month': [],
+    'last month': [],
+    rest: []
+  };
+
+  repos.forEach(repo => {
+    const group = getTimeGroup(repo.lastModified);
+    groups[group].push(repo);
+  });
+
+  return groups;
+}
+
+function renderReposList(repos) {
+  const groups = groupReposByTime(repos);
+  let html = '';
+
+  for (const [groupName, groupRepos] of Object.entries(groups)) {
+    if (groupRepos.length === 0) continue;
+
+    html += `<div class="group-header">${groupName}</div>`;
+    html += groupRepos.map(repo => {
+      const escapedName = repo.name.replace(/'/g, '&#39;');
+      return `
+        <div class="list-item" onclick="window.selectRepo('${repo.id}', '${escapedName}')">
+          <div class="item-name">${repo.name}</div>
+          <div class="item-path">${repo.fullPath}</div>
+          <div class="item-meta">
+            <span>${repo.sessionCount} sessions</span>
+            ${repo.isGitRepo ? '<span class="git-badge">git repo</span>' : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  return html;
+}
+
+function groupSessionsByTime(sessions) {
+  const groups = {
+    today: [],
+    yesterday: [],
+    'this week': [],
+    'this month': [],
+    'last month': [],
+    rest: []
+  };
+
+  sessions.forEach(session => {
+    const group = getTimeGroup(session.timestamp);
+    groups[group].push(session);
+  });
+
+  return groups;
+}
+
+function renderSessionsList(sessions, selectedSessionId = null) {
+  const groups = groupSessionsByTime(sessions);
+  let html = '';
+
+  for (const [groupName, groupSessions] of Object.entries(groups)) {
+    if (groupSessions.length === 0) continue;
+
+    html += `<div class="group-header">${groupName}</div>`;
+    html += groupSessions.map(session => {
+      const date = new Date(session.timestamp).toLocaleDateString();
+      const tokenBadge = session.tokenPercentage ? `${session.tokenPercentage}%` : '';
+      const isActive = session.id === selectedSessionId ? 'active' : '';
+
+      return `
+        <div class="list-item ${isActive}" onclick="window.selectSession('${state.selectedRepo}', '${session.id}')">
+          <div class="item-name">${session.title}</div>
+          <div class="item-meta">
+            <span>${session.userCount} you</span>
+            <span>${session.assistantCount} cc</span>
+            ${tokenBadge ? `<span>${tokenBadge}</span>` : ''}
+            <span>${date}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  return html;
+}
+
 export async function renderRepositories() {
   document.getElementById('mainSidebar').classList.remove('hidden');
   document.getElementById('sidebarHeader').innerHTML = '<span class="sidebar-title">Repositories</span>';
@@ -23,19 +152,7 @@ export async function renderRepositories() {
       return;
     }
 
-    document.getElementById('sidebarContent').innerHTML = data.repos.map(repo => {
-      const escapedName = repo.name.replace(/'/g, '&#39;');
-      return `
-        <div class="list-item" onclick="window.selectRepo('${repo.id}', '${escapedName}')">
-          <div class="item-name">${repo.name}</div>
-          <div class="item-path">${repo.fullPath}</div>
-          <div class="item-meta">
-            <span>${repo.sessionCount} sessions</span>
-            ${repo.isGitRepo ? '<span class="git-badge">git repo</span>' : ''}
-          </div>
-        </div>
-      `;
-    }).join('');
+    document.getElementById('sidebarContent').innerHTML = renderReposList(state.repos);
   } catch (error) {
     document.getElementById('sidebarContent').innerHTML = '<div class="empty-state">Error loading repos</div>';
   }
@@ -47,6 +164,18 @@ export function selectRepo(repoId) {
 
 export async function renderSessions(repoId) {
   document.getElementById('mainSidebar').classList.remove('hidden');
+  state.selectedRepo = repoId;
+
+  if (state.repos.length === 0) {
+    try {
+      const reposRes = await fetch('/api/repos');
+      const reposData = await reposRes.json();
+      state.repos = reposData.repos;
+    } catch (error) {
+      console.error('Failed to load repos', error);
+    }
+  }
+
   const repo = state.repos.find(r => r.id === repoId);
   const repoName = repo ? repo.name : repoId;
 
@@ -67,22 +196,7 @@ export async function renderSessions(repoId) {
       return;
     }
 
-    document.getElementById('sidebarContent').innerHTML = data.sessions.map(session => {
-      const date = new Date(session.timestamp).toLocaleDateString();
-      const tokenBadge = session.tokenPercentage ? `${session.tokenPercentage}%` : '';
-
-      return `
-        <div class="list-item" onclick="window.selectSession('${repoId}', '${session.id}')">
-          <div class="item-name">${session.title}</div>
-          <div class="item-meta">
-            <span>${session.userCount} you</span>
-            <span>${session.assistantCount} cc</span>
-            ${tokenBadge ? `<span>${tokenBadge}</span>` : ''}
-            <span>${date}</span>
-          </div>
-        </div>
-      `;
-    }).join('');
+    document.getElementById('sidebarContent').innerHTML = renderSessionsList(data.sessions);
   } catch (error) {
     document.getElementById('sidebarContent').innerHTML = '<div class="empty-state">Error loading sessions</div>';
   }
@@ -94,6 +208,18 @@ export function selectSession(repoId, sessionId) {
 
 export async function renderSession(repoId, sessionId) {
   document.getElementById('mainSidebar').classList.remove('hidden');
+  state.selectedRepo = repoId;
+
+  if (state.repos.length === 0) {
+    try {
+      const reposRes = await fetch('/api/repos');
+      const reposData = await reposRes.json();
+      state.repos = reposData.repos;
+    } catch (error) {
+      console.error('Failed to load repos', error);
+    }
+  }
+
   const repo = state.repos.find(r => r.id === repoId);
   const repoName = repo ? repo.name : repoId;
 
@@ -108,23 +234,7 @@ export async function renderSession(repoId, sessionId) {
     const sessionsRes = await fetch(`/api/sessions/${encodeURIComponent(repoId)}`);
     const sessionsData = await sessionsRes.json();
 
-    document.getElementById('sidebarContent').innerHTML = sessionsData.sessions.map(session => {
-      const date = new Date(session.timestamp).toLocaleDateString();
-      const tokenBadge = session.tokenPercentage ? `${session.tokenPercentage}%` : '';
-      const isActive = session.id === sessionId ? 'active' : '';
-
-      return `
-        <div class="list-item ${isActive}" onclick="window.selectSession('${repoId}', '${session.id}')">
-          <div class="item-name">${session.title}</div>
-          <div class="item-meta">
-            <span>${session.userCount} you</span>
-            <span>${session.assistantCount} cc</span>
-            ${tokenBadge ? `<span>${tokenBadge}</span>` : ''}
-            <span>${date}</span>
-          </div>
-        </div>
-      `;
-    }).join('');
+    document.getElementById('sidebarContent').innerHTML = renderSessionsList(sessionsData.sessions, sessionId);
 
     const res = await fetch(`/api/sessions/${encodeURIComponent(repoId)}/${sessionId}`);
     const data = await res.json();
