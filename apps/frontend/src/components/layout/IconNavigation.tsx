@@ -1,17 +1,17 @@
 import { Link, useRouterState } from '@tanstack/react-router';
-import { Moon, Sun } from 'lucide-react';
+import { Home, FolderOpen, Settings as SettingsIcon, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../../hooks/use-theme';
 
 type NavItem = {
   path: string;
-  icon: string;
+  icon: typeof Home;
   label: string;
 };
 
 const navItems: NavItem[] = [
-  { path: '/', icon: '🏠', label: 'Home' },
-  { path: '/projects', icon: '📁', label: 'Projects' },
-  { path: '/settings', icon: '⚙️', label: 'Settings' }
+  { path: '/', icon: Home, label: 'Home' },
+  { path: '/projects', icon: FolderOpen, label: 'Projects' },
+  { path: '/settings', icon: SettingsIcon, label: 'Settings' }
 ];
 
 export const IconNavigation = () => {
@@ -28,35 +28,46 @@ export const IconNavigation = () => {
 
   return (
     <nav className="w-[60px] bg-card border-r border-border flex flex-col">
-      {navItems.map((item) => (
-        <Link
-          key={item.path}
-          to={item.path}
-          className={`
-            h-[60px] flex items-center justify-center cursor-pointer
-            border-b border-border transition-all duration-100
-            relative
-            hover:bg-accent
-            ${isActive(item.path) ? 'bg-primary/20' : ''}
-          `}
-          aria-label={item.label}
-        >
-          {isActive(item.path) && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary" />}
-          <span className="text-2xl">{item.icon}</span>
-        </Link>
-      ))}
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        const active = isActive(item.path);
+        return (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`
+              h-[60px] flex items-center justify-center cursor-pointer
+              border-b border-border transition-all duration-100
+              relative group
+              ${!active && 'hover:bg-accent'}
+            `}
+            aria-label={item.label}
+            title={item.label}
+          >
+            {active && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary" />}
+            <Icon size={24} className={active ? 'text-primary' : 'text-foreground'} />
+            <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+              {item.label}
+            </div>
+          </Link>
+        );
+      })}
       <div className="flex-1" />
       <button
         type="button"
         onClick={toggleTheme}
-        className="h-[60px] flex items-center justify-center cursor-pointer border-t border-border transition-all duration-100 hover:bg-accent"
+        className="h-[60px] flex items-center justify-center cursor-pointer border-t border-border transition-all duration-100 hover:bg-accent group relative"
         aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       >
         {theme === 'dark' ? (
           <Sun size={24} className="text-foreground" />
         ) : (
           <Moon size={24} className="text-foreground" />
         )}
+        <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+        </div>
       </button>
     </nav>
   );
