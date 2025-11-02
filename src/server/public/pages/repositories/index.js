@@ -8,15 +8,17 @@ function escapeHtml(text) {
 
 let sessionImages = {};
 
-function applyCommonFormatting(text) {
+function applyCommonFormatting(text, includeClickHandlers = true) {
   let formatted = text;
 
   formatted = formatted.replace(/\[Image #(\d+)\]/g, (_m, num) => {
-    return `<span class="image-reference" onclick="window.showImage(${num})">[Image #${num}]</span>`;
+    const handler = includeClickHandlers ? ` onclick="window.showImage(${num})"` : '';
+    return `<span class="image-reference"${handler}>[Image #${num}]</span>`;
   });
 
   formatted = formatted.replace(/(^|\s)@([^\s<>]+)/g, (_m, prefix, path) => {
-    return `${prefix}<span class="file-reference" onclick="alert('@${path}')">@${path}</span>`;
+    const handler = includeClickHandlers ? ` onclick="alert('@${path}')"` : '';
+    return `${prefix}<span class="file-reference"${handler}>@${path}</span>`;
   });
 
   formatted = formatted.replace(/ultrathink/gi, '<span class="rainbow-text">ultrathink</span>');
@@ -213,7 +215,7 @@ function groupSessionsByTime(sessions) {
 }
 
 function formatTitle(title) {
-  return applyCommonFormatting(title);
+  return applyCommonFormatting(title, false);
 }
 
 function renderSessionsList(sessions, selectedSessionId = null) {

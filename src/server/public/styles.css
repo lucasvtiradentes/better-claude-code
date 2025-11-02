@@ -340,10 +340,6 @@ body {
   font-weight: 600;
 }
 
-.file-reference:hover {
-  text-decoration: underline;
-}
-
 .image-reference {
   color: #9966ff;
   font-weight: 600;
