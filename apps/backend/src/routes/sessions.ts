@@ -490,9 +490,9 @@ sessionsRouter.post('/:projectName/:sessionId/labels', async (req, res) => {
 
     const labelIndex = metadata.labels.indexOf(labelId);
     if (labelIndex === -1) {
-      metadata.labels.push(labelId);
+      metadata.labels = [labelId];
     } else {
-      metadata.labels.splice(labelIndex, 1);
+      metadata.labels = [];
     }
 
     await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));

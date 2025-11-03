@@ -134,6 +134,12 @@ export const SessionsSidebar = ({
     return groupKey;
   };
 
+  const getGroupLabelColor = (groupKey: string): string | undefined => {
+    if (!settings || settings.groupBy !== 'label' || groupKey === 'no-label') return undefined;
+    const label = settings.labels.find((l) => l.id === groupKey);
+    return label?.color;
+  };
+
   const getGroupOrder = (): string[] => {
     if (!settings) return [];
 
@@ -195,7 +201,12 @@ export const SessionsSidebar = ({
               if (!groupSessions?.length) return null;
 
               return (
-                <TimeGroup key={groupKey} label={getGroupLabel(groupKey)} groupKey={groupKey as any}>
+                <TimeGroup
+                  key={groupKey}
+                  label={getGroupLabel(groupKey)}
+                  groupKey={groupKey as any}
+                  labelColor={getGroupLabelColor(groupKey)}
+                >
                   {groupSessions.map((session) => (
                     <SessionCard
                       key={session.id}

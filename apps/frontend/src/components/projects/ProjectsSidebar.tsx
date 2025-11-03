@@ -7,6 +7,7 @@ import {
   TIME_GROUP_LABELS,
   TIME_GROUP_ORDER
 } from '@bcc/shared';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { useProjectsStore } from '../../stores/projects-store';
 import { MiddleSidebar } from '../layout/MiddleSidebar';
@@ -23,10 +24,35 @@ type ProjectsSidebarProps = {
 
 export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }: ProjectsSidebarProps) => {
   const { settings, loadSettings } = useProjectsStore();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
+
+  const handleLabelToggle = async (projectId: string, labelId: string) => {
+    try {
+      const project = projects?.find((p) => p.id === projectId);
+      if (!project) return;
+
+      const currentLabels = project.labels || [];
+      const hasLabel = currentLabels.includes(labelId);
+      const newLabels = hasLabel ? [] : [labelId];
+
+      const response = await fetch(`/api/settings/projects/${encodeURIComponent(projectId)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ labels: newLabels })
+      });
+
+      if (!response.ok) throw new Error('Failed to toggle label');
+
+      await queryClient.invalidateQueries({ queryKey: ['projects'] });
+    } catch (error) {
+      console.error('Failed to toggle label:', error);
+      alert('Failed to toggle label');
+    }
+  };
 
   const filteredProjects = useMemo(() => {
     if (!projects || !settings) return projects;
@@ -117,6 +143,12 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
     return groupKey;
   };
 
+  const getGroupLabelColor = (groupKey: string): string | undefined => {
+    if (!settings || settings.groupBy !== 'label' || groupKey === 'no-label') return undefined;
+    const label = settings.labels.find((l) => l.id === groupKey);
+    return label?.color;
+  };
+
   const getGroupOrder = (): string[] => {
     if (!settings) return [];
 
@@ -149,13 +181,19 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
           if (!groupProjects?.length) return null;
 
           return (
-            <TimeGroup key={groupKey} label={getGroupLabel(groupKey)} groupKey={groupKey as any}>
+            <TimeGroup
+              key={groupKey}
+              label={getGroupLabel(groupKey)}
+              groupKey={groupKey as any}
+              labelColor={getGroupLabelColor(groupKey)}
+            >
               {groupProjects.map((project) => (
                 <ProjectCard
                   key={project.id}
                   project={project}
                   onClick={() => onSelectProject(project.id)}
                   displaySettings={settings?.display}
+                  onLabelToggle={handleLabelToggle}
                 />
               ))}
             </TimeGroup>
