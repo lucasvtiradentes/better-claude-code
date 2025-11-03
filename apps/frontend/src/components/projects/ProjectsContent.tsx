@@ -1,0 +1,170 @@
+import type { Message, Session, SessionData } from '@better-claude-code/shared';
+import { FileText, Image, Search, Terminal } from 'lucide-react';
+import type { RefObject } from 'react';
+import { IconWithBadge } from '../common/IconWithBadge';
+import { FileModal } from '../FileModal';
+import { FilterButtons } from '../FilterButtons';
+import { FolderModal } from '../FolderModal';
+import { ImageModal } from '../ImageModal';
+import { SearchNavigation } from '../sessions/SearchNavigation';
+import { SessionMessage } from '../sessions/SessionMessage';
+
+interface ProjectsContentProps {
+  contentRef: RefObject<HTMLDivElement | null>;
+  currentSession?: Session;
+  filteredMessages: Message[];
+  pathValidation?: Array<{ path: string; exists: boolean }>;
+  searchQuery?: string;
+  searchMatches: number[];
+  searchMatchIndex: number;
+  imageModalIndex: number | null;
+  fileModalPath: string | null;
+  folderModalPath: string | null;
+  selectedProject: string;
+  sessionId: string;
+  sessionData: SessionData;
+  onNextMatch: () => void;
+  onPreviousMatch: () => void;
+  onCloseSearch: () => void;
+  onImageClick: (index: number) => void;
+  onPathClick: (path: string) => void;
+  onImageModalClose: () => void;
+  onImageModalNext: () => void;
+  onImageModalPrev: () => void;
+  onFileModalClose: () => void;
+  onFolderModalClose: () => void;
+  onFolderModalFileClick: (path: string) => void;
+  onFolderModalFolderClick: (path: string) => void;
+}
+
+export function ProjectsContent({
+  contentRef,
+  currentSession,
+  filteredMessages,
+  pathValidation,
+  searchQuery,
+  searchMatches,
+  searchMatchIndex,
+  imageModalIndex,
+  fileModalPath,
+  folderModalPath,
+  selectedProject,
+  sessionId,
+  sessionData,
+  onNextMatch,
+  onPreviousMatch,
+  onCloseSearch,
+  onImageClick,
+  onPathClick,
+  onImageModalClose,
+  onImageModalNext,
+  onImageModalPrev,
+  onFileModalClose,
+  onFolderModalClose,
+  onFolderModalFileClick,
+  onFolderModalFolderClick
+}: ProjectsContentProps) {
+  console.log('[ProjectsContent] Render:', {
+    imageModalIndex,
+    sessionDataImages: sessionData.images,
+    shouldShowModal: imageModalIndex !== null
+  });
+
+  return (
+    <>
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            {currentSession?.searchMatchCount !== undefined && currentSession.searchMatchCount > 0 && (
+              <span className="text-primary">
+                <IconWithBadge
+                  icon={Search}
+                  count={currentSession.searchMatchCount}
+                  label={`${currentSession.searchMatchCount} matches`}
+                />
+              </span>
+            )}
+            {currentSession?.imageCount !== undefined && currentSession.imageCount > 0 && (
+              <IconWithBadge
+                icon={Image}
+                count={currentSession.imageCount}
+                label={`${currentSession.imageCount} images`}
+              />
+            )}
+            {currentSession?.customCommandCount !== undefined && currentSession.customCommandCount > 0 && (
+              <IconWithBadge
+                icon={Terminal}
+                count={currentSession.customCommandCount}
+                label={`${currentSession.customCommandCount} custom commands`}
+              />
+            )}
+            {currentSession?.filesOrFoldersCount !== undefined && currentSession.filesOrFoldersCount > 0 && (
+              <IconWithBadge
+                icon={FileText}
+                count={currentSession.filesOrFoldersCount}
+                label={`${currentSession.filesOrFoldersCount} files/folders`}
+              />
+            )}
+          </div>
+        </div>
+        <FilterButtons />
+      </div>
+      {searchQuery && searchMatches.length > 0 && (
+        <SearchNavigation
+          searchTerm={searchQuery}
+          currentIndex={searchMatchIndex}
+          totalMatches={searchMatches.length}
+          onNext={onNextMatch}
+          onPrevious={onPreviousMatch}
+          onClose={onCloseSearch}
+        />
+      )}
+      <div ref={contentRef} className="flex-1 overflow-y-auto p-4">
+        {filteredMessages.map((message, msgIdx) => (
+          <div key={`${message.type}-${msgIdx}`} data-message-index={msgIdx}>
+            <SessionMessage
+              message={message}
+              imageOffset={0}
+              onImageClick={onImageClick}
+              onPathClick={onPathClick}
+              pathValidation={pathValidation}
+              searchTerm={searchQuery}
+              isSearchMatch={searchMatches.includes(msgIdx)}
+              availableImages={sessionData.images.map((img) => img.index)}
+            />
+          </div>
+        ))}
+      </div>
+
+      {imageModalIndex !== null && (
+        <ImageModal
+          images={sessionData.images}
+          currentIndex={imageModalIndex}
+          onClose={onImageModalClose}
+          onNext={onImageModalNext}
+          onPrev={onImageModalPrev}
+        />
+      )}
+
+      {fileModalPath && (
+        <FileModal
+          projectId={selectedProject}
+          sessionId={sessionId}
+          filePath={fileModalPath}
+          onClose={onFileModalClose}
+        />
+      )}
+
+      {folderModalPath && (
+        <FolderModal
+          projectId={selectedProject}
+          sessionId={sessionId}
+          folderPath={folderModalPath}
+          onClose={onFolderModalClose}
+          onFileClick={onFolderModalFileClick}
+          onFolderClick={onFolderModalFolderClick}
+        />
+      )}
+    </>
+  );
+}

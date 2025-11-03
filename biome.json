@@ -23,6 +23,9 @@
         "noExplicitAny": "off",
         "noConfusingVoidType": "off"
       },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
       "style": {
         "useImportType": "off",
         "noNonNullAssertion": "warn",
@@ -52,7 +55,7 @@
     }
   },
   "files": {
-    "includes": ["**/*.ts"]
+    "includes": ["**/*.ts", "**/*.tsx"]
   },
   "vcs": {
     "enabled": true,

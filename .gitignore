@@ -10,6 +10,7 @@ completions/
 .claude
 .vscode
 .ignore
+.tanstack
 
 # FILES ========================================================================
 
