@@ -1,15 +1,34 @@
 {
-  "name": "@better-claude-code/cli",
+  "name": "better-claude-code",
   "version": "0.0.1",
-  "private": true,
+  "description": "Better Claude Code - CLI auxiliary tools for Claude Code",
   "type": "module",
+  "main": "./dist/cli/cli.js",
+  "bin": {
+    "bcc": "./dist/cli/cli.js",
+    "better-cloude-code": "./dist/cli/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "claude-code",
+    "cli",
+    "tools",
+    "productivity"
+  ],
+  "author": "Lucas Vieira",
+  "license": "MIT",
   "scripts": {
     "dev": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
     "build": "rimraf ./dist && tsc",
     "postbuild": "pnpm run update-docs && pnpm run copy-server-files",
     "update-docs": "tsx scripts/update-docs.ts",
-    "copy-server-files": "tsx scripts/copy-server-files.ts"
+    "copy-server-files": "tsx scripts/copy-server-files.ts",
+    "changeset": "changeset",
+    "package:preview": "npm pack --dry-run",
+    "release": "cd ../.. && pnpm build && cd apps/cli && changeset publish"
   },
   "dependencies": {
     "@better-claude-code/backend": "workspace:*",
