@@ -10,20 +10,10 @@ type PredefinedFile = {
   label: string;
 };
 
-const PREDEFINED_FILES: PredefinedFile[] = [
-  {
-    path: '/home/lucas/.claude/CLAUDE.md',
-    label: 'Global CLAUDE.md'
-  },
-  {
-    path: '/home/lucas/_custom/repos/github_lucasvtiradentes/ccc/apps/cli/src/prompts/session-compation.prompt.md',
-    label: 'Session Compaction Prompt'
-  }
-];
-
 export const FileEditor = () => {
   const { theme } = useTheme();
-  const [selectedFile, setSelectedFile] = useState<string>(PREDEFINED_FILES[0].path);
+  const [files, setFiles] = useState<PredefinedFile[]>([]);
+  const [selectedFile, setSelectedFile] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
@@ -101,14 +91,35 @@ export const FileEditor = () => {
   }, [selectedFile, content]);
 
   useEffect(() => {
-    loadFile(selectedFile);
+    const fetchFiles = async () => {
+      try {
+        const response = await fetch('/api/files/list');
+        if (response.ok) {
+          const data = await response.json();
+          setFiles(data.files);
+          if (data.files.length > 0) {
+            setSelectedFile(data.files[0].path);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch files:', err);
+      }
+    };
+
+    fetchFiles();
+  }, []);
+
+  useEffect(() => {
+    if (selectedFile) {
+      loadFile(selectedFile);
+    }
   }, [selectedFile, loadFile]);
 
   return (
     <div className="flex h-full">
       <div className="w-[300px] border-r border-border bg-card flex flex-col">
         <div className="flex-1 overflow-auto">
-          {PREDEFINED_FILES.map((file) => (
+          {files.map((file) => (
             <button
               key={file.path}
               type="button"
