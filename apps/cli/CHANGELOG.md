@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.6
+
+### Patch Changes
+
+- f0d5e49: fix error
+
 ## 0.0.5
 
 ### Patch Changes
