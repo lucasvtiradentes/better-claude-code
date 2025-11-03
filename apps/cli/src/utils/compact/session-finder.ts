@@ -1,7 +1,7 @@
+import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
-
 import { ConfigManager } from '../../config/config-manager.js';
 import { MessageCountMode, TitleMessage } from '../../config/types.js';
 import { getGitRepoRoot } from '../git.js';
@@ -151,7 +151,7 @@ export async function findSessions(limit?: number, useLastMessage?: boolean): Pr
       } catch {}
     }
 
-    if (firstUserMessage.startsWith('CLAUDE_CODE_SESSION_COMPACTION_ID')) {
+    if (firstUserMessage.startsWith(CLAUDE_CODE_SESSION_COMPACTION_ID)) {
       continue;
     }
 

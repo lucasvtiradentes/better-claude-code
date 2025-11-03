@@ -1,20 +1,27 @@
+import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
 import { randomUUID } from 'crypto';
 import { existsSync, readdirSync, readFileSync, unlinkSync } from 'fs';
 import { homedir } from 'os';
-import { basename, join } from 'path';
+import { basename, dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
-import { buildSessionCompactionPrompt } from '../../prompts/session-compaction.prompt.js';
 import { executePromptNonInteractively } from '../claude.js';
 import { getGitRepoRoot } from '../git.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export async function compactSession(parsedFile: string, outputFile: string): Promise<void> {
   const cleanupUuid = randomUUID();
 
-  const prompt = buildSessionCompactionPrompt({
-    parsedFileName: basename(parsedFile),
-    outputFilePath: outputFile,
-    cleanupId: cleanupUuid
-  });
+  const promptTemplatePath = join(__dirname, '../../prompts/session-compation.prompt.md');
+  let promptTemplate = readFileSync(promptTemplatePath, 'utf-8');
+
+  promptTemplate = `${CLAUDE_CODE_SESSION_COMPACTION_ID}: ${cleanupUuid}\n\n${promptTemplate}`;
+  promptTemplate = promptTemplate.replace('___FILE_TO_COMPACT___', `@${basename(parsedFile)}`);
+  promptTemplate = promptTemplate.replaceAll('___OUTPUT_FILE_PATH___', outputFile);
+
+  const prompt = promptTemplate;
 
   await executePromptNonInteractively(prompt);
 
@@ -42,7 +49,7 @@ export async function compactSession(parsedFile: string, outputFile: string): Pr
     .filter((file) => {
       try {
         const content = readFileSync(file, 'utf-8');
-        return content.includes(`CLAUDE_CODE_SESSION_COMPACTION_ID: ${cleanupUuid}`);
+        return content.includes(`${CLAUDE_CODE_SESSION_COMPACTION_ID}: ${cleanupUuid}`);
       } catch {
         return false;
       }

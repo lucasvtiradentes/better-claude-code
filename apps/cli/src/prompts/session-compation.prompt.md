@@ -1,17 +1,6 @@
-interface SessionCompactionPromptParams {
-  parsedFileName: string;
-  outputFilePath: string;
-  cleanupId: string;
-}
-
-const CLAUDE_CODE_SESSION_COMPACTION_ID = 'CLAUDE_CODE_SESSION_COMPACTION_ID';
-
-export function buildSessionCompactionPrompt(params: SessionCompactionPromptParams): string {
-  return `${CLAUDE_CODE_SESSION_COMPACTION_ID}: ${params.cleanupId}
-
 You are analyzing a parsed Claude Code session to extract important information.
 
-Read the file: @${params.parsedFileName}
+Read the file: ___FILE_TO_COMPACT___
 
 Based on the content, generate a structured markdown summary with these sections:
 
@@ -41,27 +30,26 @@ Document complexities, non-trivial issues, architectural decisions, blockers:
 ## Initial and Final Messages
 
 ### Initial Request
-\`\`\`
+```
 [paste first user message]
-\`\`\`
+```
 
 ### Initial Response
-\`\`\`
+```
 [paste first CC response - truncate if very long]
-\`\`\`
+```
 
 ### Final Request
-\`\`\`
+```
 [paste last user message]
-\`\`\`
+```
 
 ### Final Response
-\`\`\`
+```
 [paste last CC response - truncate if very long]
-\`\`\`
+```
 
 IMPORTANT:
-1. Use the Write tool to save the complete markdown summary to: ${params.outputFilePath}
+1. Use the Write tool to save the complete markdown summary to: ___OUTPUT_FILE_PATH___
 2. Do NOT output the summary as text - only use Write tool
-3. After saving, confirm with: "✓ Summary saved to: ${params.outputFilePath}"`;
-}
+3. After saving, confirm with: "✓ Summary saved to: ___OUTPUT_FILE_PATH___"

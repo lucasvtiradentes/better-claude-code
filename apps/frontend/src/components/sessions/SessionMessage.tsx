@@ -148,7 +148,7 @@ export const SessionMessage = ({
     <div
       className={`
         mb-3 p-2 px-3 rounded-md break-words
-        ${message.type === 'user' ? 'bg-secondary ml-10' : 'bg-card border-2 border-primary mr-10'}
+        ${message.type === 'user' ? 'bg-secondary ml-10' : 'bg-card mr-10'}
         ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
       `}
     >

@@ -1,6 +1,7 @@
 import express, { type Express } from 'express';
 import fs from 'fs';
 import path from 'path';
+import { filesRouter } from './routes/files.js';
 import { projectsRouter } from './routes/projects.js';
 import { sessionsRouter } from './routes/sessions.js';
 import { settingsRouter } from './routes/settings.js';
@@ -19,6 +20,7 @@ export const createServer = (options: ServerOptions): Express => {
     app.use(express.static(options.staticPath));
   }
 
+  app.use('/api/files', filesRouter);
   app.use('/api/projects', projectsRouter);
   app.use('/api/sessions', sessionsRouter);
   app.use('/api/settings', settingsRouter);

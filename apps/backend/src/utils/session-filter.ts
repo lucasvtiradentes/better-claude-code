@@ -1,3 +1,5 @@
+import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
+
 export function isCompactionSession(lines: string[]): boolean {
   try {
     for (const line of lines) {
@@ -17,7 +19,7 @@ export function isCompactionSession(lines: string[]): boolean {
           }
 
           if (textContent && textContent !== 'Warmup' && !textContent.includes('Caveat:')) {
-            return textContent.startsWith('CLAUDE_CODE_SESSION_COMPACTION_ID');
+            return textContent.startsWith(CLAUDE_CODE_SESSION_COMPACTION_ID);
           }
         }
       } catch {}
