@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 import { getCommand } from '../definitions/commands.js';
 import { CommandNames } from '../definitions/types.js';
-import { startServer } from '../server/index.js';
 import { handleCommandError } from '../utils/error-handler.js';
 import { Logger } from '../utils/logger.js';
 
@@ -44,24 +43,24 @@ export function createServeCommand(): Command {
     Logger.info('Press Ctrl+C to stop');
     Logger.info('');
 
-    const server = startServer(port);
+    // const server = startServer(port);
 
-    process.on('SIGINT', () => {
-      Logger.info('');
-      Logger.info('Shutting down server...');
-      server.close(() => {
-        Logger.success('Server stopped');
-        process.exit(0);
-      });
-    });
+    // process.on('SIGINT', () => {
+    //   Logger.info('');
+    //   Logger.info('Shutting down server...');
+    //   server.close(() => {
+    //     Logger.success('Server stopped');
+    //     process.exit(0);
+    //   });
+    // });
 
-    process.on('SIGTERM', () => {
-      server.close(() => {
-        process.exit(0);
-      });
-    });
+    // process.on('SIGTERM', () => {
+    //   server.close(() => {
+    //     process.exit(0);
+    //   });
+    // });
 
-    await new Promise(() => {});
+    // await new Promise(() => {});
   };
 
   const wrappedAction = async (options: ServeOptions) => {
