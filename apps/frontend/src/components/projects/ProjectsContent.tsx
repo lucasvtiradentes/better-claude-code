@@ -13,6 +13,7 @@ interface ProjectsContentProps {
   contentRef: RefObject<HTMLDivElement | null>;
   currentSession?: Session;
   filteredMessages: Message[];
+  pathValidation?: Array<{ path: string; exists: boolean }>;
   searchQuery?: string;
   searchMatches: number[];
   searchMatchIndex: number;
@@ -40,6 +41,7 @@ export function ProjectsContent({
   contentRef,
   currentSession,
   filteredMessages,
+  pathValidation,
   searchQuery,
   searchMatches,
   searchMatchIndex,
@@ -119,6 +121,7 @@ export function ProjectsContent({
               imageOffset={0}
               onImageClick={onImageClick}
               onPathClick={onPathClick}
+              pathValidation={pathValidation}
               searchTerm={searchQuery}
               isSearchMatch={searchMatches.includes(msgIdx)}
             />

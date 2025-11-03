@@ -1,4 +1,5 @@
 import type { Message, Session } from '@bcc/shared';
+import { extractPathsFromText } from '@bcc/shared';
 import { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
 import os from 'os';
@@ -487,6 +488,59 @@ sessionsRouter.post('/:projectName/:sessionId/labels', async (req, res) => {
   }
 });
 
+sessionsRouter.get('/:projectName/:sessionId/paths', async (req, res) => {
+  try {
+    const { projectName, sessionId } = req.params;
+    const sessionFile = path.join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
+
+    const content = await fs.readFile(sessionFile, 'utf-8');
+    const lines = content.trim().split('\n').filter(Boolean);
+
+    const projectPath = path.join(os.homedir(), '.claude', 'projects', projectName);
+    const realProjectPath = await getRealPathFromSession(projectPath);
+
+    if (!realProjectPath) {
+      return res.status(404).json({ error: 'Project path not found' });
+    }
+
+    const pathsSet = new Set<string>();
+
+    for (const line of lines) {
+      try {
+        const parsed = JSON.parse(line);
+        if (parsed.type === 'user') {
+          const textContent = extractTextContent(parsed.message?.content);
+          const paths = extractPathsFromText(textContent);
+          for (const path of paths) {
+            pathsSet.add(path);
+          }
+        }
+      } catch {}
+    }
+
+    const results = await Promise.all(
+      Array.from(pathsSet).map(async (pathStr) => {
+        try {
+          const cleanPath = pathStr.startsWith('/') ? pathStr.slice(1) : pathStr;
+          const fullPath = path.resolve(realProjectPath, cleanPath);
+          if (!fullPath.startsWith(realProjectPath)) {
+            return { path: pathStr, exists: false };
+          }
+          await fs.access(fullPath);
+          return { path: pathStr, exists: true };
+        } catch {
+          return { path: pathStr, exists: false };
+        }
+      })
+    );
+
+    res.json(results);
+  } catch (error) {
+    console.error('Failed to validate paths:', error);
+    res.status(500).json({ error: 'Failed to validate paths' });
+  }
+});
+
 sessionsRouter.delete('/:projectName/:sessionId', async (req, res) => {
   try {
     const { projectName, sessionId } = req.params;
@@ -497,9 +551,7 @@ sessionsRouter.delete('/:projectName/:sessionId', async (req, res) => {
 
     try {
       await fs.unlink(metadataPath);
-    } catch {
-      // Metadata file might not exist
-    }
+    } catch {}
 
     res.json({ success: true });
   } catch (error) {

@@ -1,11 +1,24 @@
 import type { Message } from '@bcc/shared';
-import { MESSAGE_COLORS } from '@/lib/message-colors';
+import {
+  detectCommand,
+  formatCommand,
+  formatFileOrFolderMention,
+  formatImageTag,
+  formatPathProperty,
+  formatPattern,
+  formatSearchHighlight,
+  formatToolPath,
+  formatToolWithQuote,
+  formatUltrathink,
+  MESSAGE_PATTERNS
+} from '@/lib/message-patterns';
 
 type SessionMessageProps = {
   message: Message;
   imageOffset: number;
   onImageClick: (imageIndex: number) => void;
   onPathClick?: (path: string) => void;
+  pathValidation?: Array<{ path: string; exists: boolean }>;
   searchTerm?: string;
   isSearchMatch?: boolean;
 };
@@ -20,21 +33,16 @@ function escapeHtml(text: string): string {
 }
 
 function parseCommandFormat(text: string): string | null {
-  const commandNameMatch = text.match(/<command-name>\/?([^<]+)<\/command-name>/);
-  const commandArgsMatch = text.match(/<command-args>([^<]+)<\/command-args>/);
-
-  if (commandNameMatch) {
-    const cmdName = commandNameMatch[1];
-    const cmdArgs = commandArgsMatch ? commandArgsMatch[1] : '';
-    const fullCommand = cmdArgs ? `/${cmdName} ${cmdArgs}` : `/${cmdName}`;
-    return `<span class="text-chart-2 font-semibold">${escapeHtml(fullCommand)}</span>`;
+  const command = detectCommand(text);
+  if (command) {
+    return formatCommand(command);
   }
-
   return null;
 }
 
 function applyCommonFormatting(
   text: string,
+  pathValidation?: Array<{ path: string; exists: boolean }>,
   searchTerm?: string
 ): {
   formatted: string;
@@ -43,27 +51,22 @@ function applyCommonFormatting(
   let formatted = text;
 
   const imageRefs: Array<{ placeholder: string; index: number }> = [];
-  formatted = formatted.replace(/\[Image #(\d+)\]/g, (_match, num) => {
+  formatted = formatted.replace(MESSAGE_PATTERNS.IMAGE_TAG, (_match, num) => {
     const placeholder = `__IMAGE_${num}__`;
     imageRefs.push({ placeholder, index: Number.parseInt(num, 10) });
     return placeholder;
   });
 
-  formatted = formatted.replace(
-    /(^|\s)@([^\s<>]+)/g,
-    (_match, prefix, filePath) =>
-      `${prefix}<span class="text-primary font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">@${escapeHtml(filePath)}</span>`
+  formatted = formatted.replace(MESSAGE_PATTERNS.FILE_OR_FOLDER_AT, (_match, prefix, filePath) =>
+    formatFileOrFolderMention(prefix, filePath, pathValidation)
   );
 
-  formatted = formatted.replace(
-    /ultrathink/gi,
-    '<span class="bg-gradient-to-r from-destructive via-primary to-chart-4 bg-clip-text text-transparent font-semibold">ultrathink</span>'
-  );
+  formatted = formatted.replace(MESSAGE_PATTERNS.ULTRATHINK, formatUltrathink);
 
   if (searchTerm) {
     const escapedTerm = escapeHtml(searchTerm);
     const regex = new RegExp(`(${escapedTerm})`, 'gi');
-    formatted = formatted.replace(regex, '<mark class="bg-primary/30 font-semibold">$1</mark>');
+    formatted = formatted.replace(regex, (_match, term) => formatSearchHighlight(term));
   }
 
   return { formatted, imageRefs };
@@ -71,6 +74,7 @@ function applyCommonFormatting(
 
 function formatMessage(
   text: string,
+  pathValidation?: Array<{ path: string; exists: boolean }>,
   searchTerm?: string
 ): { html: string; imageRefs: Array<{ placeholder: string; index: number }> } {
   const parsedCommand = parseCommandFormat(text);
@@ -80,26 +84,21 @@ function formatMessage(
 
   let formatted = escapeHtml(text).replace(/\\/g, '');
 
-  formatted = formatted.replace(
-    /\[Tool: ([^\]]+)\] (\/[^\s<>,]+)/g,
-    (_match, tool, filePath) =>
-      `[Tool: ${tool}] <span class="text-primary font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">${escapeHtml(filePath)}</span>`
+  formatted = formatted.replace(MESSAGE_PATTERNS.TOOL_WITH_PATH, (_match, tool, filePath) =>
+    formatToolPath(tool, filePath, pathValidation)
   );
 
-  formatted = formatted.replace(/pattern: "([^"]+)"/g, 'pattern: "<span class="text-primary font-semibold">$1</span>"');
+  formatted = formatted.replace(MESSAGE_PATTERNS.PATTERN_PROPERTY, (_match, pattern) => formatPattern(pattern));
 
-  formatted = formatted.replace(
-    /path: (\/[^\s<>,]+)/g,
-    (_match, filePath) =>
-      `path: <span class="text-primary font-semibold cursor-pointer" data-path="${escapeHtml(filePath)}">${escapeHtml(filePath)}</span>`
+  formatted = formatted.replace(MESSAGE_PATTERNS.PATH_PROPERTY, (_match, filePath) =>
+    formatPathProperty(filePath, pathValidation)
   );
 
-  formatted = formatted.replace(
-    /\[Tool: ([^\]]+)\] "([^"]+)"/g,
-    '[Tool: $1] "<span class="text-primary font-semibold">$2</span>"'
+  formatted = formatted.replace(MESSAGE_PATTERNS.TOOL_WITH_QUOTE, (_match, tool, quote) =>
+    formatToolWithQuote(tool, quote)
   );
 
-  const { formatted: withCommon, imageRefs } = applyCommonFormatting(formatted, searchTerm);
+  const { formatted: withCommon, imageRefs } = applyCommonFormatting(formatted, pathValidation, searchTerm);
   formatted = withCommon;
 
   formatted = formatted.replace(/\n---\n/g, '<div class="h-px bg-border my-3 w-[40%] mx-auto"></div>');
@@ -113,6 +112,7 @@ export const SessionMessage = ({
   message,
   onImageClick,
   onPathClick,
+  pathValidation,
   searchTerm,
   isSearchMatch
 }: SessionMessageProps) => {
@@ -120,14 +120,17 @@ export const SessionMessage = ({
     return null;
   }
 
-  const { html, imageRefs } = formatMessage(message.content, searchTerm);
+  const { html, imageRefs } = formatMessage(message.content, pathValidation, searchTerm);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     if (target.dataset.imageIndex) {
       onImageClick(Number.parseInt(target.dataset.imageIndex, 10));
     } else if (target.dataset.path && onPathClick) {
-      onPathClick(target.dataset.path);
+      const exists = target.dataset.exists === 'true';
+      if (exists) {
+        onPathClick(target.dataset.path);
+      }
     }
   };
 
@@ -156,11 +159,7 @@ export const SessionMessage = ({
         tabIndex={0}
         dangerouslySetInnerHTML={{
           __html: imageRefs.reduce(
-            (content, { placeholder, index }) =>
-              content.replace(
-                placeholder,
-                `<span data-image-index="${index}" class="inline-block text-sm px-2 py-1 rounded border transition-colors font-semibold cursor-pointer ${MESSAGE_COLORS.IMAGE_TAG}">[Image #${index}]</span>`
-              ),
+            (content, { placeholder, index }) => content.replace(placeholder, formatImageTag(index)),
             html
           )
         }}

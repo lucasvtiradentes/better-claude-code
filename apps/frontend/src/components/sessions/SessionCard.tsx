@@ -10,6 +10,13 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {
+  getCommandInTitleColor,
+  getFileInTitleColor,
+  getLabelActiveColor,
+  getTokenColor,
+  parseTitle
+} from '@/lib/message-patterns';
 import { useSessionsStore } from '../../stores/sessions-store';
 import { IconWithBadge } from '../common/IconWithBadge';
 
@@ -39,42 +46,6 @@ export const SessionCard = ({
 }: SessionCardProps) => {
   const { settings } = useSessionsStore();
 
-  const getTokenColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-destructive';
-    if (percentage >= 50) return 'text-primary';
-    return 'text-muted-foreground';
-  };
-
-  const parseTitle = (title: string) => {
-    const parts: { text: string; type: 'normal' | 'file' | 'command' }[] = [];
-    const fileRefRegex = /@[\w\-./]+/g;
-    const commandRegex =
-      /^(add|update|fix|refactor|improve|create|delete|remove|modify|change|implement|build|test|debug|optimize|enhance|cleanup|migrate|upgrade|downgrade|install|uninstall|configure|setup|deploy|publish|release|merge|rebase|cherry-pick|squash|revert)\s+/i;
-
-    let lastIndex = 0;
-    let match: RegExpExecArray | null = null;
-
-    const isCommand = commandRegex.test(title);
-
-    match = fileRefRegex.exec(title);
-    while (match !== null) {
-      if (match.index > lastIndex) {
-        const text = title.slice(lastIndex, match.index);
-        parts.push({ text, type: isCommand ? 'command' : 'normal' });
-      }
-      parts.push({ text: match[0], type: 'file' });
-      lastIndex = match.index + match[0].length;
-      match = fileRefRegex.exec(title);
-    }
-
-    if (lastIndex < title.length) {
-      const text = title.slice(lastIndex);
-      parts.push({ text, type: isCommand ? 'command' : 'normal' });
-    }
-
-    return parts;
-  };
-
   const titleParts = parseTitle(session.title);
 
   const handleMenuAction = (e: React.MouseEvent<HTMLDivElement>, action: () => void) => {
@@ -97,11 +68,7 @@ export const SessionCard = ({
             <span
               key={`${part.text}-${i}`}
               className={
-                part.type === 'file'
-                  ? 'text-primary font-semibold'
-                  : part.type === 'command'
-                    ? 'text-chart-2 font-semibold'
-                    : ''
+                part.type === 'file' ? getFileInTitleColor() : part.type === 'command' ? getCommandInTitleColor() : ''
               }
             >
               {part.text}
@@ -111,7 +78,7 @@ export const SessionCard = ({
         <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
           <div className="flex items-center gap-2">
             {session.searchMatchCount !== undefined && (
-              <span className="text-primary">
+              <span className={getLabelActiveColor()}>
                 <IconWithBadge
                   icon={Search}
                   count={session.searchMatchCount}
@@ -185,7 +152,7 @@ export const SessionCard = ({
                         <div className="flex items-center gap-2 w-full">
                           <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: label.color }} />
                           <span className="flex-1">{label.name}</span>
-                          {isLabeled && <span className="text-primary">✓</span>}
+                          {isLabeled && <span className={getLabelActiveColor()}>✓</span>}
                         </div>
                       </DropdownMenuItem>
                     );

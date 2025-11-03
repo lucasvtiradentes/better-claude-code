@@ -12,6 +12,7 @@ import { SessionsSidebar } from '../components/sessions/SessionsSidebar';
 import { useMessageFilter } from '../hooks/use-message-filter';
 import { useModalState } from '../hooks/use-modal-state';
 import { useNavigationManager } from '../hooks/use-navigation-manager';
+import { usePathValidation } from '../hooks/use-path-validation';
 import { useProjects } from '../hooks/use-projects';
 import { useScrollPersistence } from '../hooks/use-scroll-persistence';
 import { useSessionData } from '../hooks/use-session-data';
@@ -65,6 +66,10 @@ function ProjectsComponent() {
     isLoading: sessionLoading,
     error: sessionError
   } = useSessionData(selectedProject || '', sessionId || '');
+  const { data: pathValidation, isLoading: pathValidationLoading } = usePathValidation(
+    selectedProject || '',
+    sessionId || ''
+  );
 
   const sessions = sessionsData?.pages.flatMap((page) => page.items) || [];
   const totalSessions = sessionsData?.pages[0]?.meta.totalItems || 0;
@@ -226,7 +231,7 @@ function ProjectsComponent() {
   let content: ReactNode;
   if (sessionError) {
     content = <EmptyState message="Failed to load session" isError />;
-  } else if (sessionLoading || !sessionData) {
+  } else if (sessionLoading || !sessionData || pathValidationLoading) {
     content = <EmptyState message="Loading session..." />;
   } else {
     content = (
@@ -234,6 +239,7 @@ function ProjectsComponent() {
         contentRef={contentRef}
         currentSession={currentSession}
         filteredMessages={filteredMessages}
+        pathValidation={pathValidation}
         searchQuery={searchQuery}
         searchMatches={searchMatches}
         searchMatchIndex={searchMatchIndex}
