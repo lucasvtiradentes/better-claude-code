@@ -1,3 +1,4 @@
+// @ts-nocheck
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -40,30 +41,31 @@ if (!fs.existsSync(cliDistRoot)) {
   fs.mkdirSync(cliDistRoot, { recursive: true });
 }
 
+function fixImportsInDirectory(dir: string) {
+  const files = fs.readdirSync(dir);
+  for (const file of files) {
+    const fullPath = path.join(dir, file);
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      fixImportsInDirectory(fullPath);
+    } else if (file.endsWith('.js')) {
+      const content = fs.readFileSync(fullPath, 'utf-8');
+      const relativePath = path.relative(path.dirname(fullPath), sharedDistDest);
+      const importPath = `${relativePath.replace(/\\/g, '/')}/index.js`;
+      const updated = content.replace(/from ['"]@better-claude-code\/shared['"]/g, `from '${importPath}'`);
+      if (content !== updated) {
+        fs.writeFileSync(fullPath, updated, 'utf-8');
+      }
+    }
+  }
+}
+
 if (fs.existsSync(backendDistSrc)) {
   console.log(`Copying backend from ${backendDistSrc} to ${backendDistDest}`);
   copyRecursive(backendDistSrc, backendDistDest);
   console.log('✅ Backend copied');
 
   console.log('Fixing backend imports...');
-  function fixImportsInDirectory(dir: string) {
-    const files = fs.readdirSync(dir);
-    for (const file of files) {
-      const fullPath = path.join(dir, file);
-      const stat = fs.statSync(fullPath);
-      if (stat.isDirectory()) {
-        fixImportsInDirectory(fullPath);
-      } else if (file.endsWith('.js')) {
-        const content = fs.readFileSync(fullPath, 'utf-8');
-        const relativePath = path.relative(path.dirname(fullPath), sharedDistDest);
-        const importPath = `${relativePath.replace(/\\/g, '/')}/index.js`;
-        const updated = content.replace(/from ['"]@better-claude-code\/shared['"]/g, `from '${importPath}'`);
-        if (content !== updated) {
-          fs.writeFileSync(fullPath, updated, 'utf-8');
-        }
-      }
-    }
-  }
   fixImportsInDirectory(backendDistDest);
   console.log('✅ Backend imports fixed');
 } else {
@@ -95,6 +97,13 @@ if (fs.existsSync(promptsSrc)) {
   console.log('✅ Prompts copied');
 } else {
   console.warn(`⚠️  Prompts folder not found at ${promptsSrc}`);
+}
+
+console.log('Fixing CLI imports...');
+const cliDistCliFolder = path.join(cliDistRoot, 'cli');
+if (fs.existsSync(cliDistCliFolder)) {
+  fixImportsInDirectory(cliDistCliFolder);
+  console.log('✅ CLI imports fixed');
 }
 
 console.log('✅ All server files copied to CLI dist');
