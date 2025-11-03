@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.8
+
+### Patch Changes
+
+- 4bfe868: update session compact prompt
+
 ## 0.0.7
 
 ### Patch Changes
