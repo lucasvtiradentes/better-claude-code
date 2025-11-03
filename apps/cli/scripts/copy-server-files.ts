@@ -56,11 +56,8 @@ if (fs.existsSync(backendDistSrc)) {
       } else if (file.endsWith('.js')) {
         const content = fs.readFileSync(fullPath, 'utf-8');
         const relativePath = path.relative(path.dirname(fullPath), sharedDistDest);
-        const importPath = relativePath.replace(/\\/g, '/') + '/index.js';
-        const updated = content.replace(
-          /from ['"]@better-claude-code\/shared['"]/g,
-          `from '${importPath}'`
-        );
+        const importPath = `${relativePath.replace(/\\/g, '/')}/index.js`;
+        const updated = content.replace(/from ['"]@better-claude-code\/shared['"]/g, `from '${importPath}'`);
         if (content !== updated) {
           fs.writeFileSync(fullPath, updated, 'utf-8');
         }

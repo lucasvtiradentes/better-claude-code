@@ -26,9 +26,7 @@
     "postbuild": "pnpm run update-docs && pnpm run copy-server-files",
     "update-docs": "tsx scripts/update-docs.ts",
     "copy-server-files": "tsx scripts/copy-server-files.ts",
-    "changeset": "changeset",
-    "package:preview": "npm pack --dry-run",
-    "release": "cd ../.. && pnpm build && cd apps/cli && changeset publish"
+    "package:preview": "npm pack --dry-run"
   },
   "dependencies": {
     "@better-claude-code/backend": "workspace:*",
@@ -37,7 +35,6 @@
     "express": "^5.1.0"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.29.7",
     "@types/express": "^5.0.5",
     "@types/node": "^22.18.8",
     "rimraf": "^5.0.5",

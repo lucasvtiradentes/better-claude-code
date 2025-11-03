@@ -15,7 +15,9 @@
     "build:frontend": "pnpm --filter @better-claude-code/frontend build",
     "typecheck": "pnpm build:shared && pnpm -r typecheck",
     "format": "biome format --write .",
-    "lint": "biome check --write ."
+    "lint": "biome check --write .",
+    "changeset": "changeset",
+    "release": "pnpm build && changeset publish"
   },
   "dependencies": {
     "chalk": "^5.4.1",
@@ -23,6 +25,7 @@
     "express": "^5.1.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.1.2"
+    "@biomejs/biome": "^2.1.2",
+    "@changesets/cli": "^2.29.7"
   }
 }
