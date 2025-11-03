@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.3
+
+### Patch Changes
+
+- 7bf545f: fix publish error
+
 ## 0.0.2
 
 ### Patch Changes
