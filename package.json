@@ -25,7 +25,7 @@
     "build:cli": "pnpm --filter @better-claude-code/cli build",
     "build:backend": "pnpm --filter @better-claude-code/backend build",
     "build:frontend": "pnpm --filter @better-claude-code/frontend build",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm build:shared && pnpm -r typecheck",
     "format": "biome format --write .",
     "lint": "biome check --write .",
     "changeset": "changeset",
