@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.5
+
+### Patch Changes
+
+- ceae405: fix build error
+
 ## 0.0.4
 
 ### Patch Changes
