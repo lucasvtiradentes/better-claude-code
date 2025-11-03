@@ -32,12 +32,12 @@
     "package:preview": "npm pack --dry-run"
   },
   "dependencies": {
-    "@better-claude-code/backend": "workspace:*",
     "chalk": "^5.4.1",
     "commander": "^14.0.0",
     "express": "^5.1.0"
   },
   "devDependencies": {
+    "@better-claude-code/backend": "workspace:*",
     "@types/express": "^5.0.5",
     "@types/node": "^22.18.8",
     "rimraf": "^5.0.5",
