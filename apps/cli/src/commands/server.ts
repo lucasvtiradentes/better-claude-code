@@ -59,8 +59,8 @@ function isProcessRunning(pid: number): boolean {
 
 function getServerPaths() {
   return {
-    backendPath: getDistPath(import.meta.url, 'backend/dist/server.js'),
-    frontendPath: getDistPath(import.meta.url, 'frontend/dist')
+    backendPath: getDistPath(import.meta.url, 'backend', 'server.js'),
+    frontendPath: getDistPath(import.meta.url, 'frontend')
   };
 }
 
