@@ -10,11 +10,11 @@ export function getTokenColor(percentage: number): string {
 }
 
 export function getFileInTitleColor(): string {
-  return MESSAGE_COLORS.FILE_IN_TITLE;
+  return MESSAGE_COLORS.EXISTING_FILE_OR_FOLDER;
 }
 
 export function getCommandInTitleColor(): string {
-  return MESSAGE_COLORS.COMMAND_IN_TITLE;
+  return MESSAGE_COLORS.COMMAND;
 }
 
 export function getLabelActiveColor(): string {
