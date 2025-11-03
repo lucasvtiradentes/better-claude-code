@@ -3,14 +3,11 @@ import { Command } from 'commander';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { getCommand } from '../definitions/commands.js';
 import { CommandNames } from '../definitions/types.js';
 import { handleCommandError } from '../utils/error-handler.js';
 import { Logger } from '../utils/logger.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { getDistPath } from '../utils/paths.js';
 
 interface ServeOptions {
   port?: number;
@@ -61,20 +58,9 @@ function isProcessRunning(pid: number): boolean {
 }
 
 function getServerPaths() {
-  const isCompiledCode = __filename.endsWith('.js');
-
-  if (isCompiledCode) {
-    const distRoot = path.resolve(__dirname, '../..');
-    return {
-      backendPath: path.join(distRoot, 'backend/server.js'),
-      frontendPath: path.join(distRoot, 'frontend')
-    };
-  }
-
-  const repoRoot = path.resolve(__dirname, '../../../..');
   return {
-    backendPath: path.join(repoRoot, 'apps/backend/dist/server.js'),
-    frontendPath: path.join(repoRoot, 'apps/frontend/dist')
+    backendPath: getDistPath(import.meta.url, 'backend/dist/server.js'),
+    frontendPath: getDistPath(import.meta.url, 'frontend/dist')
   };
 }
 

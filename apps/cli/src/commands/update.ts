@@ -1,16 +1,13 @@
 import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { platform } from 'os';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
 
 import { createCommandFromSchema } from '../definitions/command-builder.js';
 import { CommandNames } from '../definitions/types.js';
 import { execAsync } from '../utils/exec.js';
 import { Logger } from '../utils/logger.js';
+import { getPackageJsonPath } from '../utils/paths.js';
 import { reinstallCompletionSilently } from './completion.js';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export function createUpdateCommand(): Command {
   const updateCommand = async () => {
@@ -140,7 +137,7 @@ async function getGlobalNpmPath(): Promise<string | null> {
 
 function getCurrentVersion(): string | null {
   try {
-    const packagePath = join(__dirname, '../../package.json');
+    const packagePath = getPackageJsonPath(import.meta.url);
     const packageJson = JSON.parse(readFileSync(packagePath, 'utf8'));
     return packageJson.version;
   } catch {

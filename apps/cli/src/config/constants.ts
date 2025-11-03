@@ -1,15 +1,9 @@
 import { readFileSync } from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
+import { getPackageJsonPath } from '../utils/paths.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const isCompiledCode = __filename.endsWith('.js');
-const packageJsonPath = isCompiledCode
-  ? path.join(__dirname, '../../..', 'package.json')
-  : path.join(__dirname, '..', '..', 'package.json');
+const packageJsonPath = getPackageJsonPath(import.meta.url);
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
 export const APP_INFO = {
