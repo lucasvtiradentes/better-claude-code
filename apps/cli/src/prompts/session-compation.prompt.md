@@ -9,6 +9,15 @@ Based on the content, generate a structured markdown summary with these sections
 ## Overview
 Brief 2-3 sentence description of what the conversation was about
 
+## Conversation Timeline
+Extract the key conversation flow showing what user requested and what CC did. Focus on major requests/implementations, not every single message:
+- User: requested to fix bug on login page
+- CC: Fixed bug, issue was incorrect validation on email field
+- User: asked to add dark mode
+- CC: Implemented dark mode with theme toggle in header
+- User: requested performance optimization
+- CC: Added memoization and reduced re-renders by 60%
+
 ## Important Files and Folders
 List absolute paths to files/folders that are critical to understand this work:
 - /absolute/path/to/file1.ts
@@ -21,33 +30,74 @@ Extract what was accomplished and what remains:
 - [ ] Pending task 1
 - [ ] Pending task 2
 
+## Key Learnings
+Document discoveries, insights, or important findings from this session:
+- Discovered that X approach works better than Y for performance
+- Found that Z library has compatibility issues
+- Learned important pattern or technique
+
 ## Notes
 Document complexities, non-trivial issues, architectural decisions, blockers:
 - Complex issue: explanation
 - Technical consideration: important decision
 - Blocker: unresolved dependency
 
-## Initial and Final Messages
+## Commands to Reproduce
+List key commands that were executed (if relevant to reproduce the work):
+1. `npm install package-name`
+2. `npm run build`
+3. `npm test`
 
-### Initial Request
-```
+## External Resources
+List any external resources referenced (docs, Stack Overflow, GitHub issues):
+- https://docs.example.com/api
+- Stack Overflow: https://stackoverflow.com/questions/123
+
+## Key Messages
+
+### Initial Messages
+
+<user_message>
 [paste first user message]
-```
+</user_message>
 
-### Initial Response
-```
+<cc_message>
 [paste first CC response - truncate if very long]
-```
+</cc_message>
 
-### Final Request
-```
-[paste last user message]
-```
+### Final Messages
 
-### Final Response
-```
-[paste last CC response - truncate if very long]
-```
+Extract and paste the LAST 3 exchanges between user and CC using this exact format:
+
+----
+
+<user_message>
+[message content]
+</user_message>
+
+<cc_message>
+[message content]
+</cc_message>
+
+----
+
+<user_message>
+[message content]
+</user_message>
+
+<cc_message>
+[message content]
+</cc_message>
+
+----
+
+<user_message type="final">
+[message content]
+</user_message>
+
+<cc_message type="final">
+[message content]
+</cc_message>
 
 IMPORTANT:
 1. Use the Write tool to save the complete markdown summary to: ___OUTPUT_FILE_PATH___

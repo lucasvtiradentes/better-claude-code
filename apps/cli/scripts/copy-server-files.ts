@@ -86,4 +86,15 @@ if (fs.existsSync(sharedDistSrc)) {
   console.warn(`⚠️  Shared dist not found at ${sharedDistSrc}`);
 }
 
+const promptsSrc = path.join(cliRoot, 'src/prompts');
+const promptsDest = path.join(cliDistRoot, 'cli/prompts');
+
+if (fs.existsSync(promptsSrc)) {
+  console.log(`Copying prompts from ${promptsSrc} to ${promptsDest}`);
+  copyRecursive(promptsSrc, promptsDest);
+  console.log('✅ Prompts copied');
+} else {
+  console.warn(`⚠️  Prompts folder not found at ${promptsSrc}`);
+}
+
 console.log('✅ All server files copied to CLI dist');
