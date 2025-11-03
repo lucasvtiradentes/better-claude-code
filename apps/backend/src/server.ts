@@ -12,6 +12,8 @@ export type ServerOptions = {
 export const createServer = (options: ServerOptions): Express => {
   const app = express();
 
+  app.use(express.json());
+
   if (options.staticPath) {
     app.use(express.static(options.staticPath));
   }

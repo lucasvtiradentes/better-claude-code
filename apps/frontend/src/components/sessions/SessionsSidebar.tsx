@@ -29,6 +29,8 @@ type SessionsSidebarProps = {
   onSearchChange: (value: string) => void;
   onBack: () => void;
   onSelectSession: (sessionId: string) => void;
+  onDeleteSession?: (sessionId: string) => void;
+  onLabelToggle?: (sessionId: string, labelId: string) => void;
   projectId: string;
   isGitRepo?: boolean;
 };
@@ -47,6 +49,8 @@ export const SessionsSidebar = ({
   onSearchChange,
   onBack,
   onSelectSession,
+  onDeleteSession,
+  onLabelToggle,
   projectId,
   isGitRepo
 }: SessionsSidebarProps) => {
@@ -200,6 +204,8 @@ export const SessionsSidebar = ({
                       isActive={session.id === selectedSessionId}
                       onClick={() => onSelectSession(session.id)}
                       displaySettings={settings?.display}
+                      onDelete={onDeleteSession}
+                      onLabelToggle={onLabelToggle}
                     />
                   ))}
                 </TimeGroup>

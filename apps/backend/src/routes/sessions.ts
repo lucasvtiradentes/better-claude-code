@@ -225,8 +225,20 @@ sessionsRouter.get('/:projectName', async (req, res) => {
         } catch {}
       }
 
+      const sessionId = file.replace('.jsonl', '');
+      const metadataPath = path.join(sessionsPath, '.metadata', `${sessionId}.json`);
+
+      let labels: string[] | undefined;
+      try {
+        const metadataContent = await fs.readFile(metadataPath, 'utf-8');
+        const metadata = JSON.parse(metadataContent);
+        labels = metadata.labels?.length > 0 ? metadata.labels : undefined;
+      } catch {
+        // No metadata file or labels
+      }
+
       sessions.push({
-        id: file.replace('.jsonl', ''),
+        id: sessionId,
         title,
         messageCount: messages.length,
         createdAt: stats.birthtimeMs,
@@ -234,7 +246,8 @@ sessionsRouter.get('/:projectName', async (req, res) => {
         searchMatchCount,
         imageCount: imageCount > 0 ? imageCount : undefined,
         customCommandCount: customCommandCount > 0 ? customCommandCount : undefined,
-        filesOrFoldersCount: filesOrFoldersCount > 0 ? filesOrFoldersCount : undefined
+        filesOrFoldersCount: filesOrFoldersCount > 0 ? filesOrFoldersCount : undefined,
+        labels
       });
     }
 
@@ -419,5 +432,78 @@ sessionsRouter.get('/:projectName/:sessionId/folder', async (req, res) => {
     res.json({ entries });
   } catch (_error) {
     res.status(500).json({ error: 'Failed to read folder' });
+  }
+});
+
+sessionsRouter.post('/:projectName/:sessionId/labels', async (req, res) => {
+  try {
+    const { projectName, sessionId } = req.params;
+    const { labelId } = req.body;
+
+    if (!labelId) {
+      return res.status(400).json({ error: 'labelId is required' });
+    }
+
+    const sessionsPath = path.join(os.homedir(), '.claude', 'projects', projectName);
+    const sessionFile = path.join(sessionsPath, `${sessionId}.jsonl`);
+
+    try {
+      await fs.access(sessionFile);
+    } catch {
+      console.error('Session file not found:', sessionFile);
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    const metadataPath = path.join(sessionsPath, '.metadata', `${sessionId}.json`);
+
+    await fs.mkdir(path.dirname(metadataPath), { recursive: true });
+
+    let metadata: { labels?: string[] } = {};
+    try {
+      const content = await fs.readFile(metadataPath, 'utf-8');
+      metadata = JSON.parse(content);
+    } catch (_err) {
+      console.log('No existing metadata, creating new');
+      metadata = { labels: [] };
+    }
+
+    if (!metadata.labels) {
+      metadata.labels = [];
+    }
+
+    const labelIndex = metadata.labels.indexOf(labelId);
+    if (labelIndex === -1) {
+      metadata.labels.push(labelId);
+    } else {
+      metadata.labels.splice(labelIndex, 1);
+    }
+
+    await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+
+    res.json({ success: true, labels: metadata.labels });
+  } catch (error) {
+    console.error('Failed to toggle label:', error);
+    res.status(500).json({ error: 'Failed to toggle label', details: String(error) });
+  }
+});
+
+sessionsRouter.delete('/:projectName/:sessionId', async (req, res) => {
+  try {
+    const { projectName, sessionId } = req.params;
+    const filePath = path.join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
+    const metadataPath = path.join(os.homedir(), '.claude', 'projects', projectName, '.metadata', `${sessionId}.json`);
+
+    await fs.unlink(filePath);
+
+    try {
+      await fs.unlink(metadataPath);
+    } catch {
+      // Metadata file might not exist
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Failed to delete session:', error);
+    res.status(500).json({ error: 'Failed to delete session' });
   }
 });

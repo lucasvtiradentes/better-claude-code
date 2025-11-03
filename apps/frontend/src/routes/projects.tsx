@@ -1,6 +1,8 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { Layout } from '../components/layout/Layout';
 import { EmptyState } from '../components/projects/EmptyState';
 import { ProjectsContent } from '../components/projects/ProjectsContent';
@@ -39,7 +41,11 @@ function ProjectsComponent() {
   } = Route.useSearch();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const { settings } = useSessionsStore();
+  const queryClient = useQueryClient();
   const contentRef = useRef<HTMLDivElement>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const sortBy = settings?.groupBy === 'token-percentage' ? 'token-percentage' : 'date';
 
@@ -85,22 +91,86 @@ function ProjectsComponent() {
     searchQuery
   );
 
+  const confirmDeleteSession = async () => {
+    if (!sessionToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/sessions/${selectedProject}/${sessionToDelete}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) throw new Error('Failed to delete session');
+
+      await queryClient.invalidateQueries({ queryKey: ['sessions', selectedProject] });
+      setDeleteModalOpen(false);
+      setSessionToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete session:', error);
+      alert('Failed to delete session');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const renderDeleteModal = () => (
+    <ConfirmDialog
+      open={deleteModalOpen}
+      onClose={() => {
+        setDeleteModalOpen(false);
+        setSessionToDelete(null);
+      }}
+      onConfirm={confirmDeleteSession}
+      title="Delete Session"
+      description="Are you sure you want to delete this session? This action cannot be undone and all messages will be permanently removed."
+      confirmText="Delete"
+      cancelText="Cancel"
+      variant="destructive"
+      isLoading={isDeleting}
+    />
+  );
+
   if (!selectedProject) {
     return (
-      <Layout
-        sidebar={
-          <ProjectsSidebar
-            projects={projects}
-            isLoading={projectsLoading}
-            error={projectsError}
-            onSelectProject={navigateToProject}
-          />
-        }
-      >
-        <EmptyState message="Select a project to view sessions" />
-      </Layout>
+      <>
+        <Layout
+          sidebar={
+            <ProjectsSidebar
+              projects={projects}
+              isLoading={projectsLoading}
+              error={projectsError}
+              onSelectProject={navigateToProject}
+            />
+          }
+        >
+          <EmptyState message="Select a project to view sessions" />
+        </Layout>
+        {renderDeleteModal()}
+      </>
     );
   }
+
+  const handleDeleteSession = (sessionId: string) => {
+    setSessionToDelete(sessionId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleLabelToggle = async (sessionId: string, labelId: string) => {
+    try {
+      const response = await fetch(`/api/sessions/${selectedProject}/${sessionId}/labels`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ labelId })
+      });
+
+      if (!response.ok) throw new Error('Failed to toggle label');
+
+      await queryClient.invalidateQueries({ queryKey: ['sessions', selectedProject] });
+    } catch (error) {
+      console.error('Failed to toggle label:', error);
+      alert('Failed to toggle label');
+    }
+  };
 
   const sessionsSidebar = (
     <SessionsSidebar
@@ -117,6 +187,8 @@ function ProjectsComponent() {
       onSearchChange={(value) => updateSearch({ search: value })}
       onBack={navigateBack}
       onSelectSession={navigateToSession}
+      onDeleteSession={handleDeleteSession}
+      onLabelToggle={handleLabelToggle}
       projectId={selectedProjectData?.id || selectedProject}
       isGitRepo={selectedProjectData?.isGitRepo}
     />
@@ -124,9 +196,12 @@ function ProjectsComponent() {
 
   if (!sessionId) {
     return (
-      <Layout sidebar={sessionsSidebar}>
-        <EmptyState message="Select a session to view messages" />
-      </Layout>
+      <>
+        <Layout sidebar={sessionsSidebar}>
+          <EmptyState message="Select a session to view messages" />
+        </Layout>
+        {renderDeleteModal()}
+      </>
     );
   }
 
@@ -197,5 +272,10 @@ function ProjectsComponent() {
     );
   }
 
-  return <Layout sidebar={sessionsSidebar}>{content}</Layout>;
+  return (
+    <>
+      <Layout sidebar={sessionsSidebar}>{content}</Layout>
+      {renderDeleteModal()}
+    </>
+  );
 }

@@ -11,7 +11,12 @@ type SessionsResponse = {
   };
 };
 
-const fetchSessions = async (projectName: string, page: number, search: string, sortBy: string): Promise<SessionsResponse> => {
+const fetchSessions = async (
+  projectName: string,
+  page: number,
+  search: string,
+  sortBy: string
+): Promise<SessionsResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: '20',
@@ -34,6 +39,7 @@ export const useSessions = (projectName: string, search: string = '', sortBy: st
     queryKey: ['sessions', projectName, search, sortBy],
     queryFn: ({ pageParam = 1 }) => fetchSessions(projectName, pageParam, search, sortBy),
     enabled: !!projectName,
+    placeholderData: (previousData) => previousData,
     getNextPageParam: (lastPage) => {
       if (lastPage.meta.page < lastPage.meta.totalPages) {
         return lastPage.meta.page + 1;

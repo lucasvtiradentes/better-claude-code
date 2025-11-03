@@ -12,6 +12,7 @@ const fetchProjects = async (): Promise<Project[]> => {
 export const useProjects = () => {
   return useQuery({
     queryKey: ['projects'],
-    queryFn: fetchProjects
+    queryFn: fetchProjects,
+    placeholderData: (previousData) => previousData
   });
 };

@@ -1,5 +1,16 @@
 import type { Session } from '@bcc/shared';
-import { FileText, Image, Search, Terminal } from 'lucide-react';
+import { FileText, Image, MoreHorizontal, Search, Tag, Terminal, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { useSessionsStore } from '../../stores/sessions-store';
 import { IconWithBadge } from '../common/IconWithBadge';
 
 type SessionCardProps = {
@@ -11,6 +22,8 @@ type SessionCardProps = {
     showTokenPercentage: boolean;
     showAttachments: boolean;
   };
+  onDelete?: (sessionId: string) => void;
+  onLabelToggle?: (sessionId: string, labelId: string) => void;
 };
 
 export const SessionCard = ({
@@ -20,8 +33,12 @@ export const SessionCard = ({
   displaySettings = {
     showTokenPercentage: true,
     showAttachments: false
-  }
+  },
+  onDelete,
+  onLabelToggle
 }: SessionCardProps) => {
+  const { settings } = useSessionsStore();
+
   const getTokenColor = (percentage: number) => {
     if (percentage >= 80) return 'text-destructive';
     if (percentage >= 50) return 'text-primary';
@@ -60,71 +77,135 @@ export const SessionCard = ({
 
   const titleParts = parseTitle(session.title);
 
+  const handleMenuAction = (e: React.MouseEvent<HTMLDivElement>, action: () => void) => {
+    e.stopPropagation();
+    action();
+  };
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <div
       className={`
-        w-full text-left px-4 py-3 cursor-pointer
+        relative w-full text-left px-4 py-3
         border-b border-border transition-all duration-100
-        hover:bg-accent
+        hover:bg-accent group
         ${isActive ? 'bg-primary/20' : ''}
       `}
     >
-      <div className="text-sm font-semibold mb-1 break-words line-clamp-2">
-        {titleParts.map((part, i) => (
-          <span
-            key={`${part.text}-${i}`}
-            className={
-              part.type === 'file'
-                ? 'text-primary font-semibold'
-                : part.type === 'command'
-                  ? 'text-chart-2 font-semibold'
-                  : ''
-            }
-          >
-            {part.text}
-          </span>
-        ))}
-      </div>
-      <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-        <div className="flex items-center gap-2">
-          {session.searchMatchCount !== undefined && (
-            <span className="text-primary">
-              <IconWithBadge
-                icon={Search}
-                count={session.searchMatchCount}
-                label={`${session.searchMatchCount} matches`}
-              />
+      <button type="button" onClick={onClick} className="w-full text-left">
+        <div className="text-sm font-semibold mb-1 break-words line-clamp-2 pr-8">
+          {titleParts.map((part, i) => (
+            <span
+              key={`${part.text}-${i}`}
+              className={
+                part.type === 'file'
+                  ? 'text-primary font-semibold'
+                  : part.type === 'command'
+                    ? 'text-chart-2 font-semibold'
+                    : ''
+              }
+            >
+              {part.text}
             </span>
-          )}
-          {displaySettings.showAttachments && (
-            <>
-              {session.imageCount !== undefined && session.imageCount > 0 && (
-                <IconWithBadge icon={Image} count={session.imageCount} label={`${session.imageCount} images`} />
-              )}
-              {session.customCommandCount !== undefined && session.customCommandCount > 0 && (
+          ))}
+        </div>
+        <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-2">
+            {session.searchMatchCount !== undefined && (
+              <span className="text-primary">
                 <IconWithBadge
-                  icon={Terminal}
-                  count={session.customCommandCount}
-                  label={`${session.customCommandCount} custom commands`}
+                  icon={Search}
+                  count={session.searchMatchCount}
+                  label={`${session.searchMatchCount} matches`}
                 />
-              )}
-              {session.filesOrFoldersCount !== undefined && session.filesOrFoldersCount > 0 && (
-                <IconWithBadge
-                  icon={FileText}
-                  count={session.filesOrFoldersCount}
-                  label={`${session.filesOrFoldersCount} files/folders`}
-                />
-              )}
-            </>
+              </span>
+            )}
+            {displaySettings.showAttachments && (
+              <>
+                {session.imageCount !== undefined && session.imageCount > 0 && (
+                  <IconWithBadge icon={Image} count={session.imageCount} label={`${session.imageCount} images`} />
+                )}
+                {session.customCommandCount !== undefined && session.customCommandCount > 0 && (
+                  <IconWithBadge
+                    icon={Terminal}
+                    count={session.customCommandCount}
+                    label={`${session.customCommandCount} custom commands`}
+                  />
+                )}
+                {session.filesOrFoldersCount !== undefined && session.filesOrFoldersCount > 0 && (
+                  <IconWithBadge
+                    icon={FileText}
+                    count={session.filesOrFoldersCount}
+                    label={`${session.filesOrFoldersCount} files/folders`}
+                  />
+                )}
+              </>
+            )}
+          </div>
+
+          {displaySettings.showTokenPercentage && session.tokenPercentage !== undefined && (
+            <span className={getTokenColor(session.tokenPercentage)}>{session.tokenPercentage}%</span>
           )}
         </div>
+      </button>
 
-        {displaySettings.showTokenPercentage && session.tokenPercentage !== undefined && (
-          <span className={getTokenColor(session.tokenPercentage)}>{session.tokenPercentage}%</span>
-        )}
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="p-1 hover:bg-accent rounded-sm"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={(e: React.MouseEvent<HTMLDivElement>) => handleMenuAction(e, onClick)}>
+              Open session
+            </DropdownMenuItem>
+
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <Tag className="h-4 w-4 mr-2" />
+                Label
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {settings?.labels.length === 0 ? (
+                  <DropdownMenuItem disabled>No labels available</DropdownMenuItem>
+                ) : (
+                  settings?.labels.map((label) => {
+                    const isLabeled = session.labels?.includes(label.id);
+                    return (
+                      <DropdownMenuItem
+                        key={label.id}
+                        onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+                          handleMenuAction(e, () => onLabelToggle?.(session.id, label.id))
+                        }
+                      >
+                        <div className="flex items-center gap-2 w-full">
+                          <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: label.color }} />
+                          <span className="flex-1">{label.name}</span>
+                          {isLabeled && <span className="text-primary">✓</span>}
+                        </div>
+                      </DropdownMenuItem>
+                    );
+                  })
+                )}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={(e: React.MouseEvent<HTMLDivElement>) => handleMenuAction(e, () => onDelete?.(session.id))}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete session
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-    </button>
+    </div>
   );
 };
