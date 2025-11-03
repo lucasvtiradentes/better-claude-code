@@ -1,4 +1,4 @@
-import type { MessageContent } from '@bcc/shared';
+import type { MessageContent } from '@better-claude-code/shared';
 
 export type ParsedContent = {
   text: string;

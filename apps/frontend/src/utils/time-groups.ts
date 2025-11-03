@@ -1,4 +1,4 @@
-import type { TimeGroup } from '@bcc/shared';
+import type { TimeGroup } from '@better-claude-code/shared';
 
 export function getGroupDate(groupName: TimeGroup): string {
   const now = new Date();

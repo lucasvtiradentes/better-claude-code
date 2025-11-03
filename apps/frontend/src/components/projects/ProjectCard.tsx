@@ -1,4 +1,4 @@
-import type { Project } from '@bcc/shared';
+import type { Project } from '@better-claude-code/shared';
 import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import {

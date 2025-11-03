@@ -23,7 +23,7 @@ export const createServer = (options: ServerOptions): Express => {
   app.use('/api/settings', settingsRouter);
 
   if (options.staticPath) {
-    app.get('*', (_req, res) => {
+    app.use((_req, res) => {
       res.sendFile(path.join(options.staticPath as string, 'index.html'));
     });
   }
@@ -38,6 +38,10 @@ export const startServer = (options: ServerOptions) => {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const port = Number(process.env.PORT) || 3001;
-  startServer({ port });
+  const staticPath = process.env.STATIC_PATH;
+  startServer({ port, staticPath });
   console.log(`Backend server running on http://localhost:${port}`);
+  if (staticPath) {
+    console.log(`Serving static files from: ${staticPath}`);
+  }
 }

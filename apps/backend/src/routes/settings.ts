@@ -1,4 +1,4 @@
-import type { AppSettings, ProjectLabel } from '@bcc/shared';
+import type { AppSettings, ProjectLabel } from '@better-claude-code/shared';
 import express, { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
 import os from 'os';

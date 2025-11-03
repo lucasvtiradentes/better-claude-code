@@ -1,4 +1,4 @@
-import type { ProjectLabel, SessionsConfig } from '@bcc/shared';
+import type { ProjectLabel, SessionsConfig } from '@better-claude-code/shared';
 import { create } from 'zustand';
 
 type SessionsStore = {

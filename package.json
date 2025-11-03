@@ -1,19 +1,57 @@
 {
-  "name": "bcc-monorepo",
-  "version": "0.1.0",
-  "private": true,
+  "name": "better-claude-code",
+  "version": "0.0.1",
   "packageManager": "pnpm@10.20.0",
+  "description": "Better Claude Code - CLI auxiliary tools for Claude Code",
+  "type": "module",
+  "main": "dist/cli/cli.js",
+  "bin": {
+    "bcc": "./dist/cli/cli.js",
+    "bc": "./dist/cli/cli.js",
+    "better-cloude-code": "./dist/cli/cli.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.css",
+    "dist/**/*.html",
+    "!dist/**/*.map"
+  ],
   "scripts": {
-    "dev": "pnpm --filter @bcc/cli dev",
-    "dev:backend": "pnpm --filter @bcc/backend dev",
-    "dev:frontend": "pnpm --filter @bcc/frontend dev",
-    "build": "pnpm -r build",
-    "build:cli": "pnpm --filter @bcc/cli build",
-    "build:backend": "pnpm --filter @bcc/backend build",
-    "build:frontend": "pnpm --filter @bcc/frontend build",
+    "start": "node ./dist/cli/cli.js",
+    "dev": "pnpm --filter @better-claude-code/cli dev",
+    "build": "pnpm build:shared && pnpm build:backend && pnpm build:frontend && pnpm build:cli",
+    "build:shared": "pnpm --filter @better-claude-code/shared build",
+    "build:cli": "pnpm --filter @better-claude-code/cli build",
+    "build:backend": "pnpm --filter @better-claude-code/backend build",
+    "build:frontend": "pnpm --filter @better-claude-code/frontend build",
     "typecheck": "pnpm -r typecheck",
     "format": "biome format --write .",
-    "lint": "biome check --write ."
+    "lint": "biome check --write .",
+    "changeset": "changeset",
+    "package:preview": "npm pack --dry-run",
+    "release": "npm run build && changeset publish"
+  },
+  "keywords": [
+    "claude-code",
+    "cli",
+    "tools",
+    "productivity"
+  ],
+  "author": "Lucas Vieira",
+  "license": "MIT",
+  "homepage": "https://github.com/lucasvtiradentes/bcc#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucasvtiradentes/bcc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lucasvtiradentes/bcc/issues"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
+    "express": "^5.1.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.2",

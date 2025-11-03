@@ -1,4 +1,4 @@
-import type { Message } from '@bcc/shared';
+import type { Message } from '@better-claude-code/shared';
 import {
   detectCommand,
   formatCommand,

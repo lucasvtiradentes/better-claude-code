@@ -1,4 +1,4 @@
-import type { AppSettings, ProjectLabel, ProjectSettings, ProjectsConfig } from '@bcc/shared';
+import type { AppSettings, ProjectLabel, ProjectSettings, ProjectsConfig } from '@better-claude-code/shared';
 import { create } from 'zustand';
 
 type ProjectsStore = {

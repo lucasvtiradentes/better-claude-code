@@ -1,4 +1,4 @@
-import type { TimeGroup as TimeGroupType } from '@bcc/shared';
+import type { TimeGroup as TimeGroupType } from '@better-claude-code/shared';
 import type { ReactNode } from 'react';
 import { Children } from 'react';
 import { getGroupDate } from '../utils/time-groups';

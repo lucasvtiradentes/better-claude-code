@@ -37,7 +37,7 @@ export const CommandNames = {
   UPDATE: 'update',
   COMPLETION: 'completion',
   COMPACT: 'compact',
-  SERVE: 'serve'
+  SERVER: 'server'
 } as const;
 
 export const SubCommandNames = {

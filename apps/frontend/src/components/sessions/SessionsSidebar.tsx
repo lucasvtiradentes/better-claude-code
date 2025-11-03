@@ -1,4 +1,4 @@
-import type { Session } from '@bcc/shared';
+import type { Session } from '@better-claude-code/shared';
 import {
   getTimeGroup,
   getTokenPercentageGroup,
@@ -6,7 +6,7 @@ import {
   TIME_GROUP_ORDER,
   TOKEN_PERCENTAGE_GROUP_LABELS,
   TOKEN_PERCENTAGE_GROUP_ORDER
-} from '@bcc/shared';
+} from '@better-claude-code/shared';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSessionsStore } from '../../stores/sessions-store';
 import { MiddleSidebar } from '../layout/MiddleSidebar';

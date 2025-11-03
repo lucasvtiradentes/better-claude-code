@@ -1,4 +1,4 @@
-import type { Session } from '@bcc/shared';
+import type { Session } from '@better-claude-code/shared';
 import { FileText, Image, MoreHorizontal, Search, Tag, Terminal, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,

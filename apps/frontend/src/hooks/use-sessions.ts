@@ -1,4 +1,4 @@
-import type { Session } from '@bcc/shared';
+import type { Session } from '@better-claude-code/shared';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 type SessionsResponse = {

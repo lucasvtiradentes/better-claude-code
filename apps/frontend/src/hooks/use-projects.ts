@@ -1,4 +1,4 @@
-import type { Project } from '@bcc/shared';
+import type { Project } from '@better-claude-code/shared';
 import { useQuery } from '@tanstack/react-query';
 
 const fetchProjects = async (): Promise<Project[]> => {

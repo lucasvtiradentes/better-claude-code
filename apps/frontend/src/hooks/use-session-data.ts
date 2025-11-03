@@ -1,4 +1,4 @@
-import type { SessionData } from '@bcc/shared';
+import type { SessionData } from '@better-claude-code/shared';
 import { useQuery } from '@tanstack/react-query';
 
 const fetchSessionData = async (projectName: string, sessionId: string): Promise<SessionData> => {

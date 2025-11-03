@@ -1,4 +1,4 @@
-import type { ProjectLabel } from '@bcc/shared';
+import type { ProjectLabel } from '@better-claude-code/shared';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';

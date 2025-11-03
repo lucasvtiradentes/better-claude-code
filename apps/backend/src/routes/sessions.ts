@@ -1,5 +1,5 @@
-import type { Message, Session } from '@bcc/shared';
-import { extractPathsFromText } from '@bcc/shared';
+import type { Message, Session } from '@better-claude-code/shared';
+import { extractPathsFromText } from '@better-claude-code/shared';
 import { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
 import os from 'os';

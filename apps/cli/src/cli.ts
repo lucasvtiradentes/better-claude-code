@@ -6,8 +6,7 @@ import { createCompactCommand } from './commands/compact.js';
 import { createCompletionCommand } from './commands/completion.js';
 import { createHelloCommand } from './commands/hello.js';
 import { displayHelpText } from './commands/help-text.js';
-import { createServeCommand } from './commands/serve.js';
-import { createServeAltCommand } from './commands/serve-alt.js';
+import { createServerCommand } from './commands/server.js';
 import { createUpdateCommand } from './commands/update.js';
 import { APP_INFO } from './config/constants.js';
 
@@ -19,8 +18,7 @@ program.addCommand(createHelloCommand());
 program.addCommand(createUpdateCommand());
 program.addCommand(createCompletionCommand());
 program.addCommand(createCompactCommand());
-program.addCommand(createServeCommand());
-program.addCommand(createServeAltCommand());
+program.addCommand(createServerCommand());
 
 program.configureHelp({
   sortSubcommands: true,
@@ -31,8 +29,10 @@ program.on('--help', () => {
   displayHelpText();
 });
 
-program.parse();
-
 if (!process.argv.slice(2).length) {
-  program.outputHelp();
+  console.log('');
+  displayHelpText();
+  process.exit(0);
 }
+
+program.parse();

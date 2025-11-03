@@ -1,4 +1,4 @@
-import type { ProjectsConfig } from '@bcc/shared';
+import type { ProjectsConfig } from '@better-claude-code/shared';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Checkbox } from '@/components/ui/checkbox';

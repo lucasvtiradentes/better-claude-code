@@ -1,4 +1,4 @@
-import type { Message, Session, SessionData } from '@bcc/shared';
+import type { Message, Session, SessionData } from '@better-claude-code/shared';
 import { FileText, Image, Search, Terminal } from 'lucide-react';
 import type { RefObject } from 'react';
 import { IconWithBadge } from '../common/IconWithBadge';

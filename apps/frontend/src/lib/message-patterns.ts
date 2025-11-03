@@ -1,4 +1,4 @@
-import { MESSAGE_PATTERNS } from '@bcc/shared';
+import { MESSAGE_PATTERNS } from '@better-claude-code/shared';
 import { MESSAGE_COLORS } from './message-colors';
 
 export { MESSAGE_PATTERNS };

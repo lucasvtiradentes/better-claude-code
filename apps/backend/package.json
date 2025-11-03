@@ -1,6 +1,6 @@
 {
-  "name": "@bcc/backend",
-  "version": "0.1.0",
+  "name": "@better-claude-code/backend",
+  "version": "0.0.1",
   "type": "module",
   "main": "./dist/server.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@bcc/shared": "workspace:*",
+    "@better-claude-code/shared": "workspace:*",
     "express": "^5.1.0"
   },
   "devDependencies": {

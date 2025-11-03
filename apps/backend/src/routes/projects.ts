@@ -1,4 +1,4 @@
-import type { AppSettings, Project } from '@bcc/shared';
+import type { AppSettings, Project } from '@better-claude-code/shared';
 import { exec, spawn } from 'child_process';
 import { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
