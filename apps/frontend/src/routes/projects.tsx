@@ -79,6 +79,13 @@ function ProjectsComponent() {
   const { imageModalIndex, setImageModalIndex, fileModalPath, setFileModalPath, folderModalPath, setFolderModalPath } =
     useModalState(imageIndex, urlFolderPath, urlFilePath, sessionData?.images);
 
+  console.log('[projects.tsx] State:', {
+    imageIndex,
+    imageModalIndex,
+    sessionDataImages: sessionData?.images,
+    sessionDataImagesLength: sessionData?.images?.length
+  });
+
   const { updateSearch, handlePathClick, navigateToProject, navigateToSession, navigateBack } = useNavigationManager({
     selectedProject,
     sessionId,
@@ -253,6 +260,8 @@ function ProjectsComponent() {
         onPreviousMatch={handlePreviousMatch}
         onCloseSearch={() => updateSearch({ search: undefined })}
         onImageClick={(index: number) => {
+          console.log('[projects.tsx] onImageClick called with index:', index);
+          console.log('[projects.tsx] sessionData.images:', sessionData?.images);
           setImageModalIndex(index);
           updateSearch({ imageIndex: index });
         }}

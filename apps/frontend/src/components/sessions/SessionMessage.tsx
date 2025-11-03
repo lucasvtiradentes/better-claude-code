@@ -21,6 +21,7 @@ type SessionMessageProps = {
   pathValidation?: Array<{ path: string; exists: boolean }>;
   searchTerm?: string;
   isSearchMatch?: boolean;
+  availableImages?: number[];
 };
 
 function escapeHtml(text: string): string {
@@ -114,7 +115,8 @@ export const SessionMessage = ({
   onPathClick,
   pathValidation,
   searchTerm,
-  isSearchMatch
+  isSearchMatch,
+  availableImages = []
 }: SessionMessageProps) => {
   if (typeof message.content !== 'string') {
     return null;
@@ -124,8 +126,16 @@ export const SessionMessage = ({
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
+    console.log('[SessionMessage] Click detected:', {
+      tagName: target.tagName,
+      className: target.className,
+      imageIndex: target.dataset.imageIndex,
+      path: target.dataset.path
+    });
     if (target.dataset.imageIndex) {
-      onImageClick(Number.parseInt(target.dataset.imageIndex, 10));
+      const index = Number.parseInt(target.dataset.imageIndex, 10);
+      console.log('[SessionMessage] Calling onImageClick with index:', index);
+      onImageClick(index);
     } else if (target.dataset.path && onPathClick) {
       const exists = target.dataset.exists === 'true';
       if (exists) {
@@ -158,10 +168,10 @@ export const SessionMessage = ({
         role="button"
         tabIndex={0}
         dangerouslySetInnerHTML={{
-          __html: imageRefs.reduce(
-            (content, { placeholder, index }) => content.replace(placeholder, formatImageTag(index)),
-            html
-          )
+          __html: imageRefs.reduce((content, { placeholder, index }) => {
+            const exists = availableImages.includes(index);
+            return content.replace(placeholder, formatImageTag(index, exists));
+          }, html)
         }}
       />
     </div>

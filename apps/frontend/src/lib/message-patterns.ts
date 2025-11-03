@@ -93,8 +93,12 @@ export function formatSearchHighlight(term: string): string {
   return `<mark class="${MESSAGE_COLORS.SEARCH_HIGHLIGHT}">${term}</mark>`;
 }
 
-export function formatImageTag(index: number): string {
-  return `<span data-image-index="${index}" class="inline-block text-sm px-2 py-1 rounded border transition-colors font-semibold cursor-pointer ${MESSAGE_COLORS.IMAGE_TAG}">[Image #${index}]</span>`;
+export function formatImageTag(index: number, exists = true): string {
+  const colorClasses = exists ? MESSAGE_COLORS.EXISTING_IMAGE_TAG : MESSAGE_COLORS.NOT_FOUND_IMAGE_TAG;
+  const interactionClasses = exists ? 'cursor-pointer' : '';
+  const classes = `inline-block text-sm px-2 py-1 rounded border transition-colors font-semibold ${colorClasses} ${interactionClasses}`;
+  const dataAttr = exists ? `data-image-index="${index}"` : '';
+  return `<span ${dataAttr} class="${classes}">[Image #${index}]</span>`;
 }
 
 export function parseTitle(title: string): Array<{ text: string; type: 'normal' | 'file' | 'command' }> {

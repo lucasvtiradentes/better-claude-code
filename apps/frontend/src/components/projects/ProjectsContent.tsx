@@ -64,6 +64,12 @@ export function ProjectsContent({
   onFolderModalFileClick,
   onFolderModalFolderClick
 }: ProjectsContentProps) {
+  console.log('[ProjectsContent] Render:', {
+    imageModalIndex,
+    sessionDataImages: sessionData.images,
+    shouldShowModal: imageModalIndex !== null
+  });
+
   return (
     <>
       <div className="p-4 border-b border-border flex items-center justify-between">
@@ -124,6 +130,7 @@ export function ProjectsContent({
               pathValidation={pathValidation}
               searchTerm={searchQuery}
               isSearchMatch={searchMatches.includes(msgIdx)}
+              availableImages={sessionData.images.map((img) => img.index)}
             />
           </div>
         ))}

@@ -325,7 +325,23 @@ sessionsRouter.get('/:projectName/:sessionId', async (req, res) => {
       return true;
     });
 
-    res.json({ messages: filteredMessages });
+    const images: Array<{ index: number; data: string }> = [];
+    try {
+      for (const event of events) {
+        if (event.type === 'user' && Array.isArray(event.message?.content)) {
+          for (const item of event.message.content) {
+            if (item.type === 'image') {
+              const imageData = item.source?.type === 'base64' ? item.source.data : null;
+              if (imageData) {
+                images.push({ index: images.length + 1, data: imageData });
+              }
+            }
+          }
+        }
+      }
+    } catch {}
+
+    res.json({ messages: filteredMessages, images });
   } catch (_error) {
     res.status(500).json({ error: 'Failed to read session' });
   }
