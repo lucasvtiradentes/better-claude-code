@@ -1,4 +1,5 @@
 import express, { type Express } from 'express';
+import fs from 'fs';
 import path from 'path';
 import { projectsRouter } from './routes/projects.js';
 import { sessionsRouter } from './routes/sessions.js';
@@ -24,7 +25,14 @@ export const createServer = (options: ServerOptions): Express => {
 
   if (options.staticPath) {
     app.use((_req, res) => {
-      res.sendFile(path.join(options.staticPath as string, 'index.html'));
+      const indexPath = path.resolve(options.staticPath as string, 'index.html');
+      try {
+        const content = fs.readFileSync(indexPath, 'utf8');
+        res.type('html').send(content);
+      } catch (err) {
+        console.error(`Failed to serve index.html: ${(err as Error).message}`);
+        res.status(500).send('Error loading page');
+      }
     });
   }
 
