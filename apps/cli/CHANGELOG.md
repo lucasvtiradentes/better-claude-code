@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.9
+
+### Patch Changes
+
+- 61c8f4e: fix import error
+
 ## 0.0.8
 
 ### Patch Changes
