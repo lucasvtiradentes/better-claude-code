@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.7
+
+### Patch Changes
+
+- 406e78b: fix error
+
 ## 0.0.6
 
 ### Patch Changes
