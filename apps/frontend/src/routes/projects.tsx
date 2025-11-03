@@ -1,7 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { Layout } from '../components/layout/Layout';
 import { EmptyState } from '../components/projects/EmptyState';
@@ -42,6 +43,7 @@ function ProjectsComponent() {
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const { settings } = useSessionsStore();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
@@ -103,11 +105,27 @@ function ProjectsComponent() {
       if (!response.ok) throw new Error('Failed to delete session');
 
       await queryClient.invalidateQueries({ queryKey: ['sessions', selectedProject] });
+
+      if (sessionId === sessionToDelete) {
+        await navigate({
+          to: '/projects',
+          search: {
+            project: selectedProject,
+            sessionId: undefined,
+            imageIndex: undefined,
+            folderPath: undefined,
+            filePath: undefined,
+            search: undefined
+          }
+        });
+      }
+
       setDeleteModalOpen(false);
       setSessionToDelete(null);
+      toast.success('Session deleted successfully');
     } catch (error) {
       console.error('Failed to delete session:', error);
-      alert('Failed to delete session');
+      toast.error('Failed to delete session');
     } finally {
       setIsDeleting(false);
     }
