@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.4
+
+### Patch Changes
+
+- ff2d877: fix package json error
+
 ## 0.0.3
 
 ### Patch Changes
