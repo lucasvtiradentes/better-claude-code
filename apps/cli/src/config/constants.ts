@@ -1,6 +1,6 @@
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import * as os from 'os';
-import * as path from 'path';
 import { getPackageJsonPath } from '../utils/paths.js';
 
 const packageJsonPath = getPackageJsonPath(import.meta.url);
@@ -40,11 +40,11 @@ export function getConfigDirectory(): string {
   switch (userOS) {
     case 'linux':
     case 'wsl':
-      return path.join(homeDir, '.config', APP_INFO.name);
+      return join(homeDir, '.config', APP_INFO.name);
     case 'mac':
-      return path.join(homeDir, 'Library', 'Preferences', APP_INFO.name);
+      return join(homeDir, 'Library', 'Preferences', APP_INFO.name);
     case 'windows':
-      return path.join(homeDir, 'AppData', 'Roaming', APP_INFO.name);
+      return join(homeDir, 'AppData', 'Roaming', APP_INFO.name);
     default:
       throw new Error(`Unsupported OS: ${userOS}`);
   }
@@ -52,5 +52,5 @@ export function getConfigDirectory(): string {
 
 export const CONFIG_PATHS = {
   configDir: getConfigDirectory(),
-  defaultConfigFile: path.join(getConfigDirectory(), 'config.json')
+  defaultConfigFile: join(getConfigDirectory(), 'config.json')
 };

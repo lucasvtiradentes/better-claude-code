@@ -1,14 +1,12 @@
+import { join } from 'node:path';
 import type { AppSettings, Project } from '@better-claude-code/shared';
-import { exec, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
 import os from 'os';
-import path from 'path';
-import { promisify } from 'util';
+import { execAsync } from '../utils/exec';
 
-const execAsync = promisify(exec);
-
-const SETTINGS_PATH = path.join(os.homedir(), '.config', 'bcc', 'settings.json');
+const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 
 async function readSettings(): Promise<AppSettings | null> {
   try {
@@ -28,7 +26,7 @@ async function getRealPathFromSession(folderPath: string): Promise<string | null
 
     if (sessionFiles.length === 0) return null;
 
-    const firstSession = path.join(folderPath, sessionFiles[0]);
+    const firstSession = join(folderPath, sessionFiles[0]);
     const content = await fs.readFile(firstSession, 'utf-8');
     const lines = content.split('\n');
 
@@ -86,7 +84,7 @@ async function getCurrentBranch(projectPath: string): Promise<string | undefined
 
 projectsRouter.get('/', async (_req, res) => {
   try {
-    const projectsPath = path.join(os.homedir(), '.claude', 'projects');
+    const projectsPath = join(os.homedir(), '.claude', 'projects');
     const folders = await fs.readdir(projectsPath);
 
     const settings = await readSettings();
@@ -94,7 +92,7 @@ projectsRouter.get('/', async (_req, res) => {
     const projects: Project[] = [];
 
     for (const folder of folders) {
-      const folderPath = path.join(projectsPath, folder);
+      const folderPath = join(projectsPath, folder);
       const stats = await fs.stat(folderPath);
 
       if (!stats.isDirectory()) continue;
@@ -110,16 +108,14 @@ projectsRouter.get('/', async (_req, res) => {
 
       const sessionsCount = sessionFiles.length;
 
-      const fileStats = await Promise.all(
-        sessionFiles.map((f) => fs.stat(path.join(folderPath, f)).then((s) => s.mtimeMs))
-      );
+      const fileStats = await Promise.all(sessionFiles.map((f) => fs.stat(join(folderPath, f)).then((s) => s.mtimeMs)));
       const lastModified = Math.max(...fileStats, stats.mtimeMs);
 
       let isGitRepo = false;
       let githubUrl: string | undefined;
       let currentBranch: string | undefined;
       try {
-        await fs.access(path.join(realPath, '.git'));
+        await fs.access(join(realPath, '.git'));
         isGitRepo = true;
         githubUrl = await getGitHubUrl(realPath);
         currentBranch = await getCurrentBranch(realPath);
@@ -162,7 +158,7 @@ projectsRouter.post('/:projectId/action/:action', async (req, res) => {
       return res.status(400).json({ error: 'Invalid action' });
     }
 
-    const projectPath = path.join(os.homedir(), '.claude', 'projects', projectId);
+    const projectPath = join(os.homedir(), '.claude', 'projects', projectId);
     const realPath = await getRealPathFromSession(projectPath);
 
     if (!realPath) {

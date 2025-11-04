@@ -1,6 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import express, { type Express } from 'express';
-import fs from 'fs';
-import path from 'path';
 import { filesRouter } from './routes/files.js';
 import { projectsRouter } from './routes/projects.js';
 import { sessionsRouter } from './routes/sessions.js';
@@ -27,9 +27,9 @@ export const createServer = (options: ServerOptions): Express => {
 
   if (options.staticPath) {
     app.use((_req, res) => {
-      const indexPath = path.resolve(options.staticPath as string, 'index.html');
+      const indexPath = resolve(options.staticPath as string, 'index.html');
       try {
-        const content = fs.readFileSync(indexPath, 'utf8');
+        const content = readFileSync(indexPath, 'utf8');
         res.type('html').send(content);
       } catch (err) {
         console.error(`Failed to serve index.html: ${(err as Error).message}`);

@@ -1,9 +1,9 @@
+import { dirname, join, resolve } from 'node:path';
 import type { Message, Session } from '@better-claude-code/shared';
 import { extractPathsFromText } from '@better-claude-code/shared';
 import { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
 import os from 'os';
-import path from 'path';
 import { isCompactionSession } from '../utils/session-filter.js';
 
 export const sessionsRouter: RouterType = Router();
@@ -15,7 +15,7 @@ async function getRealPathFromSession(folderPath: string): Promise<string | null
 
     if (sessionFiles.length === 0) return null;
 
-    const firstSession = path.join(folderPath, sessionFiles[0]);
+    const firstSession = join(folderPath, sessionFiles[0]);
     const content = await fs.readFile(firstSession, 'utf-8');
     const lines = content.split('\n');
 
@@ -113,14 +113,14 @@ sessionsRouter.get('/:projectName', async (req, res) => {
     const search = (req.query.search as string) || '';
     const sortBy = (req.query.sortBy as string) || 'date';
 
-    const sessionsPath = path.join(os.homedir(), '.claude', 'projects', projectName);
+    const sessionsPath = join(os.homedir(), '.claude', 'projects', projectName);
     const files = await fs.readdir(sessionsPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
     const sessions: Session[] = [];
 
     for (const file of sessionFiles) {
-      const filePath = path.join(sessionsPath, file);
+      const filePath = join(sessionsPath, file);
       const content = await fs.readFile(filePath, 'utf-8');
       const lines = content.trim().split('\n').filter(Boolean);
 
@@ -227,7 +227,7 @@ sessionsRouter.get('/:projectName', async (req, res) => {
       }
 
       const sessionId = file.replace('.jsonl', '');
-      const metadataPath = path.join(sessionsPath, '.metadata', `${sessionId}.json`);
+      const metadataPath = join(sessionsPath, '.metadata', `${sessionId}.json`);
 
       let labels: string[] | undefined;
       try {
@@ -285,7 +285,7 @@ sessionsRouter.get('/:projectName', async (req, res) => {
 sessionsRouter.get('/:projectName/:sessionId', async (req, res) => {
   try {
     const { projectName, sessionId } = req.params;
-    const filePath = path.join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
+    const filePath = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
 
     const content = await fs.readFile(filePath, 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
@@ -350,7 +350,7 @@ sessionsRouter.get('/:projectName/:sessionId', async (req, res) => {
 sessionsRouter.get('/:projectName/:sessionId/images', async (req, res) => {
   try {
     const { projectName, sessionId } = req.params;
-    const filePath = path.join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
+    const filePath = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
 
     const content = await fs.readFile(filePath, 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
@@ -391,14 +391,14 @@ sessionsRouter.get('/:projectName/:sessionId/file', async (req, res) => {
       return res.status(400).json({ error: 'Path parameter is required' });
     }
 
-    const projectPath = path.join(os.homedir(), '.claude', 'projects', projectName);
+    const projectPath = join(os.homedir(), '.claude', 'projects', projectName);
     const realProjectPath = await getRealPathFromSession(projectPath);
 
     if (!realProjectPath) {
       return res.status(404).json({ error: 'Project path not found' });
     }
 
-    const fullPath = path.resolve(realProjectPath, filePath.startsWith('/') ? filePath.slice(1) : filePath);
+    const fullPath = resolve(realProjectPath, filePath.startsWith('/') ? filePath.slice(1) : filePath);
 
     if (!fullPath.startsWith(realProjectPath)) {
       return res.status(403).json({ error: 'Access denied' });
@@ -420,14 +420,14 @@ sessionsRouter.get('/:projectName/:sessionId/folder', async (req, res) => {
       return res.status(400).json({ error: 'Path parameter is required' });
     }
 
-    const projectPath = path.join(os.homedir(), '.claude', 'projects', projectName);
+    const projectPath = join(os.homedir(), '.claude', 'projects', projectName);
     const realProjectPath = await getRealPathFromSession(projectPath);
 
     if (!realProjectPath) {
       return res.status(404).json({ error: 'Project path not found' });
     }
 
-    const fullPath = path.resolve(realProjectPath, folderPath.startsWith('/') ? folderPath.slice(1) : folderPath);
+    const fullPath = resolve(realProjectPath, folderPath.startsWith('/') ? folderPath.slice(1) : folderPath);
 
     if (!fullPath.startsWith(realProjectPath)) {
       return res.status(403).json({ error: 'Access denied' });
@@ -438,7 +438,7 @@ sessionsRouter.get('/:projectName/:sessionId/folder', async (req, res) => {
       .filter((entry) => !entry.name.startsWith('.'))
       .map((entry) => ({
         name: entry.name,
-        path: path.join(folderPath, entry.name),
+        path: join(folderPath, entry.name),
         type: entry.isDirectory() ? 'directory' : 'file'
       }))
       .sort((a, b) => {
@@ -461,8 +461,8 @@ sessionsRouter.post('/:projectName/:sessionId/labels', async (req, res) => {
       return res.status(400).json({ error: 'labelId is required' });
     }
 
-    const sessionsPath = path.join(os.homedir(), '.claude', 'projects', projectName);
-    const sessionFile = path.join(sessionsPath, `${sessionId}.jsonl`);
+    const sessionsPath = join(os.homedir(), '.claude', 'projects', projectName);
+    const sessionFile = join(sessionsPath, `${sessionId}.jsonl`);
 
     try {
       await fs.access(sessionFile);
@@ -471,9 +471,9 @@ sessionsRouter.post('/:projectName/:sessionId/labels', async (req, res) => {
       return res.status(404).json({ error: 'Session not found' });
     }
 
-    const metadataPath = path.join(sessionsPath, '.metadata', `${sessionId}.json`);
+    const metadataPath = join(sessionsPath, '.metadata', `${sessionId}.json`);
 
-    await fs.mkdir(path.dirname(metadataPath), { recursive: true });
+    await fs.mkdir(dirname(metadataPath), { recursive: true });
 
     let metadata: { labels?: string[] } = {};
     try {
@@ -507,12 +507,12 @@ sessionsRouter.post('/:projectName/:sessionId/labels', async (req, res) => {
 sessionsRouter.get('/:projectName/:sessionId/paths', async (req, res) => {
   try {
     const { projectName, sessionId } = req.params;
-    const sessionFile = path.join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
+    const sessionFile = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
 
     const content = await fs.readFile(sessionFile, 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
 
-    const projectPath = path.join(os.homedir(), '.claude', 'projects', projectName);
+    const projectPath = join(os.homedir(), '.claude', 'projects', projectName);
     const realProjectPath = await getRealPathFromSession(projectPath);
 
     if (!realProjectPath) {
@@ -538,7 +538,7 @@ sessionsRouter.get('/:projectName/:sessionId/paths', async (req, res) => {
       Array.from(pathsSet).map(async (pathStr) => {
         try {
           const cleanPath = pathStr.startsWith('/') ? pathStr.slice(1) : pathStr;
-          const fullPath = path.resolve(realProjectPath, cleanPath);
+          const fullPath = resolve(realProjectPath, cleanPath);
           if (!fullPath.startsWith(realProjectPath)) {
             return { path: pathStr, exists: false };
           }
@@ -560,8 +560,8 @@ sessionsRouter.get('/:projectName/:sessionId/paths', async (req, res) => {
 sessionsRouter.delete('/:projectName/:sessionId', async (req, res) => {
   try {
     const { projectName, sessionId } = req.params;
-    const filePath = path.join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
-    const metadataPath = path.join(os.homedir(), '.claude', 'projects', projectName, '.metadata', `${sessionId}.json`);
+    const filePath = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
+    const metadataPath = join(os.homedir(), '.claude', 'projects', projectName, '.metadata', `${sessionId}.json`);
 
     await fs.unlink(filePath);
 

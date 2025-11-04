@@ -1,8 +1,8 @@
+import { existsSync, openSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import { join } from 'node:path';
 import { spawn } from 'child_process';
 import { Command } from 'commander';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import { getCommand } from '../definitions/commands.js';
 import { CommandNames } from '../definitions/types.js';
 import { handleCommandError } from '../utils/error-handler.js';
@@ -16,7 +16,7 @@ interface ServeOptions {
   detach?: boolean;
 }
 
-const PID_FILE = path.join(os.tmpdir(), 'bcc-server.pid');
+const PID_FILE = join(os.tmpdir(), 'bcc-server.pid');
 
 function getPidFilePath(): string {
   return PID_FILE;
@@ -24,17 +24,17 @@ function getPidFilePath(): string {
 
 function savePid(pid: number, port: number): void {
   const pidData = JSON.stringify({ pid, port });
-  fs.writeFileSync(getPidFilePath(), pidData, 'utf-8');
+  writeFileSync(getPidFilePath(), pidData, 'utf-8');
 }
 
 function loadPid(): { pid: number; port: number } | null {
   const pidFilePath = getPidFilePath();
-  if (!fs.existsSync(pidFilePath)) {
+  if (!existsSync(pidFilePath)) {
     return null;
   }
 
   try {
-    const pidData = fs.readFileSync(pidFilePath, 'utf-8');
+    const pidData = readFileSync(pidFilePath, 'utf-8');
     return JSON.parse(pidData);
   } catch {
     return null;
@@ -43,8 +43,8 @@ function loadPid(): { pid: number; port: number } | null {
 
 function removePidFile(): void {
   const pidFilePath = getPidFilePath();
-  if (fs.existsSync(pidFilePath)) {
-    fs.unlinkSync(pidFilePath);
+  if (existsSync(pidFilePath)) {
+    unlinkSync(pidFilePath);
   }
 }
 
@@ -67,11 +67,11 @@ function getServerPaths() {
 async function startServerForeground(port: number): Promise<void> {
   const paths = getServerPaths();
 
-  if (!fs.existsSync(paths.backendPath)) {
+  if (!existsSync(paths.backendPath)) {
     throw new Error(`Backend not found at ${paths.backendPath}. Run 'pnpm build' first.`);
   }
 
-  if (!fs.existsSync(paths.frontendPath)) {
+  if (!existsSync(paths.frontendPath)) {
     throw new Error(`Frontend not found at ${paths.frontendPath}. Run 'pnpm build' first.`);
   }
 
@@ -124,17 +124,17 @@ async function startServerDetached(port: number): Promise<void> {
 
   const paths = getServerPaths();
 
-  if (!fs.existsSync(paths.backendPath)) {
+  if (!existsSync(paths.backendPath)) {
     throw new Error(`Backend not found at ${paths.backendPath}. Run 'pnpm build' first.`);
   }
 
-  if (!fs.existsSync(paths.frontendPath)) {
+  if (!existsSync(paths.frontendPath)) {
     throw new Error(`Frontend not found at ${paths.frontendPath}. Run 'pnpm build' first.`);
   }
 
-  const logFile = path.join(os.tmpdir(), 'bcc-server.log');
-  const out = fs.openSync(logFile, 'a');
-  const err = fs.openSync(logFile, 'a');
+  const logFile = join(os.tmpdir(), 'bcc-server.log');
+  const out = openSync(logFile, 'a');
+  const err = openSync(logFile, 'a');
 
   const serverProcess = spawn('node', [paths.backendPath], {
     detached: true,

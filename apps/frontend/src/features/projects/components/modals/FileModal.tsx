@@ -27,8 +27,8 @@ const CheckIcon = () => (
 
 const CONTEXT_LINES_AROUND_HIGHLIGHT = 5;
 
-const getLanguageFromPath = (path: string): string => {
-  const ext = path.split('.').pop()?.toLowerCase();
+const getLanguageFromPath = (filePath: string): string => {
+  const ext = filePath.split('.').pop()?.toLowerCase();
   const langMap: Record<string, string> = {
     ts: 'typescript',
     tsx: 'tsx',
@@ -67,7 +67,7 @@ const getLanguageFromPath = (path: string): string => {
 };
 
 const parseFilePath = (path: string) => {
-  const match = path.match(/^(.+?)(?:#L(\d+)(?:-(\d+))?)?$/);
+  const match = filePath.match(/^(.+?)(?:#L(\d+)(?:-(\d+))?)?$/);
   if (!match) return { cleanPath: path, startLine: null, endLine: null };
 
   const [, cleanPath, startLine, endLine] = match;

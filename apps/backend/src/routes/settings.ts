@@ -1,14 +1,14 @@
+import { dirname, join } from 'node:path';
 import type { AppSettings, ProjectLabel } from '@better-claude-code/shared';
 import express, { Router, type Router as RouterType } from 'express';
 import { promises as fs } from 'fs';
 import os from 'os';
-import path from 'path';
 
 export const settingsRouter: RouterType = Router();
 
 settingsRouter.use(express.json());
 
-const SETTINGS_PATH = path.join(os.homedir(), '.config', 'bcc', 'settings.json');
+const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 
 const DEFAULT_SETTINGS: AppSettings = {
   projects: {
@@ -42,7 +42,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 async function ensureSettingsFile(): Promise<void> {
   try {
-    await fs.mkdir(path.dirname(SETTINGS_PATH), { recursive: true });
+    await fs.mkdir(dirname(SETTINGS_PATH), { recursive: true });
     await fs.access(SETTINGS_PATH);
   } catch {
     await fs.writeFile(SETTINGS_PATH, JSON.stringify(DEFAULT_SETTINGS, null, 2));
