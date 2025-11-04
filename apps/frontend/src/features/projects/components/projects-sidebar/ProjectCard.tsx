@@ -12,6 +12,7 @@ import { useProjectsStore } from '@/stores/projects-store';
 import type { Project } from '@better-claude-code/shared';
 import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
+import { useProjectAction } from '../../../../api/use-projects';
 
 type ProjectCardProps = {
   project: Project;
@@ -39,6 +40,8 @@ export const ProjectCard = ({
   onLabelToggle
 }: ProjectCardProps) => {
   const { settings } = useProjectsStore();
+  const { mutate: executeAction } = useProjectAction();
+
   const handleGitHubClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (project.githubUrl) {
@@ -46,15 +49,9 @@ export const ProjectCard = ({
     }
   };
 
-  const handleAction = async (e: React.MouseEvent, action: 'openFolder' | 'openCodeEditor' | 'openTerminal') => {
+  const handleAction = (e: React.MouseEvent, action: 'openFolder' | 'openCodeEditor' | 'openTerminal') => {
     e.stopPropagation();
-    try {
-      await fetch(`/api/projects/${encodeURIComponent(project.id)}/action/${action}`, {
-        method: 'POST'
-      });
-    } catch (error) {
-      console.error(`Failed to ${action}:`, error);
-    }
+    executeAction({ projectId: project.id, action });
   };
 
   const handleMenuAction = (e: React.MouseEvent<HTMLDivElement>, action: () => void) => {
