@@ -1,6 +1,5 @@
 import { TimeGroup } from '@/components/common/TimeGroup';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { queryClient } from '@/lib/tanstack-query';
 import { useProjectsStore } from '@/stores/projects-store';
 import type { Project } from '@better-claude-code/shared';
 import {
@@ -12,6 +11,7 @@ import {
   TIME_GROUP_ORDER
 } from '@better-claude-code/shared';
 import { useEffect, useMemo } from 'react';
+import { useUpdateProjectLabels } from '../../../../api/use-project-settings';
 import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
 
@@ -24,33 +24,29 @@ type ProjectsSidebarProps = {
 
 export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }: ProjectsSidebarProps) => {
   const { settings, loadSettings } = useProjectsStore();
+  const { mutate: updateLabels } = useUpdateProjectLabels();
 
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
 
-  const handleLabelToggle = async (projectId: string, labelId: string) => {
-    try {
-      const project = projects?.find((p) => p.id === projectId);
-      if (!project) return;
+  const handleLabelToggle = (projectId: string, labelId: string) => {
+    const project = projects?.find((p) => p.id === projectId);
+    if (!project) return;
 
-      const currentLabels = project.labels || [];
-      const hasLabel = currentLabels.includes(labelId);
-      const newLabels = hasLabel ? [] : [labelId];
+    const currentLabels = project.labels || [];
+    const hasLabel = currentLabels.includes(labelId);
+    const newLabels = hasLabel ? [] : [labelId];
 
-      const response = await fetch(`/api/settings/projects/${encodeURIComponent(projectId)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ labels: newLabels })
-      });
-
-      if (!response.ok) throw new Error('Failed to toggle label');
-
-      await queryClient.invalidateQueries({ queryKey: ['projects'] });
-    } catch (error) {
-      console.error('Failed to toggle label:', error);
-      alert('Failed to toggle label');
-    }
+    updateLabels(
+      { projectId, labels: newLabels },
+      {
+        onError: (error) => {
+          console.error('Failed to toggle label:', error);
+          alert('Failed to toggle label');
+        }
+      }
+    );
   };
 
   const filteredProjects = useMemo(() => {
