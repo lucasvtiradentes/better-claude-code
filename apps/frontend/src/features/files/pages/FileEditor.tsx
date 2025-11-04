@@ -2,26 +2,29 @@ import { javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import { markdown } from '@codemirror/lang-markdown';
 import CodeMirror from '@uiw/react-codemirror';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useFileContent, useFilesList, useSaveFile } from '../../../api/use-files';
 import { useTheme } from '../../../hooks/use-theme';
-
-type PredefinedFile = {
-  path: string;
-  label: string;
-};
 
 export const FileEditor = () => {
   const { theme } = useTheme();
-  const [files, setFiles] = useState<PredefinedFile[]>([]);
-  const [selectedFile, setSelectedFile] = useState<string>('');
-  const [content, setContent] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [saving, setSaving] = useState<boolean>(false);
-  const [fileInfo, setFileInfo] = useState<{
-    isSymlink: boolean;
-    realPath: string;
-    extension: string;
-  } | null>(null);
+  const { data: filesList } = useFilesList();
+
+  const firstFile = filesList?.files[0]?.path ?? '';
+  const [selectedFile, setSelectedFile] = useState<string>(firstFile);
+
+  const actualSelectedFile = selectedFile || firstFile;
+
+  const { data: fileData, isLoading: loading } = useFileContent(actualSelectedFile);
+  const { mutate: saveFile, isPending: saving } = useSaveFile();
+
+  const [editedContent, setEditedContent] = useState<string>('');
+
+  useEffect(() => {
+    if (fileData?.content !== undefined) {
+      setEditedContent(fileData.content);
+    }
+  }, [fileData?.content]);
 
   const getLanguageExtension = useCallback((extension: string) => {
     switch (extension) {
@@ -39,87 +42,22 @@ export const FileEditor = () => {
     }
   }, []);
 
-  const loadFile = useCallback(async (filePath: string) => {
-    setLoading(true);
+  const extensions = useMemo(
+    () => (fileData ? getLanguageExtension(fileData.extension) : []),
+    [fileData, getLanguageExtension]
+  );
 
-    try {
-      const response = await fetch(`/api/files?path=${encodeURIComponent(filePath)}`);
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to load file');
-      }
-
-      const data = await response.json();
-      setContent(data.content);
-      setFileInfo({
-        isSymlink: data.isSymlink,
-        realPath: data.realPath,
-        extension: data.extension
-      });
-    } catch (err) {
-      console.error('Failed to load file:', err);
-    } finally {
-      setLoading(false);
+  const handleSave = useCallback(() => {
+    if (actualSelectedFile) {
+      saveFile({ path: actualSelectedFile, content: editedContent });
     }
-  }, []);
-
-  const saveFile = useCallback(async () => {
-    setSaving(true);
-
-    try {
-      const response = await fetch('/api/files', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          path: selectedFile,
-          content
-        })
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to save file');
-      }
-    } catch (err) {
-      console.error('Failed to save file:', err);
-    } finally {
-      setSaving(false);
-    }
-  }, [selectedFile, content]);
-
-  useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const response = await fetch('/api/files/list');
-        if (response.ok) {
-          const data = await response.json();
-          setFiles(data.files);
-          if (data.files.length > 0) {
-            setSelectedFile(data.files[0].path);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch files:', err);
-      }
-    };
-
-    fetchFiles();
-  }, []);
-
-  useEffect(() => {
-    if (selectedFile) {
-      loadFile(selectedFile);
-    }
-  }, [selectedFile, loadFile]);
+  }, [actualSelectedFile, editedContent, saveFile]);
 
   return (
     <div className="flex h-full">
       <div className="w-[300px] border-r border-border bg-card flex flex-col">
         <div className="flex-1 overflow-auto">
-          {files.map((file) => (
+          {filesList?.files.map((file) => (
             <button
               key={file.path}
               type="button"
@@ -139,7 +77,7 @@ export const FileEditor = () => {
         <div className="border-t border-border p-4">
           <button
             type="button"
-            onClick={saveFile}
+            onClick={handleSave}
             disabled={loading || saving}
             className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -153,10 +91,10 @@ export const FileEditor = () => {
           <div className="flex items-center justify-center h-full text-muted-foreground">Loading...</div>
         ) : (
           <CodeMirror
-            value={content}
-            onChange={(value) => setContent(value)}
+            value={editedContent}
+            onChange={setEditedContent}
             theme={theme === 'dark' ? 'dark' : 'light'}
-            extensions={fileInfo ? getLanguageExtension(fileInfo.extension) : []}
+            extensions={extensions}
             className="h-full"
             basicSetup={{
               lineNumbers: true,
