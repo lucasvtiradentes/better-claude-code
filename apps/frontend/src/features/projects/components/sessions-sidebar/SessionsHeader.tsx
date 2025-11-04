@@ -1,5 +1,6 @@
 import { SearchInput } from '@/components/common/SearchInput';
 import { ArrowLeft, Code, Settings, Terminal } from 'lucide-react';
+import { useProjectAction } from '../../../../api/use-projects';
 
 type SessionsHeaderProps = {
   projectName: string;
@@ -22,14 +23,10 @@ export const SessionsHeader = ({
   projectId,
   isGitRepo
 }: SessionsHeaderProps) => {
-  const handleAction = async (action: 'openCodeEditor' | 'openTerminal') => {
-    try {
-      await fetch(`/api/projects/${encodeURIComponent(projectId)}/action/${action}`, {
-        method: 'POST'
-      });
-    } catch (error) {
-      console.error(`Failed to ${action}:`, error);
-    }
+  const { mutate: executeAction } = useProjectAction();
+
+  const handleAction = (action: 'openCodeEditor' | 'openTerminal') => {
+    executeAction({ projectId, action });
   };
 
   return (
