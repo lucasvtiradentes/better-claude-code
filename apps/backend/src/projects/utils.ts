@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import type { AppSettings } from '@better-claude-code/shared';
 import { promises as fs } from 'fs';
 import os from 'os';
-import { execAsync } from '../utils/exec.js';
+import { execAsync } from '../common/utils/exec.js';
 
 const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 

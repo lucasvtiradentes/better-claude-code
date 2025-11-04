@@ -4,8 +4,8 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
+import { isCompactionSession } from '../../common/utils/session-filter.js';
 import { SessionsResponseSchema } from '../schemas.js';
-import { isCompactionSession } from '../../utils/session-filter.js';
 import { extractTextContent, parseCommandFromContent } from '../utils.js';
 
 const paramsSchema = z.object({
