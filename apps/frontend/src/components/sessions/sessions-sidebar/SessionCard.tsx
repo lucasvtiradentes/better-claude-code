@@ -17,8 +17,8 @@ import {
   getTokenColor,
   parseTitle
 } from '@/lib/message-patterns';
-import { useSessionsStore } from '../../stores/sessions-store';
-import { IconWithBadge } from '../common/IconWithBadge';
+import { useSessionsStore } from '../../../stores/sessions-store';
+import { IconWithBadge } from '../../common/IconWithBadge';
 
 type SessionCardProps = {
   session: Session;
@@ -63,7 +63,7 @@ export const SessionCard = ({
       `}
     >
       <button type="button" onClick={onClick} className="w-full text-left">
-        <div className="text-sm font-semibold mb-1 break-words line-clamp-2 pr-8">
+        <div className="text-sm font-semibold mb-1 wrap-break-word line-clamp-2 pr-8">
           {titleParts.map((part, i) => (
             <span
               key={`${part.text}-${i}`}

@@ -1,8 +1,8 @@
+import { SearchInput } from '@/components/common/SearchInput';
+import { useProjectsStore } from '@/stores/projects-store';
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
-import { useProjectsStore } from '../../stores/projects-store';
-import { SearchInput } from '../common/SearchInput';
-import { ProjectSettingsModal } from './ProjectSettingsModal';
+import { ProjectSettingsModal } from '../projects-settings/ProjectSettingsModal';
 
 type ProjectsHeaderProps = {
   projectCount: number;

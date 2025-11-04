@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useProjectsStore } from '../../stores/projects-store';
+import { useProjectsStore } from '@/stores/projects-store';
 
 type SettingsFormData = {
   groupBy: ProjectsConfig['groupBy'];

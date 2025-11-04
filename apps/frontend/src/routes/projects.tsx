@@ -1,14 +1,14 @@
+import { ProjectsSidebar } from '@/components/projects/projects-sidebar/ProjectsSidebar';
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
+import { EmptyState } from '../components/EmptyState';
 import { Layout } from '../components/layout/Layout';
-import { EmptyState } from '../components/projects/EmptyState';
 import { ProjectsContent } from '../components/projects/ProjectsContent';
-import { ProjectsSidebar } from '../components/projects/ProjectsSidebar';
-import { SessionsSidebar } from '../components/sessions/SessionsSidebar';
+import { SessionsSidebar } from '../components/sessions/sessions-sidebar/SessionsSidebar';
 import { useMessageFilter } from '../hooks/use-message-filter';
 import { useModalState } from '../hooks/use-modal-state';
 import { useNavigationManager } from '../hooks/use-navigation-manager';

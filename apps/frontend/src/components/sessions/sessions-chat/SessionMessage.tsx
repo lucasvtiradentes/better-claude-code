@@ -147,7 +147,7 @@ export const SessionMessage = ({
   return (
     <div
       className={`
-        mb-3 p-2 px-3 rounded-md break-words
+        mb-3 p-2 px-3 rounded-md wrap-break-word
         ${message.type === 'user' ? 'bg-secondary ml-10' : 'bg-card mr-10'}
         ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
       `}

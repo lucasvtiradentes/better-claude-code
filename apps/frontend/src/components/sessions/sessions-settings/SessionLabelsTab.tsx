@@ -5,15 +5,15 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useProjectsStore } from '../../stores/projects-store';
+import { useSessionsStore } from '../../../stores/sessions-store';
 
 type LabelFormData = {
   name: string;
   color: string;
 };
 
-export const LabelsTab = () => {
-  const { settings, addLabel, updateLabel, deleteLabel } = useProjectsStore();
+export const SessionLabelsTab = () => {
+  const { settings, addLabel, updateLabel, deleteLabel } = useSessionsStore();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 

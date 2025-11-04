@@ -6,8 +6,8 @@ import { FileModal } from '../FileModal';
 import { FilterButtons } from '../FilterButtons';
 import { FolderModal } from '../FolderModal';
 import { ImageModal } from '../ImageModal';
-import { SearchNavigation } from '../sessions/SearchNavigation';
-import { SessionMessage } from '../sessions/SessionMessage';
+import { SearchNavigation } from '../sessions/sessions-chat/SearchNavigation';
+import { SessionMessage } from '../sessions/sessions-chat/SessionMessage';
 
 interface ProjectsContentProps {
   contentRef: RefObject<HTMLDivElement | null>;

@@ -1,5 +1,5 @@
 import { ArrowLeft, Code, Settings, Terminal } from 'lucide-react';
-import { SearchInput } from '../common/SearchInput';
+import { SearchInput } from '../../common/SearchInput';
 
 type SessionsHeaderProps = {
   projectName: string;

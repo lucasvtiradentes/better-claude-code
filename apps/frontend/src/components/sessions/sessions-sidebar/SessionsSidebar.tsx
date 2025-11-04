@@ -8,11 +8,11 @@ import {
   TOKEN_PERCENTAGE_GROUP_ORDER
 } from '@better-claude-code/shared';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSessionsStore } from '../../stores/sessions-store';
-import { MiddleSidebar } from '../layout/MiddleSidebar';
-import { TimeGroup } from '../TimeGroup';
+import { useSessionsStore } from '../../../stores/sessions-store';
+import { MiddleSidebar } from '../../layout/MiddleSidebar';
+import { TimeGroup } from '../../TimeGroup';
 import { SessionCard } from './SessionCard';
-import { SessionSettingsModal } from './SessionSettingsModal';
+import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
 import { SessionsHeader } from './SessionsHeader';
 
 type SessionsSidebarProps = {

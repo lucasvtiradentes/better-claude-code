@@ -1,19 +1,19 @@
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useProjectsStore } from '@/stores/projects-store';
 import type { ProjectLabel } from '@better-claude-code/shared';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useSessionsStore } from '../../stores/sessions-store';
 
 type LabelFormData = {
   name: string;
   color: string;
 };
 
-export const SessionLabelsTab = () => {
-  const { settings, addLabel, updateLabel, deleteLabel } = useSessionsStore();
+export const LabelsTab = () => {
+  const { settings, addLabel, updateLabel, deleteLabel } = useProjectsStore();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 

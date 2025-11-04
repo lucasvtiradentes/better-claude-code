@@ -1,6 +1,3 @@
-import type { Project } from '@better-claude-code/shared';
-import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';
-import { twMerge } from 'tailwind-merge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +8,10 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { getLabelActiveColor } from '@/lib/message-patterns';
-import { useProjectsStore } from '../../stores/projects-store';
+import { useProjectsStore } from '@/stores/projects-store';
+import type { Project } from '@better-claude-code/shared';
+import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';
+import { twMerge } from 'tailwind-merge';
 
 type ProjectCardProps = {
   project: Project;
@@ -72,7 +72,7 @@ export const ProjectCard = ({
     >
       <button type="button" onClick={onClick} title={project.path} className="w-full text-left">
         <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="text-sm font-semibold break-words line-clamp-1 pr-8">{project.name}</div>
+          <div className="text-sm font-semibold wrap-break-word line-clamp-1 pr-8">{project.name}</div>
           {displaySettings.showCurrentBranch && project.currentBranch && (
             <div className="text-[10px] text-muted-foreground flex items-center gap-1 flex-shrink-0">
               <span>{project.currentBranch}</span>

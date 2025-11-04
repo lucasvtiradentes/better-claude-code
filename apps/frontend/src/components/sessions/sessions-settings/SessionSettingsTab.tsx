@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSessionsStore } from '../../stores/sessions-store';
+import { useSessionsStore } from '../../../stores/sessions-store';
 
 type SettingsFormData = {
   groupBy: SessionsConfig['groupBy'];

@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useSessionsStore } from '../../stores/sessions-store';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+import { useSessionsStore } from '../../../stores/sessions-store';
 import { SessionLabelsTab } from './SessionLabelsTab';
 import { SessionSettingsTab } from './SessionSettingsTab';
 
