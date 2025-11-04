@@ -26,9 +26,8 @@
     "dev": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
     "build": "rimraf ./dist && tsc",
-    "postbuild": "pnpm run update-docs && pnpm run copy-server-files",
+    "postbuild": "tsx scripts/postbuild.ts && pnpm run update-docs",
     "update-docs": "tsx scripts/update-docs.ts",
-    "copy-server-files": "tsx scripts/copy-server-files.ts",
     "package:preview": "npm pack --dry-run"
   },
   "dependencies": {

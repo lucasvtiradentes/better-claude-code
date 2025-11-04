@@ -1,5 +1,5 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
-import { dirname, join, relative, relativereplace, resolve } from 'path';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,16 +25,40 @@ function copyRecursive(src: string, dest: string): void {
 const cliRoot = resolve(__dirname, '..');
 const repoRoot = resolve(cliRoot, '../..');
 
+const cliDistRoot = join(cliRoot, 'dist');
+const cliDistSrcFolder = join(cliDistRoot, 'src');
+const cliDistScriptsFolder = join(cliDistRoot, 'scripts');
+
+console.log('Running postbuild script...');
+
+console.log('Step 1: Reorganizing dist folder...');
+if (existsSync(cliDistSrcFolder)) {
+  const tempFolder = join(cliDistRoot, 'temp_cli');
+  copyRecursive(cliDistSrcFolder, tempFolder);
+  rmSync(cliDistSrcFolder, { recursive: true, force: true });
+
+  const cliFolder = join(cliDistRoot, 'cli');
+  if (existsSync(tempFolder)) {
+    copyRecursive(tempFolder, cliFolder);
+    rmSync(tempFolder, { recursive: true, force: true });
+  }
+  console.log('✅ Moved dist/src to dist/cli');
+}
+
+if (existsSync(cliDistScriptsFolder)) {
+  rmSync(cliDistScriptsFolder, { recursive: true, force: true });
+  console.log('✅ Removed dist/scripts');
+}
+
 const backendDistSrc = join(repoRoot, 'apps/backend/dist');
 const frontendDistSrc = join(repoRoot, 'apps/frontend/dist');
 const sharedDistSrc = join(repoRoot, 'packages/shared/dist');
 
-const cliDistRoot = join(cliRoot, 'dist');
 const backendDistDest = join(cliDistRoot, 'backend');
 const frontendDistDest = join(cliDistRoot, 'frontend');
 const sharedDistDest = join(cliDistRoot, 'shared');
 
-console.log('Copying server files to CLI dist for production...');
+console.log('Step 2: Copying server files to CLI dist...');
 
 if (!existsSync(cliDistRoot)) {
   mkdirSync(cliDistRoot, { recursive: true });
@@ -49,8 +73,8 @@ function fixImportsInDirectory(dir: string) {
       fixImportsInDirectory(fullPath);
     } else if (file.endsWith('.js')) {
       const content = readFileSync(fullPath, 'utf-8');
-      const _relativePath = relative(dirname(fullPath), sharedDistDest);
-      const importPath = `${relativereplace(/\\/g, '/')}/index.js`;
+      const relativePath = relative(dirname(fullPath), sharedDistDest);
+      const importPath = `${relativePath.replace(/\\/g, '/')}/index.js`;
       const updated = content.replace(/from ['"]@better-claude-code\/shared['"]/g, `from '${importPath}'`);
       if (content !== updated) {
         writeFileSync(fullPath, updated, 'utf-8');
@@ -105,4 +129,4 @@ if (existsSync(cliDistCliFolder)) {
   console.log('✅ CLI imports fixed');
 }
 
-console.log('✅ All server files copied to CLI dist');
+console.log('✅ Postbuild complete!');

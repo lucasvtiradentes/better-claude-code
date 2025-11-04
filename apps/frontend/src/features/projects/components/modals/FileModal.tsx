@@ -67,7 +67,7 @@ const getLanguageFromPath = (filePath: string): string => {
 };
 
 const parseFilePath = (path: string) => {
-  const match = filePath.match(/^(.+?)(?:#L(\d+)(?:-(\d+))?)?$/);
+  const match = path.match(/^(.+?)(?:#L(\d+)(?:-(\d+))?)?$/);
   if (!match) return { cleanPath: path, startLine: null, endLine: null };
 
   const [, cleanPath, startLine, endLine] = match;
