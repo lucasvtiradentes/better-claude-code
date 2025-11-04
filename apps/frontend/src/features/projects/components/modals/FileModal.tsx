@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { prism, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useSessionFile } from '../../../../api/use-session-file';
 
 type FileModalProps = {
   projectId: string;
@@ -65,90 +66,78 @@ const getLanguageFromPath = (path: string): string => {
   return langMap[ext || ''] || 'text';
 };
 
+const parseFilePath = (path: string) => {
+  const match = path.match(/^(.+?)(?:#L(\d+)(?:-(\d+))?)?$/);
+  if (!match) return { cleanPath: path, startLine: null, endLine: null };
+
+  const [, cleanPath, startLine, endLine] = match;
+  return {
+    cleanPath,
+    startLine: startLine ? Number.parseInt(startLine, 10) : null,
+    endLine: endLine ? Number.parseInt(endLine, 10) : null
+  };
+};
+
 export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModalProps) => {
-  const [content, setContent] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const isDarkMode = document.documentElement.classList.contains('dark');
   const [copied, setCopied] = useState(false);
-  const [highlightLines, setHighlightLines] = useState<number[]>([]);
-  const [displayContent, setDisplayContent] = useState<string>('');
-  const [firstDisplayLine, setFirstDisplayLine] = useState<number>(1);
   const [showTopRemaining, setShowTopRemaining] = useState(false);
   const [showBottomRemaining, setShowBottomRemaining] = useState(false);
-  const [hasTopRemaining, setHasTopRemaining] = useState(false);
-  const [hasBottomRemaining, setHasBottomRemaining] = useState(false);
   const contentContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const parseFilePath = (path: string) => {
-      const match = path.match(/^(.+?)(?:#L(\d+)(?:-(\d+))?)?$/);
-      if (!match) return { cleanPath: path, startLine: null, endLine: null };
+  const { cleanPath, startLine, endLine } = useMemo(() => parseFilePath(filePath), [filePath]);
 
-      const [, cleanPath, startLine, endLine] = match;
+  const { data, isLoading: loading, error } = useSessionFile(projectId, sessionId, cleanPath);
+
+  const content = data?.content ?? '';
+
+  const highlightLines = useMemo(() => {
+    if (!startLine) return [];
+    const lines: number[] = [];
+    const end = endLine || startLine;
+    for (let i = startLine; i <= end; i++) {
+      lines.push(i);
+    }
+    return lines;
+  }, [startLine, endLine]);
+
+  const displayInfo = useMemo(() => {
+    if (!content) {
       return {
-        cleanPath,
-        startLine: startLine ? Number.parseInt(startLine, 10) : null,
-        endLine: endLine ? Number.parseInt(endLine, 10) : null
+        displayContent: '',
+        firstDisplayLine: 1,
+        hasTopRemaining: false,
+        hasBottomRemaining: false
       };
+    }
+
+    if (!startLine) {
+      return {
+        displayContent: content,
+        firstDisplayLine: 1,
+        hasTopRemaining: false,
+        hasBottomRemaining: false
+      };
+    }
+
+    const allLines = content.split('\n');
+    const end = endLine || startLine;
+    const firstLine = Math.max(1, startLine - CONTEXT_LINES_AROUND_HIGHLIGHT);
+    const lastLine = Math.min(allLines.length, end + CONTEXT_LINES_AROUND_HIGHLIGHT);
+
+    const startIndex = firstLine - 1;
+    const endIndex = lastLine;
+    const contentLines = allLines.slice(startIndex, endIndex);
+
+    return {
+      displayContent: contentLines.join('\n'),
+      firstDisplayLine: firstLine,
+      hasTopRemaining: firstLine > 1,
+      hasBottomRemaining: lastLine < allLines.length
     };
+  }, [content, startLine, endLine]);
 
-    const fetchContent = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const { cleanPath, startLine, endLine } = parseFilePath(filePath);
-
-        const res = await fetch(
-          `/api/sessions/${encodeURIComponent(projectId)}/${sessionId}/file?path=${encodeURIComponent(cleanPath)}`
-        );
-        if (!res.ok) {
-          throw new Error('Failed to load file');
-        }
-        const data = await res.json();
-        const fullContent = data.content;
-        setContent(fullContent);
-
-        if (startLine) {
-          const lines: number[] = [];
-          const end = endLine || startLine;
-          for (let i = startLine; i <= end; i++) {
-            lines.push(i);
-          }
-          setHighlightLines(lines);
-
-          const allLines = fullContent.split('\n');
-          const firstLine = Math.max(1, startLine - CONTEXT_LINES_AROUND_HIGHLIGHT);
-          const lastLine = Math.min(allLines.length, end + CONTEXT_LINES_AROUND_HIGHLIGHT);
-
-          setHasTopRemaining(firstLine > 1);
-          setHasBottomRemaining(lastLine < allLines.length);
-
-          const startIndex = firstLine - 1;
-          const endIndex = lastLine;
-          const contentLines = allLines.slice(startIndex, endIndex);
-
-          setDisplayContent(contentLines.join('\n'));
-          setFirstDisplayLine(firstLine);
-        } else {
-          setHighlightLines([]);
-          setDisplayContent(fullContent);
-          setFirstDisplayLine(1);
-          setHasTopRemaining(false);
-          setHasBottomRemaining(false);
-        }
-        setShowTopRemaining(false);
-        setShowBottomRemaining(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchContent();
-  }, [projectId, sessionId, filePath]);
+  const { displayContent, firstDisplayLine, hasTopRemaining, hasBottomRemaining } = displayInfo;
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -163,7 +152,7 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
 
   useEffect(() => {
     if (!loading && !error && highlightLines.length > 0 && contentContainerRef.current) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         const firstHighlightedLine = highlightLines[0];
         const lineHeight = 20;
         const scrollPosition = (firstHighlightedLine - 3) * lineHeight;
@@ -172,6 +161,7 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
           contentContainerRef.current.scrollTop = Math.max(0, scrollPosition);
         }
       }, 100);
+      return () => clearTimeout(timer);
     }
   }, [loading, error, highlightLines]);
 
@@ -263,10 +253,10 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
           )}
           {error && (
             <div className="flex items-center justify-center h-full">
-              <p className="text-destructive">{error}</p>
+              <p className="text-destructive">{error instanceof Error ? error.message : 'Unknown error'}</p>
             </div>
           )}
-          {!loading && !error && (
+          {!loading && !error && content && (
             <>
               {hasTopRemaining && (
                 <div className="sticky top-0 z-10 bg-modal border-b border-border px-4 py-2 flex justify-center">
