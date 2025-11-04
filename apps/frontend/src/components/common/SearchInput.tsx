@@ -1,4 +1,4 @@
-import { Search, X } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type SearchInputProps = {
@@ -51,16 +51,6 @@ export const SearchInput = ({
           className="w-86 pl-9 pr-3 py-1.5 bg-background border border-border rounded text-sm focus:outline-none focus:border-primary"
         />
       </div>
-      {value && (
-        <button
-          type="button"
-          onClick={() => handleChange('')}
-          className="p-1.5 hover:bg-accent rounded transition-colors"
-          title="Clear search"
-        >
-          <X size={16} />
-        </button>
-      )}
     </div>
   );
 };
