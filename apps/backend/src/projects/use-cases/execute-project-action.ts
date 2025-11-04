@@ -3,7 +3,8 @@ import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { spawn } from 'child_process';
 import os from 'os';
 import { z } from 'zod';
-import { ActionResponseSchema, ErrorSchema } from '../../schemas.js';
+import { ErrorSchema } from '../../common/schemas.js';
+import { ActionResponseSchema } from '../schemas.js';
 import { getRealPathFromSession } from '../utils.js';
 
 const paramsSchema = z.object({

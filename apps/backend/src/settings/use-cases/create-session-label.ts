@@ -1,7 +1,7 @@
 import type { ProjectLabel } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { ErrorSchema, ProjectLabelSchema } from '../../schemas.js';
+import { ErrorSchema, ProjectLabelSchema } from '../../common/schemas.js';
 import { readSettings, writeSettings } from '../utils.js';
 
 const bodySchema = ProjectLabelSchema;

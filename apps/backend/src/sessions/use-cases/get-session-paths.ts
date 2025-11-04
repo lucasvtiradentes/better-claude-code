@@ -3,7 +3,8 @@ import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
-import { ErrorSchema, PathValidationSchema } from '../../schemas.js';
+import { ErrorSchema } from '../../common/schemas.js';
+import { PathValidationSchema } from '../../files/schemas.js';
 import { extractPathsFromText, extractTextContent, getRealPathFromSession } from '../utils.js';
 
 const paramsSchema = z.object({

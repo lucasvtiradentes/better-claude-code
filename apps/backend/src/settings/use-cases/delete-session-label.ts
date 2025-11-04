@@ -1,6 +1,6 @@
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { ErrorSchema, SuccessSchema } from '../../schemas.js';
+import { ErrorSchema, SuccessSchema } from '../../common/schemas.js';
 import { readSettings, writeSettings } from '../utils.js';
 
 const paramsSchema = z.object({

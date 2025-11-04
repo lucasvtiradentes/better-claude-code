@@ -2,7 +2,7 @@ import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
 import { isAbsolute } from 'path';
 import { z } from 'zod';
-import { ErrorSchema } from '../../schemas.js';
+import { ErrorSchema } from '../../common/schemas.js';
 
 const bodySchema = z.object({
   path: z.string(),

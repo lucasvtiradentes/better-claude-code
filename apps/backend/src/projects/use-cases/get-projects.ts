@@ -3,7 +3,8 @@ import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
-import { ErrorSchema, ProjectSchema } from '../../schemas.js';
+import { ErrorSchema } from '../../common/schemas.js';
+import { ProjectSchema } from '../schemas.js';
 import { extractProjectName, getCurrentBranch, getGitHubUrl, getRealPathFromSession, readSettings } from '../utils.js';
 
 const responseSchema = z.array(ProjectSchema);

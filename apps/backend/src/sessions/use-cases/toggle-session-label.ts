@@ -3,7 +3,8 @@ import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
-import { ErrorSchema, LabelsResponseSchema } from '../../schemas.js';
+import { ErrorSchema } from '../../common/schemas.js';
+import { LabelsResponseSchema } from '../../settings/schemas.js';
 
 const paramsSchema = z.object({
   projectName: z.string(),

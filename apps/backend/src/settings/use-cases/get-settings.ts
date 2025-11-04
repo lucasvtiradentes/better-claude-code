@@ -1,6 +1,7 @@
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { AppSettingsSchema, ErrorSchema } from '../../schemas.js';
+import { ErrorSchema } from '../../common/schemas.js';
+import { AppSettingsSchema } from '../schemas.js';
 import { readSettings } from '../utils.js';
 
 const responseSchema = AppSettingsSchema;

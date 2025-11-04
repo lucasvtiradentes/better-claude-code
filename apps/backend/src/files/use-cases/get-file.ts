@@ -2,7 +2,8 @@ import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
 import { extname, isAbsolute } from 'path';
 import { z } from 'zod';
-import { ErrorSchema, FileContentSchema } from '../../schemas.js';
+import { ErrorSchema } from '../../common/schemas.js';
+import { FileContentSchema } from '../schemas.js';
 
 const querySchema = z.object({
   path: z.string()

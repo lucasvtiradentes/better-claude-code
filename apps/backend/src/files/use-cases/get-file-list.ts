@@ -4,7 +4,8 @@ import { promises as fs } from 'fs';
 import { homedir } from 'os';
 import { fileURLToPath } from 'url';
 import { z } from 'zod';
-import { ErrorSchema, FileListResponseSchema } from '../../schemas.js';
+import { ErrorSchema } from '../../common/schemas.js';
+import { FileListResponseSchema } from '../schemas.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
