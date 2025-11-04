@@ -11,7 +11,7 @@ import {
   formatToolWithQuote,
   formatUltrathink,
   MESSAGE_PATTERNS
-} from '@/lib/message-patterns';
+} from '@/features/projects/utils/message-patterns';
 
 type SessionMessageProps = {
   message: Message;

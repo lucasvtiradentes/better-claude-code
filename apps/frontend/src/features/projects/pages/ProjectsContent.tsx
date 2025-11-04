@@ -1,13 +1,13 @@
 import type { Message, Session, SessionData } from '@better-claude-code/shared';
 import { FileText, Image, Search, Terminal } from 'lucide-react';
 import type { RefObject } from 'react';
-import { IconWithBadge } from '../common/IconWithBadge';
-import { FileModal } from '../FileModal';
-import { FilterButtons } from '../FilterButtons';
-import { FolderModal } from '../FolderModal';
-import { ImageModal } from '../ImageModal';
-import { SearchNavigation } from '../sessions/sessions-chat/SearchNavigation';
-import { SessionMessage } from '../sessions/sessions-chat/SessionMessage';
+import { IconWithBadge } from '../../../components/common/IconWithBadge';
+import { FileModal } from '../components/modals/FileModal';
+import { FilterButtons } from '../components/FilterButtons';
+import { FolderModal } from '../components/modals/FolderModal';
+import { ImageModal } from '../components/modals/ImageModal';
+import { SearchNavigation } from '../components/sessions-chat/SearchNavigation';
+import { SessionMessage } from '../components/sessions-chat/SessionMessage';
 
 interface ProjectsContentProps {
   contentRef: RefObject<HTMLDivElement | null>;
@@ -64,12 +64,6 @@ export function ProjectsContent({
   onFolderModalFileClick,
   onFolderModalFolderClick
 }: ProjectsContentProps) {
-  console.log('[ProjectsContent] Render:', {
-    imageModalIndex,
-    sessionDataImages: sessionData.images,
-    shouldShowModal: imageModalIndex !== null
-  });
-
   return (
     <>
       <div className="p-4 border-b border-border flex items-center justify-between">

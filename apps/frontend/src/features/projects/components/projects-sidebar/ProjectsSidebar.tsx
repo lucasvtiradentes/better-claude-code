@@ -1,5 +1,6 @@
+import { TimeGroup } from '@/components/common/TimeGroup';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { TimeGroup } from '@/components/TimeGroup';
+import { queryClient } from '@/lib/tanstack-query';
 import { useProjectsStore } from '@/stores/projects-store';
 import type { Project } from '@better-claude-code/shared';
 import {
@@ -10,7 +11,6 @@ import {
   TIME_GROUP_LABELS,
   TIME_GROUP_ORDER
 } from '@better-claude-code/shared';
-import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
@@ -24,7 +24,6 @@ type ProjectsSidebarProps = {
 
 export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }: ProjectsSidebarProps) => {
   const { settings, loadSettings } = useProjectsStore();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     loadSettings();

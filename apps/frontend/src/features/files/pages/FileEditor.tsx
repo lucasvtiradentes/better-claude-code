@@ -3,7 +3,7 @@ import { json } from '@codemirror/lang-json';
 import { markdown } from '@codemirror/lang-markdown';
 import CodeMirror from '@uiw/react-codemirror';
 import { useCallback, useEffect, useState } from 'react';
-import { useTheme } from '../../hooks/use-theme';
+import { useTheme } from '../../../hooks/use-theme';
 
 type PredefinedFile = {
   path: string;

@@ -7,7 +7,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { getLabelActiveColor } from '@/lib/message-patterns';
+import { getLabelActiveColor } from '@/features/projects/utils/message-patterns';
 import { useProjectsStore } from '@/stores/projects-store';
 import type { Project } from '@better-claude-code/shared';
 import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';

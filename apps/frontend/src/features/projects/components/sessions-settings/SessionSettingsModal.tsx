@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-import { useSessionsStore } from '../../../stores/sessions-store';
+import { useSessionsStore } from '@/stores/sessions-store';
 import { SessionLabelsTab } from './SessionLabelsTab';
 import { SessionSettingsTab } from './SessionSettingsTab';
 

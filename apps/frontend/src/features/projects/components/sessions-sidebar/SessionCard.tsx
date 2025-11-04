@@ -16,9 +16,9 @@ import {
   getLabelActiveColor,
   getTokenColor,
   parseTitle
-} from '@/lib/message-patterns';
-import { useSessionsStore } from '../../../stores/sessions-store';
-import { IconWithBadge } from '../../common/IconWithBadge';
+} from '@/features/projects/utils/message-patterns';
+import { useSessionsStore } from '@/stores/sessions-store';
+import { IconWithBadge } from '@/components/common/IconWithBadge';
 
 type SessionCardProps = {
   session: Session;
