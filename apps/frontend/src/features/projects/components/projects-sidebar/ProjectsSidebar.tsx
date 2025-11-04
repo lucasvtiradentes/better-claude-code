@@ -10,8 +10,9 @@ import {
   TIME_GROUP_LABELS,
   TIME_GROUP_ORDER
 } from '@better-claude-code/shared';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useUpdateProjectLabels } from '../../../../api/use-project-settings';
+import { useSettings } from '../../../../api/use-settings';
 import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
 
@@ -23,12 +24,11 @@ type ProjectsSidebarProps = {
 };
 
 export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }: ProjectsSidebarProps) => {
-  const { settings, loadSettings } = useProjectsStore();
+  const { search } = useProjectsStore();
+  const { data: settingsData } = useSettings();
   const { mutate: updateLabels } = useUpdateProjectLabels();
 
-  useEffect(() => {
-    loadSettings();
-  }, [loadSettings]);
+  const settings = settingsData?.projects;
 
   const handleLabelToggle = (projectId: string, labelId: string) => {
     const project = projects?.find((p) => p.id === projectId);
@@ -50,12 +50,12 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
   };
 
   const filteredProjects = useMemo(() => {
-    if (!projects || !settings) return projects;
+    if (!projects) return projects;
 
     let filtered = projects;
 
-    if (settings.search) {
-      const searchLower = settings.search.toLowerCase();
+    if (search) {
+      const searchLower = search.toLowerCase();
       filtered = filtered.filter(
         (p) => p.name.toLowerCase().includes(searchLower) || p.path.toLowerCase().includes(searchLower)
       );
@@ -64,7 +64,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
     filtered = filtered.filter((p) => !p.hidden);
 
     return filtered;
-  }, [projects, settings]);
+  }, [projects, search]);
 
   const groupedProjects = useMemo(() => {
     if (!filteredProjects || !settings) return undefined;

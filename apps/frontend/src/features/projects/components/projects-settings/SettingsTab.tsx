@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useProjectsStore } from '@/stores/projects-store';
+import { useSettings, useUpdateSettings } from '../../../../api/use-settings';
 
 type SettingsFormData = {
   groupBy: ProjectsConfig['groupBy'];
@@ -14,7 +14,10 @@ type SettingsFormData = {
 };
 
 export const SettingsTab = () => {
-  const { settings, updateSettings } = useProjectsStore();
+  const { data: settingsData } = useSettings();
+  const { mutate: updateSettings } = useUpdateSettings();
+
+  const settings = settingsData?.projects;
 
   const form = useForm<SettingsFormData>({
     defaultValues: {

@@ -9,7 +9,7 @@ type ProjectsHeaderProps = {
 };
 
 export const ProjectsHeader = ({ projectCount }: ProjectsHeaderProps) => {
-  const { settings, setSearch } = useProjectsStore();
+  const { search, setSearch } = useProjectsStore();
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -19,7 +19,7 @@ export const ProjectsHeader = ({ projectCount }: ProjectsHeaderProps) => {
       </div>
 
       <div className="flex items-center justify-between">
-        <SearchInput value={settings?.search || ''} onChange={setSearch} placeholder="Search projects..." />
+        <SearchInput value={search} onChange={setSearch} placeholder="Search projects..." />
         <button
           type="button"
           onClick={() => setShowModal(true)}

@@ -8,11 +8,11 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { getLabelActiveColor } from '@/features/projects/utils/message-patterns';
-import { useProjectsStore } from '@/stores/projects-store';
 import type { Project } from '@better-claude-code/shared';
 import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { useProjectAction } from '../../../../api/use-projects';
+import { useSettings } from '../../../../api/use-settings';
 
 type ProjectCardProps = {
   project: Project;
@@ -39,8 +39,10 @@ export const ProjectCard = ({
   },
   onLabelToggle
 }: ProjectCardProps) => {
-  const { settings } = useProjectsStore();
+  const { data: settingsData } = useSettings();
   const { mutate: executeAction } = useProjectAction();
+
+  const settings = settingsData?.projects;
 
   const handleGitHubClick = (e: React.MouseEvent) => {
     e.stopPropagation();
