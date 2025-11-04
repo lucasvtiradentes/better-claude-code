@@ -1,6 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import express, { type Express } from 'express';
+import { OpenAPIHono } from '@hono/zod-openapi';
+import { cors } from 'hono/cors';
+import { serveStatic } from '@hono/node-server/serve-static';
+import { serve } from '@hono/node-server';
+import { swaggerUI } from '@hono/swagger-ui';
 import { filesRouter } from './routes/files.js';
 import { projectsRouter } from './routes/projects.js';
 import { sessionsRouter } from './routes/sessions.js';
@@ -11,29 +15,49 @@ export type ServerOptions = {
   staticPath?: string;
 };
 
-export const createServer = (options: ServerOptions): Express => {
-  const app = express();
+export const createServer = (options: ServerOptions) => {
+  const app = new OpenAPIHono();
 
-  app.use(express.json());
+  app.use('*', cors());
+
+  app.route('/api/files', filesRouter);
+  app.route('/api/projects', projectsRouter);
+  app.route('/api/sessions', sessionsRouter);
+  app.route('/api/settings', settingsRouter);
+
+  app.doc('/openapi.json', {
+    openapi: '3.1.0',
+    info: {
+      version: '1.0.0',
+      title: 'Better Claude Code API',
+      description: 'API for managing Claude projects, sessions, and settings'
+    },
+    servers: [
+      {
+        url: `http://localhost:${options.port}`,
+        description: 'Local development server'
+      }
+    ]
+  });
+
+  app.get(
+    '/swagger',
+    swaggerUI({
+      url: '/openapi.json'
+    })
+  );
 
   if (options.staticPath) {
-    app.use(express.static(options.staticPath));
-  }
+    app.use('/*', serveStatic({ root: options.staticPath }));
 
-  app.use('/api/files', filesRouter);
-  app.use('/api/projects', projectsRouter);
-  app.use('/api/sessions', sessionsRouter);
-  app.use('/api/settings', settingsRouter);
-
-  if (options.staticPath) {
-    app.use((_req, res) => {
+    app.get('*', (c) => {
       const indexPath = resolve(options.staticPath as string, 'index.html');
       try {
         const content = readFileSync(indexPath, 'utf8');
-        res.type('html').send(content);
+        return c.html(content);
       } catch (err) {
         console.error(`Failed to serve index.html: ${(err as Error).message}`);
-        res.status(500).send('Error loading page');
+        return c.text('Error loading page', 500);
       }
     });
   }
@@ -43,7 +67,10 @@ export const createServer = (options: ServerOptions): Express => {
 
 export const startServer = (options: ServerOptions) => {
   const app = createServer(options);
-  return app.listen(options.port);
+  return serve({
+    fetch: app.fetch,
+    port: options.port
+  });
 };
 
 if (import.meta.url === `file://${process.argv[1]}`) {
@@ -51,6 +78,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const staticPath = process.env.STATIC_PATH;
   startServer({ port, staticPath });
   console.log(`Backend server running on http://localhost:${port}`);
+  console.log(`Swagger UI available at http://localhost:${port}/swagger`);
+  console.log(`OpenAPI spec available at http://localhost:${port}/openapi.json`);
   if (staticPath) {
     console.log(`Serving static files from: ${staticPath}`);
   }

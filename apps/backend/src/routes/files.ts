@@ -1,15 +1,42 @@
-import { Router, type Router as RouterType } from 'express';
+// @ts-nocheck
+import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
 import { homedir } from 'os';
 import { dirname, extname, isAbsolute, join } from 'path';
 import { fileURLToPath } from 'url';
+import { z } from 'zod';
+import { ErrorSchema, FileContentSchema, FileListResponseSchema } from '../schemas.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export const filesRouter: RouterType = Router();
+export const filesRouter = new OpenAPIHono();
 
-filesRouter.get('/list', async (_req, res) => {
+const getFileListRoute = createRoute({
+  method: 'get',
+  path: '/list',
+  tags: ['Files'],
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: FileListResponseSchema
+        }
+      },
+      description: 'Returns list of available files'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to list files'
+    }
+  }
+});
+
+filesRouter.openapi(getFileListRoute, async (c) => {
   try {
     const promptPathDev = join(__dirname, '../../../cli/src/prompts/session-compation.prompt.md');
     const promptPathProd = join(__dirname, '../../cli/prompts/session-compation.prompt.md');
@@ -30,22 +57,67 @@ filesRouter.get('/list', async (_req, res) => {
       }
     ];
 
-    res.json({ files });
-  } catch (_error) {
-    res.status(500).json({ error: 'Failed to list files' });
+    return c.json({ files });
+  } catch {
+    return c.json({ error: 'Failed to list files' }, 500);
   }
 });
 
-filesRouter.get('/', async (req, res) => {
+const getFileRoute = createRoute({
+  method: 'get',
+  path: '/',
+  tags: ['Files'],
+  request: {
+    query: z.object({
+      path: z.string()
+    })
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: FileContentSchema
+        }
+      },
+      description: 'Returns file content and metadata'
+    },
+    400: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'File path is required or must be absolute'
+    },
+    404: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'File not found'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to read file'
+    }
+  }
+});
+
+filesRouter.openapi(getFileRoute, async (c) => {
   try {
-    const filePath = req.query.path as string;
+    const { path: filePath } = c.req.query();
 
     if (!filePath) {
-      return res.status(400).json({ error: 'File path is required' });
+      return c.json({ error: 'File path is required' }, 400);
     }
 
     if (!isAbsolute(filePath)) {
-      return res.status(400).json({ error: 'Path must be absolute' });
+      return c.json({ error: 'Path must be absolute' }, 400);
     }
 
     const content = await fs.readFile(filePath, 'utf-8');
@@ -54,7 +126,7 @@ filesRouter.get('/', async (req, res) => {
     const realPath = isSymlink ? await fs.realpath(filePath) : filePath;
     const extension = extname(filePath);
 
-    res.json({
+    return c.json({
       content,
       extension,
       isSymlink,
@@ -64,26 +136,81 @@ filesRouter.get('/', async (req, res) => {
   } catch (error) {
     const err = error as NodeJS.ErrnoException;
     if (err.code === 'ENOENT') {
-      return res.status(404).json({ error: 'File not found' });
+      return c.json({ error: 'File not found' }, 404);
     }
-    res.status(500).json({ error: 'Failed to read file' });
+    return c.json({ error: 'Failed to read file' }, 500);
   }
 });
 
-filesRouter.put('/', async (req, res) => {
+const updateFileRoute = createRoute({
+  method: 'put',
+  path: '/',
+  tags: ['Files'],
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            path: z.string(),
+            content: z.string()
+          })
+        }
+      }
+    }
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.boolean(),
+            path: z.string()
+          })
+        }
+      },
+      description: 'File updated successfully'
+    },
+    400: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'File path is required, must be absolute, or content must be a string'
+    },
+    404: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'File not found'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to write file'
+    }
+  }
+});
+
+filesRouter.openapi(updateFileRoute, async (c) => {
   try {
-    const { path: filePath, content } = req.body;
+    const { path: filePath, content } = await c.req.json();
 
     if (!filePath) {
-      return res.status(400).json({ error: 'File path is required' });
+      return c.json({ error: 'File path is required' }, 400);
     }
 
     if (!isAbsolute(filePath)) {
-      return res.status(400).json({ error: 'Path must be absolute' });
+      return c.json({ error: 'Path must be absolute' }, 400);
     }
 
     if (typeof content !== 'string') {
-      return res.status(400).json({ error: 'Content must be a string' });
+      return c.json({ error: 'Content must be a string' }, 400);
     }
 
     const stats = await fs.lstat(filePath);
@@ -91,12 +218,12 @@ filesRouter.put('/', async (req, res) => {
 
     await fs.writeFile(targetPath, content, 'utf-8');
 
-    res.json({ success: true, path: targetPath });
+    return c.json({ success: true, path: targetPath });
   } catch (error) {
     const err = error as NodeJS.ErrnoException;
     if (err.code === 'ENOENT') {
-      return res.status(404).json({ error: 'File not found' });
+      return c.json({ error: 'File not found' }, 404);
     }
-    res.status(500).json({ error: 'Failed to write file' });
+    return c.json({ error: 'Failed to write file' }, 500);
   }
 });

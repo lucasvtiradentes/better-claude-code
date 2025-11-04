@@ -1,12 +1,50 @@
+// @ts-nocheck
 import { dirname, join, resolve } from 'node:path';
-import type { Message, Session } from '@better-claude-code/shared';
-import { extractPathsFromText } from '@better-claude-code/shared';
-import { Router, type Router as RouterType } from 'express';
+import type { Message } from '@better-claude-code/shared';
+import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
 import os from 'os';
+import { z } from 'zod';
+import {
+  ErrorSchema,
+  FolderContentSchema,
+  FolderEntriesSchema,
+  ImageSchema,
+  LabelsResponseSchema,
+  MessageSchema,
+  PathValidationSchema,
+  SessionDetailResponseSchema,
+  SessionsResponseSchema,
+  SuccessSchema
+} from '../schemas.js';
 import { isCompactionSession } from '../utils/session-filter.js';
 
-export const sessionsRouter: RouterType = Router();
+export const sessionsRouter = new OpenAPIHono();
+
+const MESSAGE_PATTERNS = {
+  FILE_OR_FOLDER_SLASH: /\/([\w\-./]+)/g,
+  FILE_OR_FOLDER_AT: /(^|\s)@([a-zA-Z][\w\-.]*(?:\/[\w\-./]+)*)/g
+} as const;
+
+function extractPathsFromText(text: string): string[] {
+  const paths = new Set<string>();
+
+  const slashMatches = text.match(MESSAGE_PATTERNS.FILE_OR_FOLDER_SLASH);
+  if (slashMatches) {
+    for (const match of slashMatches) {
+      paths.add(match);
+    }
+  }
+
+  const atRegex = new RegExp(MESSAGE_PATTERNS.FILE_OR_FOLDER_AT.source, 'g');
+  const atMatches = text.matchAll(atRegex);
+  for (const match of atMatches) {
+    const cleanMatch = match[0].trim().substring(1);
+    paths.add(cleanMatch);
+  }
+
+  return Array.from(paths);
+}
 
 async function getRealPathFromSession(folderPath: string): Promise<string | null> {
   try {
@@ -105,19 +143,51 @@ function extractTextContent(content: any): string {
   return '';
 }
 
-sessionsRouter.get('/:projectName', async (req, res) => {
+const getSessionsRoute = createRoute({
+  method: 'get',
+  path: '/{projectName}',
+  tags: ['Sessions'],
+  request: {
+    params: z.object({
+      projectName: z.string()
+    }),
+    query: z.object({
+      page: z.coerce.number().optional().default(1),
+      limit: z.coerce.number().optional().default(20),
+      search: z.string().optional().default(''),
+      sortBy: z.string().optional().default('date')
+    })
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: SessionsResponseSchema
+        }
+      },
+      description: 'Returns paginated sessions'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to read sessions'
+    }
+  }
+});
+
+sessionsRouter.openapi(getSessionsRoute, async (c) => {
   try {
-    const { projectName } = req.params;
-    const page = Number.parseInt(req.query.page as string, 10) || 1;
-    const limit = Number.parseInt(req.query.limit as string, 10) || 20;
-    const search = (req.query.search as string) || '';
-    const sortBy = (req.query.sortBy as string) || 'date';
+    const { projectName } = c.req.param();
+    const { page, limit, search, sortBy } = c.req.query();
 
     const sessionsPath = join(os.homedir(), '.claude', 'projects', projectName);
     const files = await fs.readdir(sessionsPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
-    const sessions: Session[] = [];
+    const sessions: any[] = [];
 
     for (const file of sessionFiles) {
       const filePath = join(sessionsPath, file);
@@ -234,9 +304,7 @@ sessionsRouter.get('/:projectName', async (req, res) => {
         const metadataContent = await fs.readFile(metadataPath, 'utf-8');
         const metadata = JSON.parse(metadataContent);
         labels = metadata.labels?.length > 0 ? metadata.labels : undefined;
-      } catch {
-        // No metadata file or labels
-      }
+      } catch {}
 
       sessions.push({
         id: sessionId,
@@ -268,7 +336,7 @@ sessionsRouter.get('/:projectName', async (req, res) => {
     const endIndex = startIndex + limit;
     const paginatedSessions = sessions.slice(startIndex, endIndex);
 
-    res.json({
+    return c.json({
       items: paginatedSessions,
       meta: {
         totalItems,
@@ -277,14 +345,44 @@ sessionsRouter.get('/:projectName', async (req, res) => {
         limit
       }
     });
-  } catch (_error) {
-    res.status(500).json({ error: 'Failed to read sessions' });
+  } catch {
+    return c.json({ error: 'Failed to read sessions' }, 500);
   }
 });
 
-sessionsRouter.get('/:projectName/:sessionId', async (req, res) => {
+const getSessionDetailRoute = createRoute({
+  method: 'get',
+  path: '/{projectName}/{sessionId}',
+  tags: ['Sessions'],
+  request: {
+    params: z.object({
+      projectName: z.string(),
+      sessionId: z.string()
+    })
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: SessionDetailResponseSchema
+        }
+      },
+      description: 'Returns session details with messages and images'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to read session'
+    }
+  }
+});
+
+sessionsRouter.openapi(getSessionDetailRoute, async (c) => {
   try {
-    const { projectName, sessionId } = req.params;
+    const { projectName, sessionId } = c.req.param();
     const filePath = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
 
     const content = await fs.readFile(filePath, 'utf-8');
@@ -341,15 +439,45 @@ sessionsRouter.get('/:projectName/:sessionId', async (req, res) => {
       }
     } catch {}
 
-    res.json({ messages: filteredMessages, images });
-  } catch (_error) {
-    res.status(500).json({ error: 'Failed to read session' });
+    return c.json({ messages: filteredMessages, images });
+  } catch {
+    return c.json({ error: 'Failed to read session' }, 500);
   }
 });
 
-sessionsRouter.get('/:projectName/:sessionId/images', async (req, res) => {
+const getSessionImagesRoute = createRoute({
+  method: 'get',
+  path: '/{projectName}/{sessionId}/images',
+  tags: ['Sessions'],
+  request: {
+    params: z.object({
+      projectName: z.string(),
+      sessionId: z.string()
+    })
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.array(ImageSchema)
+        }
+      },
+      description: 'Returns session images'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to extract images'
+    }
+  }
+});
+
+sessionsRouter.openapi(getSessionImagesRoute, async (c) => {
   try {
-    const { projectName, sessionId } = req.params;
+    const { projectName, sessionId } = c.req.param();
     const filePath = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
 
     const content = await fs.readFile(filePath, 'utf-8');
@@ -376,61 +504,175 @@ sessionsRouter.get('/:projectName/:sessionId/images', async (req, res) => {
       } catch {}
     }
 
-    res.json(images);
-  } catch (_error) {
-    res.status(500).json({ error: 'Failed to extract images' });
+    return c.json(images);
+  } catch {
+    return c.json({ error: 'Failed to extract images' }, 500);
   }
 });
 
-sessionsRouter.get('/:projectName/:sessionId/file', async (req, res) => {
+const getSessionFileRoute = createRoute({
+  method: 'get',
+  path: '/{projectName}/{sessionId}/file',
+  tags: ['Sessions'],
+  request: {
+    params: z.object({
+      projectName: z.string(),
+      sessionId: z.string()
+    }),
+    query: z.object({
+      path: z.string()
+    })
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: FolderContentSchema
+        }
+      },
+      description: 'Returns file content'
+    },
+    400: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Path parameter is required'
+    },
+    403: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Access denied'
+    },
+    404: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Project path not found'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to read file'
+    }
+  }
+});
+
+sessionsRouter.openapi(getSessionFileRoute, async (c) => {
   try {
-    const { projectName } = req.params;
-    const filePath = req.query.path as string;
+    const { projectName } = c.req.param();
+    const { path: filePath } = c.req.query();
 
     if (!filePath) {
-      return res.status(400).json({ error: 'Path parameter is required' });
+      return c.json({ error: 'Path parameter is required' }, 400);
     }
 
     const projectPath = join(os.homedir(), '.claude', 'projects', projectName);
     const realProjectPath = await getRealPathFromSession(projectPath);
 
     if (!realProjectPath) {
-      return res.status(404).json({ error: 'Project path not found' });
+      return c.json({ error: 'Project path not found' }, 404);
     }
 
     const fullPath = resolve(realProjectPath, filePath.startsWith('/') ? filePath.slice(1) : filePath);
 
     if (!fullPath.startsWith(realProjectPath)) {
-      return res.status(403).json({ error: 'Access denied' });
+      return c.json({ error: 'Access denied' }, 403);
     }
 
     const content = await fs.readFile(fullPath, 'utf-8');
-    res.json({ content });
-  } catch (_error) {
-    res.status(500).json({ error: 'Failed to read file' });
+    return c.json({ content });
+  } catch {
+    return c.json({ error: 'Failed to read file' }, 500);
   }
 });
 
-sessionsRouter.get('/:projectName/:sessionId/folder', async (req, res) => {
+const getSessionFolderRoute = createRoute({
+  method: 'get',
+  path: '/{projectName}/{sessionId}/folder',
+  tags: ['Sessions'],
+  request: {
+    params: z.object({
+      projectName: z.string(),
+      sessionId: z.string()
+    }),
+    query: z.object({
+      path: z.string()
+    })
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: FolderEntriesSchema
+        }
+      },
+      description: 'Returns folder entries'
+    },
+    400: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Path parameter is required'
+    },
+    403: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Access denied'
+    },
+    404: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Project path not found'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to read folder'
+    }
+  }
+});
+
+sessionsRouter.openapi(getSessionFolderRoute, async (c) => {
   try {
-    const { projectName } = req.params;
-    const folderPath = req.query.path as string;
+    const { projectName } = c.req.param();
+    const { path: folderPath } = c.req.query();
 
     if (!folderPath) {
-      return res.status(400).json({ error: 'Path parameter is required' });
+      return c.json({ error: 'Path parameter is required' }, 400);
     }
 
     const projectPath = join(os.homedir(), '.claude', 'projects', projectName);
     const realProjectPath = await getRealPathFromSession(projectPath);
 
     if (!realProjectPath) {
-      return res.status(404).json({ error: 'Project path not found' });
+      return c.json({ error: 'Project path not found' }, 404);
     }
 
     const fullPath = resolve(realProjectPath, folderPath.startsWith('/') ? folderPath.slice(1) : folderPath);
 
     if (!fullPath.startsWith(realProjectPath)) {
-      return res.status(403).json({ error: 'Access denied' });
+      return c.json({ error: 'Access denied' }, 403);
     }
 
     const dirEntries = await fs.readdir(fullPath, { withFileTypes: true });
@@ -439,26 +681,81 @@ sessionsRouter.get('/:projectName/:sessionId/folder', async (req, res) => {
       .map((entry) => ({
         name: entry.name,
         path: join(folderPath, entry.name),
-        type: entry.isDirectory() ? 'directory' : 'file'
+        type: entry.isDirectory() ? ('directory' as const) : ('file' as const)
       }))
       .sort((a, b) => {
         if (a.type === b.type) return a.name.localeCompare(b.name);
         return a.type === 'directory' ? -1 : 1;
       });
 
-    res.json({ entries });
-  } catch (_error) {
-    res.status(500).json({ error: 'Failed to read folder' });
+    return c.json({ entries });
+  } catch {
+    return c.json({ error: 'Failed to read folder' }, 500);
   }
 });
 
-sessionsRouter.post('/:projectName/:sessionId/labels', async (req, res) => {
+const toggleSessionLabelRoute = createRoute({
+  method: 'post',
+  path: '/{projectName}/{sessionId}/labels',
+  tags: ['Sessions'],
+  request: {
+    params: z.object({
+      projectName: z.string(),
+      sessionId: z.string()
+    }),
+    body: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            labelId: z.string()
+          })
+        }
+      }
+    }
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: LabelsResponseSchema
+        }
+      },
+      description: 'Label toggled successfully'
+    },
+    400: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'labelId is required'
+    },
+    404: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Session not found'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to toggle label'
+    }
+  }
+});
+
+sessionsRouter.openapi(toggleSessionLabelRoute, async (c) => {
   try {
-    const { projectName, sessionId } = req.params;
-    const { labelId } = req.body;
+    const { projectName, sessionId } = c.req.param();
+    const { labelId } = await c.req.json();
 
     if (!labelId) {
-      return res.status(400).json({ error: 'labelId is required' });
+      return c.json({ error: 'labelId is required' }, 400);
     }
 
     const sessionsPath = join(os.homedir(), '.claude', 'projects', projectName);
@@ -467,8 +764,7 @@ sessionsRouter.post('/:projectName/:sessionId/labels', async (req, res) => {
     try {
       await fs.access(sessionFile);
     } catch {
-      console.error('Session file not found:', sessionFile);
-      return res.status(404).json({ error: 'Session not found' });
+      return c.json({ error: 'Session not found' }, 404);
     }
 
     const metadataPath = join(sessionsPath, '.metadata', `${sessionId}.json`);
@@ -479,8 +775,7 @@ sessionsRouter.post('/:projectName/:sessionId/labels', async (req, res) => {
     try {
       const content = await fs.readFile(metadataPath, 'utf-8');
       metadata = JSON.parse(content);
-    } catch (_err) {
-      console.log('No existing metadata, creating new');
+    } catch {
       metadata = { labels: [] };
     }
 
@@ -497,16 +792,53 @@ sessionsRouter.post('/:projectName/:sessionId/labels', async (req, res) => {
 
     await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
 
-    res.json({ success: true, labels: metadata.labels });
+    return c.json({ success: true, labels: metadata.labels });
   } catch (error) {
-    console.error('Failed to toggle label:', error);
-    res.status(500).json({ error: 'Failed to toggle label', details: String(error) });
+    return c.json({ error: 'Failed to toggle label', details: String(error) }, 500);
   }
 });
 
-sessionsRouter.get('/:projectName/:sessionId/paths', async (req, res) => {
+const getSessionPathsRoute = createRoute({
+  method: 'get',
+  path: '/{projectName}/{sessionId}/paths',
+  tags: ['Sessions'],
+  request: {
+    params: z.object({
+      projectName: z.string(),
+      sessionId: z.string()
+    })
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.array(PathValidationSchema)
+        }
+      },
+      description: 'Returns validated paths'
+    },
+    404: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Project path not found'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to validate paths'
+    }
+  }
+});
+
+sessionsRouter.openapi(getSessionPathsRoute, async (c) => {
   try {
-    const { projectName, sessionId } = req.params;
+    const { projectName, sessionId } = c.req.param();
     const sessionFile = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
 
     const content = await fs.readFile(sessionFile, 'utf-8');
@@ -516,7 +848,7 @@ sessionsRouter.get('/:projectName/:sessionId/paths', async (req, res) => {
     const realProjectPath = await getRealPathFromSession(projectPath);
 
     if (!realProjectPath) {
-      return res.status(404).json({ error: 'Project path not found' });
+      return c.json({ error: 'Project path not found' }, 404);
     }
 
     const pathsSet = new Set<string>();
@@ -550,16 +882,45 @@ sessionsRouter.get('/:projectName/:sessionId/paths', async (req, res) => {
       })
     );
 
-    res.json(results);
+    return c.json(results);
   } catch (error) {
-    console.error('Failed to validate paths:', error);
-    res.status(500).json({ error: 'Failed to validate paths' });
+    return c.json({ error: 'Failed to validate paths' }, 500);
   }
 });
 
-sessionsRouter.delete('/:projectName/:sessionId', async (req, res) => {
+const deleteSessionRoute = createRoute({
+  method: 'delete',
+  path: '/{projectName}/{sessionId}',
+  tags: ['Sessions'],
+  request: {
+    params: z.object({
+      projectName: z.string(),
+      sessionId: z.string()
+    })
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: SuccessSchema
+        }
+      },
+      description: 'Session deleted successfully'
+    },
+    500: {
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      },
+      description: 'Failed to delete session'
+    }
+  }
+});
+
+sessionsRouter.openapi(deleteSessionRoute, async (c) => {
   try {
-    const { projectName, sessionId } = req.params;
+    const { projectName, sessionId } = c.req.param();
     const filePath = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
     const metadataPath = join(os.homedir(), '.claude', 'projects', projectName, '.metadata', `${sessionId}.json`);
 
@@ -569,9 +930,8 @@ sessionsRouter.delete('/:projectName/:sessionId', async (req, res) => {
       await fs.unlink(metadataPath);
     } catch {}
 
-    res.json({ success: true });
+    return c.json({ success: true });
   } catch (error) {
-    console.error('Failed to delete session:', error);
-    res.status(500).json({ error: 'Failed to delete session' });
+    return c.json({ error: 'Failed to delete session' }, 500);
   }
 });

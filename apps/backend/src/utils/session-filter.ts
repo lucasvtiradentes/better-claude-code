@@ -1,4 +1,4 @@
-import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
+const CLAUDE_CODE_SESSION_COMPACTION_ID = 'CLAUDE_CODE_SESSION_COMPACTION_ID';
 
 export function isCompactionSession(lines: string[]): boolean {
   try {

@@ -13,13 +13,16 @@
   },
   "dependencies": {
     "@better-claude-code/shared": "workspace:*",
-    "express": "^5.1.0"
+    "@hono/node-server": "^1.19.6",
+    "@hono/swagger-ui": "^0.5.2",
+    "@hono/zod-openapi": "^1.1.4",
+    "hono": "^4.10.4",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/express": "^5.0.5",
     "@types/node": "^22.18.8",
-    "tsx": "^4.19.2",
     "rimraf": "^5.0.5",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
 }
