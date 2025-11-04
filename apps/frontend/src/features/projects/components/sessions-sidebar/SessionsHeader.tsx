@@ -1,4 +1,4 @@
-import { SearchInput } from '@/components/common/SearchInput';
+import { SearchInput } from '@/components/SearchInput';
 import { ArrowLeft, Code, Settings, Terminal } from 'lucide-react';
 import { useProjectAction } from '../../../../api/use-projects';
 

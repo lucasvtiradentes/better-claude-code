@@ -17,7 +17,7 @@ import {
   getTokenColor,
   parseTitle
 } from '@/features/projects/utils/message-patterns';
-import { IconWithBadge } from '@/components/common/IconWithBadge';
+import { IconWithBadge } from '@/components/IconWithBadge';
 import { useSettings } from '../../../../api/use-settings';
 
 type SessionCardProps = {

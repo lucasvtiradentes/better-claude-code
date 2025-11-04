@@ -1,4 +1,4 @@
-import { SearchInput } from '@/components/common/SearchInput';
+import { SearchInput } from '@/components/SearchInput';
 import { useProjectsStore } from '@/stores/projects-store';
 import { Settings } from 'lucide-react';
 import { useState } from 'react';

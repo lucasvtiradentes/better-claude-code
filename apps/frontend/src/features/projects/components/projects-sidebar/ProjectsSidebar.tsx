@@ -1,4 +1,4 @@
-import { TimeGroup } from '@/components/common/TimeGroup';
+import { TimeGroup } from '@/components/TimeGroup';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
 import { useProjectsStore } from '@/stores/projects-store';
 import type { Project } from '@better-claude-code/shared';

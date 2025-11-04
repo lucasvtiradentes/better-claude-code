@@ -1,13 +1,13 @@
 import type { Message, Session, SessionData } from '@better-claude-code/shared';
 import { FileText, Image, Search, Terminal } from 'lucide-react';
 import type { RefObject } from 'react';
-import { IconWithBadge } from '../../../components/common/IconWithBadge';
-import { FileModal } from '../components/modals/FileModal';
-import { FilterButtons } from '../components/FilterButtons';
-import { FolderModal } from '../components/modals/FolderModal';
-import { ImageModal } from '../components/modals/ImageModal';
-import { SearchNavigation } from '../components/sessions-chat/SearchNavigation';
-import { SessionMessage } from '../components/sessions-chat/SessionMessage';
+import { IconWithBadge } from '../../../components/IconWithBadge';
+import { FileModal } from './modals/FileModal';
+import { FilterButtons } from './FilterButtons';
+import { FolderModal } from './modals/FolderModal';
+import { ImageModal } from './modals/ImageModal';
+import { SearchNavigation } from './sessions-chat/SearchNavigation';
+import { SessionMessage } from './sessions-chat/SessionMessage';
 
 interface ProjectsContentProps {
   contentRef: RefObject<HTMLDivElement | null>;

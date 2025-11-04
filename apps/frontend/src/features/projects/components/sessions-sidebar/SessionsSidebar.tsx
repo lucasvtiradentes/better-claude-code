@@ -1,4 +1,4 @@
-import { TimeGroup } from '@/components/common/TimeGroup';
+import { TimeGroup } from '@/components/TimeGroup';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
 import type { Session } from '@better-claude-code/shared';
 import {

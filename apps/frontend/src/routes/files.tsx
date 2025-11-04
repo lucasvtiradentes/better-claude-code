@@ -1,15 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Layout } from '../components/layout/Layout';
-import { FileEditor } from '../features/files/pages/FileEditor';
+import { FilesPage } from '../features/files/pages/files.page';
 
 export const Route = createFileRoute('/files')({
-  component: FilesRoute
+  component: FilesPage
 });
-
-function FilesRoute() {
-  return (
-    <Layout>
-      <FileEditor />
-    </Layout>
-  );
-}
