@@ -1,5 +1,6 @@
 import type { Session } from '@better-claude-code/shared';
 import { FileText, Image, MoreHorizontal, Search, Tag, Terminal, Trash2 } from 'lucide-react';
+import { IconWithBadge } from '@/components/IconWithBadge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +18,6 @@ import {
   getTokenColor,
   parseTitle
 } from '@/features/projects/utils/message-patterns';
-import { IconWithBadge } from '@/components/IconWithBadge';
 import { useSettings } from '../../../../api/use-settings';
 
 type SessionCardProps = {

@@ -1,5 +1,5 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SessionLabelsTab } from './SessionLabelsTab';
 import { SessionSettingsTab } from './SessionSettingsTab';
 
@@ -8,7 +8,6 @@ type SessionSettingsModalProps = {
 };
 
 export const SessionSettingsModal = ({ onClose }: SessionSettingsModalProps) => {
-
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">

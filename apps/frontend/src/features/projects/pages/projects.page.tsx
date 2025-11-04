@@ -1,9 +1,9 @@
-import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
-import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
 import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
+import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
 import { usePathValidation } from '../../../api/use-path-validation';
 import { useProjects } from '../../../api/use-projects';
 import { useDeleteSession, useToggleSessionLabel } from '../../../api/use-session-actions';

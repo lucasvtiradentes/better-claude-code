@@ -1,3 +1,6 @@
+import type { Project } from '@better-claude-code/shared';
+import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';
+import { twMerge } from 'tailwind-merge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,9 +11,6 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { getLabelActiveColor } from '@/features/projects/utils/message-patterns';
-import type { Project } from '@better-claude-code/shared';
-import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';
-import { twMerge } from 'tailwind-merge';
 import { useProjectAction } from '../../../../api/use-projects';
 import { useSettings } from '../../../../api/use-settings';
 

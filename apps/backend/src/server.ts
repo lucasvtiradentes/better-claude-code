@@ -1,14 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
+import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
-import { serveStatic } from '@hono/node-server/serve-static';
-import { serve } from '@hono/node-server';
-import { swaggerUI } from '@hono/swagger-ui';
-import { filesRouter } from './routes/files.js';
-import { projectsRouter } from './routes/projects.js';
-import { sessionsRouter } from './routes/sessions.js';
-import { settingsRouter } from './routes/settings.js';
+import { filesRouter } from './files/router.js';
+import { projectsRouter } from './projects/router.js';
+import { sessionsRouter } from './sessions/router.js';
+import { settingsRouter } from './settings/router.js';
 
 export type ServerOptions = {
   port: number;

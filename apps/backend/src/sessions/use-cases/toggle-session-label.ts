@@ -1,0 +1,121 @@
+import { dirname, join } from 'node:path';
+import { createRoute, type RouteHandler } from '@hono/zod-openapi';
+import { promises as fs } from 'fs';
+import os from 'os';
+import { z } from 'zod';
+import { ErrorSchema, LabelsResponseSchema } from '../../schemas.js';
+
+const paramsSchema = z.object({
+  projectName: z.string(),
+  sessionId: z.string()
+});
+
+const bodySchema = z.object({
+  labelId: z.string()
+});
+
+const responseSchema = LabelsResponseSchema;
+
+const ResponseSchemas = {
+  200: {
+    content: {
+      'application/json': {
+        schema: responseSchema
+      }
+    },
+    description: 'Label toggled successfully'
+  },
+  400: {
+    content: {
+      'application/json': {
+        schema: ErrorSchema
+      }
+    },
+    description: 'labelId is required'
+  },
+  404: {
+    content: {
+      'application/json': {
+        schema: ErrorSchema
+      }
+    },
+    description: 'Session not found'
+  },
+  500: {
+    content: {
+      'application/json': {
+        schema: ErrorSchema
+      }
+    },
+    description: 'Failed to toggle label'
+  }
+} as const;
+
+export const route = createRoute({
+  method: 'post',
+  path: '/{projectName}/{sessionId}/labels',
+  tags: ['Sessions'],
+  request: {
+    params: paramsSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: bodySchema
+        }
+      }
+    }
+  },
+  responses: ResponseSchemas
+});
+
+export const handler: RouteHandler<typeof route> = async (c) => {
+  try {
+    const { projectName, sessionId } = c.req.valid('param');
+    const { labelId } = c.req.valid('json');
+
+    if (!labelId) {
+      return c.json({ error: 'labelId is required' } satisfies z.infer<typeof ErrorSchema>, 400);
+    }
+
+    const sessionsPath = join(os.homedir(), '.claude', 'projects', projectName);
+    const sessionFile = join(sessionsPath, `${sessionId}.jsonl`);
+
+    try {
+      await fs.access(sessionFile);
+    } catch {
+      return c.json({ error: 'Session not found' } satisfies z.infer<typeof ErrorSchema>, 404);
+    }
+
+    const metadataPath = join(sessionsPath, '.metadata', `${sessionId}.json`);
+
+    await fs.mkdir(dirname(metadataPath), { recursive: true });
+
+    let metadata: { labels?: string[] } = {};
+    try {
+      const content = await fs.readFile(metadataPath, 'utf-8');
+      metadata = JSON.parse(content);
+    } catch {
+      metadata = { labels: [] };
+    }
+
+    if (!metadata.labels) {
+      metadata.labels = [];
+    }
+
+    const labelIndex = metadata.labels.indexOf(labelId);
+    if (labelIndex === -1) {
+      metadata.labels = [labelId];
+    } else {
+      metadata.labels = [];
+    }
+
+    await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+
+    return c.json({ success: true, labels: metadata.labels } satisfies z.infer<typeof responseSchema>, 200);
+  } catch (error) {
+    return c.json(
+      { error: 'Failed to toggle label', details: String(error) } satisfies z.infer<typeof ErrorSchema>,
+      500
+    );
+  }
+};

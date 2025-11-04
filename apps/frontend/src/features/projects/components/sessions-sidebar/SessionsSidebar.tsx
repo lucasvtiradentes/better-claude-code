@@ -1,5 +1,3 @@
-import { TimeGroup } from '@/components/TimeGroup';
-import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
 import type { Session } from '@better-claude-code/shared';
 import {
   getTimeGroup,
@@ -10,6 +8,8 @@ import {
   TOKEN_PERCENTAGE_GROUP_ORDER
 } from '@better-claude-code/shared';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
+import { TimeGroup } from '@/components/TimeGroup';
 import { useSettings } from '../../../../api/use-settings';
 import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
 import { SessionCard } from './SessionCard';

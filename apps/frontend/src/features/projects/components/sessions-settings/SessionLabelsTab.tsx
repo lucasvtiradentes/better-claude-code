@@ -5,7 +5,12 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAddSessionLabel, useDeleteSessionLabel, useSettings, useUpdateSessionLabel } from '../../../../api/use-settings';
+import {
+  useAddSessionLabel,
+  useDeleteSessionLabel,
+  useSettings,
+  useUpdateSessionLabel
+} from '../../../../api/use-settings';
 
 type LabelFormData = {
   name: string;

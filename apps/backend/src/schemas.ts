@@ -13,7 +13,7 @@ export const ProjectSettingSchema = z.object({
 
 export const AppSettingsSchema = z.object({
   projects: z.object({
-    groupBy: z.string(),
+    groupBy: z.enum(['date', 'label', 'session-count']),
     filters: z.object({
       selectedLabels: z.array(z.string())
     }),
@@ -28,7 +28,7 @@ export const AppSettingsSchema = z.object({
     projectSettings: z.record(z.string(), ProjectSettingSchema)
   }),
   sessions: z.object({
-    groupBy: z.string(),
+    groupBy: z.enum(['date', 'token-percentage', 'label']),
     filters: z.record(z.string(), z.unknown()),
     display: z.object({
       showTokenPercentage: z.boolean(),

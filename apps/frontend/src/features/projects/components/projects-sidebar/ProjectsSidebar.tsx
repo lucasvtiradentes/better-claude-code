@@ -1,6 +1,3 @@
-import { TimeGroup } from '@/components/TimeGroup';
-import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { useProjectsStore } from '@/features/projects/stores/projects-store';
 import type { Project } from '@better-claude-code/shared';
 import {
   getSessionCountGroup,
@@ -11,6 +8,9 @@ import {
   TIME_GROUP_ORDER
 } from '@better-claude-code/shared';
 import { useMemo } from 'react';
+import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
+import { TimeGroup } from '@/components/TimeGroup';
+import { useProjectsStore } from '@/features/projects/stores/projects-store';
 import { useUpdateProjectLabels } from '../../../../api/use-project-settings';
 import { useSettings } from '../../../../api/use-settings';
 import { ProjectCard } from './ProjectCard';

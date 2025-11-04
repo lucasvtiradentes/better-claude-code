@@ -32,7 +32,12 @@ export const useProjects = () => {
 
 export const useProjectAction = () => {
   return useMutation({
-    mutationFn: ({ projectId, action }: { projectId: string; action: 'openFolder' | 'openCodeEditor' | 'openTerminal' }) =>
-      executeProjectAction(projectId, action)
+    mutationFn: ({
+      projectId,
+      action
+    }: {
+      projectId: string;
+      action: 'openFolder' | 'openCodeEditor' | 'openTerminal';
+    }) => executeProjectAction(projectId, action)
   });
 };
