@@ -98,5 +98,3 @@ export type SessionData = {
   messages: Message[];
   images: Array<{ index: number; data: string }>;
 };
-
-export type TimeGroup = 'today' | 'yesterday' | 'this-week' | 'this-month' | 'last-month' | 'older';
