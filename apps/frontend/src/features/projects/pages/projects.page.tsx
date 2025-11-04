@@ -14,11 +14,11 @@ import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import { Layout } from '../../../components/layout/Layout';
 import { EmptyState } from '../../../features/projects/components/EmptyState';
 import { ProjectsContent } from '../../../features/projects/components/ProjectsContent';
-import { useMessageFilter } from '../../../hooks/use-message-filter';
-import { useModalState } from '../../../hooks/use-modal-state';
-import { useNavigationManager } from '../../../hooks/use-navigation-manager';
-import { useScrollPersistence } from '../../../hooks/use-scroll-persistence';
-import { useFilterStore } from '../../../stores/filter-store';
+import { useMessageFilter } from '../hooks/use-message-filter';
+import { useModalState } from '../hooks/use-modal-state';
+import { useNavigationManager } from '../hooks/use-navigation-manager';
+import { useScrollPersistence } from '../hooks/use-scroll-persistence';
+import { useFilterStore } from '../stores/filter-store';
 
 export type ProjectsSearchParams = {
   project?: string;

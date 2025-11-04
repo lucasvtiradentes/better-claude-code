@@ -1,4 +1,4 @@
-import { useFilterStore } from '../../../stores/filter-store';
+import { useFilterStore } from '../stores/filter-store';
 
 export const FilterButtons = () => {
   const {

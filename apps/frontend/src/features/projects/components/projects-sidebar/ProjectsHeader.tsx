@@ -1,5 +1,5 @@
 import { SearchInput } from '@/components/SearchInput';
-import { useProjectsStore } from '@/stores/projects-store';
+import { useProjectsStore } from '@/features/projects/stores/projects-store';
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
 import { ProjectSettingsModal } from '../projects-settings/ProjectSettingsModal';
