@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useSessionFolder } from '../../../../api/use-session-file';
 
 type FolderEntry = {
   name: string;
@@ -16,42 +17,13 @@ type FolderModalProps = {
 };
 
 export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileClick }: FolderModalProps) => {
-  const [entries, setEntries] = useState<FolderEntry[]>([]);
-  const [previousEntries, setPreviousEntries] = useState<FolderEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [pathHistory, setPathHistory] = useState<string[]>([folderPath]);
 
   const currentPath = pathHistory[pathHistory.length - 1];
 
-  useEffect(() => {
-    const fetchFolderContents = async (path: string) => {
-      try {
-        setLoading(true);
-        setError(null);
-        setEntries((currentEntries) => {
-          if (currentEntries.length > 0) {
-            setPreviousEntries(currentEntries);
-          }
-          return currentEntries;
-        });
-        const res = await fetch(
-          `/api/sessions/${encodeURIComponent(projectId)}/${sessionId}/folder?path=${encodeURIComponent(path)}`
-        );
-        if (!res.ok) {
-          throw new Error('Failed to load folder');
-        }
-        const data = await res.json();
-        setEntries(data.entries);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data, isLoading: loading, error } = useSessionFolder(projectId, sessionId, currentPath);
 
-    fetchFolderContents(currentPath);
-  }, [currentPath, projectId, sessionId]);
+  const entries = data?.entries ?? [];
 
   const handleBack = useCallback(() => {
     if (pathHistory.length > 1) {
@@ -152,15 +124,15 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
         <div className="flex-1 overflow-y-auto p-4 min-h-0">
           {error && (
             <div className="flex items-center justify-center h-full">
-              <p className="text-destructive">{error}</p>
+              <p className="text-destructive">{error instanceof Error ? error.message : 'Unknown error'}</p>
             </div>
           )}
           {!error && entries.length === 0 && !loading && (
             <div className="flex items-center justify-center h-full text-muted-foreground">Empty folder</div>
           )}
-          {!error && (entries.length > 0 || (loading && previousEntries.length > 0)) && (
+          {!error && entries.length > 0 && (
             <div className="space-y-1" style={{ opacity: loading ? 0.5 : 1 }}>
-              {(entries.length > 0 ? entries : previousEntries).map((entry) => (
+              {entries.map((entry) => (
                 <button
                   key={entry.path}
                   type="button"
