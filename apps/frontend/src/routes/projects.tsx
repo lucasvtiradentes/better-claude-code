@@ -1,12 +1,12 @@
 import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
-import { queryClient } from '@/lib/tanstack-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { usePathValidation } from '../api/use-path-validation';
 import { useProjects } from '../api/use-projects';
+import { useDeleteSession, useToggleSessionLabel } from '../api/use-session-actions';
 import { useSessionData } from '../api/use-session-data';
 import { useSessions } from '../api/use-sessions';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
@@ -47,7 +47,9 @@ function ProjectsComponent() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+
+  const { mutate: deleteSessionMutation, isPending: isDeleting } = useDeleteSession();
+  const { mutate: toggleLabel } = useToggleSessionLabel();
 
   const sortBy = settings?.groupBy === 'token-percentage' ? 'token-percentage' : 'date';
 
@@ -104,42 +106,37 @@ function ProjectsComponent() {
     searchQuery
   );
 
-  const confirmDeleteSession = async () => {
-    if (!sessionToDelete) return;
+  const confirmDeleteSession = () => {
+    if (!sessionToDelete || !selectedProject) return;
 
-    setIsDeleting(true);
-    try {
-      const response = await fetch(`/api/sessions/${selectedProject}/${sessionToDelete}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) throw new Error('Failed to delete session');
-
-      await queryClient.invalidateQueries({ queryKey: ['sessions', selectedProject] });
-
-      if (sessionId === sessionToDelete) {
-        await navigate({
-          to: '/projects',
-          search: {
-            project: selectedProject,
-            sessionId: undefined,
-            imageIndex: undefined,
-            folderPath: undefined,
-            filePath: undefined,
-            search: undefined
+    deleteSessionMutation(
+      { projectId: selectedProject, sessionId: sessionToDelete },
+      {
+        onSuccess: async () => {
+          if (sessionId === sessionToDelete) {
+            await navigate({
+              to: '/projects',
+              search: {
+                project: selectedProject,
+                sessionId: undefined,
+                imageIndex: undefined,
+                folderPath: undefined,
+                filePath: undefined,
+                search: undefined
+              }
+            });
           }
-        });
-      }
 
-      setDeleteModalOpen(false);
-      setSessionToDelete(null);
-      toast.success('Session deleted successfully');
-    } catch (error) {
-      console.error('Failed to delete session:', error);
-      toast.error('Failed to delete session');
-    } finally {
-      setIsDeleting(false);
-    }
+          setDeleteModalOpen(false);
+          setSessionToDelete(null);
+          toast.success('Session deleted successfully');
+        },
+        onError: (error) => {
+          console.error('Failed to delete session:', error);
+          toast.error('Failed to delete session');
+        }
+      }
+    );
   };
 
   const renderDeleteModal = () => (
@@ -184,21 +181,18 @@ function ProjectsComponent() {
     setDeleteModalOpen(true);
   };
 
-  const handleLabelToggle = async (sessionId: string, labelId: string) => {
-    try {
-      const response = await fetch(`/api/sessions/${selectedProject}/${sessionId}/labels`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ labelId })
-      });
+  const handleLabelToggle = (sessionId: string, labelId: string) => {
+    if (!selectedProject) return;
 
-      if (!response.ok) throw new Error('Failed to toggle label');
-
-      await queryClient.invalidateQueries({ queryKey: ['sessions', selectedProject] });
-    } catch (error) {
-      console.error('Failed to toggle label:', error);
-      alert('Failed to toggle label');
-    }
+    toggleLabel(
+      { projectId: selectedProject, sessionId, labelId },
+      {
+        onError: (error) => {
+          console.error('Failed to toggle label:', error);
+          alert('Failed to toggle label');
+        }
+      }
+    );
   };
 
   const sessionsSidebar = (
