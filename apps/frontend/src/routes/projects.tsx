@@ -9,6 +9,7 @@ import { useProjects } from '../api/use-projects';
 import { useDeleteSession, useToggleSessionLabel } from '../api/use-session-actions';
 import { useSessionData } from '../api/use-session-data';
 import { useSessions } from '../api/use-sessions';
+import { useSettings } from '../api/use-settings';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { Layout } from '../components/layout/Layout';
 import { EmptyState } from '../features/projects/components/EmptyState';
@@ -18,7 +19,6 @@ import { useModalState } from '../hooks/use-modal-state';
 import { useNavigationManager } from '../hooks/use-navigation-manager';
 import { useScrollPersistence } from '../hooks/use-scroll-persistence';
 import { useFilterStore } from '../stores/filter-store';
-import { useSessionsStore } from '../stores/sessions-store';
 
 export const Route = createFileRoute('/projects')({
   component: ProjectsComponent,
@@ -42,7 +42,7 @@ function ProjectsComponent() {
     search: searchQuery
   } = Route.useSearch();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
-  const { settings } = useSessionsStore();
+  const { data: settingsData } = useSettings();
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -51,6 +51,7 @@ function ProjectsComponent() {
   const { mutate: deleteSessionMutation, isPending: isDeleting } = useDeleteSession();
   const { mutate: toggleLabel } = useToggleSessionLabel();
 
+  const settings = settingsData?.sessions;
   const sortBy = settings?.groupBy === 'token-percentage' ? 'token-percentage' : 'date';
 
   const { data: projects, isLoading: projectsLoading, error: projectsError } = useProjects();

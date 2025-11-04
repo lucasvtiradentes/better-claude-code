@@ -17,8 +17,8 @@ import {
   getTokenColor,
   parseTitle
 } from '@/features/projects/utils/message-patterns';
-import { useSessionsStore } from '@/stores/sessions-store';
 import { IconWithBadge } from '@/components/common/IconWithBadge';
+import { useSettings } from '../../../../api/use-settings';
 
 type SessionCardProps = {
   session: Session;
@@ -44,7 +44,9 @@ export const SessionCard = ({
   onDelete,
   onLabelToggle
 }: SessionCardProps) => {
-  const { settings } = useSessionsStore();
+  const { data: settingsData } = useSettings();
+
+  const settings = settingsData?.sessions;
 
   const titleParts = parseTitle(session.title);
 

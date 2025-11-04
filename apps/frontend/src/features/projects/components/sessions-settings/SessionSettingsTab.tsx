@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSessionsStore } from '@/stores/sessions-store';
+import { useSettings, useUpdateSessionsSettings } from '../../../../api/use-settings';
 
 type SettingsFormData = {
   groupBy: SessionsConfig['groupBy'];
@@ -13,7 +13,10 @@ type SettingsFormData = {
 };
 
 export const SessionSettingsTab = () => {
-  const { settings, updateSettings } = useSessionsStore();
+  const { data: settingsData } = useSettings();
+  const { mutate: updateSettings } = useUpdateSessionsSettings();
+
+  const settings = settingsData?.sessions;
 
   const form = useForm<SettingsFormData>({
     defaultValues: {

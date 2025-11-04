@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useSessionsStore } from '@/stores/sessions-store';
+import { useAddSessionLabel, useDeleteSessionLabel, useSettings, useUpdateSessionLabel } from '../../../../api/use-settings';
 
 type LabelFormData = {
   name: string;
@@ -13,7 +13,13 @@ type LabelFormData = {
 };
 
 export const SessionLabelsTab = () => {
-  const { settings, addLabel, updateLabel, deleteLabel } = useSessionsStore();
+  const { data: settingsData } = useSettings();
+  const { mutate: addLabel } = useAddSessionLabel();
+  const { mutate: updateLabel } = useUpdateSessionLabel();
+  const { mutate: deleteLabel } = useDeleteSessionLabel();
+
+  const settings = settingsData?.sessions;
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -23,26 +29,35 @@ export const SessionLabelsTab = () => {
 
   const editForm = useForm<LabelFormData>();
 
-  const onAddLabel = async (data: LabelFormData) => {
+  const onAddLabel = (data: LabelFormData) => {
     const newLabel: ProjectLabel = {
       id: data.name.toLowerCase().replace(/\s+/g, '-'),
       name: data.name,
       color: data.color
     };
-    await addLabel(newLabel);
-    addForm.reset();
-    setShowAddForm(false);
+    addLabel(newLabel, {
+      onSuccess: () => {
+        addForm.reset();
+        setShowAddForm(false);
+      }
+    });
   };
 
-  const onEditLabel = async (id: string, data: LabelFormData) => {
-    await updateLabel(id, { name: data.name, color: data.color });
-    setEditingId(null);
-    editForm.reset();
+  const onEditLabel = (id: string, data: LabelFormData) => {
+    updateLabel(
+      { id, updates: { name: data.name, color: data.color } },
+      {
+        onSuccess: () => {
+          setEditingId(null);
+          editForm.reset();
+        }
+      }
+    );
   };
 
-  const onDeleteLabel = async (id: string) => {
+  const onDeleteLabel = (id: string) => {
     if (window.confirm('Delete this label? It will be removed from all projects.')) {
-      await deleteLabel(id);
+      deleteLabel(id);
     }
   };
 

@@ -1,3 +1,5 @@
+import { TimeGroup } from '@/components/common/TimeGroup';
+import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
 import type { Session } from '@better-claude-code/shared';
 import {
   getTimeGroup,
@@ -8,11 +10,9 @@ import {
   TOKEN_PERCENTAGE_GROUP_ORDER
 } from '@better-claude-code/shared';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSessionsStore } from '@/stores/sessions-store';
-import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { TimeGroup } from '@/components/common/TimeGroup';
-import { SessionCard } from './SessionCard';
+import { useSettings } from '../../../../api/use-settings';
 import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
+import { SessionCard } from './SessionCard';
 import { SessionsHeader } from './SessionsHeader';
 
 type SessionsSidebarProps = {
@@ -55,12 +55,10 @@ export const SessionsSidebar = ({
   isGitRepo
 }: SessionsSidebarProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { settings, loadSettings } = useSessionsStore();
+  const { data: settingsData } = useSettings();
   const [showSettings, setShowSettings] = useState(false);
 
-  useEffect(() => {
-    loadSettings();
-  }, [loadSettings]);
+  const settings = settingsData?.sessions;
 
   const groupedSessions = useMemo(() => {
     if (!sessions || !settings) return undefined;

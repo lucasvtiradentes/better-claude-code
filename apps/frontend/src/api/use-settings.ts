@@ -1,4 +1,4 @@
-import type { AppSettings, ProjectLabel, ProjectsConfig } from '@better-claude-code/shared';
+import type { AppSettings, ProjectLabel, ProjectsConfig, SessionsConfig } from '@better-claude-code/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const fetchSettings = async (): Promise<AppSettings> => {
@@ -9,7 +9,7 @@ const fetchSettings = async (): Promise<AppSettings> => {
   return response.json();
 };
 
-const updateSettings = async (updates: Partial<ProjectsConfig>): Promise<void> => {
+const updateProjectsSettings = async (updates: Partial<ProjectsConfig>): Promise<void> => {
   const response = await fetch('/api/settings', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -18,6 +18,18 @@ const updateSettings = async (updates: Partial<ProjectsConfig>): Promise<void> =
 
   if (!response.ok) {
     throw new Error('Failed to update settings');
+  }
+};
+
+const updateSessionsSettings = async (updates: Partial<SessionsConfig>): Promise<void> => {
+  const response = await fetch('/api/settings', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessions: updates })
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update sessions settings');
   }
 };
 
@@ -55,6 +67,40 @@ const deleteLabel = async (id: string): Promise<void> => {
   }
 };
 
+const addSessionLabel = async (label: ProjectLabel): Promise<void> => {
+  const response = await fetch('/api/settings/sessions/labels', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(label)
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to add session label');
+  }
+};
+
+const updateSessionLabel = async (id: string, updates: Partial<ProjectLabel>): Promise<void> => {
+  const response = await fetch(`/api/settings/sessions/labels/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates)
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update session label');
+  }
+};
+
+const deleteSessionLabel = async (id: string): Promise<void> => {
+  const response = await fetch(`/api/settings/sessions/labels/${id}`, {
+    method: 'DELETE'
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to delete session label');
+  }
+};
+
 export const useSettings = () => {
   return useQuery({
     queryKey: ['settings'],
@@ -66,7 +112,18 @@ export const useUpdateSettings = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (updates: Partial<ProjectsConfig>) => updateSettings(updates),
+    mutationFn: (updates: Partial<ProjectsConfig>) => updateProjectsSettings(updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+    }
+  });
+};
+
+export const useUpdateSessionsSettings = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (updates: Partial<SessionsConfig>) => updateSessionsSettings(updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] });
     }
@@ -100,6 +157,39 @@ export const useDeleteLabel = () => {
 
   return useMutation({
     mutationFn: (id: string) => deleteLabel(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+    }
+  });
+};
+
+export const useAddSessionLabel = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (label: ProjectLabel) => addSessionLabel(label),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+    }
+  });
+};
+
+export const useUpdateSessionLabel = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<ProjectLabel> }) => updateSessionLabel(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+    }
+  });
+};
+
+export const useDeleteSessionLabel = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteSessionLabel(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] });
     }
