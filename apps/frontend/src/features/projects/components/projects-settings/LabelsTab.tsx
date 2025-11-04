@@ -2,10 +2,15 @@ import type { ProjectLabel } from '@better-claude-code/shared';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import {
+  useDeleteApiSettingsLabelsLabelId,
+  useGetApiSettings,
+  usePatchApiSettingsLabelsLabelId,
+  usePostApiSettingsLabels
+} from '@/api';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAddLabel, useDeleteLabel, useSettings, useUpdateLabel } from '../../../../api/use-settings';
 
 type LabelFormData = {
   name: string;
@@ -13,10 +18,10 @@ type LabelFormData = {
 };
 
 export const LabelsTab = () => {
-  const { data: settingsData } = useSettings();
-  const { mutate: addLabel } = useAddLabel();
-  const { mutate: updateLabel } = useUpdateLabel();
-  const { mutate: deleteLabel } = useDeleteLabel();
+  const { data: settingsData } = useGetApiSettings();
+  const { mutate: addLabel } = usePostApiSettingsLabels();
+  const { mutate: updateLabel } = usePatchApiSettingsLabelsLabelId();
+  const { mutate: deleteLabel } = useDeleteApiSettingsLabelsLabelId();
 
   const settings = settingsData?.projects;
 
@@ -35,17 +40,20 @@ export const LabelsTab = () => {
       name: data.name,
       color: data.color
     };
-    addLabel(newLabel, {
-      onSuccess: () => {
-        addForm.reset();
-        setShowAddForm(false);
+    addLabel(
+      { data: newLabel },
+      {
+        onSuccess: () => {
+          addForm.reset();
+          setShowAddForm(false);
+        }
       }
-    });
+    );
   };
 
   const onEditLabel = (id: string, data: LabelFormData) => {
     updateLabel(
-      { id, updates: { name: data.name, color: data.color } },
+      { labelId: id, data: { name: data.name, color: data.color } },
       {
         onSuccess: () => {
           setEditingId(null);
@@ -57,7 +65,7 @@ export const LabelsTab = () => {
 
   const onDeleteLabel = (id: string) => {
     if (window.confirm('Delete this label? It will be removed from all projects.')) {
-      deleteLabel(id);
+      deleteLabel({ labelId: id });
     }
   };
 

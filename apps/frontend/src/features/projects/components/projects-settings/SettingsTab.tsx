@@ -1,10 +1,10 @@
 import type { ProjectsConfig } from '@better-claude-code/shared';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useGetApiSettings, usePatchApiSettings } from '@/api';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSettings, useUpdateSettings } from '../../../../api/use-settings';
 
 type SettingsFormData = {
   groupBy: ProjectsConfig['groupBy'];
@@ -14,8 +14,8 @@ type SettingsFormData = {
 };
 
 export const SettingsTab = () => {
-  const { data: settingsData } = useSettings();
-  const { mutate: updateSettings } = useUpdateSettings();
+  const { data: settingsData } = useGetApiSettings();
+  const { mutate: updateSettings } = usePatchApiSettings();
 
   const settings = settingsData?.projects;
 
@@ -43,12 +43,24 @@ export const SettingsTab = () => {
     if (!settings) return;
 
     if (field === 'groupBy') {
-      updateSettings({ groupBy: value as ProjectsConfig['groupBy'] });
+      updateSettings({
+        data: {
+          projects: {
+            ...settings,
+            groupBy: value as ProjectsConfig['groupBy']
+          }
+        }
+      });
     } else {
       updateSettings({
-        display: {
-          ...settings.display,
-          [field]: value
+        data: {
+          projects: {
+            ...settings,
+            display: {
+              ...settings.display,
+              [field]: value
+            }
+          }
         }
       });
     }

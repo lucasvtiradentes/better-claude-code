@@ -8,11 +8,10 @@ import {
   TIME_GROUP_ORDER
 } from '@better-claude-code/shared';
 import { useMemo } from 'react';
+import { useGetApiSettings, usePatchApiSettingsProjectsProjectId } from '@/api';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
 import { TimeGroup } from '@/components/TimeGroup';
 import { useProjectsStore } from '@/features/projects/stores/projects-store';
-import { useUpdateProjectLabels } from '../../../../api/use-project-settings';
-import { useSettings } from '../../../../api/use-settings';
 import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
 
@@ -25,8 +24,8 @@ type ProjectsSidebarProps = {
 
 export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }: ProjectsSidebarProps) => {
   const { search } = useProjectsStore();
-  const { data: settingsData } = useSettings();
-  const { mutate: updateLabels } = useUpdateProjectLabels();
+  const { data: settingsData } = useGetApiSettings();
+  const { mutate: updateLabels } = usePatchApiSettingsProjectsProjectId();
 
   const settings = settingsData?.projects;
 
@@ -39,7 +38,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
     const newLabels = hasLabel ? [] : [labelId];
 
     updateLabels(
-      { projectId, labels: newLabels },
+      { projectId, data: { labels: newLabels } },
       {
         onError: (error) => {
           console.error('Failed to toggle label:', error);

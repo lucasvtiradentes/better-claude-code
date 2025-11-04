@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { prism, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { useSessionFile } from '../../../../api/use-session-file';
+import { useGetApiSessionsProjectNameSessionIdFile } from '@/api';
 
 type FileModalProps = {
   projectId: string;
@@ -87,7 +87,16 @@ export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModal
 
   const { cleanPath, startLine, endLine } = useMemo(() => parseFilePath(filePath), [filePath]);
 
-  const { data, isLoading: loading, error } = useSessionFile(projectId, sessionId, cleanPath);
+  const {
+    data,
+    isLoading: loading,
+    error
+  } = useGetApiSessionsProjectNameSessionIdFile(
+    projectId,
+    sessionId,
+    { path: cleanPath },
+    { query: { enabled: !!(projectId && sessionId && cleanPath) } }
+  );
 
   const content = data?.content ?? '';
 

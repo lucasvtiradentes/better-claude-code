@@ -1,6 +1,7 @@
 import type { Project } from '@better-claude-code/shared';
 import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
+import { useGetApiSettings, usePostApiProjectsProjectIdActionAction } from '@/api';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,8 +12,6 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { getLabelActiveColor } from '@/features/projects/utils/message-patterns';
-import { useProjectAction } from '../../../../api/use-projects';
-import { useSettings } from '../../../../api/use-settings';
 
 type ProjectCardProps = {
   project: Project;
@@ -39,8 +38,8 @@ export const ProjectCard = ({
   },
   onLabelToggle
 }: ProjectCardProps) => {
-  const { data: settingsData } = useSettings();
-  const { mutate: executeAction } = useProjectAction();
+  const { data: settingsData } = useGetApiSettings();
+  const { mutate: executeAction } = usePostApiProjectsProjectIdActionAction();
 
   const settings = settingsData?.projects;
 
@@ -73,7 +72,7 @@ export const ProjectCard = ({
         <div className="flex items-center justify-between gap-2 mb-2">
           <div className="text-sm font-semibold wrap-break-word line-clamp-1 pr-8">{project.name}</div>
           {displaySettings.showCurrentBranch && project.currentBranch && (
-            <div className="text-[10px] text-muted-foreground flex items-center gap-1 flex-shrink-0">
+            <div className="text-[10px] text-muted-foreground flex items-center gap-1 shrink-0">
               <span>{project.currentBranch}</span>
             </div>
           )}
@@ -160,7 +159,7 @@ export const ProjectCard = ({
                         }
                       >
                         <div className="flex items-center gap-2 w-full">
-                          <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: label.color }} />
+                          <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: label.color }} />
                           <span className="flex-1">{label.name}</span>
                           {isLabeled && <span className={getLabelActiveColor()}>✓</span>}
                         </div>

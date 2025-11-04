@@ -8,6 +8,7 @@ const __dirname = dirname(__filename);
 console.log('Generating swagger.json...');
 
 const backendPath = join(__dirname, '..');
+// @ts-expect-error
 const { createServer } = await import('../dist/server.js');
 const app = createServer({ port: 3001 });
 const openapiSpec = app.getOpenAPI31Document({

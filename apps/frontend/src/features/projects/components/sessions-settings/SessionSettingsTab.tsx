@@ -1,10 +1,10 @@
 import type { SessionsConfig } from '@better-claude-code/shared';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useGetApiSettings, usePatchApiSettings } from '@/api';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSettings, useUpdateSessionsSettings } from '../../../../api/use-settings';
 
 type SettingsFormData = {
   groupBy: SessionsConfig['groupBy'];
@@ -13,8 +13,8 @@ type SettingsFormData = {
 };
 
 export const SessionSettingsTab = () => {
-  const { data: settingsData } = useSettings();
-  const { mutate: updateSettings } = useUpdateSessionsSettings();
+  const { data: settingsData } = useGetApiSettings();
+  const { mutate: updateSettings } = usePatchApiSettings();
 
   const settings = settingsData?.sessions;
 
@@ -40,12 +40,24 @@ export const SessionSettingsTab = () => {
     if (!settings) return;
 
     if (field === 'groupBy') {
-      updateSettings({ groupBy: value as SessionsConfig['groupBy'] });
+      updateSettings({
+        data: {
+          sessions: {
+            ...settings,
+            groupBy: value as SessionsConfig['groupBy']
+          }
+        }
+      });
     } else {
       updateSettings({
-        display: {
-          ...settings.display,
-          [field]: value
+        data: {
+          sessions: {
+            ...settings,
+            display: {
+              ...settings.display,
+              [field]: value
+            }
+          }
         }
       });
     }

@@ -1,6 +1,6 @@
 import { ArrowLeft, Code, Settings, Terminal } from 'lucide-react';
+import { usePostApiProjectsProjectIdActionAction } from '@/api';
 import { SearchInput } from '@/components/SearchInput';
-import { useProjectAction } from '../../../../api/use-projects';
 
 type SessionsHeaderProps = {
   projectName: string;
@@ -23,7 +23,7 @@ export const SessionsHeader = ({
   projectId,
   isGitRepo
 }: SessionsHeaderProps) => {
-  const { mutate: executeAction } = useProjectAction();
+  const { mutate: executeAction } = usePostApiProjectsProjectIdActionAction();
 
   const handleAction = (action: 'openCodeEditor' | 'openTerminal') => {
     executeAction({ projectId, action });

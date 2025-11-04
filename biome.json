@@ -6,12 +6,10 @@
     "indentWidth": 2,
     "lineWidth": 120,
     "formatWithErrors": true,
-    "useEditorconfig": false,
-    "ignore": ["apps/frontend/src/api_hooks"]
+    "useEditorconfig": false
   },
   "linter": {
     "enabled": true,
-    "ignore": ["apps/frontend/src/api_hooks"],
     "rules": {
       "recommended": true,
       "correctness": {
@@ -57,7 +55,7 @@
     }
   },
   "files": {
-    "includes": ["**/*.ts", "**/*.tsx"]
+    "includes": ["**/*.ts", "**/*.tsx", "apps/frontend/src/api/_generated"]
   },
   "vcs": {
     "enabled": true,

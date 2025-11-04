@@ -2,15 +2,15 @@ import type { ProjectLabel } from '@better-claude-code/shared';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import {
+  useDeleteApiSettingsSessionsLabelsLabelId,
+  useGetApiSettings,
+  usePatchApiSettingsSessionsLabelsLabelId,
+  usePostApiSettingsSessionsLabels
+} from '@/api';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  useAddSessionLabel,
-  useDeleteSessionLabel,
-  useSettings,
-  useUpdateSessionLabel
-} from '../../../../api/use-settings';
 
 type LabelFormData = {
   name: string;
@@ -18,10 +18,10 @@ type LabelFormData = {
 };
 
 export const SessionLabelsTab = () => {
-  const { data: settingsData } = useSettings();
-  const { mutate: addLabel } = useAddSessionLabel();
-  const { mutate: updateLabel } = useUpdateSessionLabel();
-  const { mutate: deleteLabel } = useDeleteSessionLabel();
+  const { data: settingsData } = useGetApiSettings();
+  const { mutate: addLabel } = usePostApiSettingsSessionsLabels();
+  const { mutate: updateLabel } = usePatchApiSettingsSessionsLabelsLabelId();
+  const { mutate: deleteLabel } = useDeleteApiSettingsSessionsLabelsLabelId();
 
   const settings = settingsData?.sessions;
 
@@ -40,17 +40,20 @@ export const SessionLabelsTab = () => {
       name: data.name,
       color: data.color
     };
-    addLabel(newLabel, {
-      onSuccess: () => {
-        addForm.reset();
-        setShowAddForm(false);
+    addLabel(
+      { data: newLabel },
+      {
+        onSuccess: () => {
+          addForm.reset();
+          setShowAddForm(false);
+        }
       }
-    });
+    );
   };
 
   const onEditLabel = (id: string, data: LabelFormData) => {
     updateLabel(
-      { id, updates: { name: data.name, color: data.color } },
+      { labelId: id, data: { name: data.name, color: data.color } },
       {
         onSuccess: () => {
           setEditingId(null);
@@ -62,7 +65,7 @@ export const SessionLabelsTab = () => {
 
   const onDeleteLabel = (id: string) => {
     if (window.confirm('Delete this label? It will be removed from all projects.')) {
-      deleteLabel(id);
+      deleteLabel({ labelId: id });
     }
   };
 

@@ -1,5 +1,6 @@
 import type { Session } from '@better-claude-code/shared';
 import { FileText, Image, MoreHorizontal, Search, Tag, Terminal, Trash2 } from 'lucide-react';
+import { useGetApiSettings } from '@/api';
 import { IconWithBadge } from '@/components/IconWithBadge';
 import {
   DropdownMenu,
@@ -18,7 +19,6 @@ import {
   getTokenColor,
   parseTitle
 } from '@/features/projects/utils/message-patterns';
-import { useSettings } from '../../../../api/use-settings';
 
 type SessionCardProps = {
   session: Session;
@@ -44,7 +44,7 @@ export const SessionCard = ({
   onDelete,
   onLabelToggle
 }: SessionCardProps) => {
-  const { data: settingsData } = useSettings();
+  const { data: settingsData } = useGetApiSettings();
 
   const settings = settingsData?.sessions;
 
@@ -152,7 +152,7 @@ export const SessionCard = ({
                         }
                       >
                         <div className="flex items-center gap-2 w-full">
-                          <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: label.color }} />
+                          <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: label.color }} />
                           <span className="flex-1">{label.name}</span>
                           {isLabeled && <span className={getLabelActiveColor()}>✓</span>}
                         </div>

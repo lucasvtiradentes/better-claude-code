@@ -1,8 +1,8 @@
-import { useProjects } from '@/api/use-projects';
+import { useGetApiProjects } from '@/api';
 import { Layout } from '@/components/layout/Layout';
 
 export function DashboardPage() {
-  const { data: projects, isLoading, error } = useProjects();
+  const { data: projects, isLoading, error } = useGetApiProjects();
 
   const totalProjects = projects?.length || 0;
   const totalSessions = projects?.reduce((sum, project) => sum + project.sessionsCount, 0) || 0;

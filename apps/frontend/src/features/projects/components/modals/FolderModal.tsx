@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useSessionFolder } from '../../../../api/use-session-file';
+import { useGetApiSessionsProjectNameSessionIdFolder } from '@/api';
 
 type FolderEntry = {
   name: string;
@@ -21,7 +21,16 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
 
   const currentPath = pathHistory[pathHistory.length - 1];
 
-  const { data, isLoading: loading, error } = useSessionFolder(projectId, sessionId, currentPath);
+  const {
+    data,
+    isLoading: loading,
+    error
+  } = useGetApiSessionsProjectNameSessionIdFolder(
+    projectId,
+    sessionId,
+    { path: currentPath },
+    { query: { enabled: !!(projectId && sessionId && currentPath) } }
+  );
 
   const entries = data?.entries ?? [];
 
@@ -132,7 +141,7 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
           )}
           {!error && entries.length > 0 && (
             <div className="space-y-1" style={{ opacity: loading ? 0.5 : 1 }}>
-              {entries.map((entry) => (
+              {entries.map((entry: FolderEntry) => (
                 <button
                   key={entry.path}
                   type="button"

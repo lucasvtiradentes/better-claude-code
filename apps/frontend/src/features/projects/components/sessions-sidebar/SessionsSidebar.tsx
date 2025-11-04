@@ -8,9 +8,9 @@ import {
   TOKEN_PERCENTAGE_GROUP_ORDER
 } from '@better-claude-code/shared';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useGetApiSettings } from '@/api';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
 import { TimeGroup } from '@/components/TimeGroup';
-import { useSettings } from '../../../../api/use-settings';
 import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
 import { SessionCard } from './SessionCard';
 import { SessionsHeader } from './SessionsHeader';
@@ -55,7 +55,7 @@ export const SessionsSidebar = ({
   isGitRepo
 }: SessionsSidebarProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { data: settingsData } = useSettings();
+  const { data: settingsData } = useGetApiSettings();
   const [showSettings, setShowSettings] = useState(false);
 
   const settings = settingsData?.sessions;

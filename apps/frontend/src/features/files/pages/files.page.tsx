@@ -3,21 +3,24 @@ import { json } from '@codemirror/lang-json';
 import { markdown } from '@codemirror/lang-markdown';
 import CodeMirror from '@uiw/react-codemirror';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useGetApiFiles, useGetApiFilesList, usePutApiFiles } from '@/api';
 import { Layout } from '@/components/layout/Layout';
-import { useFileContent, useFilesList, useSaveFile } from '../../../api/use-files';
 import { useTheme } from '../../../hooks/use-theme';
 
 export const FilesPage = () => {
   const { theme } = useTheme();
-  const { data: filesList } = useFilesList();
+  const { data: filesList } = useGetApiFilesList();
 
   const firstFile = filesList?.files[0]?.path ?? '';
   const [selectedFile, setSelectedFile] = useState<string>(firstFile);
 
   const actualSelectedFile = selectedFile || firstFile;
 
-  const { data: fileData, isLoading: loading } = useFileContent(actualSelectedFile);
-  const { mutate: saveFile, isPending: saving } = useSaveFile();
+  const { data: fileData, isLoading: loading } = useGetApiFiles(
+    { path: actualSelectedFile },
+    { query: { enabled: !!actualSelectedFile } }
+  );
+  const { mutate: saveFile, isPending: saving } = usePutApiFiles();
 
   const [editedContent, setEditedContent] = useState<string>('');
 
@@ -50,7 +53,7 @@ export const FilesPage = () => {
 
   const handleSave = useCallback(() => {
     if (actualSelectedFile) {
-      saveFile({ path: actualSelectedFile, content: editedContent });
+      saveFile({ data: { path: actualSelectedFile, content: editedContent } });
     }
   }, [actualSelectedFile, editedContent, saveFile]);
 

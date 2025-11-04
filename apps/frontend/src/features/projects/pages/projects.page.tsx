@@ -2,14 +2,17 @@ import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
+import {
+  useDeleteApiSessionsProjectNameSessionId,
+  useGetApiProjects,
+  useGetApiSessionsProjectNameSessionId,
+  useGetApiSessionsProjectNameSessionIdPaths,
+  useGetApiSettings,
+  usePostApiSessionsProjectNameSessionIdLabels,
+  useSessions
+} from '@/api';
 import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
-import { usePathValidation } from '../../../api/use-path-validation';
-import { useProjects } from '../../../api/use-projects';
-import { useDeleteSession, useToggleSessionLabel } from '../../../api/use-session-actions';
-import { useSessionData } from '../../../api/use-session-data';
-import { useSessions } from '../../../api/use-sessions';
-import { useSettings } from '../../../api/use-settings';
 import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import { Layout } from '../../../components/layout/Layout';
 import { EmptyState } from '../../../features/projects/components/EmptyState';
@@ -43,19 +46,19 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     search: searchQuery
   } = searchParams;
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
-  const { data: settingsData } = useSettings();
+  const { data: settingsData } = useGetApiSettings();
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
-  const { mutate: deleteSessionMutation, isPending: isDeleting } = useDeleteSession();
-  const { mutate: toggleLabel } = useToggleSessionLabel();
+  const { mutate: deleteSessionMutation, isPending: isDeleting } = useDeleteApiSessionsProjectNameSessionId();
+  const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels();
 
   const settings = settingsData?.sessions;
   const sortBy = settings?.groupBy === 'token-percentage' ? 'token-percentage' : 'date';
 
-  const { data: projects, isLoading: projectsLoading, error: projectsError } = useProjects();
+  const { data: projects, isLoading: projectsLoading, error: projectsError } = useGetApiProjects();
   const {
     data: sessionsData,
     isLoading: sessionsLoading,
@@ -68,10 +71,13 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     data: sessionData,
     isLoading: sessionLoading,
     error: sessionError
-  } = useSessionData(selectedProject || '', sessionId || '');
-  const { data: pathValidation, isLoading: pathValidationLoading } = usePathValidation(
+  } = useGetApiSessionsProjectNameSessionId(selectedProject || '', sessionId || '', {
+    query: { enabled: !!(selectedProject && sessionId) }
+  });
+  const { data: pathValidation, isLoading: pathValidationLoading } = useGetApiSessionsProjectNameSessionIdPaths(
     selectedProject || '',
-    sessionId || ''
+    sessionId || '',
+    { query: { enabled: !!(selectedProject && sessionId) } }
   );
 
   const sessions = sessionsData?.pages.flatMap((page) => page.items) || [];
@@ -112,7 +118,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     if (!sessionToDelete || !selectedProject) return;
 
     deleteSessionMutation(
-      { projectId: selectedProject, sessionId: sessionToDelete },
+      { projectName: selectedProject, sessionId: sessionToDelete },
       {
         onSuccess: async () => {
           if (sessionId === sessionToDelete) {
@@ -167,7 +173,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     if (!selectedProject) return;
 
     toggleLabel(
-      { projectId: selectedProject, sessionId, labelId },
+      { projectName: selectedProject, sessionId, data: { labelId } },
       {
         onError: (error) => {
           console.error('Failed to toggle label:', error);
