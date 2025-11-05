@@ -6,7 +6,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const port = ENV.SERVER_PORT;
   const staticPath = ENV.FRONTEND_STATIC_PATH;
 
-  startServer({ port, staticPath });
+  startServer(port, staticPath);
 
   if (ENV.NODE_ENV === NodeEnv.DEVELOPMENT) {
     console.log(`Backend server running on http://localhost:${port}`);

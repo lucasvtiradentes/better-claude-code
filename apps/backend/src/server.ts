@@ -13,11 +13,6 @@ import { projectsRouter } from './projects/router.js';
 import { sessionsRouter } from './sessions/router.js';
 import { settingsRouter } from './settings/router.js';
 
-type ServerOptions = {
-  port: number;
-  staticPath?: string;
-};
-
 function serveStaticFrontend(app: OpenAPIHono, staticPath: string) {
   app.use('/*', serveStatic({ root: staticPath }));
 
