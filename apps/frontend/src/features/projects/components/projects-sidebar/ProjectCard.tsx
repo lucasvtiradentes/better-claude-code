@@ -1,7 +1,7 @@
-import type { Project } from '@better-claude-code/shared';
 import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { useGetApiSettings, usePostApiProjectsProjectIdActionAction } from '@/api';
+import type { GetApiProjects200Item } from '@/api/_generated/schemas';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
 import { getLabelActiveColor } from '@/features/projects/utils/message-patterns';
 
 type ProjectCardProps = {
-  project: Project;
+  project: GetApiProjects200Item;
   onClick: () => void;
   isActive?: boolean;
   className?: string;

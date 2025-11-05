@@ -1,4 +1,4 @@
-import type { Message } from '@better-claude-code/shared';
+import type { GetApiSessionsProjectNameSessionId200MessagesItem } from '@/api/_generated/schemas';
 import {
   detectCommand,
   formatCommand,
@@ -14,7 +14,7 @@ import {
 } from '@/features/projects/utils/message-patterns';
 
 type SessionMessageProps = {
-  message: Message;
+  message: GetApiSessionsProjectNameSessionId200MessagesItem;
   imageOffset: number;
   onImageClick: (imageIndex: number) => void;
   onPathClick?: (path: string) => void;

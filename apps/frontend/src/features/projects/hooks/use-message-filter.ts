@@ -1,8 +1,8 @@
-import type { Message } from '@better-claude-code/shared';
 import { useState } from 'react';
+import type { GetApiSessionsProjectNameSessionId200MessagesItem } from '@/api/_generated/schemas';
 
 export function useMessageFilter(
-  messages: Message[],
+  messages: GetApiSessionsProjectNameSessionId200MessagesItem[],
   showUserMessages: boolean,
   showAssistantMessages: boolean,
   showToolCalls: boolean,

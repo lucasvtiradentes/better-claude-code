@@ -1,6 +1,6 @@
-import type { Session } from '@better-claude-code/shared';
 import { FileText, Image, MoreHorizontal, Search, Tag, Terminal, Trash2 } from 'lucide-react';
 import { useGetApiSettings } from '@/api';
+import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
 import { IconWithBadge } from '@/components/IconWithBadge';
 import {
   DropdownMenu,
@@ -21,7 +21,7 @@ import {
 } from '@/features/projects/utils/message-patterns';
 
 type SessionCardProps = {
-  session: Session;
+  session: GetApiSessionsProjectName200ItemsItem;
   projectName: string;
   onClick: () => void;
   isActive?: boolean;

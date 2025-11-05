@@ -1,6 +1,10 @@
-import type { Message, Session, SessionData } from '@better-claude-code/shared';
 import { FileText, Image, Search, Terminal } from 'lucide-react';
 import type { RefObject } from 'react';
+import type {
+  GetApiSessionsProjectName200ItemsItem,
+  GetApiSessionsProjectNameSessionId200,
+  GetApiSessionsProjectNameSessionId200MessagesItem
+} from '@/api/_generated/schemas';
 import { IconWithBadge } from '../../../components/IconWithBadge';
 import { FilterButtons } from './FilterButtons';
 import { FileModal } from './modals/FileModal';
@@ -11,8 +15,8 @@ import { SessionMessage } from './sessions-chat/SessionMessage';
 
 interface ProjectsContentProps {
   contentRef: RefObject<HTMLDivElement | null>;
-  currentSession?: Session;
-  filteredMessages: Message[];
+  currentSession?: GetApiSessionsProjectName200ItemsItem;
+  filteredMessages: GetApiSessionsProjectNameSessionId200MessagesItem[];
   pathValidation?: Array<{ path: string; exists: boolean }>;
   searchQuery?: string;
   searchMatches: number[];
@@ -22,7 +26,7 @@ interface ProjectsContentProps {
   folderModalPath: string | null;
   selectedProject: string;
   sessionId: string;
-  sessionData: SessionData;
+  sessionData: GetApiSessionsProjectNameSessionId200;
   onNextMatch: () => void;
   onPreviousMatch: () => void;
   onCloseSearch: () => void;

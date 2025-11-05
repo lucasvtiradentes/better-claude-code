@@ -1,4 +1,3 @@
-import type { Session } from '@better-claude-code/shared';
 import {
   getTimeGroup,
   getTokenPercentageGroup,
@@ -9,6 +8,7 @@ import {
 } from '@better-claude-code/shared';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useGetApiSettings } from '@/api';
+import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
 import { TimeGroup } from '@/components/TimeGroup';
 import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
@@ -16,7 +16,7 @@ import { SessionCard } from './SessionCard';
 import { SessionsHeader } from './SessionsHeader';
 
 type SessionsSidebarProps = {
-  sessions: Session[] | undefined;
+  sessions: GetApiSessionsProjectName200ItemsItem[] | undefined;
   isLoading: boolean;
   error: unknown;
   projectName: string;
@@ -71,7 +71,7 @@ export const SessionsSidebar = ({
           acc[group].push(session);
           return acc;
         },
-        {} as Record<string, Session[]>
+        {} as Record<string, GetApiSessionsProjectName200ItemsItem[]>
       );
     }
 
@@ -83,12 +83,12 @@ export const SessionsSidebar = ({
           acc[group].push(session);
           return acc;
         },
-        {} as Record<string, Session[]>
+        {} as Record<string, GetApiSessionsProjectName200ItemsItem[]>
       );
     }
 
     if (settings.groupBy === 'label') {
-      const grouped: Record<string, Session[]> = {
+      const grouped: Record<string, GetApiSessionsProjectName200ItemsItem[]> = {
         'no-label': []
       };
 

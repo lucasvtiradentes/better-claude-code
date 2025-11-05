@@ -1,4 +1,3 @@
-import type { Project } from '@better-claude-code/shared';
 import {
   getSessionCountGroup,
   getTimeGroup,
@@ -9,6 +8,7 @@ import {
 } from '@better-claude-code/shared';
 import { useMemo } from 'react';
 import { useGetApiSettings, usePatchApiSettingsProjectsProjectId } from '@/api';
+import type { GetApiProjects200Item } from '@/api/_generated/schemas';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
 import { TimeGroup } from '@/components/TimeGroup';
 import { useProjectsStore } from '@/features/projects/stores/projects-store';
@@ -16,7 +16,7 @@ import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
 
 type ProjectsSidebarProps = {
-  projects: Project[] | undefined;
+  projects: GetApiProjects200Item[] | undefined;
   isLoading: boolean;
   error: unknown;
   onSelectProject: (projectName: string) => void;
@@ -76,7 +76,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
           acc[group].push(project);
           return acc;
         },
-        {} as Record<string, Project[]>
+        {} as Record<string, GetApiProjects200Item[]>
       );
     }
 
@@ -88,12 +88,12 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
           acc[group].push(project);
           return acc;
         },
-        {} as Record<string, Project[]>
+        {} as Record<string, GetApiProjects200Item[]>
       );
     }
 
     if (settings.groupBy === 'label') {
-      const grouped: Record<string, Project[]> = {
+      const grouped: Record<string, GetApiProjects200Item[]> = {
         'no-label': []
       };
 

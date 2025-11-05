@@ -1,4 +1,3 @@
-import type { ProjectLabel } from '@better-claude-code/shared';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -8,6 +7,7 @@ import {
   usePatchApiSettingsLabelsLabelId,
   usePostApiSettingsLabels
 } from '@/api';
+import type { GetApiSettings200ProjectsLabelsItem } from '@/api/_generated/schemas';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -35,7 +35,7 @@ export const LabelsTab = () => {
   const editForm = useForm<LabelFormData>();
 
   const onAddLabel = (data: LabelFormData) => {
-    const newLabel: ProjectLabel = {
+    const newLabel: GetApiSettings200ProjectsLabelsItem = {
       id: data.name.toLowerCase().replace(/\s+/g, '-'),
       name: data.name,
       color: data.color
@@ -69,7 +69,7 @@ export const LabelsTab = () => {
     }
   };
 
-  const startEditing = (label: ProjectLabel) => {
+  const startEditing = (label: GetApiSettings200ProjectsLabelsItem) => {
     setEditingId(label.id);
     editForm.setValue('name', label.name);
     editForm.setValue('color', label.color);
