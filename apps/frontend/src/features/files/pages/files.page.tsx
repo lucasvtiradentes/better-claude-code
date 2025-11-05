@@ -98,7 +98,7 @@ export const FilesPage = () => {
             <CodeMirror
               value={editedContent}
               onChange={setEditedContent}
-              theme={theme === 'dark' ? 'dark' : 'light'}
+              theme={theme}
               extensions={extensions}
               className="h-full"
               basicSetup={{

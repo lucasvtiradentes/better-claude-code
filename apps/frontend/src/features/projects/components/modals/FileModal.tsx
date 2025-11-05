@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { prism, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useGetApiSessionsProjectNameSessionIdFile } from '@/api';
+import { useTheme } from '@/hooks/use-theme';
 
 type FileModalProps = {
   projectId: string;
@@ -79,7 +80,7 @@ const parseFilePath = (path: string) => {
 };
 
 export const FileModal = ({ projectId, sessionId, filePath, onClose }: FileModalProps) => {
-  const isDarkMode = document.documentElement.classList.contains('dark');
+  const { isDarkMode } = useTheme();
   const [copied, setCopied] = useState(false);
   const [showTopRemaining, setShowTopRemaining] = useState(false);
   const [showBottomRemaining, setShowBottomRemaining] = useState(false);

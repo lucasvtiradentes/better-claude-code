@@ -1,6 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import { Edit, FolderOpen, Home, Moon, Settings as SettingsIcon, Sun } from 'lucide-react';
-import { useTheme } from '../../hooks/use-theme';
+import { Theme, useTheme } from '../../hooks/use-theme';
 
 type NavItem = {
   path: string;
@@ -58,16 +58,16 @@ export const IconNavigation = () => {
         type="button"
         onClick={toggleTheme}
         className="h-[60px] flex items-center justify-center cursor-pointer border-t border-border transition-all duration-100 hover:bg-accent group relative"
-        aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-        title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        aria-label={`Switch to ${theme === Theme.DARK ? Theme.LIGHT : Theme.DARK} mode`}
+        title={`Switch to ${theme === Theme.DARK ? Theme.LIGHT : Theme.DARK} mode`}
       >
-        {theme === 'dark' ? (
+        {theme === Theme.DARK ? (
           <Sun size={24} className="text-foreground" />
         ) : (
           <Moon size={24} className="text-foreground" />
         )}
         <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          {theme === Theme.DARK ? `${Theme.LIGHT} mode` : `${Theme.DARK} mode`}
         </div>
       </button>
     </nav>
