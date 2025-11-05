@@ -3,9 +3,9 @@
 import { APP_CLI_NAME, APP_DESCRIPTION } from '@better-claude-code/shared';
 import { Command } from 'commander';
 import { createCompactCommand } from './commands/compact.js';
-import { createCompletionCommand } from './commands/completion.js';
+import { createCompletionCommand } from './commands/completion/index.js';
 import { displayHelpText } from './commands/help-text.js';
-import { createServerCommand } from './commands/server.js';
+import { createServerCommand } from './commands/server/index.js';
 import { createUpdateCommand } from './commands/update.js';
 import { APP_INFO } from './config/constants.js';
 

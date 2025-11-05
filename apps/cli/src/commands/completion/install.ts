@@ -1,21 +1,20 @@
-import { accessSync, constants, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { accessSync, constants, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { Command } from 'commander';
 
-import { ConfigManager } from '../config/config-manager.js';
-import { createCommandFromSchema, createSubCommandFromSchema } from '../definitions/command-builder.js';
-import { generateBashCompletion, generateZshCompletion } from '../definitions/generators/completion-generator.js';
-import { CommandNames, SubCommandNames } from '../definitions/types.js';
-import { ENV } from '../env.js';
-import { colors } from '../utils/colors.js';
-import { Logger } from '../utils/logger.js';
+import { ConfigManager } from '../../config/config-manager.js';
+import { createSubCommandFromSchema } from '../../definitions/command-builder.js';
+import { generateBashCompletion, generateZshCompletion } from '../../definitions/generators/completion-generator.js';
+import { CommandNames, SubCommandNames } from '../../definitions/types.js';
+import { ENV } from '../../env.js';
+import { colors } from '../../utils/colors.js';
+import { Logger } from '../../utils/logger.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
-
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();
 
-function createInstallCommand(): Command {
+export function createInstallCommand(): Command {
   const installCompletionCommand = async () => {
     const shell = detectShell();
 
@@ -44,12 +43,6 @@ function createInstallCommand(): Command {
     installCompletionCommand,
     'Failed to install completion'
   );
-}
-
-export function createCompletionCommand(): Command {
-  const completion = createCommandFromSchema(CommandNames.COMPLETION);
-  completion.addCommand(createInstallCommand());
-  return completion;
 }
 
 export function detectShell(): string {
@@ -155,33 +148,7 @@ async function installBashCompletion(): Promise<void> {
   Logger.info(colors.cyan('  source ~/.bashrc'));
 }
 
-export async function reinstallCompletionSilently(): Promise<boolean> {
-  const configManager = new ConfigManager();
-
-  if (!configManager.isCompletionInstalled()) {
-    return false;
-  }
-
-  const shell = detectShell();
-
-  try {
-    switch (shell) {
-      case 'zsh':
-        await installZshCompletionSilent();
-        await clearZshCompletionCache();
-        return true;
-      case 'bash':
-        await installBashCompletionSilent();
-        return true;
-      default:
-        return false;
-    }
-  } catch {
-    return false;
-  }
-}
-
-async function installZshCompletionSilent(): Promise<void> {
+export async function installZshCompletionSilent(): Promise<void> {
   const homeDir = homedir();
 
   const possibleDirs = [
@@ -213,7 +180,7 @@ async function installZshCompletionSilent(): Promise<void> {
   writeFileSync(completionFile, ZSH_COMPLETION_SCRIPT);
 }
 
-async function installBashCompletionSilent(): Promise<void> {
+export async function installBashCompletionSilent(): Promise<void> {
   const homeDir = homedir();
 
   const possibleDirs = [
@@ -242,15 +209,4 @@ async function installBashCompletionSilent(): Promise<void> {
 
   const completionFile = join(targetDir, 'bcc');
   writeFileSync(completionFile, BASH_COMPLETION_SCRIPT);
-}
-
-async function clearZshCompletionCache(): Promise<void> {
-  const homeDir = homedir();
-  const zshCacheFile = join(homeDir, '.zcompdump');
-
-  try {
-    if (existsSync(zshCacheFile)) {
-      unlinkSync(zshCacheFile);
-    }
-  } catch {}
 }
