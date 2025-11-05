@@ -1,4 +1,4 @@
-import { APP_INFO } from '../../config/constants.js';
+import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { COMMANDS_SCHEMA } from '../commands.js';
 
 export function generateZshCompletion(): string {
@@ -78,7 +78,7 @@ ${subcommandFunctions}`;
     })
     .join('\n');
 
-  return `#compdef ${APP_INFO.name} sheet
+  return `#compdef ${APP_CLI_NAME} sheet
 
 _sheet_cmd() {
     local state line context
@@ -184,7 +184,7 @@ ${flagCases}
     fi
 }
 
-complete -F _sheet_cmd_completion ${APP_INFO.name}
+complete -F _sheet_cmd_completion ${APP_CLI_NAME}
 complete -F _sheet_cmd_completion sheet
 `;
 }

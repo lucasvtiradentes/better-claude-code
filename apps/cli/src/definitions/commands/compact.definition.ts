@@ -1,4 +1,4 @@
-import { APP_INFO } from '../../config/constants.js';
+import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { type Command, CommandNames } from '../types.js';
 
 export const compactCommandDefinition: Command = {
@@ -30,10 +30,10 @@ export const compactCommandDefinition: Command = {
     }
   ],
   examples: [
-    `${APP_INFO.name} compact`,
-    `${APP_INFO.name} compact --all`,
-    `${APP_INFO.name} compact --latest`,
-    `${APP_INFO.name} compact --id a1b2c3d4-e5f6`,
-    `${APP_INFO.name} compact --last`
+    `${APP_CLI_NAME} compact`,
+    `${APP_CLI_NAME} compact --all`,
+    `${APP_CLI_NAME} compact --latest`,
+    `${APP_CLI_NAME} compact --id a1b2c3d4-e5f6`,
+    `${APP_CLI_NAME} compact --last`
   ]
 };

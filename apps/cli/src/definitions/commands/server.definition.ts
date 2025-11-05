@@ -1,4 +1,4 @@
-import { APP_INFO } from '../../config/constants.js';
+import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { type Command, CommandNames } from '../types.js';
 
 export const serverCommandDefinition: Command = {
@@ -30,10 +30,10 @@ export const serverCommandDefinition: Command = {
     }
   ],
   examples: [
-    `${APP_INFO.name} server --start`,
-    `${APP_INFO.name} server -s -p 8080`,
-    `${APP_INFO.name} server --start --detach`,
-    `${APP_INFO.name} server -s -d`,
-    `${APP_INFO.name} server --stop`
+    `${APP_CLI_NAME} server --start`,
+    `${APP_CLI_NAME} server -s -p 8080`,
+    `${APP_CLI_NAME} server --start --detach`,
+    `${APP_CLI_NAME} server -s -d`,
+    `${APP_CLI_NAME} server --stop`
   ]
 };

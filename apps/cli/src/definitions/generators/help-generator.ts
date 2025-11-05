@@ -1,4 +1,4 @@
-import { APP_INFO } from '../../config/constants.js';
+import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { colors } from '../../utils/colors.js';
 import { COMMANDS_SCHEMA } from '../commands.js';
 import type { Command, SubCommand } from '../types.js';
@@ -79,7 +79,7 @@ export function generateHelp(): string {
 
   return `
 ${colors.bold('USAGE')}
-  ${colors.cyan(`$ ${APP_INFO.name}`)} ${colors.yellow('<command>')} ${colors.gray('[options]')}
+  ${colors.cyan(`$ ${APP_CLI_NAME}`)} ${colors.yellow('<command>')} ${colors.gray('[options]')}
 
 ${colors.bold('COMMANDS')}
 ${commandsSection}

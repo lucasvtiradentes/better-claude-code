@@ -3,7 +3,7 @@ import { existsSync } from 'fs';
 import { homedir, platform } from 'os';
 import { join } from 'path';
 
-export function getClaudePath(): string {
+function getClaudePath(): string {
   const currentPlatform = platform();
   const homeDir = homedir();
 
@@ -18,7 +18,7 @@ export function getClaudePath(): string {
   }
 }
 
-export function validateClaudeBinary(): void {
+function validateClaudeBinary(): void {
   const claudePath = getClaudePath();
 
   if (!existsSync(claudePath)) {

@@ -1,16 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { APP_CLI_NAME } from '@better-claude-code/shared';
 import * as os from 'os';
 import { getPackageJsonPath } from '../utils/paths.js';
 
 const packageJsonPath = getPackageJsonPath(import.meta.url);
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
-export const CLAUDE_CODE_SESSION_COMPACTION_ID = 'CLAUDE_CODE_SESSION_COMPACTION_ID';
-
 export const APP_INFO = {
-  name: 'bcc',
-  display_name: 'Better Claude Code',
   version: packageJson.version
 };
 
@@ -42,11 +39,11 @@ export function getConfigDirectory(): string {
   switch (userOS) {
     case 'linux':
     case 'wsl':
-      return join(homeDir, '.config', APP_INFO.name);
+      return join(homeDir, '.config', APP_CLI_NAME);
     case 'mac':
-      return join(homeDir, 'Library', 'Preferences', APP_INFO.name);
+      return join(homeDir, 'Library', 'Preferences', APP_CLI_NAME);
     case 'windows':
-      return join(homeDir, 'AppData', 'Roaming', APP_INFO.name);
+      return join(homeDir, 'AppData', 'Roaming', APP_CLI_NAME);
     default:
       throw new Error(`Unsupported OS: ${userOS}`);
   }

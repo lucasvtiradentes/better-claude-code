@@ -3,7 +3,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { APP_INFO } from '../src/config/constants.js';
+import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { COMMANDS_SCHEMA } from '../src/definitions/commands.js';
 import { generateBashCompletion, generateZshCompletion } from '../src/definitions/generators/completion-generator.js';
 import { generateHelp } from '../src/definitions/generators/help-generator.js';
@@ -15,7 +15,7 @@ const MONOREPO_ROOT = join(CLI_DIR, '..', '..');
 const README_PATH = join(MONOREPO_ROOT, 'README.md');
 const COMPLETIONS_DIR = join(CLI_DIR, 'completions');
 const HELP_FILE = join(CLI_DIR, 'docs', 'help.txt');
-const COMPLETION_FILE = `_${APP_INFO.name}`;
+const COMPLETION_FILE = `_${APP_CLI_NAME}`;
 
 function validateSchema(): boolean {
   console.log('🔍 Validating commands schema...\n');

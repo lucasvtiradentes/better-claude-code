@@ -1,6 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'url';
+import { createServer } from '../src/server';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -8,8 +9,6 @@ const __dirname = dirname(__filename);
 console.log('Generating swagger.json...');
 
 const backendPath = join(__dirname, '..');
-// @ts-expect-error
-const { createServer } = await import('../dist/server.js');
 const app = createServer({ port: 3001 });
 const openapiSpec = app.getOpenAPI31Document({
   openapi: '3.1.0',

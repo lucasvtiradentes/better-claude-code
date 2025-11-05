@@ -1,4 +1,4 @@
-import { APP_INFO } from '../../config/constants.js';
+import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { type Command, CommandNames, SubCommandNames } from '../types.js';
 
 export const completionCommandDefinition: Command = {
@@ -8,7 +8,7 @@ export const completionCommandDefinition: Command = {
     {
       name: SubCommandNames.COMPLETION_INSTALL,
       description: 'Install shell completion for your current shell',
-      examples: [`${APP_INFO.name} completion install`]
+      examples: [`${APP_CLI_NAME} completion install`]
     }
   ]
 };

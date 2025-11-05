@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "packageManager": "pnpm@10.20.0",
-  "description": "Better Claude Code - Monorepo root",
   "type": "module",
   "scripts": {
     "start": "node ./apps/cli/dist/cli/cli.js",
