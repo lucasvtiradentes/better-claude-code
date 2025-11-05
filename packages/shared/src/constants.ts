@@ -12,4 +12,8 @@ export const BACKEND_PORT = 5002;
 
 export const API_PREFIX = '/api';
 
+export const SWAGGER_UI_PATH = '/swagger';
+
+export const OPENAPI_SPEC_PATH = '/openapi.json';
+
 export const createLocalHostLink = (port: number, sufix?: string) => `http://localhost:${port}${sufix ?? ''}`;

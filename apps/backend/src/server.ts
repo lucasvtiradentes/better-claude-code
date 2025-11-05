@@ -1,7 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { NodeEnv } from '@better-claude-code/node-utils';
-import { API_PREFIX, createLocalHostLink } from '@better-claude-code/shared';
+import {
+  API_PREFIX,
+  APP_DESCRIPTION,
+  APP_NAME,
+  createLocalHostLink,
+  FRONTEND_PORT,
+  OPENAPI_SPEC_PATH,
+  SWAGGER_UI_PATH
+} from '@better-claude-code/shared';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { swaggerUI } from '@hono/swagger-ui';
@@ -12,6 +20,31 @@ import { filesRouter } from './files/router.js';
 import { projectsRouter } from './projects/router.js';
 import { sessionsRouter } from './sessions/router.js';
 import { settingsRouter } from './settings/router.js';
+
+function proxyToFrontendDevServer(app: OpenAPIHono) {
+  app.use('/*', async (c, next) => {
+    const url = new URL(c.req.url);
+    if (
+      !url.pathname.startsWith(API_PREFIX) &&
+      !url.pathname.startsWith(SWAGGER_UI_PATH) &&
+      !url.pathname.startsWith(OPENAPI_SPEC_PATH)
+    ) {
+      try {
+        const frontendUrl = `${createLocalHostLink(FRONTEND_PORT)}${url.pathname}${url.search}`;
+        const res = await fetch(frontendUrl);
+        return new Response(res.body, {
+          status: res.status,
+          statusText: res.statusText,
+          headers: res.headers
+        });
+      } catch (err) {
+        console.error(`Failed to proxy to frontend: ${(err as Error).message}`);
+        return c.text('Frontend dev server not available', 502);
+      }
+    }
+    await next();
+  });
+}
 
 function serveStaticFrontend(app: OpenAPIHono, staticPath: string) {
   app.use('/*', serveStatic({ root: staticPath }));
@@ -29,12 +62,12 @@ function serveStaticFrontend(app: OpenAPIHono, staticPath: string) {
 }
 
 function setupSwagger(app: OpenAPIHono, port: number) {
-  app.doc('/openapi.json', getSwaggerConfig(port));
+  app.doc(OPENAPI_SPEC_PATH, getSwaggerConfig(port));
 
   app.get(
-    '/swagger',
+    SWAGGER_UI_PATH,
     swaggerUI({
-      url: '/openapi.json'
+      url: OPENAPI_SPEC_PATH
     })
   );
 }
@@ -42,9 +75,9 @@ function setupSwagger(app: OpenAPIHono, port: number) {
 export const getSwaggerConfig = (port: number) => ({
   openapi: '3.1.0',
   info: {
-    version: '1.0.0',
-    title: 'Better Claude Code API',
-    description: 'API for managing Claude projects, sessions, and settings'
+    title: `${APP_NAME} API`,
+    description: APP_DESCRIPTION,
+    version: '1.0.0'
   },
   servers: [
     {
@@ -54,10 +87,26 @@ export const getSwaggerConfig = (port: number) => ({
   ]
 });
 
+const startTime = Date.now();
+
+function setupHealthRoute(app: OpenAPIHono) {
+  app.get(`${API_PREFIX}`, (c) => {
+    const uptime = Date.now() - startTime;
+    return c.json({
+      name: `${APP_NAME} API`,
+      uptime: `${Math.floor(uptime / 1000)}s`,
+      environment: ENV.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
+  });
+}
+
 export const createServer = (port: number, staticPath?: string) => {
   const app = new OpenAPIHono();
 
   app.use('*', cors());
+
+  setupHealthRoute(app);
 
   app.route(`${API_PREFIX}/files`, filesRouter);
   app.route(`${API_PREFIX}/projects`, projectsRouter);
@@ -66,6 +115,7 @@ export const createServer = (port: number, staticPath?: string) => {
 
   if (ENV.NODE_ENV === NodeEnv.DEVELOPMENT) {
     setupSwagger(app, port);
+    proxyToFrontendDevServer(app);
   }
 
   if (staticPath) {

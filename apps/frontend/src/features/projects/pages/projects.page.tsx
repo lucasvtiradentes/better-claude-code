@@ -8,8 +8,8 @@ import {
   useGetApiSessionsProjectNameSessionId,
   useGetApiSessionsProjectNameSessionIdPaths,
   useGetApiSettings,
-  usePostApiSessionsProjectNameSessionIdLabels,
-  useInfinitySessions
+  useInfinitySessions,
+  usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
 import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';

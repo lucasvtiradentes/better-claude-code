@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "version": "1.0.0",
     "title": "Better Claude Code API",
-    "description": "API for managing Claude projects, sessions, and settings"
+    "description": "CLI auxiliary tools for Claude Code",
+    "version": "1.0.0"
   },
   "servers": [
     {
