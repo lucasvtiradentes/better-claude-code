@@ -1,9 +1,9 @@
-import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
 import { randomUUID } from 'crypto';
 import { existsSync, readdirSync, readFileSync, unlinkSync } from 'fs';
 import { homedir } from 'os';
 import { basename, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '../../config/constants.js';
 
 import { executePromptNonInteractively } from '../claude.js';
 import { getGitRepoRoot } from '../git.js';

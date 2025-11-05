@@ -6,6 +6,8 @@ import { getPackageJsonPath } from '../utils/paths.js';
 const packageJsonPath = getPackageJsonPath(import.meta.url);
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
+export const CLAUDE_CODE_SESSION_COMPACTION_ID = 'CLAUDE_CODE_SESSION_COMPACTION_ID';
+
 export const APP_INFO = {
   name: 'bcc',
   display_name: 'Better Claude Code',

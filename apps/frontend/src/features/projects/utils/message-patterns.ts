@@ -1,8 +1,6 @@
 import { MESSAGE_PATTERNS } from '@better-claude-code/shared';
 import { MESSAGE_COLORS } from './message-colors';
 
-export { MESSAGE_PATTERNS };
-
 export function getTokenColor(percentage: number): string {
   if (percentage >= 80) return MESSAGE_COLORS.TOKEN_HIGH;
   if (percentage >= 50) return MESSAGE_COLORS.TOKEN_MEDIUM;

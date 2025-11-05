@@ -9,9 +9,9 @@ import {
   formatSearchHighlight,
   formatToolPath,
   formatToolWithQuote,
-  formatUltrathink,
-  MESSAGE_PATTERNS
+  formatUltrathink
 } from '@/features/projects/utils/message-patterns';
+import { MESSAGE_PATTERNS } from '@better-claude-code/shared';
 
 type SessionMessageProps = {
   message: GetApiSessionsProjectNameSessionId200MessagesItem;
