@@ -2,7 +2,7 @@ import { existsSync, openSync, readFileSync, unlinkSync, writeFileSync } from 'n
 import os from 'node:os';
 import { join } from 'node:path';
 import { BackendEnvSchema, NodeEnv } from '@better-claude-code/node-utils';
-import { BACKEND_PORT } from '@better-claude-code/shared';
+import { BACKEND_PORT, createLocalHostLink } from '@better-claude-code/shared';
 import { spawn } from 'child_process';
 import { Command } from 'commander';
 import { getCommand } from '../definitions/commands.js';
@@ -87,7 +87,7 @@ async function startServerForeground(port: number): Promise<void> {
     throw new Error(`Frontend not found at ${serverInfo.frontendPath}. Run 'pnpm build' first.`);
   }
 
-  Logger.info(`Starting server on http://localhost:${port}`);
+  Logger.info(`Starting server on ${createLocalHostLink(port)}`);
   Logger.info('Press Ctrl+C to stop');
   Logger.info('');
 
@@ -159,7 +159,7 @@ async function startServerDetached(port: number): Promise<void> {
   savePid(serverProcess.pid as number, port);
 
   Logger.success(`Server started in detached mode (PID: ${serverProcess.pid})`);
-  Logger.info(`Server running on http://localhost:${port}`);
+  Logger.info(`Server running on ${createLocalHostLink(port)}`);
   Logger.info(`Logs: ${logFile}`);
   Logger.info('Use --stop to stop the server');
 }

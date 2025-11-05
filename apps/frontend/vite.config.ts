@@ -1,4 +1,4 @@
-import { API_PREFIX, BACKEND_PORT, FRONTEND_PORT } from '@better-claude-code/shared';
+import { API_PREFIX, BACKEND_PORT, createLocalHostLink, FRONTEND_PORT } from '@better-claude-code/shared';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
@@ -16,7 +16,7 @@ export default defineConfig({
     port: FRONTEND_PORT,
     proxy: {
       [API_PREFIX]: {
-        target: `http://localhost:${BACKEND_PORT}`,
+        target: `${createLocalHostLink(BACKEND_PORT)}`,
         changeOrigin: true
       }
     }

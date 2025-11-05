@@ -1,7 +1,8 @@
+import { BACKEND_PORT, createLocalHostLink } from '@better-claude-code/shared';
 import Axios, { AxiosRequestConfig } from 'axios';
 
 export const AXIOS_INSTANCE = Axios.create({
-  baseURL: 'http://localhost:3001'
+  baseURL: createLocalHostLink(BACKEND_PORT)
 });
 
 export const customInstance = <T>(config: AxiosRequestConfig): Promise<T> => {

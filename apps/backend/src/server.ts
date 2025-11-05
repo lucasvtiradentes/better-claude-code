@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { NodeEnv } from '@better-claude-code/node-utils';
-import { API_PREFIX } from '@better-claude-code/shared';
+import { API_PREFIX, createLocalHostLink } from '@better-claude-code/shared';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { swaggerUI } from '@hono/swagger-ui';
@@ -48,7 +48,7 @@ export const getSwaggerConfig = (port: number) => ({
   },
   servers: [
     {
-      url: `http://localhost:${port}`,
+      url: createLocalHostLink(port),
       description: 'Local development server'
     }
   ]

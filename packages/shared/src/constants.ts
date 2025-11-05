@@ -11,3 +11,5 @@ export const FRONTEND_PORT = 5001;
 export const BACKEND_PORT = 5002;
 
 export const API_PREFIX = '/api';
+
+export const createLocalHostLink = (port: number, sufix?: string) => `http:/localhost:${port}${sufix}`;
