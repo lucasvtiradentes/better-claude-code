@@ -1,6 +1,6 @@
+import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
-import { homedir } from 'os';
 import { join } from 'path';
 import { ConfigManager } from '../../config/config-manager.js';
 import { MessageCountMode, TitleMessage } from '../../config/types.js';
@@ -28,7 +28,7 @@ function normalizePathForClaudeProjects(dirPath: string): string {
 }
 
 export async function getProjectDir(): Promise<string> {
-  const claudeDir = join(homedir(), '.claude');
+  const claudeDir = ClaudeHelper.getClaudeDir();
 
   let currentDir: string;
   try {

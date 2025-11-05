@@ -1,5 +1,6 @@
 import { accessSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
 import os from 'os';
@@ -50,7 +51,7 @@ export const route = createRoute({
 
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
-    const projectsPath = join(os.homedir(), '.claude', 'projects');
+    const projectsPath = ClaudeHelper.getProjectsDir();
     const folders = await readdirSync(projectsPath);
 
     const settings = await readSettings();

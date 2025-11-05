@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
+import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
 import { getRealPathFromSession } from '../utils.js';
@@ -82,7 +82,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       return c.json({ error: 'Path parameter is required' } satisfies z.infer<typeof ErrorSchema>, 400);
     }
 
-    const projectPath = join(os.homedir(), '.claude', 'projects', projectName);
+    const projectPath = ClaudeHelper.getProjectDir(projectName);
     const realProjectPath = await getRealPathFromSession(projectPath);
 
     if (!realProjectPath) {

@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema, PaginationMetaSchema } from '../../common/schemas.js';
 import { isCompactionSession } from '../../common/utils/session-filter.js';
@@ -71,7 +71,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const { projectName } = c.req.valid('param');
     const { page, limit, search, sortBy } = c.req.valid('query');
 
-    const sessionsPath = join(os.homedir(), '.claude', 'projects', projectName);
+    const sessionsPath = ClaudeHelper.getProjectDir(projectName);
     const files = readdirSync(sessionsPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 

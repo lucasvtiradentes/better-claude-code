@@ -1,7 +1,6 @@
 import { unlinkSync } from 'node:fs';
-import { join } from 'node:path';
+import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema, SuccessSchema } from '../../common/schemas.js';
 
@@ -44,8 +43,8 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const { projectName, sessionId } = c.req.valid('param');
-    const filePath = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
-    const metadataPath = join(os.homedir(), '.claude', 'projects', projectName, '.metadata', `${sessionId}.json`);
+    const filePath = ClaudeHelper.getSessionPath(projectName, sessionId);
+    const metadataPath = ClaudeHelper.getSessionMetadataPath(projectName, sessionId);
 
     await unlinkSync(filePath);
 

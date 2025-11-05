@@ -1,7 +1,6 @@
-import { generateUuid } from '@better-claude-code/node-utils';
+import { ClaudeHelper, generateUuid } from '@better-claude-code/node-utils';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
 import { existsSync, readdirSync, readFileSync, unlinkSync } from 'fs';
-import { homedir } from 'os';
 import { basename, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -36,7 +35,7 @@ export async function compactSession(parsedFile: string, outputFile: string): Pr
     currentDir = process.cwd();
   }
 
-  const claudeDir = join(homedir(), '.claude');
+  const claudeDir = ClaudeHelper.getClaudeDir();
   const projectDir = join(claudeDir, 'projects', currentDir.replace(/\/_/g, '--').replace(/\//g, '-'));
 
   if (!existsSync(projectDir)) {

@@ -1,7 +1,7 @@
 import { accessSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
+import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
 import { extractPathsFromText, extractTextContent, getRealPathFromSession } from '../utils.js';
@@ -58,12 +58,12 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const { projectName, sessionId } = c.req.valid('param');
-    const sessionFile = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
+    const sessionFile = ClaudeHelper.getSessionPath(projectName, sessionId);
 
     const content = readFileSync(sessionFile, 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
 
-    const projectPath = join(os.homedir(), '.claude', 'projects', projectName);
+    const projectPath = ClaudeHelper.getProjectDir(projectName);
     const realProjectPath = await getRealPathFromSession(projectPath);
 
     if (!realProjectPath) {

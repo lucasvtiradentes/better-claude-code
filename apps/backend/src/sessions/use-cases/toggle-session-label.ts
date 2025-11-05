@@ -1,7 +1,7 @@
 import { accessSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
+import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
 
@@ -80,8 +80,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       return c.json({ error: 'labelId is required' } satisfies z.infer<typeof ErrorSchema>, 400);
     }
 
-    const sessionsPath = join(os.homedir(), '.claude', 'projects', projectName);
-    const sessionFile = join(sessionsPath, `${sessionId}.jsonl`);
+    const sessionFile = ClaudeHelper.getSessionPath(projectName, sessionId);
 
     try {
       accessSync(sessionFile);
@@ -89,7 +88,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       return c.json({ error: 'Session not found' } satisfies z.infer<typeof ErrorSchema>, 404);
     }
 
-    const metadataPath = join(sessionsPath, '.metadata', `${sessionId}.json`);
+    const metadataPath = ClaudeHelper.getSessionMetadataPath(projectName, sessionId);
 
     mkdirSync(dirname(metadataPath), { recursive: true });
 
