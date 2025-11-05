@@ -65,13 +65,12 @@ function copyRecursive(src: string, dest: string): void {
 }
 
 function replaceInFile(filePath: string) {
-  const content = readFileSync(filePath, 'utf-8');
-  const updated = content.replace(/from ['"]@better-claude-code\/shared['"]/g, "from '../shared/index.js'");
+  let content = readFileSync(filePath, 'utf-8');
 
-  if (content !== updated) {
-    writeFileSync(filePath, updated, 'utf-8');
-    console.log(`✅ Fixed imports in ${filePath}`);
-  }
+  content = content.replace(/from ['"]@better-claude-code\/shared['"]/g, "from '../shared/index.js'");
+  content = content.replace(/from ['"]@better-claude-code\/node-utils['"]/g, "from '../node-utils/index.js'");
+
+  writeFileSync(filePath, content, 'utf-8');
 }
 
 function processDirectory(dir: string) {

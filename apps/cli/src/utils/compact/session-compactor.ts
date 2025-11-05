@@ -1,5 +1,5 @@
+import { generateUuid } from '@better-claude-code/node-utils';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
-import { randomUUID } from 'crypto';
 import { existsSync, readdirSync, readFileSync, unlinkSync } from 'fs';
 import { homedir } from 'os';
 import { basename, dirname, join } from 'path';
@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export async function compactSession(parsedFile: string, outputFile: string): Promise<void> {
-  const cleanupUuid = randomUUID();
+  const cleanupUuid = generateUuid();
 
   const promptTemplatePath = join(__dirname, '../../prompts/session-compation.prompt.md');
   let promptTemplate = readFileSync(promptTemplatePath, 'utf-8');

@@ -62,10 +62,12 @@ if (existsSync(cliDistScriptsFolder)) {
 const backendDistSrc = join(repoRoot, 'apps/backend/dist');
 const frontendDistSrc = join(repoRoot, 'apps/frontend/dist');
 const sharedDistSrc = join(repoRoot, 'packages/shared/dist');
+const nodeUtilsDistSrc = join(repoRoot, 'packages/node-utils/dist');
 
 const backendDistDest = join(cliDistRoot, 'backend');
 const frontendDistDest = join(cliDistRoot, 'frontend');
 const sharedDistDest = join(cliDistRoot, 'shared');
+const nodeUtilsDistDest = join(cliDistRoot, 'node-utils');
 
 console.log('Step 2: Copying server files to CLI dist...');
 
@@ -81,13 +83,17 @@ function fixImportsInDirectory(dir: string) {
     if (stat.isDirectory()) {
       fixImportsInDirectory(fullPath);
     } else if (file.endsWith('.js')) {
-      const content = readFileSync(fullPath, 'utf-8');
-      const relativePath = relative(dirname(fullPath), sharedDistDest);
-      const importPath = `${relativePath.replace(/\\/g, '/')}/index.js`;
-      const updated = content.replace(/from ['"]@better-claude-code\/shared['"]/g, `from '${importPath}'`);
-      if (content !== updated) {
-        writeFileSync(fullPath, updated, 'utf-8');
-      }
+      let content = readFileSync(fullPath, 'utf-8');
+
+      const sharedRelativePath = relative(dirname(fullPath), sharedDistDest);
+      const sharedImportPath = `${sharedRelativePath.replace(/\\/g, '/')}/index.js`;
+      content = content.replace(/from ['"]@better-claude-code\/shared['"]/g, `from '${sharedImportPath}'`);
+
+      const nodeUtilsRelativePath = relative(dirname(fullPath), nodeUtilsDistDest);
+      const nodeUtilsImportPath = `${nodeUtilsRelativePath.replace(/\\/g, '/')}/index.js`;
+      content = content.replace(/from ['"]@better-claude-code\/node-utils['"]/g, `from '${nodeUtilsImportPath}'`);
+
+      writeFileSync(fullPath, content, 'utf-8');
     }
   }
 }
@@ -118,6 +124,14 @@ if (existsSync(sharedDistSrc)) {
   console.log('✅ Shared copied');
 } else {
   console.warn(`⚠️  Shared dist not found at ${sharedDistSrc}`);
+}
+
+if (existsSync(nodeUtilsDistSrc)) {
+  console.log(`Copying node-utils from ${nodeUtilsDistSrc} to ${nodeUtilsDistDest}`);
+  copyRecursive(nodeUtilsDistSrc, nodeUtilsDistDest);
+  console.log('✅ Node-utils copied');
+} else {
+  console.warn(`⚠️  Node-utils dist not found at ${nodeUtilsDistSrc}`);
 }
 
 const promptsSrc = join(cliRoot, 'src/prompts');
