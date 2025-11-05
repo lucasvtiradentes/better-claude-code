@@ -3,13 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "main": "./dist/server.js",
+  "main": "./dist/main.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx watch src/main.ts",
     "build": "rimraf ./dist && tsc",
     "postbuild": "tsx scripts/postbuild.ts && npm run script:swagger",
     "script:swagger": "tsx scripts/generate-swagger.ts",
-    "start": "node dist/server.js",
+    "start": "node dist/main.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

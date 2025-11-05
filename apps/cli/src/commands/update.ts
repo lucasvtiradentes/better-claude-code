@@ -7,7 +7,7 @@ import { createCommandFromSchema } from '../definitions/command-builder.js';
 import { CommandNames } from '../definitions/types.js';
 import { Logger } from '../utils/logger.js';
 import { getPackageJsonPath } from '../utils/paths.js';
-import { reinstallCompletionSilently } from './completion.js';
+import { detectShell, reinstallCompletionSilently } from './completion.js';
 
 export function createUpdateCommand(): Command {
   const updateCommand = async () => {
@@ -68,7 +68,7 @@ export function createUpdateCommand(): Command {
       Logger.info('');
       Logger.info('To activate the updated completion, run:');
 
-      const currentShell = process.env.SHELL || '';
+      const currentShell = detectShell();
       if (currentShell.includes('zsh')) {
         Logger.info('  exec zsh');
       } else if (currentShell.includes('bash')) {

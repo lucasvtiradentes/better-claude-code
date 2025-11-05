@@ -7,6 +7,7 @@ import { ConfigManager } from '../config/config-manager.js';
 import { createCommandFromSchema, createSubCommandFromSchema } from '../definitions/command-builder.js';
 import { generateBashCompletion, generateZshCompletion } from '../definitions/generators/completion-generator.js';
 import { CommandNames, SubCommandNames } from '../definitions/types.js';
+import { ENV } from '../env.js';
 import { colors } from '../utils/colors.js';
 import { Logger } from '../utils/logger.js';
 
@@ -51,8 +52,8 @@ export function createCompletionCommand(): Command {
   return completion;
 }
 
-function detectShell(): string {
-  const shell = process.env.SHELL || '';
+export function detectShell(): string {
+  const shell = ENV.SHELL || '';
 
   if (shell.includes('zsh')) {
     return 'zsh';
@@ -60,7 +61,7 @@ function detectShell(): string {
     return 'bash';
   }
 
-  return 'zsh';
+  return '';
 }
 
 async function installZshCompletion(): Promise<void> {

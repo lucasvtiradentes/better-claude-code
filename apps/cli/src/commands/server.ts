@@ -1,6 +1,8 @@
 import { existsSync, openSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import { join } from 'node:path';
+import { BackendEnvSchema, NodeEnv } from '@better-claude-code/node-utils';
+import { BACKEND_PORT } from '@better-claude-code/shared';
 import { spawn } from 'child_process';
 import { Command } from 'commander';
 import { getCommand } from '../definitions/commands.js';
@@ -57,35 +59,41 @@ function isProcessRunning(pid: number): boolean {
   }
 }
 
-function getServerPaths() {
+function getServerInfo() {
+  const frontendPath = getDistPath(import.meta.url, 'frontend');
+
+  const backendEnv: BackendEnvSchema = {
+    ...process.env,
+    NODE_ENV: process.env.NODE_ENV as NodeEnv,
+    SERVER_PORT: BACKEND_PORT,
+    FRONTEND_STATIC_PATH: frontendPath
+  };
+
   return {
-    backendPath: getDistPath(import.meta.url, 'backend', 'server.js'),
-    frontendPath: getDistPath(import.meta.url, 'frontend')
+    backendPath: getDistPath(import.meta.url, 'backend', 'main.js'),
+    frontendPath,
+    backendEnv: backendEnv
   };
 }
 
 async function startServerForeground(port: number): Promise<void> {
-  const paths = getServerPaths();
+  const serverInfo = getServerInfo();
 
-  if (!existsSync(paths.backendPath)) {
-    throw new Error(`Backend not found at ${paths.backendPath}. Run 'pnpm build' first.`);
+  if (!existsSync(serverInfo.backendPath)) {
+    throw new Error(`Backend not found at ${serverInfo.backendPath}. Run 'pnpm build' first.`);
   }
 
-  if (!existsSync(paths.frontendPath)) {
-    throw new Error(`Frontend not found at ${paths.frontendPath}. Run 'pnpm build' first.`);
+  if (!existsSync(serverInfo.frontendPath)) {
+    throw new Error(`Frontend not found at ${serverInfo.frontendPath}. Run 'pnpm build' first.`);
   }
 
   Logger.info(`Starting server on http://localhost:${port}`);
   Logger.info('Press Ctrl+C to stop');
   Logger.info('');
 
-  const serverProcess = spawn('node', [paths.backendPath], {
+  const serverProcess = spawn('node', [serverInfo.backendPath], {
     stdio: 'inherit',
-    env: {
-      ...process.env,
-      PORT: port.toString(),
-      STATIC_PATH: paths.frontendPath
-    }
+    env: serverInfo.backendEnv as unknown as Record<keyof BackendEnvSchema, string>
   });
 
   const cleanup = () => {
@@ -122,7 +130,7 @@ async function startServerDetached(port: number): Promise<void> {
     return;
   }
 
-  const paths = getServerPaths();
+  const paths = getServerInfo();
 
   if (!existsSync(paths.backendPath)) {
     throw new Error(`Backend not found at ${paths.backendPath}. Run 'pnpm build' first.`);

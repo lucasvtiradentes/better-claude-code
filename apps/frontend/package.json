@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "start": "vite preview",
     "dev": "vite",
     "build": "pnpm generate-api && tsc && vite build",
-    "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "generate-api": "orval"
   },
