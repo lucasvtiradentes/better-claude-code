@@ -35,8 +35,8 @@ export async function compactSession(parsedFile: string, outputFile: string): Pr
     currentDir = process.cwd();
   }
 
-  const claudeDir = ClaudeHelper.getClaudeDir();
-  const projectDir = join(claudeDir, 'projects', currentDir.replace(/\/_/g, '--').replace(/\//g, '-'));
+  const normalized = ClaudeHelper.normalizePathForClaudeProjects(currentDir);
+  const projectDir = join(ClaudeHelper.getProjectsDir(), normalized);
 
   if (!existsSync(projectDir)) {
     return;

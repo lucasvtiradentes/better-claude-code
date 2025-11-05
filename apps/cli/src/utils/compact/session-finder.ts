@@ -23,13 +23,7 @@ function getCurrentDirectory(): string {
   return process.cwd();
 }
 
-function normalizePathForClaudeProjects(dirPath: string): string {
-  return dirPath.replace(/\/_/g, '--').replace(/\//g, '-').replace(/_/g, '-');
-}
-
 export async function getProjectDir(): Promise<string> {
-  const claudeDir = ClaudeHelper.getClaudeDir();
-
   let currentDir: string;
   try {
     currentDir = await getGitRepoRoot();
@@ -37,8 +31,8 @@ export async function getProjectDir(): Promise<string> {
     currentDir = getCurrentDirectory();
   }
 
-  const normalized = normalizePathForClaudeProjects(currentDir);
-  const projectDir = join(claudeDir, 'projects', normalized);
+  const normalized = ClaudeHelper.normalizePathForClaudeProjects(currentDir);
+  const projectDir = join(ClaudeHelper.getProjectsDir(), normalized);
   return projectDir;
 }
 
