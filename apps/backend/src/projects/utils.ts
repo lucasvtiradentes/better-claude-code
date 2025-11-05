@@ -1,5 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { promises as fs } from 'fs';
 import os from 'os';
 import { execAsync } from '../common/utils/exec.js';
 
@@ -34,7 +34,7 @@ const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 
 export async function readSettings(): Promise<AppSettings | null> {
   try {
-    const content = await fs.readFile(SETTINGS_PATH, 'utf-8');
+    const content = readFileSync(SETTINGS_PATH, 'utf-8');
     return JSON.parse(content);
   } catch {
     return null;
@@ -43,13 +43,13 @@ export async function readSettings(): Promise<AppSettings | null> {
 
 export async function getRealPathFromSession(folderPath: string): Promise<string | null> {
   try {
-    const files = await fs.readdir(folderPath);
+    const files = readdirSync(folderPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
     if (sessionFiles.length === 0) return null;
 
     const firstSession = join(folderPath, sessionFiles[0]);
-    const content = await fs.readFile(firstSession, 'utf-8');
+    const content = readFileSync(firstSession, 'utf-8');
     const lines = content.split('\n');
 
     for (const line of lines) {

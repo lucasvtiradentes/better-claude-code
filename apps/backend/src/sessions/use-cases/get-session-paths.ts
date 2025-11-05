@@ -1,6 +1,6 @@
+import { accessSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
@@ -60,7 +60,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const { projectName, sessionId } = c.req.valid('param');
     const sessionFile = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
 
-    const content = await fs.readFile(sessionFile, 'utf-8');
+    const content = readFileSync(sessionFile, 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
 
     const projectPath = join(os.homedir(), '.claude', 'projects', projectName);
@@ -93,7 +93,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
           if (!fullPath.startsWith(realProjectPath)) {
             return { path: pathStr, exists: false };
           }
-          await fs.access(fullPath);
+          accessSync(fullPath);
           return { path: pathStr, exists: true };
         } catch {
           return { path: pathStr, exists: false };

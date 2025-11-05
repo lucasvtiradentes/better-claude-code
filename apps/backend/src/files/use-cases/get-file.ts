@@ -1,5 +1,5 @@
+import { lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import { extname, isAbsolute } from 'path';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
@@ -73,10 +73,10 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       return c.json({ error: 'Path must be absolute' } satisfies z.infer<typeof ErrorSchema>, 400);
     }
 
-    const content = await fs.readFile(filePath, 'utf-8');
-    const stats = await fs.lstat(filePath);
+    const content = readFileSync(filePath, 'utf-8');
+    const stats = lstatSync(filePath);
     const isSymlink = stats.isSymbolicLink();
-    const realPath = isSymlink ? await fs.realpath(filePath) : filePath;
+    const realPath = isSymlink ? realpathSync(filePath) : filePath;
     const extension = extname(filePath);
 
     return c.json(

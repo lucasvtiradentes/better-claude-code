@@ -1,6 +1,6 @@
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
@@ -52,7 +52,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const filePath = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
 
-    const content = await fs.readFile(filePath, 'utf-8');
+    const content = readFileSync(filePath, 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
 
     const images: Array<{ index: number; data: string }> = [];

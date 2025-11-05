@@ -1,5 +1,5 @@
+import { accessSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { promises as fs } from 'fs';
 import os from 'os';
 
 type AppSettings = {
@@ -63,16 +63,16 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 async function ensureSettingsFile(): Promise<void> {
   try {
-    await fs.mkdir(dirname(SETTINGS_PATH), { recursive: true });
-    await fs.access(SETTINGS_PATH);
+    mkdirSync(dirname(SETTINGS_PATH), { recursive: true });
+    accessSync(SETTINGS_PATH);
   } catch {
-    await fs.writeFile(SETTINGS_PATH, JSON.stringify(DEFAULT_SETTINGS, null, 2));
+    writeFileSync(SETTINGS_PATH, JSON.stringify(DEFAULT_SETTINGS, null, 2));
   }
 }
 
 export async function readSettings(): Promise<AppSettings> {
   await ensureSettingsFile();
-  const content = await fs.readFile(SETTINGS_PATH, 'utf-8');
+  const content = readFileSync(SETTINGS_PATH, 'utf-8');
   const settings = JSON.parse(content) as Partial<AppSettings>;
 
   let needsUpdate = false;
@@ -95,5 +95,5 @@ export async function readSettings(): Promise<AppSettings> {
 }
 
 export async function writeSettings(settings: AppSettings): Promise<void> {
-  await fs.writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
 }

@@ -1,5 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { promises as fs } from 'fs';
 
 const MESSAGE_PATTERNS = {
   FILE_OR_FOLDER_SLASH: /\/([\w\-./]+)/g,
@@ -28,13 +28,13 @@ export function extractPathsFromText(text: string): string[] {
 
 export async function getRealPathFromSession(folderPath: string): Promise<string | null> {
   try {
-    const files = await fs.readdir(folderPath);
+    const files = readdirSync(folderPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
     if (sessionFiles.length === 0) return null;
 
     const firstSession = join(folderPath, sessionFiles[0]);
-    const content = await fs.readFile(firstSession, 'utf-8');
+    const content = readFileSync(firstSession, 'utf-8');
     const lines = content.split('\n');
 
     for (const line of lines) {

@@ -1,3 +1,4 @@
+import { accessSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
@@ -50,7 +51,7 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const projectsPath = join(os.homedir(), '.claude', 'projects');
-    const folders = await fs.readdir(projectsPath);
+    const folders = await readdirSync(projectsPath);
 
     const settings = await readSettings();
 
@@ -58,7 +59,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     for (const folder of folders) {
       const folderPath = join(projectsPath, folder);
-      const stats = await fs.stat(folderPath);
+      const stats = await statSync(folderPath);
 
       if (!stats.isDirectory()) continue;
 
@@ -73,14 +74,14 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
       const sessionsCount = sessionFiles.length;
 
-      const fileStats = await Promise.all(sessionFiles.map((f) => fs.stat(join(folderPath, f)).then((s) => s.mtimeMs)));
+      const fileStats = sessionFiles.map((f) => statSync(join(folderPath, f)).mtimeMs);
       const lastModified = Math.max(...fileStats, stats.mtimeMs);
 
       let isGitRepo = false;
       let githubUrl: string | undefined;
       let currentBranch: string | undefined;
       try {
-        await fs.access(join(realPath, '.git'));
+        accessSync(join(realPath, '.git'));
         isGitRepo = true;
         githubUrl = await getGitHubUrl(realPath);
         currentBranch = await getCurrentBranch(realPath);

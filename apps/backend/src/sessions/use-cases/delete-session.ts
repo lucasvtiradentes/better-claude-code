@@ -1,6 +1,6 @@
+import { unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema, SuccessSchema } from '../../common/schemas.js';
@@ -47,10 +47,10 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const filePath = join(os.homedir(), '.claude', 'projects', projectName, `${sessionId}.jsonl`);
     const metadataPath = join(os.homedir(), '.claude', 'projects', projectName, '.metadata', `${sessionId}.json`);
 
-    await fs.unlink(filePath);
+    await unlinkSync(filePath);
 
     try {
-      await fs.unlink(metadataPath);
+      await unlinkSync(metadataPath);
     } catch {}
 
     return c.json({ success: true } satisfies z.infer<typeof responseSchema>, 200);

@@ -1,6 +1,6 @@
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema, PaginationMetaSchema } from '../../common/schemas.js';
@@ -72,14 +72,14 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const { page, limit, search, sortBy } = c.req.valid('query');
 
     const sessionsPath = join(os.homedir(), '.claude', 'projects', projectName);
-    const files = await fs.readdir(sessionsPath);
+    const files = readdirSync(sessionsPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
     const sessions: any[] = [];
 
     for (const file of sessionFiles) {
       const filePath = join(sessionsPath, file);
-      const content = await fs.readFile(filePath, 'utf-8');
+      const content = readFileSync(filePath, 'utf-8');
       const lines = content.trim().split('\n').filter(Boolean);
 
       if (isCompactionSession(lines)) continue;
@@ -148,7 +148,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         searchMatchCount = contentMatches + (titleMatch ? 1 : 0);
       }
 
-      const stats = await fs.stat(filePath);
+      const stats = statSync(filePath);
 
       let imageCount = 0;
       let customCommandCount = 0;
@@ -189,7 +189,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
       let labels: string[] | undefined;
       try {
-        const metadataContent = await fs.readFile(metadataPath, 'utf-8');
+        const metadataContent = readFileSync(metadataPath, 'utf-8');
         const metadata = JSON.parse(metadataContent);
         labels = metadata.labels?.length > 0 ? metadata.labels : undefined;
       } catch {}

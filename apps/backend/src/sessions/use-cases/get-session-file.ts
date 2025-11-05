@@ -1,6 +1,6 @@
+import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
@@ -95,7 +95,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       return c.json({ error: 'Access denied' } satisfies z.infer<typeof ErrorSchema>, 403);
     }
 
-    const content = await fs.readFile(fullPath, 'utf-8');
+    const content = await readFileSync(fullPath, 'utf-8');
     return c.json({ content } satisfies z.infer<typeof responseSchema>, 200);
   } catch {
     return c.json({ error: 'Failed to read file' } satisfies z.infer<typeof ErrorSchema>, 500);

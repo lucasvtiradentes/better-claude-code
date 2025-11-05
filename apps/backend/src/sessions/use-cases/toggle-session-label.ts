@@ -1,6 +1,6 @@
+import { accessSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
@@ -84,18 +84,18 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const sessionFile = join(sessionsPath, `${sessionId}.jsonl`);
 
     try {
-      await fs.access(sessionFile);
+      accessSync(sessionFile);
     } catch {
       return c.json({ error: 'Session not found' } satisfies z.infer<typeof ErrorSchema>, 404);
     }
 
     const metadataPath = join(sessionsPath, '.metadata', `${sessionId}.json`);
 
-    await fs.mkdir(dirname(metadataPath), { recursive: true });
+    mkdirSync(dirname(metadataPath), { recursive: true });
 
     let metadata: { labels?: string[] } = {};
     try {
-      const content = await fs.readFile(metadataPath, 'utf-8');
+      const content = readFileSync(metadataPath, 'utf-8');
       metadata = JSON.parse(content);
     } catch {
       metadata = { labels: [] };
@@ -112,7 +112,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       metadata.labels = [];
     }
 
-    await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+    writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
 
     return c.json({ success: true, labels: metadata.labels } satisfies z.infer<typeof responseSchema>, 200);
   } catch (error) {

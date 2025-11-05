@@ -1,7 +1,7 @@
+import { readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { FolderEntry } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
@@ -102,7 +102,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       return c.json({ error: 'Access denied' } satisfies z.infer<typeof ErrorSchema>, 403);
     }
 
-    const dirEntries = await fs.readdir(fullPath, { withFileTypes: true });
+    const dirEntries = readdirSync(fullPath, { withFileTypes: true });
     const entries = dirEntries
       .filter((entry) => !entry.name.startsWith('.'))
       .map((entry) => ({

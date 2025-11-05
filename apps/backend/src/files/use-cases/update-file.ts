@@ -1,5 +1,5 @@
+import { lstatSync, realpathSync, writeFileSync } from 'node:fs';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import { isAbsolute } from 'path';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
@@ -81,10 +81,10 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       return c.json({ error: 'Content must be a string' } satisfies z.infer<typeof ErrorSchema>, 400);
     }
 
-    const stats = await fs.lstat(filePath);
-    const targetPath = stats.isSymbolicLink() ? await fs.realpath(filePath) : filePath;
+    const stats = lstatSync(filePath);
+    const targetPath = stats.isSymbolicLink() ? realpathSync(filePath) : filePath;
 
-    await fs.writeFile(targetPath, content, 'utf-8');
+    writeFileSync(targetPath, content, 'utf-8');
 
     return c.json({ success: true, path: targetPath } satisfies z.infer<typeof responseSchema>, 200);
   } catch (error) {
