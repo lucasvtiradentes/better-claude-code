@@ -2,7 +2,7 @@ import { defineConfig } from 'orval';
 
 export default defineConfig({
   api: {
-    input: '../backend/swagger.json',
+    input: '../backend/_generated/swagger.json',
     output: {
       mode: 'tags-split',
       target: './src/api/_generated/generated.ts',

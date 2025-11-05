@@ -13,6 +13,6 @@ console.log('Generating swagger.json...');
 const app = createServer(ENV.SERVER_PORT);
 const openapiSpec = app.getOpenAPI31Document(getSwaggerConfig(ENV.SERVER_PORT));
 
-const swaggerPath = join(backendPath, 'swagger.json');
+const swaggerPath = join(backendPath, '_generated', 'swagger.json');
 writeFileSync(swaggerPath, JSON.stringify(openapiSpec, null, 2), 'utf-8');
 console.log(`✅ Generated swagger.json at ${swaggerPath}`);
