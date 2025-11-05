@@ -1,4 +1,3 @@
-import type { ProjectLabel } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema, ProjectLabelSchema } from '../../common/schemas.js';
@@ -53,7 +52,7 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const settings = await readSettings();
-    const newLabel: ProjectLabel = c.req.valid('json');
+    const newLabel = c.req.valid('json');
 
     if (!newLabel.id || !newLabel.name || !newLabel.color) {
       return c.json({ error: 'Invalid label data' } satisfies z.infer<typeof ErrorSchema>, 400);

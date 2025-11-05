@@ -1,13 +1,13 @@
-import type { SessionsConfig } from '@better-claude-code/shared';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useGetApiSettings, usePatchApiSettings } from '@/api';
+import type { GetApiSettings200Sessions } from '@/api/_generated/schemas';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type SettingsFormData = {
-  groupBy: SessionsConfig['groupBy'];
+  groupBy: GetApiSettings200Sessions['groupBy'];
   showTokenPercentage: boolean;
   showAttachments: boolean;
 };
@@ -44,7 +44,7 @@ export const SessionSettingsTab = () => {
         data: {
           sessions: {
             ...settings,
-            groupBy: value as SessionsConfig['groupBy']
+            groupBy: value as GetApiSettings200Sessions['groupBy']
           }
         }
       });

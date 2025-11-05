@@ -1,11 +1,12 @@
 import { dirname, join } from 'node:path';
-import type { AppSettings } from '@better-claude-code/shared';
 import { promises as fs } from 'fs';
 import os from 'os';
+import type { z } from 'zod';
+import { AppSettingsSchema } from './schemas.js';
 
 const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 
-const DEFAULT_SETTINGS: AppSettings = {
+const DEFAULT_SETTINGS: z.infer<typeof AppSettingsSchema> = {
   projects: {
     groupBy: 'date',
     filters: {
@@ -44,10 +45,10 @@ async function ensureSettingsFile(): Promise<void> {
   }
 }
 
-export async function readSettings(): Promise<AppSettings> {
+export async function readSettings(): Promise<z.infer<typeof AppSettingsSchema>> {
   await ensureSettingsFile();
   const content = await fs.readFile(SETTINGS_PATH, 'utf-8');
-  const settings = JSON.parse(content) as Partial<AppSettings>;
+  const settings = JSON.parse(content) as Partial<z.infer<typeof AppSettingsSchema>>;
 
   let needsUpdate = false;
 
@@ -62,12 +63,12 @@ export async function readSettings(): Promise<AppSettings> {
   }
 
   if (needsUpdate) {
-    await writeSettings(settings as AppSettings);
+    await writeSettings(settings as z.infer<typeof AppSettingsSchema>);
   }
 
-  return settings as AppSettings;
+  return settings as z.infer<typeof AppSettingsSchema>;
 }
 
-export async function writeSettings(settings: AppSettings): Promise<void> {
+export async function writeSettings(settings: z.infer<typeof AppSettingsSchema>): Promise<void> {
   await fs.writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2));
 }

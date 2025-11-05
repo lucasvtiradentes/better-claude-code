@@ -1,13 +1,13 @@
-import type { ProjectsConfig } from '@better-claude-code/shared';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useGetApiSettings, usePatchApiSettings } from '@/api';
+import type { GetApiSettings200Projects } from '@/api/_generated/schemas';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type SettingsFormData = {
-  groupBy: ProjectsConfig['groupBy'];
+  groupBy: GetApiSettings200Projects['groupBy'];
   showSessionCount: boolean;
   showCurrentBranch: boolean;
   showActionButtons: boolean;
@@ -47,7 +47,7 @@ export const SettingsTab = () => {
         data: {
           projects: {
             ...settings,
-            groupBy: value as ProjectsConfig['groupBy']
+            groupBy: value as GetApiSettings200Projects['groupBy']
           }
         }
       });

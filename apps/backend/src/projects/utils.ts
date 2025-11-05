@@ -1,12 +1,13 @@
 import { join } from 'node:path';
-import type { AppSettings } from '@better-claude-code/shared';
 import { promises as fs } from 'fs';
 import os from 'os';
+import type { z } from 'zod';
 import { execAsync } from '../common/utils/exec.js';
+import { AppSettingsSchema } from '../settings/schemas.js';
 
 const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 
-export async function readSettings(): Promise<AppSettings | null> {
+export async function readSettings(): Promise<z.infer<typeof AppSettingsSchema> | null> {
   try {
     const content = await fs.readFile(SETTINGS_PATH, 'utf-8');
     return JSON.parse(content);
