@@ -7,5 +7,5 @@
  */
 
 export type GetApiSessionsProjectNameSessionIdFileParams = {
-  path: string;
+path: string;
 };

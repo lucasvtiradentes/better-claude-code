@@ -6,11 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type GetApiSessionsProjectNameSessionIdFolder200EntriesItemType =
-  (typeof GetApiSessionsProjectNameSessionIdFolder200EntriesItemType)[keyof typeof GetApiSessionsProjectNameSessionIdFolder200EntriesItemType];
+export type GetApiSessionsProjectNameSessionIdFolder200EntriesItemType = typeof GetApiSessionsProjectNameSessionIdFolder200EntriesItemType[keyof typeof GetApiSessionsProjectNameSessionIdFolder200EntriesItemType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const GetApiSessionsProjectNameSessionIdFolder200EntriesItemType = {
   file: 'file',
-  directory: 'directory'
+  directory: 'directory',
 } as const;

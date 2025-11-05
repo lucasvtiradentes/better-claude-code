@@ -55,7 +55,7 @@
     }
   },
   "files": {
-    "includes": ["**/*.ts", "**/*.tsx", "apps/frontend/src/api/_generated"]
+    "includes": ["**/*.ts", "**/*.tsx", "!apps/frontend/src/api/_generated", "!apps/frontend/src/routeTree.gen.ts"]
   },
   "vcs": {
     "enabled": true,

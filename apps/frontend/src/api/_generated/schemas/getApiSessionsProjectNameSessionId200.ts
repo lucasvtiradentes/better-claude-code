@@ -5,9 +5,8 @@
  * API for managing Claude projects, sessions, and settings
  * OpenAPI spec version: 1.0.0
  */
-
-import type { GetApiSessionsProjectNameSessionId200ImagesItem } from './getApiSessionsProjectNameSessionId200ImagesItem';
 import type { GetApiSessionsProjectNameSessionId200MessagesItem } from './getApiSessionsProjectNameSessionId200MessagesItem';
+import type { GetApiSessionsProjectNameSessionId200ImagesItem } from './getApiSessionsProjectNameSessionId200ImagesItem';
 
 export type GetApiSessionsProjectNameSessionId200 = {
   messages: GetApiSessionsProjectNameSessionId200MessagesItem[];

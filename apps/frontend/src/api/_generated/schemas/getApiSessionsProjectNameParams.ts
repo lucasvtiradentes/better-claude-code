@@ -7,8 +7,8 @@
  */
 
 export type GetApiSessionsProjectNameParams = {
-  page?: number | null;
-  limit?: number | null;
-  search?: string;
-  sortBy?: string;
+page?: number | null;
+limit?: number | null;
+search?: string;
+sortBy?: string;
 };

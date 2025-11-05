@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type PatchApiSettings200SessionsGroupBy =
-  (typeof PatchApiSettings200SessionsGroupBy)[keyof typeof PatchApiSettings200SessionsGroupBy];
+export type PatchApiSettings200SessionsGroupBy = typeof PatchApiSettings200SessionsGroupBy[keyof typeof PatchApiSettings200SessionsGroupBy];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PatchApiSettings200SessionsGroupBy = {
   date: 'date',
   'token-percentage': 'token-percentage',
-  label: 'label'
+  label: 'label',
 } as const;

@@ -7,5 +7,5 @@
  */
 
 export type GetApiSessionsProjectNameSessionIdFolderParams = {
-  path: string;
+path: string;
 };

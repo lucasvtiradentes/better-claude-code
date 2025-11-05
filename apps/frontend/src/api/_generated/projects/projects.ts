@@ -5,7 +5,10 @@
  * API for managing Claude projects, sessions, and settings
  * OpenAPI spec version: 1.0.0
  */
-
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -20,10 +23,7 @@ import type {
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import type { ErrorType } from '../../custom-instance';
 
-import { customInstance } from '../../custom-instance';
 import type {
   GetApiProjects200Item,
   GetApiProjects500,
@@ -33,181 +33,153 @@ import type {
   PostApiProjectsProjectIdActionAction500
 } from '.././schemas';
 
-export const getApiProjects = (signal?: AbortSignal) => {
-  return customInstance<GetApiProjects200Item[]>({ url: `/api/projects`, method: 'GET', signal });
-};
+import { customInstance } from '../../custom-instance';
+import type { ErrorType } from '../../custom-instance';
+
+
+
+
+export const getApiProjects = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<GetApiProjects200Item[]>(
+      {url: `/api/projects`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
 
 export const getGetApiProjectsQueryKey = () => {
-  return [`/api/projects`] as const;
-};
+    return [
+    `/api/projects`
+    ] as const;
+    }
 
-export const getGetApiProjectsQueryOptions = <
-  TData = Awaited<ReturnType<typeof getApiProjects>>,
-  TError = ErrorType<GetApiProjects500>
->(options?: {
-  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>>;
-}) => {
-  const { query: queryOptions } = options ?? {};
+    
+export const getGetApiProjectsQueryOptions = <TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>>, }
+) => {
 
-  const queryKey = queryOptions?.queryKey ?? getGetApiProjectsQueryKey();
+const {query: queryOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiProjects>>> = ({ signal }) => getApiProjects(signal);
+  const queryKey =  queryOptions?.queryKey ?? getGetApiProjectsQueryKey();
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getApiProjects>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  
 
-export type GetApiProjectsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiProjects>>>;
-export type GetApiProjectsQueryError = ErrorType<GetApiProjects500>;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiProjects>>> = ({ signal }) => getApiProjects(signal);
 
-export function useGetApiProjects<
-  TData = Awaited<ReturnType<typeof getApiProjects>>,
-  TError = ErrorType<GetApiProjects500>
->(
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>> &
-      Pick<
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiProjectsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiProjects>>>
+export type GetApiProjectsQueryError = ErrorType<GetApiProjects500>
+
+
+export function useGetApiProjects<TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiProjects>>,
           TError,
           Awaited<ReturnType<typeof getApiProjects>>
-        >,
-        'initialData'
-      >;
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGetApiProjects<
-  TData = Awaited<ReturnType<typeof getApiProjects>>,
-  TError = ErrorType<GetApiProjects500>
->(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>> &
-      Pick<
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiProjects<TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiProjects>>,
           TError,
           Awaited<ReturnType<typeof getApiProjects>>
-        >,
-        'initialData'
-      >;
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGetApiProjects<
-  TData = Awaited<ReturnType<typeof getApiProjects>>,
-  TError = ErrorType<GetApiProjects500>
->(
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>> },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiProjects<TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiProjects<
-  TData = Awaited<ReturnType<typeof getApiProjects>>,
-  TError = ErrorType<GetApiProjects500>
->(
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>> },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getGetApiProjectsQueryOptions(options);
+export function useGetApiProjects<TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getGetApiProjectsQueryOptions(options)
 
-  query.queryKey = queryOptions.queryKey;
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
 
   return query;
 }
 
+
+
+
 export const postApiProjectsProjectIdActionAction = (
-  projectId: string,
-  action: 'openFolder' | 'openCodeEditor' | 'openTerminal',
-  signal?: AbortSignal
+    projectId: string,
+    action: 'openFolder' | 'openCodeEditor' | 'openTerminal',
+ signal?: AbortSignal
 ) => {
-  return customInstance<PostApiProjectsProjectIdActionAction200>({
-    url: `/api/projects/${projectId}/action/${action}`,
-    method: 'POST',
-    signal
-  });
-};
+      
+      
+      return customInstance<PostApiProjectsProjectIdActionAction200>(
+      {url: `/api/projects/${projectId}/action/${action}`, method: 'POST', signal
+    },
+      );
+    }
+  
 
-export const getPostApiProjectsProjectIdActionActionMutationOptions = <
-  TError = ErrorType<
-    | PostApiProjectsProjectIdActionAction400
-    | PostApiProjectsProjectIdActionAction404
-    | PostApiProjectsProjectIdActionAction500
-  >,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>,
-    TError,
-    { projectId: string; action: 'openFolder' | 'openCodeEditor' | 'openTerminal' },
-    TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>,
-  TError,
-  { projectId: string; action: 'openFolder' | 'openCodeEditor' | 'openTerminal' },
-  TContext
-> => {
-  const mutationKey = ['postApiProjectsProjectIdActionAction'];
-  const { mutation: mutationOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>,
-    { projectId: string; action: 'openFolder' | 'openCodeEditor' | 'openTerminal' }
-  > = (props) => {
-    const { projectId, action } = props ?? {};
+export const getPostApiProjectsProjectIdActionActionMutationOptions = <TError = ErrorType<PostApiProjectsProjectIdActionAction400 | PostApiProjectsProjectIdActionAction404 | PostApiProjectsProjectIdActionAction500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>, TError,{projectId: string;action: 'openFolder' | 'openCodeEditor' | 'openTerminal'}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>, TError,{projectId: string;action: 'openFolder' | 'openCodeEditor' | 'openTerminal'}, TContext> => {
 
-    return postApiProjectsProjectIdActionAction(projectId, action);
-  };
+const mutationKey = ['postApiProjectsProjectIdActionAction'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
 
-  return { mutationFn, ...mutationOptions };
-};
+      
 
-export type PostApiProjectsProjectIdActionActionMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>
->;
 
-export type PostApiProjectsProjectIdActionActionMutationError = ErrorType<
-  | PostApiProjectsProjectIdActionAction400
-  | PostApiProjectsProjectIdActionAction404
-  | PostApiProjectsProjectIdActionAction500
->;
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>, {projectId: string;action: 'openFolder' | 'openCodeEditor' | 'openTerminal'}> = (props) => {
+          const {projectId,action} = props ?? {};
 
-export const usePostApiProjectsProjectIdActionAction = <
-  TError = ErrorType<
-    | PostApiProjectsProjectIdActionAction400
-    | PostApiProjectsProjectIdActionAction404
-    | PostApiProjectsProjectIdActionAction500
-  >,
-  TContext = unknown
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>,
-      TError,
-      { projectId: string; action: 'openFolder' | 'openCodeEditor' | 'openTerminal' },
-      TContext
-    >;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>,
-  TError,
-  { projectId: string; action: 'openFolder' | 'openCodeEditor' | 'openTerminal' },
-  TContext
-> => {
-  const mutationOptions = getPostApiProjectsProjectIdActionActionMutationOptions(options);
+          return  postApiProjectsProjectIdActionAction(projectId,action,)
+        }
 
-  return useMutation(mutationOptions, queryClient);
-};
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiProjectsProjectIdActionActionMutationResult = NonNullable<Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>>
+    
+    export type PostApiProjectsProjectIdActionActionMutationError = ErrorType<PostApiProjectsProjectIdActionAction400 | PostApiProjectsProjectIdActionAction404 | PostApiProjectsProjectIdActionAction500>
+
+    export const usePostApiProjectsProjectIdActionAction = <TError = ErrorType<PostApiProjectsProjectIdActionAction400 | PostApiProjectsProjectIdActionAction404 | PostApiProjectsProjectIdActionAction500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>, TError,{projectId: string;action: 'openFolder' | 'openCodeEditor' | 'openTerminal'}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiProjectsProjectIdActionAction>>,
+        TError,
+        {projectId: string;action: 'openFolder' | 'openCodeEditor' | 'openTerminal'},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiProjectsProjectIdActionActionMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    

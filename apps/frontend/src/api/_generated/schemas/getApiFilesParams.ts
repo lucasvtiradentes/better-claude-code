@@ -7,5 +7,5 @@
  */
 
 export type GetApiFilesParams = {
-  path: string;
+path: string;
 };

@@ -5,7 +5,10 @@
  * API for managing Claude projects, sessions, and settings
  * OpenAPI spec version: 1.0.0
  */
-
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -20,10 +23,7 @@ import type {
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import type { ErrorType } from '../../custom-instance';
 
-import { customInstance } from '../../custom-instance';
 import type {
   DeleteApiSettingsLabelsLabelId200,
   DeleteApiSettingsLabelsLabelId500,
@@ -55,685 +55,553 @@ import type {
   PostApiSettingsSessionsLabelsBody
 } from '.././schemas';
 
-export const getApiSettings = (signal?: AbortSignal) => {
-  return customInstance<GetApiSettings200>({ url: `/api/settings`, method: 'GET', signal });
-};
+import { customInstance } from '../../custom-instance';
+import type { ErrorType } from '../../custom-instance';
+
+
+
+
+export const getApiSettings = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<GetApiSettings200>(
+      {url: `/api/settings`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
 
 export const getGetApiSettingsQueryKey = () => {
-  return [`/api/settings`] as const;
-};
+    return [
+    `/api/settings`
+    ] as const;
+    }
 
-export const getGetApiSettingsQueryOptions = <
-  TData = Awaited<ReturnType<typeof getApiSettings>>,
-  TError = ErrorType<GetApiSettings500>
->(options?: {
-  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData>>;
-}) => {
-  const { query: queryOptions } = options ?? {};
+    
+export const getGetApiSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getApiSettings>>, TError = ErrorType<GetApiSettings500>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData>>, }
+) => {
 
-  const queryKey = queryOptions?.queryKey ?? getGetApiSettingsQueryKey();
+const {query: queryOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiSettings>>> = ({ signal }) => getApiSettings(signal);
+  const queryKey =  queryOptions?.queryKey ?? getGetApiSettingsQueryKey();
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getApiSettings>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  
 
-export type GetApiSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiSettings>>>;
-export type GetApiSettingsQueryError = ErrorType<GetApiSettings500>;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiSettings>>> = ({ signal }) => getApiSettings(signal);
 
-export function useGetApiSettings<
-  TData = Awaited<ReturnType<typeof getApiSettings>>,
-  TError = ErrorType<GetApiSettings500>
->(
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData>> &
-      Pick<
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiSettings>>>
+export type GetApiSettingsQueryError = ErrorType<GetApiSettings500>
+
+
+export function useGetApiSettings<TData = Awaited<ReturnType<typeof getApiSettings>>, TError = ErrorType<GetApiSettings500>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiSettings>>,
           TError,
           Awaited<ReturnType<typeof getApiSettings>>
-        >,
-        'initialData'
-      >;
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGetApiSettings<
-  TData = Awaited<ReturnType<typeof getApiSettings>>,
-  TError = ErrorType<GetApiSettings500>
->(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData>> &
-      Pick<
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiSettings<TData = Awaited<ReturnType<typeof getApiSettings>>, TError = ErrorType<GetApiSettings500>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiSettings>>,
           TError,
           Awaited<ReturnType<typeof getApiSettings>>
-        >,
-        'initialData'
-      >;
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGetApiSettings<
-  TData = Awaited<ReturnType<typeof getApiSettings>>,
-  TError = ErrorType<GetApiSettings500>
->(
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData>> },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiSettings<TData = Awaited<ReturnType<typeof getApiSettings>>, TError = ErrorType<GetApiSettings500>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiSettings<
-  TData = Awaited<ReturnType<typeof getApiSettings>>,
-  TError = ErrorType<GetApiSettings500>
->(
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData>> },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getGetApiSettingsQueryOptions(options);
+export function useGetApiSettings<TData = Awaited<ReturnType<typeof getApiSettings>>, TError = ErrorType<GetApiSettings500>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSettings>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getGetApiSettingsQueryOptions(options)
 
-  query.queryKey = queryOptions.queryKey;
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
 
   return query;
 }
 
-export const patchApiSettings = (patchApiSettingsBody: PatchApiSettingsBody) => {
-  return customInstance<PatchApiSettings200>({
-    url: `/api/settings`,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    data: patchApiSettingsBody
-  });
-};
 
-export const getPatchApiSettingsMutationOptions = <
-  TError = ErrorType<PatchApiSettings500>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof patchApiSettings>>,
-    TError,
-    { data: PatchApiSettingsBody },
-    TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof patchApiSettings>>,
-  TError,
-  { data: PatchApiSettingsBody },
-  TContext
-> => {
-  const mutationKey = ['patchApiSettings'];
-  const { mutation: mutationOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
 
-  const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchApiSettings>>, { data: PatchApiSettingsBody }> = (
-    props
-  ) => {
-    const { data } = props ?? {};
 
-    return patchApiSettings(data);
-  };
+export const patchApiSettings = (
+    patchApiSettingsBody: PatchApiSettingsBody,
+ ) => {
+      
+      
+      return customInstance<PatchApiSettings200>(
+      {url: `/api/settings`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: patchApiSettingsBody
+    },
+      );
+    }
+  
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type PatchApiSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof patchApiSettings>>>;
-export type PatchApiSettingsMutationBody = PatchApiSettingsBody;
-export type PatchApiSettingsMutationError = ErrorType<PatchApiSettings500>;
+export const getPatchApiSettingsMutationOptions = <TError = ErrorType<PatchApiSettings500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiSettings>>, TError,{data: PatchApiSettingsBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof patchApiSettings>>, TError,{data: PatchApiSettingsBody}, TContext> => {
 
-export const usePatchApiSettings = <TError = ErrorType<PatchApiSettings500>, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof patchApiSettings>>,
-      TError,
-      { data: PatchApiSettingsBody },
-      TContext
-    >;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof patchApiSettings>>,
-  TError,
-  { data: PatchApiSettingsBody },
-  TContext
-> => {
-  const mutationOptions = getPatchApiSettingsMutationOptions(options);
+const mutationKey = ['patchApiSettings'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
 
-  return useMutation(mutationOptions, queryClient);
-};
-export const patchApiSettingsProjectsProjectId = (
-  projectId: string,
-  patchApiSettingsProjectsProjectIdBody: PatchApiSettingsProjectsProjectIdBody
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchApiSettings>>, {data: PatchApiSettingsBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  patchApiSettings(data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PatchApiSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof patchApiSettings>>>
+    export type PatchApiSettingsMutationBody = PatchApiSettingsBody
+    export type PatchApiSettingsMutationError = ErrorType<PatchApiSettings500>
+
+    export const usePatchApiSettings = <TError = ErrorType<PatchApiSettings500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiSettings>>, TError,{data: PatchApiSettingsBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof patchApiSettings>>,
+        TError,
+        {data: PatchApiSettingsBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPatchApiSettingsMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const patchApiSettingsProjectsProjectId = (
+    projectId: string,
+    patchApiSettingsProjectsProjectIdBody: PatchApiSettingsProjectsProjectIdBody,
+ ) => {
+      
+      
+      return customInstance<PatchApiSettingsProjectsProjectId200>(
+      {url: `/api/settings/projects/${projectId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: patchApiSettingsProjectsProjectIdBody
+    },
+      );
+    }
+  
+
+
+export const getPatchApiSettingsProjectsProjectIdMutationOptions = <TError = ErrorType<PatchApiSettingsProjectsProjectId500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>, TError,{projectId: string;data: PatchApiSettingsProjectsProjectIdBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>, TError,{projectId: string;data: PatchApiSettingsProjectsProjectIdBody}, TContext> => {
+
+const mutationKey = ['patchApiSettingsProjectsProjectId'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>, {projectId: string;data: PatchApiSettingsProjectsProjectIdBody}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  patchApiSettingsProjectsProjectId(projectId,data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PatchApiSettingsProjectsProjectIdMutationResult = NonNullable<Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>>
+    export type PatchApiSettingsProjectsProjectIdMutationBody = PatchApiSettingsProjectsProjectIdBody
+    export type PatchApiSettingsProjectsProjectIdMutationError = ErrorType<PatchApiSettingsProjectsProjectId500>
+
+    export const usePatchApiSettingsProjectsProjectId = <TError = ErrorType<PatchApiSettingsProjectsProjectId500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>, TError,{projectId: string;data: PatchApiSettingsProjectsProjectIdBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>,
+        TError,
+        {projectId: string;data: PatchApiSettingsProjectsProjectIdBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPatchApiSettingsProjectsProjectIdMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const postApiSettingsLabels = (
+    postApiSettingsLabelsBody: PostApiSettingsLabelsBody,
+ signal?: AbortSignal
 ) => {
-  return customInstance<PatchApiSettingsProjectsProjectId200>({
-    url: `/api/settings/projects/${projectId}`,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    data: patchApiSettingsProjectsProjectIdBody
-  });
-};
+      
+      
+      return customInstance<PostApiSettingsLabels200>(
+      {url: `/api/settings/labels`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiSettingsLabelsBody, signal
+    },
+      );
+    }
+  
 
-export const getPatchApiSettingsProjectsProjectIdMutationOptions = <
-  TError = ErrorType<PatchApiSettingsProjectsProjectId500>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>,
-    TError,
-    { projectId: string; data: PatchApiSettingsProjectsProjectIdBody },
-    TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>,
-  TError,
-  { projectId: string; data: PatchApiSettingsProjectsProjectIdBody },
-  TContext
-> => {
-  const mutationKey = ['patchApiSettingsProjectsProjectId'];
-  const { mutation: mutationOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>,
-    { projectId: string; data: PatchApiSettingsProjectsProjectIdBody }
-  > = (props) => {
-    const { projectId, data } = props ?? {};
+export const getPostApiSettingsLabelsMutationOptions = <TError = ErrorType<PostApiSettingsLabels400 | PostApiSettingsLabels500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiSettingsLabels>>, TError,{data: PostApiSettingsLabelsBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiSettingsLabels>>, TError,{data: PostApiSettingsLabelsBody}, TContext> => {
 
-    return patchApiSettingsProjectsProjectId(projectId, data);
-  };
+const mutationKey = ['postApiSettingsLabels'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
 
-  return { mutationFn, ...mutationOptions };
-};
+      
 
-export type PatchApiSettingsProjectsProjectIdMutationResult = NonNullable<
-  Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>
->;
-export type PatchApiSettingsProjectsProjectIdMutationBody = PatchApiSettingsProjectsProjectIdBody;
-export type PatchApiSettingsProjectsProjectIdMutationError = ErrorType<PatchApiSettingsProjectsProjectId500>;
 
-export const usePatchApiSettingsProjectsProjectId = <
-  TError = ErrorType<PatchApiSettingsProjectsProjectId500>,
-  TContext = unknown
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>,
-      TError,
-      { projectId: string; data: PatchApiSettingsProjectsProjectIdBody },
-      TContext
-    >;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>,
-  TError,
-  { projectId: string; data: PatchApiSettingsProjectsProjectIdBody },
-  TContext
-> => {
-  const mutationOptions = getPatchApiSettingsProjectsProjectIdMutationOptions(options);
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiSettingsLabels>>, {data: PostApiSettingsLabelsBody}> = (props) => {
+          const {data} = props ?? {};
 
-  return useMutation(mutationOptions, queryClient);
-};
-export const postApiSettingsLabels = (postApiSettingsLabelsBody: PostApiSettingsLabelsBody, signal?: AbortSignal) => {
-  return customInstance<PostApiSettingsLabels200>({
-    url: `/api/settings/labels`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: postApiSettingsLabelsBody,
-    signal
-  });
-};
+          return  postApiSettingsLabels(data,)
+        }
 
-export const getPostApiSettingsLabelsMutationOptions = <
-  TError = ErrorType<PostApiSettingsLabels400 | PostApiSettingsLabels500>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postApiSettingsLabels>>,
-    TError,
-    { data: PostApiSettingsLabelsBody },
-    TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postApiSettingsLabels>>,
-  TError,
-  { data: PostApiSettingsLabelsBody },
-  TContext
-> => {
-  const mutationKey = ['postApiSettingsLabels'];
-  const { mutation: mutationOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+        
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postApiSettingsLabels>>,
-    { data: PostApiSettingsLabelsBody }
-  > = (props) => {
-    const { data } = props ?? {};
 
-    return postApiSettingsLabels(data);
-  };
+  return  { mutationFn, ...mutationOptions }}
 
-  return { mutationFn, ...mutationOptions };
-};
+    export type PostApiSettingsLabelsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiSettingsLabels>>>
+    export type PostApiSettingsLabelsMutationBody = PostApiSettingsLabelsBody
+    export type PostApiSettingsLabelsMutationError = ErrorType<PostApiSettingsLabels400 | PostApiSettingsLabels500>
 
-export type PostApiSettingsLabelsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiSettingsLabels>>>;
-export type PostApiSettingsLabelsMutationBody = PostApiSettingsLabelsBody;
-export type PostApiSettingsLabelsMutationError = ErrorType<PostApiSettingsLabels400 | PostApiSettingsLabels500>;
+    export const usePostApiSettingsLabels = <TError = ErrorType<PostApiSettingsLabels400 | PostApiSettingsLabels500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiSettingsLabels>>, TError,{data: PostApiSettingsLabelsBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiSettingsLabels>>,
+        TError,
+        {data: PostApiSettingsLabelsBody},
+        TContext
+      > => {
 
-export const usePostApiSettingsLabels = <
-  TError = ErrorType<PostApiSettingsLabels400 | PostApiSettingsLabels500>,
-  TContext = unknown
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postApiSettingsLabels>>,
-      TError,
-      { data: PostApiSettingsLabelsBody },
-      TContext
-    >;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postApiSettingsLabels>>,
-  TError,
-  { data: PostApiSettingsLabelsBody },
-  TContext
-> => {
-  const mutationOptions = getPostApiSettingsLabelsMutationOptions(options);
+      const mutationOptions = getPostApiSettingsLabelsMutationOptions(options);
 
-  return useMutation(mutationOptions, queryClient);
-};
-export const patchApiSettingsLabelsLabelId = (
-  labelId: string,
-  patchApiSettingsLabelsLabelIdBody: PatchApiSettingsLabelsLabelIdBody
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const patchApiSettingsLabelsLabelId = (
+    labelId: string,
+    patchApiSettingsLabelsLabelIdBody: PatchApiSettingsLabelsLabelIdBody,
+ ) => {
+      
+      
+      return customInstance<PatchApiSettingsLabelsLabelId200>(
+      {url: `/api/settings/labels/${labelId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: patchApiSettingsLabelsLabelIdBody
+    },
+      );
+    }
+  
+
+
+export const getPatchApiSettingsLabelsLabelIdMutationOptions = <TError = ErrorType<PatchApiSettingsLabelsLabelId404 | PatchApiSettingsLabelsLabelId500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>, TError,{labelId: string;data: PatchApiSettingsLabelsLabelIdBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>, TError,{labelId: string;data: PatchApiSettingsLabelsLabelIdBody}, TContext> => {
+
+const mutationKey = ['patchApiSettingsLabelsLabelId'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>, {labelId: string;data: PatchApiSettingsLabelsLabelIdBody}> = (props) => {
+          const {labelId,data} = props ?? {};
+
+          return  patchApiSettingsLabelsLabelId(labelId,data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PatchApiSettingsLabelsLabelIdMutationResult = NonNullable<Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>>
+    export type PatchApiSettingsLabelsLabelIdMutationBody = PatchApiSettingsLabelsLabelIdBody
+    export type PatchApiSettingsLabelsLabelIdMutationError = ErrorType<PatchApiSettingsLabelsLabelId404 | PatchApiSettingsLabelsLabelId500>
+
+    export const usePatchApiSettingsLabelsLabelId = <TError = ErrorType<PatchApiSettingsLabelsLabelId404 | PatchApiSettingsLabelsLabelId500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>, TError,{labelId: string;data: PatchApiSettingsLabelsLabelIdBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>,
+        TError,
+        {labelId: string;data: PatchApiSettingsLabelsLabelIdBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPatchApiSettingsLabelsLabelIdMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const deleteApiSettingsLabelsLabelId = (
+    labelId: string,
+ ) => {
+      
+      
+      return customInstance<DeleteApiSettingsLabelsLabelId200>(
+      {url: `/api/settings/labels/${labelId}`, method: 'DELETE'
+    },
+      );
+    }
+  
+
+
+export const getDeleteApiSettingsLabelsLabelIdMutationOptions = <TError = ErrorType<DeleteApiSettingsLabelsLabelId500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>, TError,{labelId: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>, TError,{labelId: string}, TContext> => {
+
+const mutationKey = ['deleteApiSettingsLabelsLabelId'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>, {labelId: string}> = (props) => {
+          const {labelId} = props ?? {};
+
+          return  deleteApiSettingsLabelsLabelId(labelId,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteApiSettingsLabelsLabelIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>>
+    
+    export type DeleteApiSettingsLabelsLabelIdMutationError = ErrorType<DeleteApiSettingsLabelsLabelId500>
+
+    export const useDeleteApiSettingsLabelsLabelId = <TError = ErrorType<DeleteApiSettingsLabelsLabelId500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>, TError,{labelId: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>,
+        TError,
+        {labelId: string},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteApiSettingsLabelsLabelIdMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const postApiSettingsSessionsLabels = (
+    postApiSettingsSessionsLabelsBody: PostApiSettingsSessionsLabelsBody,
+ signal?: AbortSignal
 ) => {
-  return customInstance<PatchApiSettingsLabelsLabelId200>({
-    url: `/api/settings/labels/${labelId}`,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    data: patchApiSettingsLabelsLabelIdBody
-  });
-};
+      
+      
+      return customInstance<PostApiSettingsSessionsLabels200>(
+      {url: `/api/settings/sessions/labels`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiSettingsSessionsLabelsBody, signal
+    },
+      );
+    }
+  
 
-export const getPatchApiSettingsLabelsLabelIdMutationOptions = <
-  TError = ErrorType<PatchApiSettingsLabelsLabelId404 | PatchApiSettingsLabelsLabelId500>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>,
-    TError,
-    { labelId: string; data: PatchApiSettingsLabelsLabelIdBody },
-    TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>,
-  TError,
-  { labelId: string; data: PatchApiSettingsLabelsLabelIdBody },
-  TContext
-> => {
-  const mutationKey = ['patchApiSettingsLabelsLabelId'];
-  const { mutation: mutationOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>,
-    { labelId: string; data: PatchApiSettingsLabelsLabelIdBody }
-  > = (props) => {
-    const { labelId, data } = props ?? {};
+export const getPostApiSettingsSessionsLabelsMutationOptions = <TError = ErrorType<PostApiSettingsSessionsLabels400 | PostApiSettingsSessionsLabels500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>, TError,{data: PostApiSettingsSessionsLabelsBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>, TError,{data: PostApiSettingsSessionsLabelsBody}, TContext> => {
 
-    return patchApiSettingsLabelsLabelId(labelId, data);
-  };
+const mutationKey = ['postApiSettingsSessionsLabels'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
 
-  return { mutationFn, ...mutationOptions };
-};
+      
 
-export type PatchApiSettingsLabelsLabelIdMutationResult = NonNullable<
-  Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>
->;
-export type PatchApiSettingsLabelsLabelIdMutationBody = PatchApiSettingsLabelsLabelIdBody;
-export type PatchApiSettingsLabelsLabelIdMutationError = ErrorType<
-  PatchApiSettingsLabelsLabelId404 | PatchApiSettingsLabelsLabelId500
->;
 
-export const usePatchApiSettingsLabelsLabelId = <
-  TError = ErrorType<PatchApiSettingsLabelsLabelId404 | PatchApiSettingsLabelsLabelId500>,
-  TContext = unknown
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>,
-      TError,
-      { labelId: string; data: PatchApiSettingsLabelsLabelIdBody },
-      TContext
-    >;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof patchApiSettingsLabelsLabelId>>,
-  TError,
-  { labelId: string; data: PatchApiSettingsLabelsLabelIdBody },
-  TContext
-> => {
-  const mutationOptions = getPatchApiSettingsLabelsLabelIdMutationOptions(options);
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>, {data: PostApiSettingsSessionsLabelsBody}> = (props) => {
+          const {data} = props ?? {};
 
-  return useMutation(mutationOptions, queryClient);
-};
-export const deleteApiSettingsLabelsLabelId = (labelId: string) => {
-  return customInstance<DeleteApiSettingsLabelsLabelId200>({
-    url: `/api/settings/labels/${labelId}`,
-    method: 'DELETE'
-  });
-};
+          return  postApiSettingsSessionsLabels(data,)
+        }
 
-export const getDeleteApiSettingsLabelsLabelIdMutationOptions = <
-  TError = ErrorType<DeleteApiSettingsLabelsLabelId500>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>,
-    TError,
-    { labelId: string },
-    TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>,
-  TError,
-  { labelId: string },
-  TContext
-> => {
-  const mutationKey = ['deleteApiSettingsLabelsLabelId'];
-  const { mutation: mutationOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+        
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>,
-    { labelId: string }
-  > = (props) => {
-    const { labelId } = props ?? {};
 
-    return deleteApiSettingsLabelsLabelId(labelId);
-  };
+  return  { mutationFn, ...mutationOptions }}
 
-  return { mutationFn, ...mutationOptions };
-};
+    export type PostApiSettingsSessionsLabelsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>>
+    export type PostApiSettingsSessionsLabelsMutationBody = PostApiSettingsSessionsLabelsBody
+    export type PostApiSettingsSessionsLabelsMutationError = ErrorType<PostApiSettingsSessionsLabels400 | PostApiSettingsSessionsLabels500>
 
-export type DeleteApiSettingsLabelsLabelIdMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>
->;
+    export const usePostApiSettingsSessionsLabels = <TError = ErrorType<PostApiSettingsSessionsLabels400 | PostApiSettingsSessionsLabels500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>, TError,{data: PostApiSettingsSessionsLabelsBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>,
+        TError,
+        {data: PostApiSettingsSessionsLabelsBody},
+        TContext
+      > => {
 
-export type DeleteApiSettingsLabelsLabelIdMutationError = ErrorType<DeleteApiSettingsLabelsLabelId500>;
+      const mutationOptions = getPostApiSettingsSessionsLabelsMutationOptions(options);
 
-export const useDeleteApiSettingsLabelsLabelId = <
-  TError = ErrorType<DeleteApiSettingsLabelsLabelId500>,
-  TContext = unknown
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>,
-      TError,
-      { labelId: string },
-      TContext
-    >;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof deleteApiSettingsLabelsLabelId>>,
-  TError,
-  { labelId: string },
-  TContext
-> => {
-  const mutationOptions = getDeleteApiSettingsLabelsLabelIdMutationOptions(options);
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const patchApiSettingsSessionsLabelsLabelId = (
+    labelId: string,
+    patchApiSettingsSessionsLabelsLabelIdBody: PatchApiSettingsSessionsLabelsLabelIdBody,
+ ) => {
+      
+      
+      return customInstance<PatchApiSettingsSessionsLabelsLabelId200>(
+      {url: `/api/settings/sessions/labels/${labelId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: patchApiSettingsSessionsLabelsLabelIdBody
+    },
+      );
+    }
+  
 
-  return useMutation(mutationOptions, queryClient);
-};
-export const postApiSettingsSessionsLabels = (
-  postApiSettingsSessionsLabelsBody: PostApiSettingsSessionsLabelsBody,
-  signal?: AbortSignal
-) => {
-  return customInstance<PostApiSettingsSessionsLabels200>({
-    url: `/api/settings/sessions/labels`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: postApiSettingsSessionsLabelsBody,
-    signal
-  });
-};
 
-export const getPostApiSettingsSessionsLabelsMutationOptions = <
-  TError = ErrorType<PostApiSettingsSessionsLabels400 | PostApiSettingsSessionsLabels500>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>,
-    TError,
-    { data: PostApiSettingsSessionsLabelsBody },
-    TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>,
-  TError,
-  { data: PostApiSettingsSessionsLabelsBody },
-  TContext
-> => {
-  const mutationKey = ['postApiSettingsSessionsLabels'];
-  const { mutation: mutationOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+export const getPatchApiSettingsSessionsLabelsLabelIdMutationOptions = <TError = ErrorType<PatchApiSettingsSessionsLabelsLabelId404 | PatchApiSettingsSessionsLabelsLabelId500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>, TError,{labelId: string;data: PatchApiSettingsSessionsLabelsLabelIdBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>, TError,{labelId: string;data: PatchApiSettingsSessionsLabelsLabelIdBody}, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>,
-    { data: PostApiSettingsSessionsLabelsBody }
-  > = (props) => {
-    const { data } = props ?? {};
+const mutationKey = ['patchApiSettingsSessionsLabelsLabelId'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
 
-    return postApiSettingsSessionsLabels(data);
-  };
+      
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type PostApiSettingsSessionsLabelsMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>
->;
-export type PostApiSettingsSessionsLabelsMutationBody = PostApiSettingsSessionsLabelsBody;
-export type PostApiSettingsSessionsLabelsMutationError = ErrorType<
-  PostApiSettingsSessionsLabels400 | PostApiSettingsSessionsLabels500
->;
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>, {labelId: string;data: PatchApiSettingsSessionsLabelsLabelIdBody}> = (props) => {
+          const {labelId,data} = props ?? {};
 
-export const usePostApiSettingsSessionsLabels = <
-  TError = ErrorType<PostApiSettingsSessionsLabels400 | PostApiSettingsSessionsLabels500>,
-  TContext = unknown
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>,
-      TError,
-      { data: PostApiSettingsSessionsLabelsBody },
-      TContext
-    >;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postApiSettingsSessionsLabels>>,
-  TError,
-  { data: PostApiSettingsSessionsLabelsBody },
-  TContext
-> => {
-  const mutationOptions = getPostApiSettingsSessionsLabelsMutationOptions(options);
+          return  patchApiSettingsSessionsLabelsLabelId(labelId,data,)
+        }
 
-  return useMutation(mutationOptions, queryClient);
-};
-export const patchApiSettingsSessionsLabelsLabelId = (
-  labelId: string,
-  patchApiSettingsSessionsLabelsLabelIdBody: PatchApiSettingsSessionsLabelsLabelIdBody
-) => {
-  return customInstance<PatchApiSettingsSessionsLabelsLabelId200>({
-    url: `/api/settings/sessions/labels/${labelId}`,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    data: patchApiSettingsSessionsLabelsLabelIdBody
-  });
-};
+        
 
-export const getPatchApiSettingsSessionsLabelsLabelIdMutationOptions = <
-  TError = ErrorType<PatchApiSettingsSessionsLabelsLabelId404 | PatchApiSettingsSessionsLabelsLabelId500>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>,
-    TError,
-    { labelId: string; data: PatchApiSettingsSessionsLabelsLabelIdBody },
-    TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>,
-  TError,
-  { labelId: string; data: PatchApiSettingsSessionsLabelsLabelIdBody },
-  TContext
-> => {
-  const mutationKey = ['patchApiSettingsSessionsLabelsLabelId'];
-  const { mutation: mutationOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>,
-    { labelId: string; data: PatchApiSettingsSessionsLabelsLabelIdBody }
-  > = (props) => {
-    const { labelId, data } = props ?? {};
+  return  { mutationFn, ...mutationOptions }}
 
-    return patchApiSettingsSessionsLabelsLabelId(labelId, data);
-  };
+    export type PatchApiSettingsSessionsLabelsLabelIdMutationResult = NonNullable<Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>>
+    export type PatchApiSettingsSessionsLabelsLabelIdMutationBody = PatchApiSettingsSessionsLabelsLabelIdBody
+    export type PatchApiSettingsSessionsLabelsLabelIdMutationError = ErrorType<PatchApiSettingsSessionsLabelsLabelId404 | PatchApiSettingsSessionsLabelsLabelId500>
 
-  return { mutationFn, ...mutationOptions };
-};
+    export const usePatchApiSettingsSessionsLabelsLabelId = <TError = ErrorType<PatchApiSettingsSessionsLabelsLabelId404 | PatchApiSettingsSessionsLabelsLabelId500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>, TError,{labelId: string;data: PatchApiSettingsSessionsLabelsLabelIdBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>,
+        TError,
+        {labelId: string;data: PatchApiSettingsSessionsLabelsLabelIdBody},
+        TContext
+      > => {
 
-export type PatchApiSettingsSessionsLabelsLabelIdMutationResult = NonNullable<
-  Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>
->;
-export type PatchApiSettingsSessionsLabelsLabelIdMutationBody = PatchApiSettingsSessionsLabelsLabelIdBody;
-export type PatchApiSettingsSessionsLabelsLabelIdMutationError = ErrorType<
-  PatchApiSettingsSessionsLabelsLabelId404 | PatchApiSettingsSessionsLabelsLabelId500
->;
+      const mutationOptions = getPatchApiSettingsSessionsLabelsLabelIdMutationOptions(options);
 
-export const usePatchApiSettingsSessionsLabelsLabelId = <
-  TError = ErrorType<PatchApiSettingsSessionsLabelsLabelId404 | PatchApiSettingsSessionsLabelsLabelId500>,
-  TContext = unknown
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>,
-      TError,
-      { labelId: string; data: PatchApiSettingsSessionsLabelsLabelIdBody },
-      TContext
-    >;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof patchApiSettingsSessionsLabelsLabelId>>,
-  TError,
-  { labelId: string; data: PatchApiSettingsSessionsLabelsLabelIdBody },
-  TContext
-> => {
-  const mutationOptions = getPatchApiSettingsSessionsLabelsLabelIdMutationOptions(options);
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const deleteApiSettingsSessionsLabelsLabelId = (
+    labelId: string,
+ ) => {
+      
+      
+      return customInstance<DeleteApiSettingsSessionsLabelsLabelId200>(
+      {url: `/api/settings/sessions/labels/${labelId}`, method: 'DELETE'
+    },
+      );
+    }
+  
 
-  return useMutation(mutationOptions, queryClient);
-};
-export const deleteApiSettingsSessionsLabelsLabelId = (labelId: string) => {
-  return customInstance<DeleteApiSettingsSessionsLabelsLabelId200>({
-    url: `/api/settings/sessions/labels/${labelId}`,
-    method: 'DELETE'
-  });
-};
 
-export const getDeleteApiSettingsSessionsLabelsLabelIdMutationOptions = <
-  TError = ErrorType<DeleteApiSettingsSessionsLabelsLabelId500>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>,
-    TError,
-    { labelId: string },
-    TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>,
-  TError,
-  { labelId: string },
-  TContext
-> => {
-  const mutationKey = ['deleteApiSettingsSessionsLabelsLabelId'];
-  const { mutation: mutationOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+export const getDeleteApiSettingsSessionsLabelsLabelIdMutationOptions = <TError = ErrorType<DeleteApiSettingsSessionsLabelsLabelId500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>, TError,{labelId: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>, TError,{labelId: string}, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>,
-    { labelId: string }
-  > = (props) => {
-    const { labelId } = props ?? {};
+const mutationKey = ['deleteApiSettingsSessionsLabelsLabelId'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
 
-    return deleteApiSettingsSessionsLabelsLabelId(labelId);
-  };
+      
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type DeleteApiSettingsSessionsLabelsLabelIdMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>
->;
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>, {labelId: string}> = (props) => {
+          const {labelId} = props ?? {};
 
-export type DeleteApiSettingsSessionsLabelsLabelIdMutationError = ErrorType<DeleteApiSettingsSessionsLabelsLabelId500>;
+          return  deleteApiSettingsSessionsLabelsLabelId(labelId,)
+        }
 
-export const useDeleteApiSettingsSessionsLabelsLabelId = <
-  TError = ErrorType<DeleteApiSettingsSessionsLabelsLabelId500>,
-  TContext = unknown
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>,
-      TError,
-      { labelId: string },
-      TContext
-    >;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>,
-  TError,
-  { labelId: string },
-  TContext
-> => {
-  const mutationOptions = getDeleteApiSettingsSessionsLabelsLabelIdMutationOptions(options);
+        
 
-  return useMutation(mutationOptions, queryClient);
-};
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteApiSettingsSessionsLabelsLabelIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>>
+    
+    export type DeleteApiSettingsSessionsLabelsLabelIdMutationError = ErrorType<DeleteApiSettingsSessionsLabelsLabelId500>
+
+    export const useDeleteApiSettingsSessionsLabelsLabelId = <TError = ErrorType<DeleteApiSettingsSessionsLabelsLabelId500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>, TError,{labelId: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteApiSettingsSessionsLabelsLabelId>>,
+        TError,
+        {labelId: string},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteApiSettingsSessionsLabelsLabelIdMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    

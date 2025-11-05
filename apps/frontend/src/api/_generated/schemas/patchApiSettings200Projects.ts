@@ -5,10 +5,9 @@
  * API for managing Claude projects, sessions, and settings
  * OpenAPI spec version: 1.0.0
  */
-
-import type { PatchApiSettings200ProjectsDisplay } from './patchApiSettings200ProjectsDisplay';
-import type { PatchApiSettings200ProjectsFilters } from './patchApiSettings200ProjectsFilters';
 import type { PatchApiSettings200ProjectsGroupBy } from './patchApiSettings200ProjectsGroupBy';
+import type { PatchApiSettings200ProjectsFilters } from './patchApiSettings200ProjectsFilters';
+import type { PatchApiSettings200ProjectsDisplay } from './patchApiSettings200ProjectsDisplay';
 import type { PatchApiSettings200ProjectsLabelsItem } from './patchApiSettings200ProjectsLabelsItem';
 import type { PatchApiSettings200ProjectsProjectSettings } from './patchApiSettings200ProjectsProjectSettings';
 

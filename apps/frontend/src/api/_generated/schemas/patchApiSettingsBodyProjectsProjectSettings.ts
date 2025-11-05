@@ -6,9 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type PatchApiSettingsBodyProjectsProjectSettings = {
-  [key: string]: {
-    labels: string[];
-    hidden: boolean;
-  };
-};
+export type PatchApiSettingsBodyProjectsProjectSettings = {[key: string]: {
+  labels: string[];
+  hidden: boolean;
+}};

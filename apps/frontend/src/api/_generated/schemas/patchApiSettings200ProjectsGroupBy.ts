@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type PatchApiSettings200ProjectsGroupBy =
-  (typeof PatchApiSettings200ProjectsGroupBy)[keyof typeof PatchApiSettings200ProjectsGroupBy];
+export type PatchApiSettings200ProjectsGroupBy = typeof PatchApiSettings200ProjectsGroupBy[keyof typeof PatchApiSettings200ProjectsGroupBy];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PatchApiSettings200ProjectsGroupBy = {
   date: 'date',
   label: 'label',
-  'session-count': 'session-count'
+  'session-count': 'session-count',
 } as const;
