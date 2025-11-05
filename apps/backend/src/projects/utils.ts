@@ -1,34 +1,8 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import os from 'os';
+import { AppSettings } from '../common/schemas.js';
 import { execAsync } from '../common/utils/exec.js';
-
-type AppSettings = {
-  projects: {
-    groupBy: 'date' | 'label' | 'session-count';
-    filters: {
-      selectedLabels: string[];
-    };
-    display: {
-      showSessionCount: boolean;
-      showCurrentBranch: boolean;
-      showActionButtons: boolean;
-      showProjectLabel: boolean;
-    };
-    search: string;
-    labels: Array<{ id: string; name: string; color: string }>;
-    projectSettings: Record<string, { labels: string[]; hidden: boolean }>;
-  };
-  sessions: {
-    groupBy: 'date' | 'token-percentage' | 'label';
-    filters: Record<string, unknown>;
-    display: {
-      showTokenPercentage: boolean;
-      showAttachments: boolean;
-    };
-    labels: Array<{ id: string; name: string; color: string }>;
-  };
-};
 
 const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 

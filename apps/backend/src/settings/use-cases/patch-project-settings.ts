@@ -1,15 +1,10 @@
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { ErrorSchema } from '../../common/schemas.js';
+import { ErrorSchema, ProjectSettingSchema } from '../../common/schemas.js';
 import { readSettings, writeSettings } from '../utils.js';
 
 const paramsSchema = z.object({
   projectId: z.string()
-});
-
-const ProjectSettingSchema = z.object({
-  labels: z.array(z.string()),
-  hidden: z.boolean()
 });
 
 const bodySchema = ProjectSettingSchema.partial();

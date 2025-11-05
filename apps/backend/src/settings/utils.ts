@@ -1,33 +1,7 @@
 import { accessSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import os from 'os';
-
-type AppSettings = {
-  projects: {
-    groupBy: 'date' | 'label' | 'session-count';
-    filters: {
-      selectedLabels: string[];
-    };
-    display: {
-      showSessionCount: boolean;
-      showCurrentBranch: boolean;
-      showActionButtons: boolean;
-      showProjectLabel: boolean;
-    };
-    search: string;
-    labels: Array<{ id: string; name: string; color: string }>;
-    projectSettings: Record<string, { labels: string[]; hidden: boolean }>;
-  };
-  sessions: {
-    groupBy: 'date' | 'token-percentage' | 'label';
-    filters: Record<string, unknown>;
-    display: {
-      showTokenPercentage: boolean;
-      showAttachments: boolean;
-    };
-    labels: Array<{ id: string; name: string; color: string }>;
-  };
-};
+import { AppSettings } from '../common/schemas';
 
 const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 
