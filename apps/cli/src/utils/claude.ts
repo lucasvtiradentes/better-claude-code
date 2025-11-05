@@ -1,5 +1,5 @@
-import { spawn } from 'child_process';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
+import { spawn } from 'child_process';
 
 export async function executePromptNonInteractively(prompt: string): Promise<void> {
   ClaudeHelper.validateClaudeBinary();

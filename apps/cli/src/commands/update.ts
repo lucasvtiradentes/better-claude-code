@@ -1,7 +1,7 @@
+import { execAsync } from '@better-claude-code/node-utils';
 import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { platform } from 'os';
-import { execAsync } from '@better-claude-code/node-utils';
 
 import { createCommandFromSchema } from '../definitions/command-builder.js';
 import { CommandNames } from '../definitions/types.js';
