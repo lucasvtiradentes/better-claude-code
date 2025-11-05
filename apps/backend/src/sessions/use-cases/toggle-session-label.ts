@@ -4,7 +4,6 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
-import { LabelsResponseSchema } from '../../settings/schemas.js';
 
 const paramsSchema = z.object({
   projectName: z.string(),
@@ -15,7 +14,10 @@ const bodySchema = z.object({
   labelId: z.string()
 });
 
-const responseSchema = LabelsResponseSchema;
+const responseSchema = z.object({
+  success: z.boolean(),
+  labels: z.array(z.string())
+});
 
 const ResponseSchemas = {
   200: {

@@ -4,8 +4,20 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
-import { ProjectSchema } from '../schemas.js';
 import { extractProjectName, getCurrentBranch, getGitHubUrl, getRealPathFromSession, readSettings } from '../utils.js';
+
+const ProjectSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  path: z.string(),
+  sessionsCount: z.number(),
+  lastModified: z.number(),
+  isGitRepo: z.boolean(),
+  githubUrl: z.string().optional(),
+  currentBranch: z.string().optional(),
+  labels: z.array(z.string()),
+  hidden: z.boolean()
+});
 
 const responseSchema = z.array(ProjectSchema);
 

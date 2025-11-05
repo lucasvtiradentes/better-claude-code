@@ -4,12 +4,16 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
-import { PathValidationSchema } from '../../files/schemas.js';
 import { extractPathsFromText, extractTextContent, getRealPathFromSession } from '../utils.js';
 
 const paramsSchema = z.object({
   projectName: z.string(),
   sessionId: z.string()
+});
+
+const PathValidationSchema = z.object({
+  path: z.string(),
+  exists: z.boolean()
 });
 
 const responseSchema = z.array(PathValidationSchema);

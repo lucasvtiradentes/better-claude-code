@@ -3,9 +3,8 @@ import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
-import { ErrorSchema } from '../../common/schemas.js';
+import { ErrorSchema, PaginationMetaSchema } from '../../common/schemas.js';
 import { isCompactionSession } from '../../common/utils/session-filter.js';
-import { SessionsResponseSchema } from '../schemas.js';
 import { extractTextContent, parseCommandFromContent } from '../utils.js';
 
 const paramsSchema = z.object({
@@ -19,7 +18,23 @@ const querySchema = z.object({
   sortBy: z.string().optional().default('date')
 });
 
-const responseSchema = SessionsResponseSchema;
+const SessionSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  messageCount: z.number(),
+  createdAt: z.number(),
+  tokenPercentage: z.number().optional(),
+  searchMatchCount: z.number().optional(),
+  imageCount: z.number().optional(),
+  customCommandCount: z.number().optional(),
+  filesOrFoldersCount: z.number().optional(),
+  labels: z.array(z.string()).optional()
+});
+
+const responseSchema = z.object({
+  items: z.array(SessionSchema),
+  meta: PaginationMetaSchema
+});
 
 const ResponseSchemas = {
   200: {

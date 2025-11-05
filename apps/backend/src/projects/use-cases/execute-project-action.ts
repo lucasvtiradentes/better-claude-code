@@ -4,7 +4,6 @@ import { spawn } from 'child_process';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
-import { ActionResponseSchema } from '../schemas.js';
 import { getRealPathFromSession } from '../utils.js';
 
 const paramsSchema = z.object({
@@ -12,11 +11,17 @@ const paramsSchema = z.object({
   action: z.enum(['openFolder', 'openCodeEditor', 'openTerminal'])
 });
 
+const responseSchema = z.object({
+  success: z.boolean(),
+  action: z.string(),
+  path: z.string()
+});
+
 const ResponseSchemas = {
   200: {
     content: {
       'application/json': {
-        schema: ActionResponseSchema
+        schema: responseSchema
       }
     },
     description: 'Action executed successfully'
@@ -122,7 +127,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       shell: platform === 'win32'
     }).unref();
 
-    return c.json({ success: true, action, path: realPath } satisfies z.infer<typeof ActionResponseSchema>, 200);
+    return c.json({ success: true, action, path: realPath } satisfies z.infer<typeof responseSchema>, 200);
   } catch {
     return c.json({ error: 'Failed to execute action' } satisfies z.infer<typeof ErrorSchema>, 500);
   }

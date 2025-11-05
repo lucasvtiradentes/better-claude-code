@@ -3,9 +3,16 @@ import { promises as fs } from 'fs';
 import { extname, isAbsolute } from 'path';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
-import { FileContentSchema } from '../schemas.js';
 
 const querySchema = z.object({
+  path: z.string()
+});
+
+const responseSchema = z.object({
+  content: z.string(),
+  extension: z.string(),
+  isSymlink: z.boolean(),
+  realPath: z.string(),
   path: z.string()
 });
 
@@ -13,7 +20,7 @@ const ResponseSchemas = {
   200: {
     content: {
       'application/json': {
-        schema: FileContentSchema
+        schema: responseSchema
       }
     },
     description: 'Returns file content and metadata'
@@ -79,7 +86,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         isSymlink,
         realPath,
         path: filePath
-      } satisfies z.infer<typeof FileContentSchema>,
+      } satisfies z.infer<typeof responseSchema>,
       200
     );
   } catch (error) {

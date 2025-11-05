@@ -1,13 +1,38 @@
 import { join } from 'node:path';
 import { promises as fs } from 'fs';
 import os from 'os';
-import type { z } from 'zod';
 import { execAsync } from '../common/utils/exec.js';
-import { AppSettingsSchema } from '../settings/schemas.js';
+
+type AppSettings = {
+  projects: {
+    groupBy: 'date' | 'label' | 'session-count';
+    filters: {
+      selectedLabels: string[];
+    };
+    display: {
+      showSessionCount: boolean;
+      showCurrentBranch: boolean;
+      showActionButtons: boolean;
+      showProjectLabel: boolean;
+    };
+    search: string;
+    labels: Array<{ id: string; name: string; color: string }>;
+    projectSettings: Record<string, { labels: string[]; hidden: boolean }>;
+  };
+  sessions: {
+    groupBy: 'date' | 'token-percentage' | 'label';
+    filters: Record<string, unknown>;
+    display: {
+      showTokenPercentage: boolean;
+      showAttachments: boolean;
+    };
+    labels: Array<{ id: string; name: string; color: string }>;
+  };
+};
 
 const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 
-export async function readSettings(): Promise<z.infer<typeof AppSettingsSchema> | null> {
+export async function readSettings(): Promise<AppSettings | null> {
   try {
     const content = await fs.readFile(SETTINGS_PATH, 'utf-8');
     return JSON.parse(content);

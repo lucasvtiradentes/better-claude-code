@@ -4,7 +4,6 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
-import { FolderContentSchema } from '../../files/schemas.js';
 import { getRealPathFromSession } from '../utils.js';
 
 const paramsSchema = z.object({
@@ -16,7 +15,9 @@ const querySchema = z.object({
   path: z.string()
 });
 
-const responseSchema = FolderContentSchema;
+const responseSchema = z.object({
+  content: z.string()
+});
 
 const ResponseSchemas = {
   200: {

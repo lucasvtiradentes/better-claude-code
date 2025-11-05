@@ -4,11 +4,15 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
-import { ImageSchema } from '../schemas.js';
 
 const paramsSchema = z.object({
   projectName: z.string(),
   sessionId: z.string()
+});
+
+const ImageSchema = z.object({
+  index: z.number(),
+  data: z.string()
 });
 
 const responseSchema = z.array(ImageSchema);

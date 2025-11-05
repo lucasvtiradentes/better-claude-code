@@ -1,12 +1,37 @@
 import { dirname, join } from 'node:path';
 import { promises as fs } from 'fs';
 import os from 'os';
-import type { z } from 'zod';
-import { AppSettingsSchema } from './schemas.js';
+
+type AppSettings = {
+  projects: {
+    groupBy: 'date' | 'label' | 'session-count';
+    filters: {
+      selectedLabels: string[];
+    };
+    display: {
+      showSessionCount: boolean;
+      showCurrentBranch: boolean;
+      showActionButtons: boolean;
+      showProjectLabel: boolean;
+    };
+    search: string;
+    labels: Array<{ id: string; name: string; color: string }>;
+    projectSettings: Record<string, { labels: string[]; hidden: boolean }>;
+  };
+  sessions: {
+    groupBy: 'date' | 'token-percentage' | 'label';
+    filters: Record<string, unknown>;
+    display: {
+      showTokenPercentage: boolean;
+      showAttachments: boolean;
+    };
+    labels: Array<{ id: string; name: string; color: string }>;
+  };
+};
 
 const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 
-const DEFAULT_SETTINGS: z.infer<typeof AppSettingsSchema> = {
+const DEFAULT_SETTINGS: AppSettings = {
   projects: {
     groupBy: 'date',
     filters: {
@@ -45,10 +70,10 @@ async function ensureSettingsFile(): Promise<void> {
   }
 }
 
-export async function readSettings(): Promise<z.infer<typeof AppSettingsSchema>> {
+export async function readSettings(): Promise<AppSettings> {
   await ensureSettingsFile();
   const content = await fs.readFile(SETTINGS_PATH, 'utf-8');
-  const settings = JSON.parse(content) as Partial<z.infer<typeof AppSettingsSchema>>;
+  const settings = JSON.parse(content) as Partial<AppSettings>;
 
   let needsUpdate = false;
 
@@ -63,12 +88,12 @@ export async function readSettings(): Promise<z.infer<typeof AppSettingsSchema>>
   }
 
   if (needsUpdate) {
-    await writeSettings(settings as z.infer<typeof AppSettingsSchema>);
+    await writeSettings(settings as AppSettings);
   }
 
-  return settings as z.infer<typeof AppSettingsSchema>;
+  return settings as AppSettings;
 }
 
-export async function writeSettings(settings: z.infer<typeof AppSettingsSchema>): Promise<void> {
+export async function writeSettings(settings: AppSettings): Promise<void> {
   await fs.writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2));
 }

@@ -5,16 +5,24 @@ import { homedir } from 'os';
 import { fileURLToPath } from 'url';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
-import { FileListResponseSchema } from '../schemas.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+const FileInfoSchema = z.object({
+  path: z.string(),
+  label: z.string()
+});
+
+const responseSchema = z.object({
+  files: z.array(FileInfoSchema)
+});
 
 const ResponseSchemas = {
   200: {
     content: {
       'application/json': {
-        schema: FileListResponseSchema
+        schema: responseSchema
       }
     },
     description: 'Returns list of available files'
@@ -57,7 +65,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       }
     ];
 
-    return c.json({ files } satisfies z.infer<typeof FileListResponseSchema>, 200);
+    return c.json({ files } satisfies z.infer<typeof responseSchema>, 200);
   } catch {
     return c.json({ error: 'Failed to list files' } satisfies z.infer<typeof ErrorSchema>, 500);
   }

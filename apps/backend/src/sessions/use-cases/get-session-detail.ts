@@ -4,7 +4,6 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
-import { SessionDetailResponseSchema } from '../schemas.js';
 import { extractTextContent } from '../utils.js';
 
 const paramsSchema = z.object({
@@ -12,7 +11,21 @@ const paramsSchema = z.object({
   sessionId: z.string()
 });
 
-const responseSchema = SessionDetailResponseSchema;
+const MessageSchema = z.object({
+  type: z.enum(['user', 'assistant']),
+  content: z.string(),
+  timestamp: z.number().optional()
+});
+
+const ImageSchema = z.object({
+  index: z.number(),
+  data: z.string()
+});
+
+const responseSchema = z.object({
+  messages: z.array(MessageSchema),
+  images: z.array(ImageSchema)
+});
 
 const ResponseSchemas = {
   200: {

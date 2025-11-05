@@ -1,8 +1,39 @@
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { ErrorSchema } from '../../common/schemas.js';
-import { AppSettingsSchema } from '../schemas.js';
+import { ErrorSchema, ProjectLabelSchema } from '../../common/schemas.js';
 import { readSettings, writeSettings } from '../utils.js';
+
+const ProjectSettingSchema = z.object({
+  labels: z.array(z.string()),
+  hidden: z.boolean()
+});
+
+const AppSettingsSchema = z.object({
+  projects: z.object({
+    groupBy: z.enum(['date', 'label', 'session-count']),
+    filters: z.object({
+      selectedLabels: z.array(z.string())
+    }),
+    display: z.object({
+      showSessionCount: z.boolean(),
+      showCurrentBranch: z.boolean(),
+      showActionButtons: z.boolean(),
+      showProjectLabel: z.boolean()
+    }),
+    search: z.string(),
+    labels: z.array(ProjectLabelSchema),
+    projectSettings: z.record(z.string(), ProjectSettingSchema)
+  }),
+  sessions: z.object({
+    groupBy: z.enum(['date', 'token-percentage', 'label']),
+    filters: z.record(z.string(), z.unknown()),
+    display: z.object({
+      showTokenPercentage: z.boolean(),
+      showAttachments: z.boolean()
+    }),
+    labels: z.array(ProjectLabelSchema)
+  })
+});
 
 const bodySchema = AppSettingsSchema.partial();
 const responseSchema = AppSettingsSchema;
