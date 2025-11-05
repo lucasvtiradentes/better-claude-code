@@ -10,13 +10,11 @@ import { FileListResponseSchema } from '../schemas.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const responseSchema = FileListResponseSchema;
-
 const ResponseSchemas = {
   200: {
     content: {
       'application/json': {
-        schema: responseSchema
+        schema: FileListResponseSchema
       }
     },
     description: 'Returns list of available files'
@@ -59,7 +57,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       }
     ];
 
-    return c.json({ files } satisfies z.infer<typeof responseSchema>, 200);
+    return c.json({ files } satisfies z.infer<typeof FileListResponseSchema>, 200);
   } catch {
     return c.json({ error: 'Failed to list files' } satisfies z.infer<typeof ErrorSchema>, 500);
   }

@@ -1,4 +1,5 @@
 import { join, resolve } from 'node:path';
+import { FolderEntry } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
 import os from 'os';
@@ -100,11 +101,11 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       .map((entry) => ({
         name: entry.name,
         path: join(folderPath, entry.name),
-        type: entry.isDirectory() ? ('directory' as const) : ('file' as const)
+        type: entry.isDirectory() ? (FolderEntry.DIRECTORY as const) : FolderEntry.FILE
       }))
       .sort((a, b) => {
         if (a.type === b.type) return a.name.localeCompare(b.name);
-        return a.type === 'directory' ? -1 : 1;
+        return a.type === FolderEntry.DIRECTORY ? -1 : 1;
       });
 
     return c.json({ entries } satisfies z.infer<typeof responseSchema>, 200);

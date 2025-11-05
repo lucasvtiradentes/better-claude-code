@@ -65,8 +65,7 @@ export function ProjectsContent({
   onImageModalPrev,
   onFileModalClose,
   onFolderModalClose,
-  onFolderModalFileClick,
-  onFolderModalFolderClick
+  onFolderModalFileClick
 }: ProjectsContentProps) {
   return (
     <>
@@ -160,7 +159,6 @@ export function ProjectsContent({
           folderPath={folderModalPath}
           onClose={onFolderModalClose}
           onFileClick={onFolderModalFileClick}
-          onFolderClick={onFolderModalFolderClick}
         />
       )}
     </>

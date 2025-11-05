@@ -9,13 +9,11 @@ const querySchema = z.object({
   path: z.string()
 });
 
-const responseSchema = FileContentSchema;
-
 const ResponseSchemas = {
   200: {
     content: {
       'application/json': {
-        schema: responseSchema
+        schema: FileContentSchema
       }
     },
     description: 'Returns file content and metadata'
@@ -81,7 +79,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         isSymlink,
         realPath,
         path: filePath
-      } satisfies z.infer<typeof responseSchema>,
+      } satisfies z.infer<typeof FileContentSchema>,
       200
     );
   } catch (error) {

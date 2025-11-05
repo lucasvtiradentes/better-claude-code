@@ -1,6 +1,7 @@
+import { FolderEntry } from '@better-claude-code/shared';
 import { z } from 'zod';
 
-export const FileInfoSchema = z.object({
+const FileInfoSchema = z.object({
   path: z.string(),
   label: z.string()
 });
@@ -24,7 +25,7 @@ export const FolderContentSchema = z.object({
 export const FolderEntrySchema = z.object({
   name: z.string(),
   path: z.string(),
-  type: z.enum(['file', 'directory'])
+  type: z.enum(FolderEntry)
 });
 
 export const FolderEntriesSchema = z.object({
@@ -34,4 +35,14 @@ export const FolderEntriesSchema = z.object({
 export const PathValidationSchema = z.object({
   path: z.string(),
   exists: z.boolean()
+});
+
+export const UpdateFileBodySchema = z.object({
+  path: z.string(),
+  content: z.string()
+});
+
+export const UpdateFileResponseSchema = z.object({
+  success: z.boolean(),
+  path: z.string()
 });

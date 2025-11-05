@@ -12,13 +12,11 @@ const paramsSchema = z.object({
   action: z.enum(['openFolder', 'openCodeEditor', 'openTerminal'])
 });
 
-const responseSchema = ActionResponseSchema;
-
 const ResponseSchemas = {
   200: {
     content: {
       'application/json': {
-        schema: responseSchema
+        schema: ActionResponseSchema
       }
     },
     description: 'Action executed successfully'
@@ -124,7 +122,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       shell: platform === 'win32'
     }).unref();
 
-    return c.json({ success: true, action, path: realPath } satisfies z.infer<typeof responseSchema>, 200);
+    return c.json({ success: true, action, path: realPath } satisfies z.infer<typeof ActionResponseSchema>, 200);
   } catch {
     return c.json({ error: 'Failed to execute action' } satisfies z.infer<typeof ErrorSchema>, 500);
   }

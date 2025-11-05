@@ -1,3 +1,4 @@
+import { FolderEntry } from '@better-claude-code/shared';
 import { FileText, Image, MoreHorizontal, Search, Tag, Terminal, Trash2 } from 'lucide-react';
 import { useGetApiSettings } from '@/api';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
@@ -70,7 +71,11 @@ export const SessionCard = ({
             <span
               key={`${part.text}-${i}`}
               className={
-                part.type === 'file' ? getFileInTitleColor() : part.type === 'command' ? getCommandInTitleColor() : ''
+                part.type === FolderEntry.FILE
+                  ? getFileInTitleColor()
+                  : part.type === 'command'
+                    ? getCommandInTitleColor()
+                    : ''
               }
             >
               {part.text}

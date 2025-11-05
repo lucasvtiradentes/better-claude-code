@@ -3,22 +3,13 @@ import { promises as fs } from 'fs';
 import { isAbsolute } from 'path';
 import { z } from 'zod';
 import { ErrorSchema } from '../../common/schemas.js';
-
-const bodySchema = z.object({
-  path: z.string(),
-  content: z.string()
-});
-
-const responseSchema = z.object({
-  success: z.boolean(),
-  path: z.string()
-});
+import { UpdateFileBodySchema, UpdateFileResponseSchema } from '../schemas.js';
 
 const ResponseSchemas = {
   200: {
     content: {
       'application/json': {
-        schema: responseSchema
+        schema: UpdateFileResponseSchema
       }
     },
     description: 'File updated successfully'
@@ -57,7 +48,7 @@ export const route = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: bodySchema
+          schema: UpdateFileBodySchema
         }
       }
     }
@@ -86,7 +77,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     await fs.writeFile(targetPath, content, 'utf-8');
 
-    return c.json({ success: true, path: targetPath } satisfies z.infer<typeof responseSchema>, 200);
+    return c.json({ success: true, path: targetPath } satisfies z.infer<typeof UpdateFileResponseSchema>, 200);
   } catch (error) {
     const err = error as NodeJS.ErrnoException;
     if (err.code === 'ENOENT') {

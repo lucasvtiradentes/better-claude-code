@@ -1,11 +1,6 @@
+import { FolderEntry } from '@better-claude-code/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { useGetApiSessionsProjectNameSessionIdFolder } from '@/api';
-
-type FolderEntry = {
-  name: string;
-  path: string;
-  type: 'file' | 'directory';
-};
 
 type FolderModalProps = {
   projectId: string;
@@ -13,7 +8,6 @@ type FolderModalProps = {
   folderPath: string;
   onClose: () => void;
   onFileClick: (filePath: string) => void;
-  onFolderClick: (folderPath: string) => void;
 };
 
 export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileClick }: FolderModalProps) => {
@@ -61,8 +55,8 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
     }
   };
 
-  const handleEntryClick = (entry: FolderEntry) => {
-    if (entry.type === 'file') {
+  const handleEntryClick = (entry: (typeof entries)[number]) => {
+    if (entry.type === FolderEntry.FILE) {
       onFileClick(entry.path);
     } else {
       setPathHistory([...pathHistory, entry.path]);
@@ -141,7 +135,7 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
           )}
           {!error && entries.length > 0 && (
             <div className="space-y-1" style={{ opacity: loading ? 0.5 : 1 }}>
-              {entries.map((entry: FolderEntry) => (
+              {entries.map((entry) => (
                 <button
                   key={entry.path}
                   type="button"
@@ -149,11 +143,13 @@ export const FolderModal = ({ projectId, sessionId, folderPath, onClose, onFileC
                   className="w-full text-left px-3 py-2 rounded transition-colors flex items-center gap-2 group"
                   disabled={loading}
                 >
-                  <span className="text-lg">{entry.type === 'directory' ? '📁' : getFileIcon(entry.name)}</span>
+                  <span className="text-lg">
+                    {entry.type === FolderEntry.DIRECTORY ? '📁' : getFileIcon(entry.name)}
+                  </span>
                   <span className="text-sm text-foreground group-hover:text-primary transition-colors">
                     {entry.name}
                   </span>
-                  {entry.type === 'directory' && (
+                  {entry.type === FolderEntry.DIRECTORY && (
                     <span className="ml-auto text-muted-foreground group-hover:text-foreground">→</span>
                   )}
                 </button>
