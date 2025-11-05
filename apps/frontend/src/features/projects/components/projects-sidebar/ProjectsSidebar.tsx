@@ -9,8 +9,8 @@ import {
 import { useMemo } from 'react';
 import { useGetApiSettings, usePatchApiSettingsProjectsProjectId } from '@/api';
 import type { GetApiProjects200Item } from '@/api/_generated/schemas';
+import { GroupCardItems } from '@/components/GroupCardItems';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { TimeGroup } from '@/components/TimeGroup';
 import { useProjectsStore } from '@/features/projects/stores/projects-store';
 import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
@@ -175,7 +175,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
           if (!groupProjects?.length) return null;
 
           return (
-            <TimeGroup
+            <GroupCardItems
               key={groupKey}
               label={getGroupLabel(groupKey)}
               groupKey={groupKey as any}
@@ -190,7 +190,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
                   onLabelToggle={handleLabelToggle}
                 />
               ))}
-            </TimeGroup>
+            </GroupCardItems>
           );
         })
       )}

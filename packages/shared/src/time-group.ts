@@ -17,12 +17,12 @@ export const TIME_GROUP_ORDER: TimeGroup[] = [
 ];
 
 export const TIME_GROUP_LABELS: Record<TimeGroup, string> = {
-  today: 'Today',
-  yesterday: 'Yesterday',
-  'this-week': 'This Week',
-  'this-month': 'This Month',
-  'last-month': 'Last Month',
-  older: 'Older'
+  [TimeGroup.Today]: 'Today',
+  [TimeGroup.Yesterday]: 'Yesterday',
+  [TimeGroup.ThisWeek]: 'This Week',
+  [TimeGroup.ThisMonth]: 'This Month',
+  [TimeGroup.LastMonth]: 'Last Month',
+  [TimeGroup.Older]: 'Older'
 };
 
 export const getTimeGroup = (timestamp: number): TimeGroup => {

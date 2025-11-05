@@ -9,8 +9,8 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useGetApiSettings } from '@/api';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
+import { GroupCardItems } from '@/components/GroupCardItems';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { TimeGroup } from '@/components/TimeGroup';
 import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
 import { SessionCard } from './SessionCard';
 import { SessionsHeader } from './SessionsHeader';
@@ -199,7 +199,7 @@ export const SessionsSidebar = ({
               if (!groupSessions?.length) return null;
 
               return (
-                <TimeGroup
+                <GroupCardItems
                   key={groupKey}
                   label={getGroupLabel(groupKey)}
                   groupKey={groupKey as any}
@@ -217,7 +217,7 @@ export const SessionsSidebar = ({
                       onLabelToggle={onLabelToggle}
                     />
                   ))}
-                </TimeGroup>
+                </GroupCardItems>
               );
             })}
             {isFetchingNextPage && <div className="p-4 text-center text-muted-foreground">Loading more...</div>}

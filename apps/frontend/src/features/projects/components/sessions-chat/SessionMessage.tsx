@@ -1,3 +1,4 @@
+import { MESSAGE_PATTERNS } from '@better-claude-code/shared';
 import type { GetApiSessionsProjectNameSessionId200MessagesItem } from '@/api/_generated/schemas';
 import {
   detectCommand,
@@ -11,7 +12,6 @@ import {
   formatToolWithQuote,
   formatUltrathink
 } from '@/features/projects/utils/message-patterns';
-import { MESSAGE_PATTERNS } from '@better-claude-code/shared';
 
 type SessionMessageProps = {
   message: GetApiSessionsProjectNameSessionId200MessagesItem;
