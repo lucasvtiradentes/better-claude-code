@@ -59,7 +59,7 @@ export const getSwaggerConfig = (port: number) => ({
   ]
 });
 
-export const createServer = (options: ServerOptions) => {
+export const createServer = (port: number, staticPath?: string) => {
   const app = new OpenAPIHono();
 
   app.use('*', cors());
@@ -70,20 +70,20 @@ export const createServer = (options: ServerOptions) => {
   app.route(`${API_PREFIX}/settings`, settingsRouter);
 
   if (ENV.NODE_ENV === NodeEnv.DEVELOPMENT) {
-    setupSwagger(app, options.port);
+    setupSwagger(app, port);
   }
 
-  if (options.staticPath) {
-    serveStaticFrontend(app, options.staticPath);
+  if (staticPath) {
+    serveStaticFrontend(app, staticPath);
   }
 
   return app;
 };
 
-export const startServer = (options: ServerOptions) => {
-  const app = createServer(options);
+export const startServer = (port: number, staticPath?: string) => {
+  const app = createServer(port, staticPath);
   return serve({
     fetch: app.fetch,
-    port: options.port
+    port: port
   });
 };
