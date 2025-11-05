@@ -9,7 +9,7 @@ import {
   useGetApiSessionsProjectNameSessionIdPaths,
   useGetApiSettings,
   usePostApiSessionsProjectNameSessionIdLabels,
-  useSessions
+  useInfinitySessions
 } from '@/api';
 import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
@@ -66,7 +66,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useSessions(selectedProject || '', searchQuery || '', sortBy);
+  } = useInfinitySessions(selectedProject || '', searchQuery || '', sortBy);
   const {
     data: sessionData,
     isLoading: sessionLoading,

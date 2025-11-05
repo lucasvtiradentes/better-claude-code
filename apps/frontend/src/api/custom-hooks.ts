@@ -1,13 +1,14 @@
+import { API_PREFIX } from '@better-claude-code/shared';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { GetApiSessionsProjectName200 } from './_generated/schemas';
 import { customInstance } from './custom-instance';
 
-export const useSessions = (projectName: string, search: string = '', sortBy: string = 'date') => {
+export const useInfinitySessions = (projectName: string, search: string = '', sortBy: string = 'date') => {
   return useInfiniteQuery({
     queryKey: ['sessions', projectName, search, sortBy],
     queryFn: async ({ pageParam = 1 }) => {
       return customInstance<GetApiSessionsProjectName200>({
-        url: `/api/sessions/${encodeURIComponent(projectName)}`,
+        url: `${API_PREFIX}/sessions/${encodeURIComponent(projectName)}`,
         method: 'GET',
         params: {
           page: pageParam,
