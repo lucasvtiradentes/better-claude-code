@@ -1,8 +1,8 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { execAsync } from '@better-claude-code/node-utils';
 import os from 'os';
 import { AppSettings } from '../common/schemas.js';
-import { execAsync } from '../common/utils/exec.js';
 
 const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 

@@ -33,7 +33,6 @@ export interface Command {
 }
 
 export const CommandNames = {
-  HELLO: 'hello',
   UPDATE: 'update',
   COMPLETION: 'completion',
   COMPACT: 'compact',

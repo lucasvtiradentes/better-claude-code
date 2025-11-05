@@ -1,10 +1,10 @@
 import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { platform } from 'os';
+import { execAsync } from '@better-claude-code/node-utils';
 
 import { createCommandFromSchema } from '../definitions/command-builder.js';
 import { CommandNames } from '../definitions/types.js';
-import { execAsync } from '../utils/exec.js';
 import { Logger } from '../utils/logger.js';
 import { getPackageJsonPath } from '../utils/paths.js';
 import { reinstallCompletionSilently } from './completion.js';

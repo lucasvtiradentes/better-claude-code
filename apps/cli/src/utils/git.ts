@@ -1,4 +1,4 @@
-import { execAsync } from './exec.js';
+import { execAsync } from '@better-claude-code/node-utils';
 
 export async function getGitRepoRoot(): Promise<string> {
   const { stdout } = await execAsync('git rev-parse --show-toplevel');
