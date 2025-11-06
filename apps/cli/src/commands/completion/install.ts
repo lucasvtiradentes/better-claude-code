@@ -7,9 +7,9 @@ import { ConfigManager } from '../../config/config-manager.js';
 import { createSubCommandFromSchema } from '../../definitions/command-builder.js';
 import { generateBashCompletion, generateZshCompletion } from '../../definitions/generators/completion-generator.js';
 import { CommandNames, SubCommandNames } from '../../definitions/types.js';
-import { ENV } from '../../env.js';
 import { colors } from '../../utils/colors.js';
 import { Logger } from '../../utils/logger.js';
+import { detectShell } from './utils.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();
@@ -43,18 +43,6 @@ export function createInstallCommand(): Command {
     installCompletionCommand,
     'Failed to install completion'
   );
-}
-
-export function detectShell(): string {
-  const shell = ENV.SHELL || '';
-
-  if (shell.includes('zsh')) {
-    return 'zsh';
-  } else if (shell.includes('bash')) {
-    return 'bash';
-  }
-
-  return '';
 }
 
 async function installZshCompletion(): Promise<void> {

@@ -8,6 +8,3 @@ export function createCompletionCommand(): Command {
   completion.addCommand(createInstallCommand());
   return completion;
 }
-
-export { detectShell } from './install.js';
-export { reinstallCompletionSilently } from './utils.js';

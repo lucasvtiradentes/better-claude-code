@@ -7,7 +7,7 @@ import { createCommandFromSchema } from '../definitions/command-builder.js';
 import { CommandNames } from '../definitions/types.js';
 import { Logger } from '../utils/logger.js';
 import { getPackageJsonPath } from '../utils/paths.js';
-import { detectShell, reinstallCompletionSilently } from './completion/index.js';
+import { detectShell, reinstallCompletionSilently } from './completion/utils.js';
 
 export function createUpdateCommand(): Command {
   const updateCommand = async () => {

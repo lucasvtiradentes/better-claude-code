@@ -2,7 +2,20 @@ import { existsSync, unlinkSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { ConfigManager } from '../../config/config-manager.js';
-import { detectShell, installBashCompletionSilent, installZshCompletionSilent } from './install.js';
+import { ENV } from '../../env.js';
+import { installBashCompletionSilent, installZshCompletionSilent } from './install.js';
+
+export function detectShell(): string {
+  const shell = ENV.SHELL || '';
+
+  if (shell.includes('zsh')) {
+    return 'zsh';
+  } else if (shell.includes('bash')) {
+    return 'bash';
+  }
+
+  return '';
+}
 
 export async function reinstallCompletionSilently(): Promise<boolean> {
   const configManager = new ConfigManager();
