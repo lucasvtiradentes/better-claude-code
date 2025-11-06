@@ -3,7 +3,7 @@ import * as readline from 'readline';
 import { colors } from '../colors.js';
 import type { SessionInfo } from './session-finder.js';
 
-function formatTimeAgo(timestampMs: number): string {
+function formatTimeAgo(timestampMs: number) {
   const now = Date.now();
   const diffSeconds = Math.floor((now - timestampMs) / 1000);
 
@@ -13,7 +13,7 @@ function formatTimeAgo(timestampMs: number): string {
   return `${Math.floor(diffSeconds / 86400)}d ago`;
 }
 
-export function displaySessions(sessions: SessionInfo[]): void {
+export function displaySessions(sessions: SessionInfo[]) {
   console.log('');
   sessions.forEach((session, index) => {
     const timeAgo = formatTimeAgo(session.timestamp);
@@ -63,7 +63,7 @@ export async function selectSession(sessions: SessionInfo[]): Promise<SessionInf
   });
 }
 
-export async function confirmCompaction(): Promise<boolean> {
+export async function confirmCompaction() {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout

@@ -154,7 +154,7 @@ async function getLatestVersion(): Promise<string | null> {
   }
 }
 
-function getUpdateCommand(packageManager: string): string {
+function getUpdateCommand(packageManager: string) {
   switch (packageManager) {
     case 'npm':
       return 'npm update -g bcc';

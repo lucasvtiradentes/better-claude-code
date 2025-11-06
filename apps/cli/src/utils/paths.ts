@@ -1,7 +1,7 @@
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'url';
 
-export function getPackageRoot(importMetaUrl: string): string {
+export function getPackageRoot(importMetaUrl: string) {
   const __filename = fileURLToPath(importMetaUrl);
   const __dirname = dirname(__filename);
   const isCompiledCode = __filename.endsWith('.js');
@@ -13,11 +13,11 @@ export function getPackageRoot(importMetaUrl: string): string {
   return resolve(__dirname, '../..');
 }
 
-export function getPackageJsonPath(importMetaUrl: string): string {
+export function getPackageJsonPath(importMetaUrl: string) {
   return join(getPackageRoot(importMetaUrl), 'package.json');
 }
 
-export function getDistPath(importMetaUrl: string, appName: string, ...pathSegments: string[]): string {
+export function getDistPath(importMetaUrl: string, appName: string, ...pathSegments: string[]) {
   const __filename = fileURLToPath(importMetaUrl);
   const __dirname = dirname(__filename);
   const isCompiledCode = __filename.endsWith('.js');

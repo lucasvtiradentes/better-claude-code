@@ -1,7 +1,7 @@
 import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { spawn } from 'child_process';
 
-export async function executePromptNonInteractively(prompt: string): Promise<void> {
+export async function executePromptNonInteractively(prompt: string) {
   ClaudeHelper.validateClaudeBinary();
 
   const claudePath = ClaudeHelper.getClaudeBinaryPath();

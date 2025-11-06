@@ -12,7 +12,7 @@ export class ConfigManager {
     this.ensureConfigDirectory();
   }
 
-  private ensureConfigDirectory(): void {
+  private ensureConfigDirectory() {
     if (!existsSync(CONFIG_PATHS.configDir)) {
       mkdirSync(CONFIG_PATHS.configDir, { recursive: true });
     }
@@ -37,28 +37,28 @@ export class ConfigManager {
     }
   }
 
-  private createDefaultConfig(): void {
+  private createDefaultConfig() {
     const defaultConfig: BccConfig = {
       messages_count_mode: DEFAULT_MESSAGE_COUNT_MODE
     };
     writeFileSync(CONFIG_PATHS.defaultConfigFile, JSON.stringify(defaultConfig, null, 2));
   }
 
-  private saveConfig(): void {
+  private saveConfig() {
     if (!this.config) {
       throw new Error('No config to save');
     }
     writeFileSync(CONFIG_PATHS.defaultConfigFile, JSON.stringify(this.config, null, 2));
   }
 
-  markCompletionInstalled(): void {
+  markCompletionInstalled() {
     const config = this.loadConfig();
     config.completion_installed = true;
     this.config = config;
     this.saveConfig();
   }
 
-  isCompletionInstalled(): boolean {
+  isCompletionInstalled() {
     const config = this.loadConfig();
     return config.completion_installed === true;
   }
@@ -74,7 +74,7 @@ export class ConfigManager {
     return MessageCountMode.EVENT;
   }
 
-  setMessageCountMode(mode: MessageCountMode): void {
+  setMessageCountMode(mode: MessageCountMode) {
     const config = this.loadConfig();
     config.messages_count_mode = mode;
     this.config = config;

@@ -1,7 +1,7 @@
 import { Logger } from '../../utils/logger.js';
 import { isProcessRunning, loadPid, removePidFile } from './utils.js';
 
-export async function stopServer(): Promise<void> {
+export async function stopServer() {
   const pidData = loadPid();
 
   if (!pidData) {

@@ -7,7 +7,7 @@ interface MessageBlock {
   content: string;
 }
 
-export async function parseSessionToMarkdown(sessionFile: string, outputFile: string): Promise<void> {
+export async function parseSessionToMarkdown(sessionFile: string, outputFile: string) {
   let repoRoot: string;
   try {
     repoRoot = await getGitRepoRoot();

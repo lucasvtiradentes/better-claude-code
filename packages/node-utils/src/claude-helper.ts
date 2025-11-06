@@ -3,31 +3,31 @@ import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 
 export class ClaudeHelper {
-  static getClaudeDir(): string {
+  static getClaudeDir() {
     return join(homedir(), '.claude');
   }
 
-  static getProjectsDir(): string {
+  static getProjectsDir() {
     return join(ClaudeHelper.getClaudeDir(), 'projects');
   }
 
-  static getProjectDir(projectName: string): string {
+  static getProjectDir(projectName: string) {
     return join(ClaudeHelper.getProjectsDir(), projectName);
   }
 
-  static getSessionPath(projectName: string, sessionId: string): string {
+  static getSessionPath(projectName: string, sessionId: string) {
     return join(ClaudeHelper.getProjectDir(projectName), `${sessionId}.jsonl`);
   }
 
-  static getSessionMetadataPath(projectName: string, sessionId: string): string {
+  static getSessionMetadataPath(projectName: string, sessionId: string) {
     return join(ClaudeHelper.getProjectDir(projectName), '.metadata', `${sessionId}.json`);
   }
 
-  static getSessionsPath(projectName: string): string {
+  static getSessionsPath(projectName: string) {
     return ClaudeHelper.getProjectDir(projectName);
   }
 
-  static getClaudeBinaryPath(): string {
+  static getClaudeBinaryPath() {
     const currentPlatform = platform();
     const homeDir = homedir();
 
@@ -42,7 +42,7 @@ export class ClaudeHelper {
     }
   }
 
-  static validateClaudeBinary(): void {
+  static validateClaudeBinary() {
     const claudePath = ClaudeHelper.getClaudeBinaryPath();
 
     if (!existsSync(claudePath)) {
@@ -50,7 +50,7 @@ export class ClaudeHelper {
     }
   }
 
-  static normalizePathForClaudeProjects(dirPath: string): string {
+  static normalizePathForClaudeProjects(dirPath: string) {
     return dirPath.replace(/\/_/g, '--').replace(/\//g, '-').replace(/_/g, '-');
   }
 }

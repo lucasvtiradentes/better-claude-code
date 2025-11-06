@@ -80,7 +80,7 @@ export function createCompactCommand(): Command {
   return command;
 }
 
-async function compactById(sessionId: string, repoRoot: string): Promise<void> {
+async function compactById(sessionId: string, repoRoot: string) {
   Logger.loading(`Finding session ${sessionId}...`);
 
   const session = await findSessionById(sessionId);
@@ -97,7 +97,7 @@ async function compactById(sessionId: string, repoRoot: string): Promise<void> {
   await performCompaction(session.id, session.file, repoRoot);
 }
 
-async function compactLatest(repoRoot: string, useLastMessage?: boolean): Promise<void> {
+async function compactLatest(repoRoot: string, useLastMessage?: boolean) {
   Logger.loading('Finding latest session...');
 
   const sessions = await findSessions(1, useLastMessage);
@@ -117,11 +117,7 @@ async function compactLatest(repoRoot: string, useLastMessage?: boolean): Promis
   await performCompaction(session.id, session.file, repoRoot);
 }
 
-async function compactInteractive(
-  limit: number | undefined,
-  repoRoot: string,
-  useLastMessage?: boolean
-): Promise<void> {
+async function compactInteractive(limit: number | undefined, repoRoot: string, useLastMessage?: boolean) {
   Logger.loading('Finding sessions...');
 
   const sessions = await findSessions(limit, useLastMessage);
@@ -149,7 +145,7 @@ async function compactInteractive(
   await performCompaction(selectedSession.id, selectedSession.file, repoRoot);
 }
 
-async function performCompaction(sessionId: string, sessionFile: string, repoRoot: string): Promise<void> {
+async function performCompaction(sessionId: string, sessionFile: string, repoRoot: string) {
   const shortId = sessionId.slice(0, 12);
   const parsedFile = join(repoRoot, `cc-session-parsed-${shortId}.md`);
   const summaryFile = join(repoRoot, `cc-session-summary-${shortId}.md`);

@@ -32,7 +32,7 @@ export function getUserOS(): SupportedOS {
   throw new Error(`Unsupported OS: ${platform}`);
 }
 
-export function getConfigDirectory(): string {
+export function getConfigDirectory() {
   const userOS = getUserOS();
   const homeDir = os.homedir();
 

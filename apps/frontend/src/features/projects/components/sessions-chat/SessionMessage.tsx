@@ -24,7 +24,7 @@ type SessionMessageProps = {
   availableImages?: number[];
 };
 
-function escapeHtml(text: string): string {
+function escapeHtml(text: string) {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

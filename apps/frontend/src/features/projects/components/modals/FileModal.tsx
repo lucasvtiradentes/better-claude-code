@@ -28,7 +28,7 @@ const CheckIcon = () => (
 
 const CONTEXT_LINES_AROUND_HIGHLIGHT = 5;
 
-const getLanguageFromPath = (filePath: string): string => {
+const getLanguageFromPath = (filePath: string) => {
   const ext = filePath.split('.').pop()?.toLowerCase();
   const langMap: Record<string, string> = {
     ts: 'typescript',

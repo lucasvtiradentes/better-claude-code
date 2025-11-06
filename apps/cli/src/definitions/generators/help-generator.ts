@@ -3,7 +3,7 @@ import { colors } from '../../utils/colors.js';
 import { COMMANDS_SCHEMA } from '../commands.js';
 import type { Command, SubCommand } from '../types.js';
 
-function formatFlag(flag: { name: string; description?: string; type?: string; required?: boolean }): string {
+function formatFlag(flag: { name: string; description?: string; type?: string; required?: boolean }) {
   const requiredMarker = flag.required ? '*' : '';
   const flagName = `${flag.name}${requiredMarker}`;
 
@@ -13,7 +13,7 @@ function formatFlag(flag: { name: string; description?: string; type?: string; r
   return `    ${flagName.padEnd(28)} ${flag.description || ''}`;
 }
 
-function formatSubCommand(sub: SubCommand, indent = 4): string {
+function formatSubCommand(sub: SubCommand, indent = 4) {
   const spaces = ' '.repeat(indent);
 
   let commandName = sub.name;
@@ -39,7 +39,7 @@ function formatSubCommand(sub: SubCommand, indent = 4): string {
   return output;
 }
 
-function formatCommand(cmd: Command): string {
+function formatCommand(cmd: Command) {
   if (cmd.subcommands && cmd.subcommands.length > 0) {
     let output = `  ${colors.yellow(cmd.name)}\n`;
     for (const sub of cmd.subcommands) {
@@ -51,7 +51,7 @@ function formatCommand(cmd: Command): string {
   }
 }
 
-function generateExamplesSection(): string {
+function generateExamplesSection() {
   const examples: string[] = [];
 
   for (const cmd of COMMANDS_SCHEMA) {
@@ -73,7 +73,7 @@ function generateExamplesSection(): string {
   return limitedExamples.map((ex) => `  ${colors.cyan(`$ ${ex}`)}`).join('\n');
 }
 
-export function generateHelp(): string {
+export function generateHelp() {
   const commandsSection = COMMANDS_SCHEMA.map((cmd) => formatCommand(cmd)).join('\n');
   const examplesSection = generateExamplesSection();
 

@@ -1,7 +1,7 @@
 import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { COMMANDS_SCHEMA } from '../commands.js';
 
-export function generateZshCompletion(): string {
+export function generateZshCompletion() {
   const commands = COMMANDS_SCHEMA.map((cmd) => `        '${cmd.name}:${cmd.description}'`).join('\n');
 
   let completionFunctions = '';
@@ -109,7 +109,7 @@ _sheet_cmd "$@"
 `;
 }
 
-export function generateBashCompletion(): string {
+export function generateBashCompletion() {
   const mainCommands = COMMANDS_SCHEMA.map((cmd) => cmd.name).join(' ');
 
   const subcommandVars = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)

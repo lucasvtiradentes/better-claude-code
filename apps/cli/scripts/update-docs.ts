@@ -17,7 +17,7 @@ const COMPLETIONS_DIR = join(CLI_DIR, 'completions');
 const HELP_FILE = join(CLI_DIR, 'docs', 'help.txt');
 const COMPLETION_FILE = `_${APP_CLI_NAME}`;
 
-function validateSchema(): boolean {
+function validateSchema() {
   console.log('🔍 Validating commands schema...\n');
 
   let hasErrors = false;
@@ -81,7 +81,7 @@ function validateSchema(): boolean {
   return true;
 }
 
-function generateCompletionScripts(): void {
+function generateCompletionScripts() {
   console.log('📝 Generating shell completion scripts...\n');
 
   if (!existsSync(COMPLETIONS_DIR)) {
@@ -101,7 +101,7 @@ function generateCompletionScripts(): void {
   console.log();
 }
 
-function generateHelpText(): void {
+function generateHelpText() {
   console.log('📝 Generating help text...\n');
 
   const docsDir = join(CLI_DIR, 'docs');
@@ -121,7 +121,7 @@ function generateHelpText(): void {
   console.log();
 }
 
-function updateReadme(): void {
+function updateReadme() {
   console.log('📝 Updating README.md with generated content...\n');
 
   if (!existsSync(README_PATH)) {
@@ -158,11 +158,11 @@ function updateReadme(): void {
   console.log();
 }
 
-function escapeRegex(str: string): string {
+function escapeRegex(str: string) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function printSummary(): void {
+function printSummary() {
   console.log('═'.repeat(60));
   console.log('📊 SUMMARY');
   console.log('═'.repeat(60));
@@ -181,7 +181,7 @@ function printSummary(): void {
   console.log();
 }
 
-function main(): void {
+function main() {
   console.log();
   console.log('═'.repeat(60));
   console.log('🔄 UPDATE COMMANDS DOCUMENTATION');

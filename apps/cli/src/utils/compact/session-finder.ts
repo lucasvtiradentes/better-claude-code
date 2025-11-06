@@ -19,11 +19,11 @@ export interface SessionInfo {
   tokenPercentage?: number;
 }
 
-function getCurrentDirectory(): string {
+function getCurrentDirectory() {
   return process.cwd();
 }
 
-export async function getProjectDir(): Promise<string> {
+export async function getProjectDir() {
   let currentDir: string;
   try {
     currentDir = await getGitRepoRoot();

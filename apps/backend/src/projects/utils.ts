@@ -43,7 +43,7 @@ export async function getRealPathFromSession(folderPath: string): Promise<string
   }
 }
 
-export function extractProjectName(fullPath: string): string {
+export function extractProjectName(fullPath: string) {
   const parts = fullPath.split('/').filter(Boolean);
   return parts[parts.length - 1] || fullPath;
 }

@@ -45,7 +45,7 @@ export function createInstallCommand(): Command {
   );
 }
 
-async function installZshCompletion(): Promise<void> {
+async function installZshCompletion() {
   const homeDir = homedir();
 
   const possibleDirs = [
@@ -97,7 +97,7 @@ async function installZshCompletion(): Promise<void> {
   } catch (_error) {}
 }
 
-async function installBashCompletion(): Promise<void> {
+async function installBashCompletion() {
   const homeDir = homedir();
 
   const possibleDirs = [
@@ -136,7 +136,7 @@ async function installBashCompletion(): Promise<void> {
   Logger.info(colors.cyan('  source ~/.bashrc'));
 }
 
-export async function installZshCompletionSilent(): Promise<void> {
+export async function installZshCompletionSilent() {
   const homeDir = homedir();
 
   const possibleDirs = [
@@ -168,7 +168,7 @@ export async function installZshCompletionSilent(): Promise<void> {
   writeFileSync(completionFile, ZSH_COMPLETION_SCRIPT);
 }
 
-export async function installBashCompletionSilent(): Promise<void> {
+export async function installBashCompletionSilent() {
   const homeDir = homedir();
 
   const possibleDirs = [

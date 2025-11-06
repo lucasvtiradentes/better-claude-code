@@ -5,7 +5,7 @@ import { ConfigManager } from '../../config/config-manager.js';
 import { ENV } from '../../env.js';
 import { installBashCompletionSilent, installZshCompletionSilent } from './install.js';
 
-export function detectShell(): string {
+export function detectShell() {
   const shell = ENV.SHELL || '';
 
   if (shell.includes('zsh')) {
@@ -17,7 +17,7 @@ export function detectShell(): string {
   return '';
 }
 
-export async function reinstallCompletionSilently(): Promise<boolean> {
+export async function reinstallCompletionSilently() {
   const configManager = new ConfigManager();
 
   if (!configManager.isCompletionInstalled()) {
@@ -43,7 +43,7 @@ export async function reinstallCompletionSilently(): Promise<boolean> {
   }
 }
 
-async function clearZshCompletionCache(): Promise<void> {
+async function clearZshCompletionCache() {
   const homeDir = homedir();
   const zshCacheFile = join(homeDir, '.zcompdump');
 

@@ -1,6 +1,6 @@
 import { COMMANDS_SCHEMA } from '../commands.js';
 
-function generateAllCommands(): string {
+function generateAllCommands() {
   let output = '';
 
   for (const cmd of COMMANDS_SCHEMA) {

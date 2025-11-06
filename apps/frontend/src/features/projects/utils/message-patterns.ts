@@ -1,25 +1,25 @@
 import { MESSAGE_PATTERNS } from '@better-claude-code/shared';
 import { MESSAGE_COLORS } from './message-colors';
 
-export function getTokenColor(percentage: number): string {
+export function getTokenColor(percentage: number) {
   if (percentage >= 80) return MESSAGE_COLORS.TOKEN_HIGH;
   if (percentage >= 50) return MESSAGE_COLORS.TOKEN_MEDIUM;
   return MESSAGE_COLORS.TOKEN_LOW;
 }
 
-export function getFileInTitleColor(): string {
+export function getFileInTitleColor() {
   return MESSAGE_COLORS.EXISTING_FILE_OR_FOLDER;
 }
 
-export function getCommandInTitleColor(): string {
+export function getCommandInTitleColor() {
   return MESSAGE_COLORS.COMMAND;
 }
 
-export function getLabelActiveColor(): string {
+export function getLabelActiveColor() {
   return MESSAGE_COLORS.LABEL_ACTIVE;
 }
 
-function escapeHtml(text: string): string {
+function escapeHtml(text: string) {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -42,7 +42,7 @@ export function detectCommand(text: string): string | null {
   return null;
 }
 
-export function formatCommand(command: string): string {
+export function formatCommand(command: string) {
   return `<span class="${MESSAGE_COLORS.COMMAND}">${escapeHtml(command)}</span>`;
 }
 
@@ -50,7 +50,7 @@ export function formatFileOrFolderMention(
   prefix: string,
   filePath: string,
   pathValidation?: Array<{ path: string; exists: boolean }>
-): string {
+) {
   const pathExists = pathValidation?.find((p) => p.path === filePath)?.exists ?? true;
   const classes = pathExists ? MESSAGE_COLORS.EXISTING_FILE_OR_FOLDER : MESSAGE_COLORS.NOT_FOUND_FILE_OR_FOLDER;
   return `${prefix}<span class="${classes}" data-path="${escapeHtml(filePath)}" data-exists="${pathExists}">@${escapeHtml(filePath)}</span>`;
@@ -60,38 +60,35 @@ export function formatToolPath(
   tool: string,
   filePath: string,
   pathValidation?: Array<{ path: string; exists: boolean }>
-): string {
+) {
   const pathExists = pathValidation?.find((p) => p.path === filePath)?.exists ?? true;
   const classes = pathExists ? MESSAGE_COLORS.EXISTING_FILE_OR_FOLDER : MESSAGE_COLORS.NOT_FOUND_FILE_OR_FOLDER;
   return `[Tool: ${tool}] <span class="${classes}" data-path="${escapeHtml(filePath)}" data-exists="${pathExists}">${escapeHtml(filePath)}</span>`;
 }
 
-export function formatPathProperty(
-  filePath: string,
-  pathValidation?: Array<{ path: string; exists: boolean }>
-): string {
+export function formatPathProperty(filePath: string, pathValidation?: Array<{ path: string; exists: boolean }>) {
   const pathExists = pathValidation?.find((p) => p.path === filePath)?.exists ?? true;
   const classes = pathExists ? MESSAGE_COLORS.EXISTING_FILE_OR_FOLDER : MESSAGE_COLORS.NOT_FOUND_FILE_OR_FOLDER;
   return `path: <span class="${classes}" data-path="${escapeHtml(filePath)}" data-exists="${pathExists}">${escapeHtml(filePath)}</span>`;
 }
 
-export function formatPattern(pattern: string): string {
+export function formatPattern(pattern: string) {
   return `pattern: "<span class="${MESSAGE_COLORS.PATTERN}">${pattern}</span>"`;
 }
 
-export function formatToolWithQuote(tool: string, quote: string): string {
+export function formatToolWithQuote(tool: string, quote: string) {
   return `[Tool: ${tool}] "<span class="${MESSAGE_COLORS.PATTERN}">${quote}</span>"`;
 }
 
-export function formatUltrathink(): string {
+export function formatUltrathink() {
   return `<span class="${MESSAGE_COLORS.ULTRATHINK}">ultrathink</span>`;
 }
 
-export function formatSearchHighlight(term: string): string {
+export function formatSearchHighlight(term: string) {
   return `<mark class="${MESSAGE_COLORS.SEARCH_HIGHLIGHT}">${term}</mark>`;
 }
 
-export function formatImageTag(index: number, exists = true): string {
+export function formatImageTag(index: number, exists = true) {
   const colorClasses = exists ? MESSAGE_COLORS.EXISTING_IMAGE_TAG : MESSAGE_COLORS.NOT_FOUND_IMAGE_TAG;
   const interactionClasses = exists ? 'cursor-pointer' : '';
   const classes = `inline-block text-sm px-2 py-1 rounded border transition-colors font-semibold ${colorClasses} ${interactionClasses}`;

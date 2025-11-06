@@ -1,5 +1,5 @@
 import { generateHelp } from '../definitions/generators/help-generator.js';
 
-export function displayHelpText(): void {
+export function displayHelpText() {
   console.log(generateHelp());
 }

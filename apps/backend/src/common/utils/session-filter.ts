@@ -1,6 +1,6 @@
 import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
 
-export function isCompactionSession(lines: string[]): boolean {
+export function isCompactionSession(lines: string[]) {
   try {
     for (const line of lines) {
       try {

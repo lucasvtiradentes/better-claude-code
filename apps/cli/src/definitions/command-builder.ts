@@ -112,12 +112,12 @@ export function createSubCommandFromSchema<TArgs extends unknown[] = unknown[]>(
   return command;
 }
 
-export function getCommandDescription(commandName: string): string {
+export function getCommandDescription(commandName: string) {
   const schema = getCommand(commandName);
   return schema?.description || '';
 }
 
-export function getSubCommandDescription(commandName: string, subCommandName: string): string {
+export function getSubCommandDescription(commandName: string, subCommandName: string) {
   const schema = getSubCommand(commandName, subCommandName);
   return schema?.description || '';
 }

@@ -54,7 +54,7 @@ export const getTimeGroup = (timestamp: number): TimeGroup => {
   return TimeGroup.Older;
 };
 
-export function getGroupDate(groupName: TimeGroup): string {
+export function getGroupDate(groupName: TimeGroup) {
   const now = new Date();
   const oneDay = 24 * 60 * 60 * 1000;
 

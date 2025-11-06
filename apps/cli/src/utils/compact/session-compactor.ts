@@ -10,7 +10,7 @@ import { getGitRepoRoot } from '../git.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export async function compactSession(parsedFile: string, outputFile: string): Promise<void> {
+export async function compactSession(parsedFile: string, outputFile: string) {
   const cleanupUuid = generateUuid();
 
   const promptTemplatePath = join(__dirname, '../../prompts/session-compation.prompt.md');

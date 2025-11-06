@@ -117,7 +117,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
     return undefined;
   }, [filteredProjects, settings]);
 
-  const getGroupLabel = (groupKey: string): string => {
+  const getGroupLabel = (groupKey: string) => {
     if (!settings) return groupKey;
 
     if (settings.groupBy === 'date') {
@@ -137,7 +137,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
     return groupKey;
   };
 
-  const getGroupLabelColor = (groupKey: string): string | undefined => {
+  const getGroupLabelColor = (groupKey: string) => {
     if (!settings || settings.groupBy !== 'label' || groupKey === 'no-label') return undefined;
     const label = settings.labels.find((l) => l.id === groupKey);
     return label?.color;

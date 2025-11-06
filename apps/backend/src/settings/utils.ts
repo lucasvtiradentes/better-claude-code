@@ -35,7 +35,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   }
 };
 
-async function ensureSettingsFile(): Promise<void> {
+async function ensureSettingsFile() {
   try {
     mkdirSync(dirname(SETTINGS_PATH), { recursive: true });
     accessSync(SETTINGS_PATH);
@@ -68,6 +68,6 @@ export async function readSettings(): Promise<AppSettings> {
   return settings as AppSettings;
 }
 
-export async function writeSettings(settings: AppSettings): Promise<void> {
+export async function writeSettings(settings: AppSettings) {
   writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
 }

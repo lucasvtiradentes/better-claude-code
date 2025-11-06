@@ -46,7 +46,7 @@ if (existsSync(distScriptsFolder)) {
   console.log('✅ Removed dist/scripts');
 }
 
-function copyRecursive(src: string, dest: string): void {
+function copyRecursive(src: string, dest: string) {
   const files = readdirSync(src);
   for (const file of files) {
     const srcFile = join(src, file);

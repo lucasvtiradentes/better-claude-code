@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-function copyRecursive(src: string, dest: string): void {
+function copyRecursive(src: string, dest: string) {
   const exists = existsSync(src);
   const stats = exists && statSync(src);
   const isDirectory = exists && stats && stats.isDirectory();

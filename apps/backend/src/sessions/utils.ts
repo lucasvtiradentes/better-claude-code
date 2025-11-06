@@ -67,7 +67,7 @@ export function parseCommandFromContent(content: string): string | null {
   return null;
 }
 
-export function extractTextContent(content: any): string {
+export function extractTextContent(content: any) {
   if (typeof content === 'string') {
     return content;
   }

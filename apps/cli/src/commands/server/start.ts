@@ -1,12 +1,10 @@
 import { existsSync, openSync } from 'node:fs';
-import os from 'node:os';
-import { join } from 'node:path';
 import { BackendEnvSchema, NodeEnv } from '@better-claude-code/node-utils';
 import { BACKEND_PORT, createLocalHostLink } from '@better-claude-code/shared';
 import { spawn } from 'child_process';
 import { Logger } from '../../utils/logger.js';
 import { getDistPath } from '../../utils/paths.js';
-import { isProcessRunning, loadPid, savePid } from './utils.js';
+import { isProcessRunning, LOG_FILE, loadPid, savePid } from './utils.js';
 
 function getServerInfo() {
   const frontendPath = getDistPath(import.meta.url, 'frontend');
@@ -25,7 +23,7 @@ function getServerInfo() {
   };
 }
 
-export async function startServerForeground(port: number): Promise<void> {
+export async function startServerForeground(port: number) {
   const serverInfo = getServerInfo();
 
   if (!existsSync(serverInfo.backendPath)) {
@@ -71,7 +69,7 @@ export async function startServerForeground(port: number): Promise<void> {
   await new Promise(() => {});
 }
 
-export async function startServerDetached(port: number): Promise<void> {
+export async function startServerDetached(port: number) {
   const existingPid = loadPid();
   if (existingPid && isProcessRunning(existingPid.pid)) {
     Logger.warning(`Server is already running on port ${existingPid.port} (PID: ${existingPid.pid})`);
@@ -89,9 +87,8 @@ export async function startServerDetached(port: number): Promise<void> {
     throw new Error(`Frontend not found at ${serverInfo.frontendPath}. Run 'pnpm build' first.`);
   }
 
-  const logFile = join(os.tmpdir(), 'bcc-server.log');
-  const out = openSync(logFile, 'a');
-  const err = openSync(logFile, 'a');
+  const out = openSync(LOG_FILE, 'a');
+  const err = openSync(LOG_FILE, 'a');
 
   const serverProcess = spawn('node', [serverInfo.backendPath], {
     detached: true,
@@ -105,6 +102,6 @@ export async function startServerDetached(port: number): Promise<void> {
 
   Logger.success(`Server started in detached mode (PID: ${serverProcess.pid})`);
   Logger.info(`Server running on ${createLocalHostLink(port)}`);
-  Logger.info(`Logs: ${logFile}`);
+  Logger.info(`Logs: ${LOG_FILE}`);
   Logger.info('Use --stop to stop the server');
 }
