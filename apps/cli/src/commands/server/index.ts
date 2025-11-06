@@ -1,3 +1,4 @@
+import { BACKEND_PORT } from '@better-claude-code/shared';
 import { Command } from 'commander';
 import { getCommand } from '../../definitions/commands.js';
 import { CommandNames } from '../../definitions/types.js';
@@ -56,7 +57,7 @@ export function createServerCommand(): Command {
       process.exit(1);
     }
 
-    const port = options.port || 3001;
+    const port = options.port || BACKEND_PORT;
 
     if (options.detach) {
       await startServerDetached(port);

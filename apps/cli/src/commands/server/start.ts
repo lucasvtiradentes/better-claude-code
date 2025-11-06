@@ -21,7 +21,7 @@ function getServerInfo() {
   return {
     backendPath: getDistPath(import.meta.url, 'backend', 'main.js'),
     frontendPath,
-    backendEnv: backendEnv
+    backendEnv: backendEnv as unknown as Record<keyof BackendEnvSchema, string>
   };
 }
 
@@ -42,7 +42,7 @@ export async function startServerForeground(port: number): Promise<void> {
 
   const serverProcess = spawn('node', [serverInfo.backendPath], {
     stdio: 'inherit',
-    env: serverInfo.backendEnv as unknown as Record<keyof BackendEnvSchema, string>
+    env: serverInfo.backendEnv
   });
 
   const cleanup = () => {
@@ -79,28 +79,24 @@ export async function startServerDetached(port: number): Promise<void> {
     return;
   }
 
-  const paths = getServerInfo();
+  const serverInfo = getServerInfo();
 
-  if (!existsSync(paths.backendPath)) {
-    throw new Error(`Backend not found at ${paths.backendPath}. Run 'pnpm build' first.`);
+  if (!existsSync(serverInfo.backendPath)) {
+    throw new Error(`Backend not found at ${serverInfo.backendPath}. Run 'pnpm build' first.`);
   }
 
-  if (!existsSync(paths.frontendPath)) {
-    throw new Error(`Frontend not found at ${paths.frontendPath}. Run 'pnpm build' first.`);
+  if (!existsSync(serverInfo.frontendPath)) {
+    throw new Error(`Frontend not found at ${serverInfo.frontendPath}. Run 'pnpm build' first.`);
   }
 
   const logFile = join(os.tmpdir(), 'bcc-server.log');
   const out = openSync(logFile, 'a');
   const err = openSync(logFile, 'a');
 
-  const serverProcess = spawn('node', [paths.backendPath], {
+  const serverProcess = spawn('node', [serverInfo.backendPath], {
     detached: true,
     stdio: ['ignore', out, err],
-    env: {
-      ...process.env,
-      PORT: port.toString(),
-      STATIC_PATH: paths.frontendPath
-    }
+    env: serverInfo.backendEnv
   });
 
   serverProcess.unref();
