@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.10
+
+### Patch Changes
+
+- c864a75: add node utils package
+
 ## 0.0.9
 
 ### Patch Changes
