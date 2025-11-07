@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.13
+
+### Patch Changes
+
+- b3e656a: fix build error
+
 ## 0.0.12
 
 ### Patch Changes
