@@ -147,7 +147,7 @@ function getCurrentVersion(): string | null {
 
 async function getLatestVersion(): Promise<string | null> {
   try {
-    const { stdout } = await execAsync('npm view ${APP_CLI_NAME} version');
+    const { stdout } = await execAsync(`npm view ${APP_CLI_NAME} version`);
     return stdout.trim();
   } catch {
     return null;

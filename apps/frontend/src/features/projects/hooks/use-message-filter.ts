@@ -1,6 +1,8 @@
-import { MessageSource } from '@better-claude-code/shared';
 import { useState } from 'react';
-import type { GetApiSessionsProjectNameSessionId200MessagesItem } from '@/api/_generated/schemas';
+import {
+  type GetApiSessionsProjectNameSessionId200MessagesItem,
+  GetApiSessionsProjectNameSessionId200MessagesItemType
+} from '@/api/_generated/schemas';
 
 export function useMessageFilter(
   messages: GetApiSessionsProjectNameSessionId200MessagesItem[],
@@ -13,7 +15,8 @@ export function useMessageFilter(
 
   let filteredMessages = messages.filter(
     (msg) =>
-      (msg.type === MessageSource.USER && showUserMessages) || (msg.type === MessageSource.CC && showAssistantMessages)
+      (msg.type === GetApiSessionsProjectNameSessionId200MessagesItemType.user && showUserMessages) ||
+      (msg.type === GetApiSessionsProjectNameSessionId200MessagesItemType.assistant && showAssistantMessages)
   );
 
   if (!showToolCalls) {

@@ -12,6 +12,7 @@ import {
   formatToolWithQuote,
   formatUltrathink
 } from '@/features/projects/utils/message-patterns';
+import { isUserMessage } from '../../utils/message-utils';
 
 type SessionMessageProps = {
   message: GetApiSessionsProjectNameSessionId200MessagesItem;
@@ -148,12 +149,12 @@ export const SessionMessage = ({
     <div
       className={`
         mb-3 p-2 px-3 rounded-md wrap-break-word
-        ${message.type === MessageSource.USER ? 'bg-secondary ml-10' : 'bg-card mr-10'}
+        ${isUserMessage(message.type) ? 'bg-secondary ml-10' : 'bg-card mr-10'}
         ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
       `}
     >
       <div className="text-[11px] font-semibold mb-1 opacity-70 uppercase leading-none">
-        {message.type === MessageSource.USER ? 'User' : 'Claude Code'}
+        {isUserMessage(MessageSource.USER) ? 'User' : 'Claude Code'}
       </div>
 
       {/* biome-ignore lint/a11y/useSemanticElements: dangerouslySetInnerHTML requires div */}

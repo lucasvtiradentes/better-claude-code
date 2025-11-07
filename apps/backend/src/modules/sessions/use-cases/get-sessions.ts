@@ -1,7 +1,6 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
-import { MessageSource } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema, PaginationMetaSchema } from '../../../common/schemas.js';
@@ -85,7 +84,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       if (ClaudeHelper.isCompactionSession(lines)) continue;
 
       const events = lines.map((line) => JSON.parse(line));
-      const messages = events.filter((e: any) => e.type === MessageSource.USER || e.type === MessageSource.CC);
+      const messages = events.filter((e) => ClaudeHelper.isUserMessage(e.type) || ClaudeHelper.isCCMessage(e.type));
 
       let tokenPercentage: number | undefined;
       for (let j = lines.length - 1; j >= 0; j--) {
@@ -110,7 +109,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       for (const line of lines) {
         try {
           const parsed = JSON.parse(line);
-          if (parsed.type === MessageSource.USER) {
+          if (ClaudeHelper.isUserMessage(parsed.type)) {
             const content = extractTextContent(parsed.message?.content);
             if (content && content !== 'Warmup' && !content.includes('Caveat:')) {
               const parsedCommand = parseCommandFromContent(content);
@@ -167,7 +166,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
             }
           }
 
-          if (parsed.type === MessageSource.USER) {
+          if (ClaudeHelper.isUserMessage(parsed.type)) {
             const content = extractTextContent(parsed.message?.content);
             if (content) {
               const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);

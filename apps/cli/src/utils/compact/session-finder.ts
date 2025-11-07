@@ -1,7 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from '@better-claude-code/node-utils';
-import { MessageSource } from '@better-claude-code/shared';
 import { ConfigManager } from '../../config/config-manager.js';
 import { MessageCountMode, TitleMessage } from '../../config/types.js';
 import { getGitRepoRoot } from '../git.js';
@@ -47,8 +46,11 @@ function countMessages(lines: string[], mode: MessageCountMode): { userCount: nu
         const parsed = JSON.parse(line);
         const currentType = parsed.type;
 
-        if ((currentType === MessageSource.USER || currentType === MessageSource.CC) && currentType !== prevType) {
-          if (currentType === MessageSource.USER) {
+        if (
+          (ClaudeHelper.isUserMessage(currentType) || ClaudeHelper.isCCMessage(currentType)) &&
+          currentType !== prevType
+        ) {
+          if (ClaudeHelper.isUserMessage(currentType)) {
             userCount++;
           } else {
             assistantCount++;
@@ -63,7 +65,7 @@ function countMessages(lines: string[], mode: MessageCountMode): { userCount: nu
     const userCount = lines.filter((line) => {
       try {
         const parsed = JSON.parse(line);
-        return parsed.type === MessageSource.USER;
+        return ClaudeHelper.isUserMessage(parsed.type);
       } catch {
         return false;
       }
@@ -72,7 +74,7 @@ function countMessages(lines: string[], mode: MessageCountMode): { userCount: nu
     const assistantCount = lines.filter((line) => {
       try {
         const parsed = JSON.parse(line);
-        return parsed.type === MessageSource.CC;
+        return ClaudeHelper.isCCMessage(parsed.type);
       } catch {
         return false;
       }
@@ -135,7 +137,7 @@ export async function findSessions(limit?: number, useLastMessage?: boolean): Pr
     for (const line of lines) {
       try {
         const parsed = JSON.parse(line);
-        if (parsed.type === MessageSource.USER && typeof parsed.message?.content === 'string') {
+        if (ClaudeHelper.isUserMessage(parsed.type) && typeof parsed.message?.content === 'string') {
           const content = parsed.message.content;
           if (content && content !== 'Warmup' && !content.includes('Caveat:')) {
             firstUserMessage = content;
@@ -154,7 +156,7 @@ export async function findSessions(limit?: number, useLastMessage?: boolean): Pr
       for (let j = lines.length - 1; j >= 0; j--) {
         try {
           const parsed = JSON.parse(lines[j]);
-          if (parsed.type === MessageSource.CC && Array.isArray(parsed.message?.content)) {
+          if (ClaudeHelper.isCCMessage(parsed.type) && Array.isArray(parsed.message?.content)) {
             for (const item of parsed.message.content) {
               if (item.type === 'text' && item.text) {
                 title = item.text.replace(/\n/g, ' ').trim().substring(0, MAX_TITLE_LENGTH);

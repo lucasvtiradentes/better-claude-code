@@ -68,7 +68,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const messages: Array<{ type: MessageSource; content: string; timestamp?: number }> = [];
 
     for (const event of events) {
-      if (event.type === MessageSource.USER || event.type === MessageSource.CC) {
+      if (ClaudeHelper.isUserMessage(event.type) || ClaudeHelper.isCCMessage(event.type)) {
         const textContent = extractTextContent(event.message?.content || event.content);
         if (textContent && textContent !== 'Warmup') {
           messages.push({
@@ -95,7 +95,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const images: Array<{ index: number; data: string }> = [];
     try {
       for (const event of events) {
-        if (event.type === MessageSource.USER && Array.isArray(event.message?.content)) {
+        if (ClaudeHelper.isUserMessage(event.type) && Array.isArray(event.message?.content)) {
           for (const item of event.message.content) {
             if (item.type === 'image') {
               const imageData = item.source?.type === 'base64' ? item.source.data : null;
