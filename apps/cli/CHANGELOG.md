@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.11
+
+### Patch Changes
+
+- a07b492: fix build error
+
 ## 0.0.10
 
 ### Patch Changes
