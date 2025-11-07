@@ -1,10 +1,10 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
+import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema, PaginationMetaSchema } from '../../common/schemas.js';
-import { isCompactionSession } from '../../common/utils/session-filter.js';
 import { extractTextContent, parseCommandFromContent } from '../utils.js';
 
 const paramsSchema = z.object({
@@ -82,7 +82,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       const content = readFileSync(filePath, 'utf-8');
       const lines = content.trim().split('\n').filter(Boolean);
 
-      if (isCompactionSession(lines)) continue;
+      if (ClaudeHelper.isCompactionSession(lines, CLAUDE_CODE_SESSION_COMPACTION_ID)) continue;
 
       const events = lines.map((line) => JSON.parse(line));
       const messages = events.filter((e: any) => e.type === 'user' || e.type === 'assistant');

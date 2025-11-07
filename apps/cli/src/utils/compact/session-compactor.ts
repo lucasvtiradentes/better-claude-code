@@ -4,7 +4,6 @@ import { existsSync, readdirSync, readFileSync, unlinkSync } from 'fs';
 import { basename, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-import { executePromptNonInteractively } from '../claude.js';
 import { getGitRepoRoot } from '../git.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,7 +21,7 @@ export async function compactSession(parsedFile: string, outputFile: string) {
 
   const prompt = promptTemplate;
 
-  await executePromptNonInteractively(prompt);
+  await ClaudeHelper.executePromptNonInteractively(prompt);
 
   if (!existsSync(outputFile)) {
     throw new Error(`Summary file was not created at ${outputFile}`);
