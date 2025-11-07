@@ -5,6 +5,15 @@ export enum NodeEnv {
   PRODUCTION = 'production'
 }
 
+export function isDistMode(): boolean {
+  const stackTrace = new Error().stack || '';
+  return stackTrace.includes('/dist/');
+}
+
+export function getDefaultNodeEnv(): NodeEnv {
+  return isDistMode() ? NodeEnv.PRODUCTION : NodeEnv.DEVELOPMENT;
+}
+
 export const backendEnvSchema = z.object({
   SERVER_PORT: z.coerce.number(),
   FRONTEND_STATIC_PATH: z.string().optional(),

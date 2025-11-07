@@ -1,7 +1,7 @@
-import { CliEnvSchema, cliEnvSchema, NodeEnv } from '@better-claude-code/node-utils';
+import { CliEnvSchema, cliEnvSchema, getDefaultNodeEnv } from '@better-claude-code/node-utils';
 
 const cliEnvDefaultValues: CliEnvSchema = {
-  NODE_ENV: NodeEnv.DEVELOPMENT
+  NODE_ENV: getDefaultNodeEnv()
   // SHELL
 };
 
