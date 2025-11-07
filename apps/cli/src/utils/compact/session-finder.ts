@@ -1,7 +1,7 @@
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
-import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
-import { join } from 'path';
 import { ConfigManager } from '../../config/config-manager.js';
 import { MessageCountMode, TitleMessage } from '../../config/types.js';
 import { getGitRepoRoot } from '../git.js';

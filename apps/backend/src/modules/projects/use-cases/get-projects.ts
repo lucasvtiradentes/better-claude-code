@@ -1,9 +1,9 @@
 import { accessSync, readdirSync, statSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { promises as fs } from 'fs';
-import os from 'os';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
 import { extractProjectName, getCurrentBranch, getGitHubUrl, getRealPathFromSession, readSettings } from '../utils.js';
@@ -91,7 +91,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       }
 
       const name = extractProjectName(realPath);
-      const displayPath = realPath.replace(os.homedir(), '~');
+      const displayPath = realPath.replace(homedir(), '~');
 
       const projectSettings = settings?.projects.projectSettings[folder];
 

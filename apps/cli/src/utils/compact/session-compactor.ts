@@ -1,8 +1,8 @@
+import { existsSync, readdirSync, readFileSync, unlinkSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { ClaudeHelper, generateUuid } from '@better-claude-code/node-utils';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
-import { existsSync, readdirSync, readFileSync, unlinkSync } from 'fs';
-import { basename, dirname, join } from 'path';
-import { fileURLToPath } from 'url';
 
 import { getGitRepoRoot } from '../git.js';
 
