@@ -1,4 +1,5 @@
 import { ClaudeHelper } from '@better-claude-code/node-utils';
+import { ProjectAction } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { spawn } from 'child_process';
 import { z } from 'zod';
@@ -7,7 +8,7 @@ import { getRealPathFromSession } from '../utils.js';
 
 const paramsSchema = z.object({
   projectId: z.string(),
-  action: z.enum(['openFolder', 'openCodeEditor', 'openTerminal'])
+  action: z.enum(ProjectAction)
 });
 
 const responseSchema = z.object({
@@ -64,11 +65,6 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const { projectId, action } = c.req.valid('param');
-
-    if (!['openFolder', 'openCodeEditor', 'openTerminal'].includes(action)) {
-      return c.json({ error: 'Invalid action' } satisfies z.infer<typeof ErrorSchema>, 400);
-    }
-
     const projectPath = ClaudeHelper.getProjectDir(projectId);
     const realPath = await getRealPathFromSession(projectPath);
 
@@ -82,7 +78,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     let args: string[];
 
     switch (action) {
-      case 'openFolder':
+      case ProjectAction.OPEN_FOLDER:
         if (platform === 'darwin') {
           command = 'open';
           args = [realPath];
@@ -95,7 +91,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         }
         break;
 
-      case 'openTerminal':
+      case ProjectAction.OPEN_TERMINAL:
         if (platform === 'darwin') {
           command = 'open';
           args = ['-a', 'Terminal', realPath];
@@ -111,7 +107,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         }
         break;
 
-      case 'openCodeEditor':
+      case ProjectAction.OPEN_EDITOR:
         command = 'code';
         args = [realPath];
         break;

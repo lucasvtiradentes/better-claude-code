@@ -52,7 +52,7 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const projectsPath = ClaudeHelper.getProjectsDir();
-    const folders = await readdirSync(projectsPath);
+    const folders = readdirSync(projectsPath);
 
     const settings = await readSettings();
 
@@ -60,7 +60,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     for (const folder of folders) {
       const folderPath = join(projectsPath, folder);
-      const stats = await statSync(folderPath);
+      const stats = statSync(folderPath);
 
       if (!stats.isDirectory()) continue;
 

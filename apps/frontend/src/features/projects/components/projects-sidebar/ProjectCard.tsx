@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { getLabelActiveColor } from '@/features/projects/utils/message-patterns';
+import { ProjectAction } from '@better-claude-code/shared';
 
 type ProjectCardProps = {
   project: GetApiProjects200Item;
@@ -50,7 +51,7 @@ export const ProjectCard = ({
     }
   };
 
-  const handleAction = (e: React.MouseEvent, action: 'openFolder' | 'openCodeEditor' | 'openTerminal') => {
+  const handleAction = (e: React.MouseEvent, action: ProjectAction) => {
     e.stopPropagation();
     executeAction({ projectId: project.id, action });
   };
@@ -96,7 +97,7 @@ export const ProjectCard = ({
               {project.isGitRepo && (
                 <button
                   type="button"
-                  onClick={(e) => handleAction(e, 'openCodeEditor')}
+                  onClick={(e) => handleAction(e, ProjectAction.OPEN_EDITOR)}
                   className="hover:text-white transition-colors cursor-pointer"
                   title="Open code editor"
                 >
@@ -105,7 +106,7 @@ export const ProjectCard = ({
               )}
               <button
                 type="button"
-                onClick={(e) => handleAction(e, 'openTerminal')}
+                onClick={(e) => handleAction(e, ProjectAction.OPEN_TERMINAL)}
                 className="hover:text-white transition-colors cursor-pointer"
                 title="Open terminal"
               >
@@ -113,7 +114,7 @@ export const ProjectCard = ({
               </button>
               <button
                 type="button"
-                onClick={(e) => handleAction(e, 'openFolder')}
+                onClick={(e) => handleAction(e, ProjectAction.OPEN_FOLDER)}
                 className="hover:text-white transition-colors cursor-pointer"
                 title="Open folder"
               >

@@ -1,3 +1,4 @@
+import { ProjectAction } from '@better-claude-code/shared';
 import { ArrowLeft, Code, Settings, Terminal } from 'lucide-react';
 import { usePostApiProjectsProjectIdActionAction } from '@/api';
 import { SearchInput } from '@/components/SearchInput';
@@ -25,7 +26,7 @@ export const SessionsHeader = ({
 }: SessionsHeaderProps) => {
   const { mutate: executeAction } = usePostApiProjectsProjectIdActionAction();
 
-  const handleAction = (action: 'openCodeEditor' | 'openTerminal') => {
+  const handleAction = (action: ProjectAction) => {
     executeAction({ projectId, action });
   };
 
@@ -47,7 +48,7 @@ export const SessionsHeader = ({
           {isGitRepo && (
             <button
               type="button"
-              onClick={() => handleAction('openCodeEditor')}
+              onClick={() => handleAction(ProjectAction.OPEN_EDITOR)}
               className="p-1.5 hover:bg-accent rounded transition-colors"
               title="Open code editor"
             >
@@ -56,7 +57,7 @@ export const SessionsHeader = ({
           )}
           <button
             type="button"
-            onClick={() => handleAction('openTerminal')}
+            onClick={() => handleAction(ProjectAction.OPEN_TERMINAL)}
             className="p-1.5 hover:bg-accent rounded transition-colors"
             title="Open terminal"
           >
