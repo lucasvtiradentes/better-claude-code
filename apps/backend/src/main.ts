@@ -1,7 +1,7 @@
 import { NodeEnv } from '@better-claude-code/node-utils';
 import { createLocalHostLink, OPENAPI_SPEC_PATH, SWAGGER_UI_PATH } from '@better-claude-code/shared';
+import { startServer } from './common/server.js';
 import { ENV } from './env.js';
-import { startServer } from './server.js';
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const port = ENV.SERVER_PORT;

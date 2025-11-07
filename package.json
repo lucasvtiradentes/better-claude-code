@@ -8,6 +8,7 @@
     "prepare": "npm run build:packages",
     "start": "node ./apps/cli/dist/cli/cli.js",
     "dev": "pnpm --filter better-claude-code dev",
+    "dev:app": "pnpm --filter '@better-claude-code/backend' --filter '@better-claude-code/frontend' dev",
     "build": "pnpm build:packages && pnpm build:apps",
     "build:packages": "pnpm --filter './packages/*' build",
     "build:apps": "pnpm --filter '@better-claude-code/backend' --filter 'better-claude-code' build && pnpm --filter '@better-claude-code/frontend' build",

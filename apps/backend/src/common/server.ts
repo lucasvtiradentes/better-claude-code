@@ -15,11 +15,11 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
-import { ENV } from './env.js';
-import { filesRouter } from './files/router.js';
-import { projectsRouter } from './projects/router.js';
-import { sessionsRouter } from './sessions/router.js';
-import { settingsRouter } from './settings/router.js';
+import { ENV } from '../env.js';
+import { filesRouter } from '../files/router.js';
+import { projectsRouter } from '../projects/router.js';
+import { sessionsRouter } from '../sessions/router.js';
+import { settingsRouter } from '../settings/router.js';
 
 function proxyToFrontendDevServer(app: OpenAPIHono) {
   app.use('/*', async (c, next) => {
@@ -72,6 +72,20 @@ function setupSwagger(app: OpenAPIHono, port: number) {
   );
 }
 
+const startTime = Date.now();
+
+function setupHealthRoute(app: OpenAPIHono) {
+  app.get(`${API_PREFIX}`, (c) => {
+    const uptime = Date.now() - startTime;
+    return c.json({
+      name: `${APP_NAME} API`,
+      uptime: `${Math.floor(uptime / 1000)}s`,
+      environment: ENV.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
+  });
+}
+
 export const getSwaggerConfig = (port: number) => ({
   openapi: '3.1.0',
   info: {
@@ -86,20 +100,6 @@ export const getSwaggerConfig = (port: number) => ({
     }
   ]
 });
-
-const startTime = Date.now();
-
-function setupHealthRoute(app: OpenAPIHono) {
-  app.get(`${API_PREFIX}`, (c) => {
-    const uptime = Date.now() - startTime;
-    return c.json({
-      name: `${APP_NAME} API`,
-      uptime: `${Math.floor(uptime / 1000)}s`,
-      environment: ENV.NODE_ENV,
-      timestamp: new Date().toISOString()
-    });
-  });
-}
 
 export const createServer = (port: number, staticPath?: string) => {
   const app = new OpenAPIHono();

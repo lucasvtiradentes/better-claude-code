@@ -1,8 +1,8 @@
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'url';
+import { createServer, getSwaggerConfig } from '../src/common/server';
 import { ENV } from '../src/env';
-import { createServer, getSwaggerConfig } from '../src/server';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
