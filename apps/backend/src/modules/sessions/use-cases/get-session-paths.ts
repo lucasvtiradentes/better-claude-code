@@ -1,6 +1,7 @@
 import { accessSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
+import { MessageSource } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
@@ -75,7 +76,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     for (const line of lines) {
       try {
         const parsed = JSON.parse(line);
-        if (parsed.type === 'user') {
+        if (parsed.type === MessageSource.USER) {
           const textContent = extractTextContent(parsed.message?.content);
           const paths = extractPathsFromText(textContent);
           for (const path of paths) {

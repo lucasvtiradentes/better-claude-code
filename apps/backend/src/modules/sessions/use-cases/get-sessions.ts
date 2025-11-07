@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
-import { CLAUDE_CODE_SESSION_COMPACTION_ID } from '@better-claude-code/shared';
+import { MessageSource } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema, PaginationMetaSchema } from '../../../common/schemas.js';
@@ -82,10 +82,10 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       const content = readFileSync(filePath, 'utf-8');
       const lines = content.trim().split('\n').filter(Boolean);
 
-      if (ClaudeHelper.isCompactionSession(lines, CLAUDE_CODE_SESSION_COMPACTION_ID)) continue;
+      if (ClaudeHelper.isCompactionSession(lines)) continue;
 
       const events = lines.map((line) => JSON.parse(line));
-      const messages = events.filter((e: any) => e.type === 'user' || e.type === 'assistant');
+      const messages = events.filter((e: any) => e.type === MessageSource.USER || e.type === MessageSource.CC);
 
       let tokenPercentage: number | undefined;
       for (let j = lines.length - 1; j >= 0; j--) {
@@ -110,7 +110,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       for (const line of lines) {
         try {
           const parsed = JSON.parse(line);
-          if (parsed.type === 'user') {
+          if (parsed.type === MessageSource.USER) {
             const content = extractTextContent(parsed.message?.content);
             if (content && content !== 'Warmup' && !content.includes('Caveat:')) {
               const parsedCommand = parseCommandFromContent(content);
@@ -167,7 +167,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
             }
           }
 
-          if (parsed.type === 'user') {
+          if (parsed.type === MessageSource.USER) {
             const content = extractTextContent(parsed.message?.content);
             if (content) {
               const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);

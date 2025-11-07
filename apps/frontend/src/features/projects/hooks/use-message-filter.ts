@@ -1,3 +1,4 @@
+import { MessageSource } from '@better-claude-code/shared';
 import { useState } from 'react';
 import type { GetApiSessionsProjectNameSessionId200MessagesItem } from '@/api/_generated/schemas';
 
@@ -11,7 +12,8 @@ export function useMessageFilter(
   const [searchMatchIndex, setSearchMatchIndex] = useState(0);
 
   let filteredMessages = messages.filter(
-    (msg) => (msg.type === 'user' && showUserMessages) || (msg.type === 'assistant' && showAssistantMessages)
+    (msg) =>
+      (msg.type === MessageSource.USER && showUserMessages) || (msg.type === MessageSource.CC && showAssistantMessages)
   );
 
   if (!showToolCalls) {

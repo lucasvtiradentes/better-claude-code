@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
+import { MessageSource } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
@@ -11,7 +12,7 @@ const paramsSchema = z.object({
 });
 
 const MessageSchema = z.object({
-  type: z.enum(['user', 'assistant']),
+  type: z.enum(MessageSource),
   content: z.string(),
   timestamp: z.number().optional()
 });
@@ -64,10 +65,10 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const lines = content.trim().split('\n').filter(Boolean);
     const events = lines.map((line) => JSON.parse(line));
 
-    const messages: Array<{ type: 'user' | 'assistant'; content: string; timestamp?: number }> = [];
+    const messages: Array<{ type: MessageSource; content: string; timestamp?: number }> = [];
 
     for (const event of events) {
-      if (event.type === 'user' || event.type === 'assistant') {
+      if (event.type === MessageSource.USER || event.type === MessageSource.CC) {
         const textContent = extractTextContent(event.message?.content || event.content);
         if (textContent && textContent !== 'Warmup') {
           messages.push({
@@ -79,7 +80,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       }
     }
 
-    const groupedMessages: Array<{ type: 'user' | 'assistant'; content: string; timestamp?: number }> = [];
+    const groupedMessages: Array<{ type: MessageSource; content: string; timestamp?: number }> = [];
     for (const msg of messages) {
       const lastMsg = groupedMessages[groupedMessages.length - 1];
       if (lastMsg && lastMsg.type === msg.type) {
@@ -94,7 +95,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const images: Array<{ index: number; data: string }> = [];
     try {
       for (const event of events) {
-        if (event.type === 'user' && Array.isArray(event.message?.content)) {
+        if (event.type === MessageSource.USER && Array.isArray(event.message?.content)) {
           for (const item of event.message.content) {
             if (item.type === 'image') {
               const imageData = item.source?.type === 'base64' ? item.source.data : null;

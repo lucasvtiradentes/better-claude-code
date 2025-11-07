@@ -1,4 +1,4 @@
-import { MESSAGE_PATTERNS } from '@better-claude-code/shared';
+import { MESSAGE_PATTERNS, MessageSource } from '@better-claude-code/shared';
 import type { GetApiSessionsProjectNameSessionId200MessagesItem } from '@/api/_generated/schemas';
 import {
   detectCommand,
@@ -148,12 +148,12 @@ export const SessionMessage = ({
     <div
       className={`
         mb-3 p-2 px-3 rounded-md wrap-break-word
-        ${message.type === 'user' ? 'bg-secondary ml-10' : 'bg-card mr-10'}
+        ${message.type === MessageSource.USER ? 'bg-secondary ml-10' : 'bg-card mr-10'}
         ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
       `}
     >
       <div className="text-[11px] font-semibold mb-1 opacity-70 uppercase leading-none">
-        {message.type === 'user' ? 'User' : 'Claude Code'}
+        {message.type === MessageSource.USER ? 'User' : 'Claude Code'}
       </div>
 
       {/* biome-ignore lint/a11y/useSemanticElements: dangerouslySetInnerHTML requires div */}

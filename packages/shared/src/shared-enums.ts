@@ -8,3 +8,8 @@ export enum ProjectAction {
   OPEN_EDITOR = 'openCodeEditor',
   OPEN_TERMINAL = 'openTerminal'
 }
+
+export enum MessageSource {
+  USER = 'user',
+  CC = 'assistant'
+}

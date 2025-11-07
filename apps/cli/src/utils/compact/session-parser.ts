@@ -1,9 +1,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-
+import { MessageSource } from '@better-claude-code/shared';
 import { getGitRepoRoot } from '../git.js';
 
 interface MessageBlock {
-  type: 'user' | 'assistant';
+  type: MessageSource;
   content: string;
 }
 
@@ -23,17 +23,17 @@ export async function parseSessionToMarkdown(sessionFile: string, outputFile: st
   for (const line of lines) {
     try {
       const parsed = JSON.parse(line);
-      if (parsed.type === 'user' || parsed.type === 'assistant') {
+      if (parsed.type === MessageSource.USER || parsed.type === MessageSource.CC) {
         const messageContent = parsed.message?.content;
 
         if (!messageContent) continue;
 
-        if (parsed.type === 'user') {
+        if (parsed.type === MessageSource.USER) {
           if (typeof messageContent === 'string') {
             if (messageContent === 'Warmup' || messageContent.includes('Caveat: The messages below were generated')) {
               continue;
             }
-            messages.push({ type: 'user', content: messageContent });
+            messages.push({ type: MessageSource.USER, content: messageContent });
           } else if (Array.isArray(messageContent)) {
             const hasToolResult = messageContent.some((item) => item.type === 'tool_result');
             if (!hasToolResult) {
@@ -42,7 +42,7 @@ export async function parseSessionToMarkdown(sessionFile: string, outputFile: st
                 .map((item) => item.text)
                 .join('\n');
               if (textContent) {
-                messages.push({ type: 'user', content: textContent });
+                messages.push({ type: MessageSource.USER, content: textContent });
               }
             }
           }
@@ -73,10 +73,10 @@ export async function parseSessionToMarkdown(sessionFile: string, outputFile: st
               }
             }
             if (parts.length > 0) {
-              messages.push({ type: 'assistant', content: parts.join('\n') });
+              messages.push({ type: MessageSource.CC, content: parts.join('\n') });
             }
           } else if (typeof messageContent === 'string') {
-            messages.push({ type: 'assistant', content: messageContent });
+            messages.push({ type: MessageSource.CC, content: messageContent });
           }
         }
       }
@@ -86,8 +86,8 @@ export async function parseSessionToMarkdown(sessionFile: string, outputFile: st
   let markdown = '';
 
   if (messages.length > 0) {
-    const firstUser = messages.find((m) => m.type === 'user');
-    const firstAssistant = messages.find((m) => m.type === 'assistant');
+    const firstUser = messages.find((m) => m.type === MessageSource.USER);
+    const firstAssistant = messages.find((m) => m.type === MessageSource.CC);
 
     if (firstUser) {
       markdown += '<user_message type="initial">\n';
@@ -105,7 +105,7 @@ export async function parseSessionToMarkdown(sessionFile: string, outputFile: st
     const middleMessages = messages.slice(2, -2);
     if (middleMessages.length > 0) {
       for (const msg of middleMessages) {
-        if (msg.type === 'user') {
+        if (msg.type === MessageSource.USER) {
           markdown += `<user_message>${msg.content}</user_message>\n\n`;
         } else {
           markdown += `<cc_message>${msg.content}</cc_message>\n\n`;
@@ -115,8 +115,8 @@ export async function parseSessionToMarkdown(sessionFile: string, outputFile: st
     }
 
     if (messages.length > 2) {
-      const lastUser = messages.filter((m) => m.type === 'user').pop();
-      const lastAssistant = messages.filter((m) => m.type === 'assistant').pop();
+      const lastUser = messages.filter((m) => m.type === MessageSource.USER).pop();
+      const lastAssistant = messages.filter((m) => m.type === MessageSource.CC).pop();
 
       if (lastUser && lastUser !== firstUser) {
         markdown += '<user_message type="final">\n';
