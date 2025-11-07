@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "prepare": "npm run build:packages",
-    "start": "node ./apps/cli/dist/cli/cli.js",
+    "start": "node ./apps/cli/dist/cli/main.js",
     "dev": "pnpm --filter better-claude-code dev",
     "dev:app": "pnpm --filter '@better-claude-code/backend' --filter '@better-claude-code/frontend' dev",
     "build": "pnpm build:packages && pnpm build:apps",
