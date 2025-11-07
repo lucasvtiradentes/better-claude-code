@@ -85,13 +85,27 @@ function fixImportsInDirectory(dir: string) {
     } else if (file.endsWith('.js')) {
       let content = readFileSync(fullPath, 'utf-8');
 
+      const hasImports = content.includes('@better-claude-code/shared') || content.includes('@better-claude-code/node-utils');
+      if (hasImports) {
+        console.log(`Fixing imports in: ${fullPath}`);
+      }
+
       const sharedRelativePath = relative(dirname(fullPath), sharedDistDest);
       const sharedImportPath = `${sharedRelativePath.replace(/\\/g, '/')}/index.js`;
+      if (content.includes('@better-claude-code/shared')) {
+        console.log(`  shared: "${sharedImportPath}"`);
+      }
       content = content.replace(/from ['"]@better-claude-code\/shared['"]/g, `from '${sharedImportPath}'`);
 
       const nodeUtilsRelativePath = relative(dirname(fullPath), nodeUtilsDistDest);
       const nodeUtilsImportPath = `${nodeUtilsRelativePath.replace(/\\/g, '/')}/index.js`;
+      if (content.includes('@better-claude-code/node-utils')) {
+        console.log(`  node-utils: "${nodeUtilsImportPath}"`);
+      }
       content = content.replace(/from ['"]@better-claude-code\/node-utils['"]/g, `from '${nodeUtilsImportPath}'`);
+
+      content = content.replace(/from ['"]\.\.\/node-utils\/index\.js['"]/g, `from '${nodeUtilsImportPath}'`);
+      content = content.replace(/from ['"]\.\.\/shared\/index\.js['"]/g, `from '${sharedImportPath}'`);
 
       writeFileSync(fullPath, content, 'utf-8');
     }

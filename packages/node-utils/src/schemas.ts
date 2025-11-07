@@ -6,7 +6,7 @@ export enum NodeEnv {
 }
 
 export const backendEnvSchema = z.object({
-  SERVER_PORT: z.number(),
+  SERVER_PORT: z.coerce.number(),
   FRONTEND_STATIC_PATH: z.string().optional(),
   //shared
   NODE_ENV: z.enum(NodeEnv),

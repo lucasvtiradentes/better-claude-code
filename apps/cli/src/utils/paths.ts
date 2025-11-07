@@ -24,7 +24,7 @@ export function getDistPath(importMetaUrl: string, appName: string, ...pathSegme
 
   if (isCompiledCode) {
     const packageRoot = resolve(__dirname, '../../..');
-    return join(packageRoot, 'dist', appName, ...pathSegments);
+    return join(packageRoot, appName, ...pathSegments);
   }
 
   const repoRoot = resolve(__dirname, '../../../..');

@@ -2,6 +2,7 @@ import { existsSync, openSync } from 'node:fs';
 import { BackendEnvSchema, NodeEnv } from '@better-claude-code/node-utils';
 import { BACKEND_PORT, createLocalHostLink } from '@better-claude-code/shared';
 import { spawn } from 'child_process';
+import { ENV } from '../../env.js';
 import { Logger } from '../../utils/logger.js';
 import { getDistPath } from '../../utils/paths.js';
 import { isProcessRunning, LOG_FILE, loadPid, savePid } from './utils.js';
@@ -11,7 +12,7 @@ function getServerInfo() {
 
   const backendEnv: BackendEnvSchema = {
     ...process.env,
-    NODE_ENV: process.env.NODE_ENV as NodeEnv,
+    NODE_ENV: ENV.NODE_ENV as NodeEnv,
     SERVER_PORT: BACKEND_PORT,
     FRONTEND_STATIC_PATH: frontendPath
   };
