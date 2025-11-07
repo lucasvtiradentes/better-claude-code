@@ -3,7 +3,6 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
 import { extractProjectName, getCurrentBranch, getGitHubUrl, getRealPathFromSession, readSettings } from '../utils.js';
@@ -68,10 +67,13 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
       if (!realPath) continue;
 
-      const sessionFiles = await fs
-        .readdir(folderPath)
-        .then((files) => files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-')))
-        .catch(() => []);
+      let sessionFiles: string[] = [];
+      try {
+        const files = readdirSync(folderPath);
+        sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
+      } catch {
+        sessionFiles = [];
+      }
 
       const sessionsCount = sessionFiles.length;
 

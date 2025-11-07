@@ -1,6 +1,6 @@
+import { accessSync, constants } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { promises as fs } from 'fs';
 import { homedir } from 'os';
 import { fileURLToPath } from 'url';
 import { z } from 'zod';
@@ -49,10 +49,13 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const promptPathDev = join(__dirname, '../../../../cli/src/prompts/session-compation.prompt.md');
     const promptPathProd = join(__dirname, '../../../cli/prompts/session-compation.prompt.md');
 
-    const promptPath = await fs
-      .access(promptPathDev)
-      .then(() => promptPathDev)
-      .catch(() => promptPathProd);
+    let promptPath: string;
+    try {
+      accessSync(promptPathDev, constants.F_OK);
+      promptPath = promptPathDev;
+    } catch {
+      promptPath = promptPathProd;
+    }
 
     const files = [
       {
