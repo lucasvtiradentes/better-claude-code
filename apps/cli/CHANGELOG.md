@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.12
+
+### Patch Changes
+
+- bcc106d: fix build error
+
 ## 0.0.11
 
 ### Patch Changes
