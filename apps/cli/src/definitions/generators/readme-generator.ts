@@ -1,9 +1,9 @@
-import { COMMANDS_SCHEMA } from '../commands.js';
+import { getAllCommands } from '../commands.js';
 
 function generateAllCommands() {
   let output = '';
 
-  for (const cmd of COMMANDS_SCHEMA) {
+  for (const cmd of getAllCommands()) {
     if (!cmd.subcommands || cmd.subcommands.length === 0) {
       if (cmd.examples && cmd.examples.length > 0) {
         output += `### ${cmd.name.charAt(0).toUpperCase() + cmd.name.slice(1)}\n\n`;
