@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.14
+
+### Patch Changes
+
+- efc3cf8: fix build error
+
 ## 0.0.13
 
 ### Patch Changes
