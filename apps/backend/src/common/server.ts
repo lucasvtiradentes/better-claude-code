@@ -16,10 +16,10 @@ import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
 import { ENV } from '../env.js';
-import { filesRouter } from '../files/router.js';
-import { projectsRouter } from '../projects/router.js';
-import { sessionsRouter } from '../sessions/router.js';
-import { settingsRouter } from '../settings/router.js';
+import { filesRouter } from '../modules/files/router.js';
+import { projectsRouter } from '../modules/projects/router.js';
+import { sessionsRouter } from '../modules/sessions/router.js';
+import { settingsRouter } from '../modules/settings/router.js';
 
 function proxyToFrontendDevServer(app: OpenAPIHono) {
   app.use('/*', async (c, next) => {
