@@ -1,7 +1,6 @@
 import { join } from 'node:path';
 import { ClaudeHelper, listSessions, MessageCountMode, TitleSource } from '@better-claude-code/node-utils';
 import { ConfigManager } from '../../config/config-manager.js';
-import { TitleMessage } from '../../config/types.js';
 import { getGitRepoRoot } from '../git.js';
 
 export interface SessionInfo {
@@ -57,12 +56,12 @@ export async function findSessions(limit?: number, useLastMessage?: boolean): Pr
 
   return result.items.map((item) => ({
     id: item.id,
-    file: item.filePath!,
+    file: item.filePath ?? '',
     timestamp: item.createdAt,
-    userCount: item.userMessageCount!,
-    assistantCount: item.assistantMessageCount!,
+    userCount: item.userMessageCount ?? 0,
+    assistantCount: item.assistantMessageCount ?? 0,
     title: item.title,
-    shortId: item.shortId!,
+    shortId: item.shortId ?? '',
     tokenPercentage: item.tokenPercentage,
     imageCount: item.imageCount,
     filesOrFoldersCount: item.filesOrFoldersCount
@@ -100,12 +99,12 @@ export async function findSessionById(sessionId: string, limit = 1000): Promise<
 
   return {
     id: session.id,
-    file: session.filePath!,
+    file: session.filePath ?? '',
     timestamp: session.createdAt,
-    userCount: session.userMessageCount!,
-    assistantCount: session.assistantMessageCount!,
+    userCount: session.userMessageCount ?? 0,
+    assistantCount: session.assistantMessageCount ?? 0,
     title: session.title,
-    shortId: session.shortId!,
+    shortId: session.shortId ?? '',
     tokenPercentage: session.tokenPercentage
   };
 }

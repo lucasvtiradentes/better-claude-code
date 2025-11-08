@@ -96,7 +96,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     return c.json(
       {
         items,
-        meta: result.meta!
+        meta: result.meta ?? { page: 1, limit: 20, totalItems: 0, totalPages: 0 }
       } satisfies z.infer<typeof responseSchema>,
       200
     );
