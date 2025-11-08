@@ -29,7 +29,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
-      <Toaster position="top-right" />
+      <Toaster position="top-right" richColors />
       {configs.enableTanstackQueryDev && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );

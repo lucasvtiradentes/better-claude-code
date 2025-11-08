@@ -1,8 +1,10 @@
 import { javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import { markdown } from '@codemirror/lang-markdown';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import CodeMirror from '@uiw/react-codemirror';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { useGetApiFiles, useGetApiFilesList, usePutApiFiles } from '@/api';
 import { Layout } from '@/components/layout/Layout';
 import { useTheme } from '../../../hooks/use-theme';
@@ -10,11 +12,11 @@ import { useTheme } from '../../../hooks/use-theme';
 export const FilesPage = () => {
   const { theme } = useTheme();
   const { data: filesList } = useGetApiFilesList();
+  const navigate = useNavigate();
+  const { path: fileFromUrl } = useSearch({ from: '/files' });
 
   const firstFile = filesList?.files[0]?.path ?? '';
-  const [selectedFile, setSelectedFile] = useState<string>(firstFile);
-
-  const actualSelectedFile = selectedFile || firstFile;
+  const actualSelectedFile = fileFromUrl || firstFile;
 
   const { data: fileData, isLoading: loading } = useGetApiFiles(
     { path: actualSelectedFile },
@@ -53,9 +55,26 @@ export const FilesPage = () => {
 
   const handleSave = useCallback(() => {
     if (actualSelectedFile) {
-      saveFile({ data: { path: actualSelectedFile, content: editedContent } });
+      saveFile(
+        { data: { path: actualSelectedFile, content: editedContent } },
+        {
+          onSuccess: () => {
+            toast.success('File saved successfully');
+          },
+          onError: () => {
+            toast.error('Failed to save file');
+          }
+        }
+      );
     }
   }, [actualSelectedFile, editedContent, saveFile]);
+
+  const handleFileSelect = useCallback(
+    (filePath: string) => {
+      navigate({ to: '/files', search: { path: filePath } });
+    },
+    [navigate]
+  );
 
   return (
     <Layout>
@@ -66,11 +85,11 @@ export const FilesPage = () => {
               <button
                 key={file.path}
                 type="button"
-                onClick={() => setSelectedFile(file.path)}
+                onClick={() => handleFileSelect(file.path)}
                 className={`
                 w-full px-4 py-3 text-left border-b border-border
                 transition-colors duration-100
-                ${selectedFile === file.path ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'}
+                ${actualSelectedFile === file.path ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'}
               `}
               >
                 <div className="text-sm font-medium">{file.label}</div>

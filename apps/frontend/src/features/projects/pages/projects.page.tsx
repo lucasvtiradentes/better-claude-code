@@ -84,13 +84,6 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   const { imageModalIndex, setImageModalIndex, fileModalPath, setFileModalPath, folderModalPath, setFolderModalPath } =
     useModalState(imageIndex, urlFolderPath, urlFilePath, sessionData?.images);
 
-  console.log('[projects.tsx] State:', {
-    imageIndex,
-    imageModalIndex,
-    sessionDataImages: sessionData?.images,
-    sessionDataImagesLength: sessionData?.images?.length
-  });
-
   const { updateSearch, handlePathClick, navigateToProject, navigateToSession, navigateBack } = useNavigationManager({
     selectedProject,
     sessionId,
