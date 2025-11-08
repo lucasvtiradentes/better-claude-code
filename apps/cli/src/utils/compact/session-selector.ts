@@ -14,23 +14,39 @@ function formatTimeAgo(timestampMs: number) {
 }
 
 export function displaySessions(sessions: SessionInfo[]) {
+  const maxFiles = Math.max(...sessions.map((s) => s.filesOrFoldersCount || 0));
+  const maxImages = Math.max(...sessions.map((s) => s.imageCount || 0));
+  const maxToken = Math.max(...sessions.map((s) => s.tokenPercentage || 0));
+
+  const filesPadding = Math.max(maxFiles.toString().length, 1);
+  const imagesPadding = Math.max(maxImages.toString().length, 1);
+  const tokenPadding = Math.max(maxToken.toString().length, 1);
+
   console.log('');
   sessions.forEach((session, index) => {
     const timeAgo = formatTimeAgo(session.timestamp);
 
+    const fileCount = session.filesOrFoldersCount || 0;
+    const imageCount = session.imageCount || 0;
+
+    const filesDisplay = `${fileCount.toString().padStart(filesPadding)} files`;
+    const imagesDisplay = `${imageCount.toString().padStart(imagesPadding)} images`;
+    const attachmentsDisplay = ` · ${filesDisplay} · ${imagesDisplay}`;
+
     let tokenDisplay = '';
     if (session.tokenPercentage !== undefined) {
       const pct = session.tokenPercentage;
+      const pctStr = `${pct}%`.padStart(tokenPadding + 1);
       if (pct >= 90) {
-        tokenDisplay = ` · ${colors.magenta(`${pct}%`)}`;
+        tokenDisplay = ` · ${colors.magenta(pctStr)}`;
       } else if (pct >= 80) {
-        tokenDisplay = ` · ${colors.yellow(`${pct}%`)}`;
+        tokenDisplay = ` · ${colors.yellow(pctStr)}`;
       } else {
-        tokenDisplay = ` · ${pct}%`;
+        tokenDisplay = ` · ${pctStr}`;
       }
     }
 
-    const line = `${colors.dim(`${index + 1})`.padStart(3))} ${colors.cyan(session.shortId)} · ${timeAgo.padStart(8)} · ${session.userCount.toString().padStart(3)} you · ${session.assistantCount.toString().padStart(3)} cc${tokenDisplay} · ${session.title}`;
+    const line = `${colors.dim(`${index + 1})`.padStart(3))} ${colors.cyan(session.shortId)} · ${timeAgo.padStart(8)}${attachmentsDisplay}${tokenDisplay} · ${session.title}`;
     console.log(line);
   });
   console.log('');

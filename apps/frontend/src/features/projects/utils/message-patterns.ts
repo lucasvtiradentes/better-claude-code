@@ -29,8 +29,10 @@ function escapeHtml(text: string) {
 }
 
 export function detectCommand(text: string): string | null {
-  const commandNameMatch = text.match(MESSAGE_PATTERNS.COMMAND_FORMAT);
-  const commandArgsMatch = text.match(MESSAGE_PATTERNS.COMMAND_ARGS);
+  const firstLine = text.split('\n')[0].trim();
+
+  const commandNameMatch = firstLine.match(MESSAGE_PATTERNS.COMMAND_FORMAT);
+  const commandArgsMatch = firstLine.match(MESSAGE_PATTERNS.COMMAND_ARGS);
 
   if (commandNameMatch) {
     const cmdName = commandNameMatch[1];

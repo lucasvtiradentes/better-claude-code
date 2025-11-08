@@ -56,6 +56,37 @@ export const route = createRoute({
   responses: ResponseSchemas
 });
 
+function cleanUserMessage(content: string): string[] {
+  const parts = content.split('---').map((p) => p.trim());
+  const cleanedParts: string[] = [];
+
+  for (const part of parts) {
+    if (!part) continue;
+    if (part === 'Warmup') continue;
+
+    const firstLine = part.split('\n')[0].replace(/\\/g, '').replace(/\s+/g, ' ').trim();
+
+    if (firstLine.includes('Caveat:')) continue;
+
+    const commandMatch = firstLine.match(/<command-name>\/?([^<]+)<\/command-name>/);
+    if (commandMatch) {
+      const commandName = commandMatch[1];
+      if (commandName === 'clear') continue;
+    }
+
+    const isSystemMessage =
+      firstLine.startsWith('<local-command-') ||
+      firstLine.startsWith('[Tool:') ||
+      firstLine.startsWith('[Request interrupted');
+
+    if (isSystemMessage) continue;
+
+    cleanedParts.push(part);
+  }
+
+  return cleanedParts;
+}
+
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const { projectName, sessionId } = c.req.valid('param');
@@ -68,7 +99,19 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const messages: Array<{ type: MessageSource; content: string; timestamp?: number }> = [];
 
     for (const event of events) {
-      if (ClaudeHelper.isUserMessage(event.type) || ClaudeHelper.isCCMessage(event.type)) {
+      if (ClaudeHelper.isUserMessage(event.type)) {
+        const textContent = extractTextContent(event.message?.content || event.content);
+        if (textContent && textContent !== 'Warmup') {
+          const cleanedParts = cleanUserMessage(textContent);
+          for (const part of cleanedParts) {
+            messages.push({
+              type: event.type,
+              content: part,
+              timestamp: event.timestamp
+            });
+          }
+        }
+      } else if (ClaudeHelper.isCCMessage(event.type)) {
         const textContent = extractTextContent(event.message?.content || event.content);
         if (textContent && textContent !== 'Warmup') {
           messages.push({
