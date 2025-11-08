@@ -1,8 +1,9 @@
 import { ProjectAction } from '@better-claude-code/shared';
-import { Code, FolderOpen, Github, MoreHorizontal, Tag, Terminal } from 'lucide-react';
+import { Code, FolderOpen, Github, MessageSquare, MoreHorizontal, Tag, Terminal } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { useGetApiSettings, usePostApiProjectsProjectIdActionAction } from '@/api';
 import type { GetApiProjects200Item } from '@/api/_generated/schemas';
+import { IconWithBadge } from '@/components/IconWithBadge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,17 +71,25 @@ export const ProjectCard = ({
       )}
     >
       <button type="button" onClick={onClick} title={project.path} className="w-full text-left">
-        <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="mb-1">
           <div className="text-sm font-semibold wrap-break-word line-clamp-1 pr-8">{project.name}</div>
           {displaySettings.showCurrentBranch && project.currentBranch && (
-            <div className="text-[10px] text-muted-foreground flex items-center gap-1 shrink-0">
+            <div className="text-[10px] text-muted-foreground mt-0.5">
               <span>{project.currentBranch}</span>
             </div>
           )}
         </div>
 
         <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-          {displaySettings.showSessionCount ? <span>{project.sessionsCount} sessions</span> : <span></span>}
+          {displaySettings.showSessionCount ? (
+            <IconWithBadge
+              icon={MessageSquare}
+              count={project.sessionsCount}
+              label={`${project.sessionsCount} sessions`}
+            />
+          ) : (
+            <span></span>
+          )}
 
           {displaySettings.showActionButtons && (
             <div className="flex items-center gap-1.5">
