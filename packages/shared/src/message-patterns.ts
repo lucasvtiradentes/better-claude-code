@@ -8,6 +8,7 @@ export const MESSAGE_PATTERNS = {
   IMAGE_TAG: /\[Image #(\d+)\]/g,
   ULTRATHINK: /ultrathink/gi,
   URL: /https?:\/\/[^\s<>,]+/g,
+  FLAG: /(^|\s)(--[a-z]{2,})/g,
   COMMAND_FORMAT: /<command-name>\/?([^<]+)<\/command-name>/,
   COMMAND_ARGS: /<command-args>([^<]+)<\/command-args>/,
   COMMAND_WORDS:

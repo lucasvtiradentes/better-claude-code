@@ -27,6 +27,10 @@ export function getUltrathinkColor() {
   return MESSAGE_COLORS.ULTRATHINK;
 }
 
+export function getFlagColor() {
+  return MESSAGE_COLORS.FLAG;
+}
+
 function escapeHtml(text: string) {
   return text
     .replace(/&/g, '&amp;')
@@ -98,6 +102,10 @@ export function formatUrl(url: string) {
   return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="${MESSAGE_COLORS.URL}">${escapeHtml(url)}</a>`;
 }
 
+export function formatFlag(flag: string) {
+  return `<span class="${MESSAGE_COLORS.FLAG}">${escapeHtml(flag)}</span>`;
+}
+
 export function formatSearchHighlight(term: string) {
   return `<mark class="${MESSAGE_COLORS.SEARCH_HIGHLIGHT}">${term}</mark>`;
 }
@@ -112,11 +120,11 @@ export function formatImageTag(index: number, exists = true) {
 
 export function parseTitle(
   title: string
-): Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' }> {
-  const parts: Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' }> = [];
+): Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' | 'flag' }> {
+  const parts: Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' | 'flag' }> = [];
   const isCommand = MESSAGE_PATTERNS.COMMAND_WORDS.test(title) || MESSAGE_PATTERNS.SLASH_COMMAND.test(title);
 
-  const allMatches: Array<{ index: number; text: string; type: 'file' | 'url' | 'ultrathink' }> = [];
+  const allMatches: Array<{ index: number; text: string; type: 'file' | 'url' | 'ultrathink' | 'flag' }> = [];
 
   const fileRegex = new RegExp(MESSAGE_PATTERNS.FILE_OR_FOLDER_AT.source, 'g');
   let fileMatch: RegExpExecArray | null = fileRegex.exec(title);
@@ -150,6 +158,18 @@ export function parseTitle(
       type: 'ultrathink'
     });
     ultrathinkMatch = ultrathinkRegex.exec(title);
+  }
+
+  const flagRegex = new RegExp(MESSAGE_PATTERNS.FLAG.source, 'g');
+  let flagMatch: RegExpExecArray | null = flagRegex.exec(title);
+  while (flagMatch !== null) {
+    const prefixLength = flagMatch[1].length;
+    allMatches.push({
+      index: flagMatch.index + prefixLength,
+      text: flagMatch[2],
+      type: 'flag'
+    });
+    flagMatch = flagRegex.exec(title);
   }
 
   allMatches.sort((a, b) => a.index - b.index);

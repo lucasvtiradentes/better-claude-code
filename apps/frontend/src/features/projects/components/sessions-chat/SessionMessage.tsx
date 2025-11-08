@@ -4,6 +4,7 @@ import {
   detectCommand,
   formatCommand,
   formatFileOrFolderMention,
+  formatFlag,
   formatImageTag,
   formatPathProperty,
   formatPattern,
@@ -65,6 +66,8 @@ function applyCommonFormatting(
   );
 
   formatted = formatted.replace(MESSAGE_PATTERNS.URL, (match) => formatUrl(match));
+
+  formatted = formatted.replace(MESSAGE_PATTERNS.FLAG, (_match, prefix, flag) => `${prefix}${formatFlag(flag)}`);
 
   formatted = formatted.replace(MESSAGE_PATTERNS.ULTRATHINK, formatUltrathink);
 

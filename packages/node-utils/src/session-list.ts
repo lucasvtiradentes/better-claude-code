@@ -249,7 +249,7 @@ function extractTitle(lines: string[], titleSource: TitleSource): string {
             continue;
           }
 
-          let title = parsedCommand || firstLine;
+          let title = parsedCommand || content.replace(/\\/g, '').replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
 
           if (title.length > MAX_TITLE_LENGTH) {
             title = `${title.substring(0, MAX_TITLE_LENGTH)}...`;

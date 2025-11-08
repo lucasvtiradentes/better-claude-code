@@ -16,6 +16,9 @@ export const MESSAGE_COLORS = {
   // url
   URL: 'text-purple-500 font-semibold',
 
+  // flag
+  FLAG: 'text-red-500 font-semibold',
+
   // tokens
   TOKEN_HIGH: 'text-red-500',
   TOKEN_MEDIUM: 'text-primary',
