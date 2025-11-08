@@ -25,6 +25,8 @@ export function ConfirmDialog({
   variant = 'default',
   isLoading = false
 }: ConfirmDialogProps) {
+  console.log('[ConfirmDialog] Render', { open, title });
+
   if (!open) return null;
 
   return (

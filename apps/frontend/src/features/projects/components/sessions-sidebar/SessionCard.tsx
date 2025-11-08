@@ -57,6 +57,7 @@ export const SessionCard = ({
 
   const handleMenuAction = (e: React.MouseEvent<HTMLDivElement>, action: () => void) => {
     e.stopPropagation();
+    console.log('[SessionCard] handleMenuAction called', { hasOnDelete: !!onDelete });
     action();
   };
 
@@ -161,7 +162,12 @@ export const SessionCard = ({
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
-              onClick={(e: React.MouseEvent<HTMLDivElement>) => handleMenuAction(e, () => onDelete?.(session.id))}
+              onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+                handleMenuAction(e, () => {
+                  console.log('[SessionCard] Delete clicked', { sessionId: session.id, onDelete: !!onDelete });
+                  onDelete?.(session.id);
+                })
+              }
               className="text-destructive focus:text-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />

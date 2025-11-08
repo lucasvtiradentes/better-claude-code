@@ -1,6 +1,7 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import {
   useDeleteApiSessionsProjectNameSessionId,
@@ -46,6 +47,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   } = searchParams;
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
@@ -103,6 +105,32 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     searchQuery
   );
 
+  useEffect(() => {
+    console.log('[projects.page] State changed:', { deleteModalOpen, sessionToDelete });
+  }, [deleteModalOpen, sessionToDelete]);
+
+  const handleDeleteSession = (sessionId: string) => {
+    console.log('[projects.page] handleDeleteSession called', { sessionId });
+    setSessionToDelete(sessionId);
+    setTimeout(() => {
+      setDeleteModalOpen(true);
+    }, 0);
+  };
+
+  const handleLabelToggle = (sessionId: string, labelId: string) => {
+    if (!selectedProject) return;
+
+    toggleLabel(
+      { projectName: selectedProject, sessionId, data: { labelId } },
+      {
+        onError: (error) => {
+          console.error('Failed to toggle label:', error);
+          alert('Failed to toggle label');
+        }
+      }
+    );
+  };
+
   const confirmDeleteSession = () => {
     if (!sessionToDelete || !selectedProject) return;
 
@@ -110,6 +138,22 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
       { projectName: selectedProject, sessionId: sessionToDelete },
       {
         onSuccess: async () => {
+          queryClient.setQueryData(['sessions', selectedProject, searchQuery || '', sortBy], (oldData: any) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                items: page.items.filter((item: any) => item.id !== sessionToDelete),
+                meta: {
+                  ...page.meta,
+                  totalItems: page.meta.totalItems - 1
+                }
+              }))
+            };
+          });
+
           if (sessionId === sessionToDelete) {
             await navigate({
               to: '/projects',
@@ -136,41 +180,42 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     );
   };
 
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={deleteModalOpen}
+      onClose={() => {
+        setDeleteModalOpen(false);
+        setSessionToDelete(null);
+      }}
+      onConfirm={confirmDeleteSession}
+      title="Delete Session"
+      description="Are you sure you want to delete this session? This action cannot be undone and all messages will be permanently removed."
+      confirmText="Delete"
+      cancelText="Cancel"
+      variant="destructive"
+      isLoading={isDeleting}
+    />
+  );
+
   if (!selectedProject) {
     return (
-      <Layout
-        sidebar={
-          <ProjectsSidebar
-            projects={projects}
-            isLoading={projectsLoading}
-            error={projectsError}
-            onSelectProject={navigateToProject}
-          />
-        }
-      >
-        <EmptyState message="Select a project to view sessions" />
-      </Layout>
+      <>
+        <Layout
+          sidebar={
+            <ProjectsSidebar
+              projects={projects}
+              isLoading={projectsLoading}
+              error={projectsError}
+              onSelectProject={navigateToProject}
+            />
+          }
+        >
+          <EmptyState message="Select a project to view sessions" />
+        </Layout>
+        {renderConfirmDialog()}
+      </>
     );
   }
-
-  const handleDeleteSession = (sessionId: string) => {
-    setSessionToDelete(sessionId);
-    setDeleteModalOpen(true);
-  };
-
-  const handleLabelToggle = (sessionId: string, labelId: string) => {
-    if (!selectedProject) return;
-
-    toggleLabel(
-      { projectName: selectedProject, sessionId, data: { labelId } },
-      {
-        onError: (error) => {
-          console.error('Failed to toggle label:', error);
-          alert('Failed to toggle label');
-        }
-      }
-    );
-  };
 
   const sessionsSidebar = (
     <SessionsSidebar
@@ -198,9 +243,12 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
   if (!sessionId) {
     return (
-      <Layout sidebar={sessionsSidebar}>
-        <EmptyState message="Select a session to view messages" />
-      </Layout>
+      <>
+        <Layout sidebar={sessionsSidebar}>
+          <EmptyState message="Select a session to view messages" />
+        </Layout>
+        {renderConfirmDialog()}
+      </>
     );
   }
 
@@ -274,23 +322,12 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     );
   }
 
+  console.log('[projects.page] Render state:', { deleteModalOpen, sessionToDelete });
+
   return (
     <>
       <Layout sidebar={sessionsSidebar}>{content}</Layout>
-      <ConfirmDialog
-        open={deleteModalOpen}
-        onClose={() => {
-          setDeleteModalOpen(false);
-          setSessionToDelete(null);
-        }}
-        onConfirm={confirmDeleteSession}
-        title="Delete Session"
-        description="Are you sure you want to delete this session? This action cannot be undone and all messages will be permanently removed."
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="destructive"
-        isLoading={isDeleting}
-      />
+      {renderConfirmDialog()}
     </>
   );
 }
