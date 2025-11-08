@@ -80,12 +80,10 @@ function extractTextContent(content: any): string {
 function parseCommandFromContent(content: string): string | null {
   const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
   if (commandMatch) {
-    const _commandText = commandMatch[1];
-    const messageMatch = content.match(/<command-message>([^<]+)<\/command-message>/);
-    if (messageMatch) {
-      return `${commandMatch[0]} ${messageMatch[0]}`;
-    }
-    return commandMatch[0];
+    const commandText = commandMatch[1];
+    const argsMatch = content.match(/<command-args>([^<]+)<\/command-args>/);
+    const args = argsMatch ? ` ${argsMatch[1]}` : '';
+    return `/${commandText}${args}`;
   }
   return null;
 }
@@ -232,10 +230,11 @@ function extractTitle(lines: string[], titleSource: TitleSource): string {
             continue;
           }
 
-          const parsedCommand = parseCommandFromContent(firstLine);
+          const parsedCommand = parseCommandFromContent(content);
 
           if (parsedCommand) {
-            const commandName = parsedCommand.match(/<command-name>\/?([^<]+)<\/command-name>/)?.[1];
+            const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
+            const commandName = commandMatch?.[1];
             if (commandName && CLAUDE_CODE_COMMANDS.includes(commandName)) {
               continue;
             }

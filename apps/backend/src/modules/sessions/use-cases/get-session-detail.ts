@@ -56,6 +56,21 @@ export const route = createRoute({
   responses: ResponseSchemas
 });
 
+function cleanCommandMessage(content: string): string {
+  const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
+  if (!commandMatch) return content;
+
+  const commandName = commandMatch[1];
+  const argsMatch = content.match(/<command-args>([^<]+)<\/command-args>/);
+  const args = argsMatch ? ` ${argsMatch[1]}` : '';
+
+  let cleaned = content.replace(/<command-message>[^<]*<\/command-message>/g, '').trim();
+  cleaned = cleaned.replace(/<command-name>\/?[^<]+<\/command-name>/g, `/${commandName}${args}`).trim();
+  cleaned = cleaned.replace(/<command-args>[^<]+<\/command-args>/g, '').trim();
+
+  return cleaned;
+}
+
 function cleanUserMessage(content: string): string[] {
   const parts = content.split('---').map((p) => p.trim());
   const cleanedParts: string[] = [];
@@ -81,7 +96,8 @@ function cleanUserMessage(content: string): string[] {
 
     if (isSystemMessage) continue;
 
-    cleanedParts.push(part);
+    const cleaned = cleanCommandMessage(part);
+    cleanedParts.push(cleaned);
   }
 
   return cleanedParts;
