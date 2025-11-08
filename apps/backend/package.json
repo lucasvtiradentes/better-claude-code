@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "build": "rimraf ./dist && tsc",
-    "postbuild": "tsx scripts/postbuild.ts && npm run script:swagger",
-    "script:swagger": "tsx scripts/generate-swagger.ts",
+    "postbuild": "tsx scripts/postbuild.ts",
+    "generate:swagger": "tsx scripts/generate-swagger.ts",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit"
   },

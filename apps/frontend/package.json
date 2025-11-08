@@ -6,9 +6,9 @@
   "scripts": {
     "start": "vite preview",
     "dev": "vite",
-    "build": "pnpm generate-api && tsc && vite build",
+    "build": "tsc && vite build",
     "typecheck": "tsc --noEmit",
-    "generate-api": "orval"
+    "generate:orval": "orval"
   },
   "dependencies": {
     "@better-claude-code/shared": "workspace:*",

@@ -11,6 +11,17 @@ on:
         description: 'Run build'
         type: boolean
         required: true
+    secrets:
+      TURBO_TOKEN:
+        description: Turbo token for cache
+        required: true
+      TURBO_TEAM:
+        description: Turbo team for cache
+        required: true
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
 jobs:
   lint:
@@ -22,6 +33,12 @@ jobs:
 
       - name: Run lint
         run: pnpm run lint
+
+      - name: Run format
+        run: pnpm run format
+
+      - name: Check if any changes were made
+        run: git diff --exit-code
 
   build:
     if: inputs.run_build
