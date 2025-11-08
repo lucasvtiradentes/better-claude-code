@@ -43,8 +43,7 @@ export async function findSessions(limit?: number, useLastMessage?: boolean): Pr
   }
 
   const configManager = new ConfigManager();
-  const countMode =
-    configManager.getMessageCountMode() === 'turn' ? MessageCountMode.TURN : MessageCountMode.EVENT;
+  const countMode = configManager.getMessageCountMode() === 'turn' ? MessageCountMode.TURN : MessageCountMode.EVENT;
   const titleSource = useLastMessage ? TitleSource.LAST_CC_MESSAGE : TitleSource.FIRST_USER_MESSAGE;
 
   const result = await listSessions({
@@ -79,8 +78,7 @@ export async function findSessionById(sessionId: string, limit = 1000): Promise<
   }
 
   const configManager = new ConfigManager();
-  const countMode =
-    configManager.getMessageCountMode() === 'turn' ? MessageCountMode.TURN : MessageCountMode.EVENT;
+  const countMode = configManager.getMessageCountMode() === 'turn' ? MessageCountMode.TURN : MessageCountMode.EVENT;
 
   const result = await listSessions({
     projectPath: currentDir,

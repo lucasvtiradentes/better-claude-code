@@ -19,8 +19,8 @@ import {
   getFlagColor,
   getLabelActiveColor,
   getTokenColor,
-  getUrlColor,
   getUltrathinkColor,
+  getUrlColor,
   parseTitle
 } from '@/features/projects/utils/message-patterns';
 
