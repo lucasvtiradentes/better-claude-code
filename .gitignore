@@ -17,3 +17,6 @@ completions/
 .env.e2e
 CLAUDE.md
 
+
+# Turborepo
+.turbo

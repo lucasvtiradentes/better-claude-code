@@ -75,7 +75,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     for (const line of lines) {
       try {
         const parsed = JSON.parse(line);
-        if (parsed.type === 'user') {
+        if (ClaudeHelper.isUserMessage(parsed.type)) {
           const textContent = extractTextContent(parsed.message?.content);
           const paths = extractPathsFromText(textContent);
           for (const path of paths) {

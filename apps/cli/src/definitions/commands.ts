@@ -4,7 +4,7 @@ import { serverCommandDefinition } from './commands/server.definition.js';
 import { updateCommandDefinition } from './commands/update.definition.js';
 import type { Command, SubCommand } from './types.js';
 
-export const COMMANDS_SCHEMA: Command[] = [
+const COMMANDS_SCHEMA: Command[] = [
   updateCommandDefinition,
   completionCommandDefinition,
   compactCommandDefinition,

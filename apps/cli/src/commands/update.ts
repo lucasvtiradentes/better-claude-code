@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { platform } from 'node:os';
 import { execAsync } from '@better-claude-code/node-utils';
+import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { Command } from 'commander';
-
 import { createCommandFromSchema } from '../definitions/command-builder.js';
 import { CommandNames } from '../definitions/types.js';
 import { Logger } from '../utils/logger.js';
@@ -31,7 +31,7 @@ export function createUpdateCommand(): Command {
     Logger.info(`📦 Latest version: ${latestVersion}`);
 
     if (currentVersion === latestVersion) {
-      Logger.success('bcc is already up to date!');
+      Logger.success(`${APP_CLI_NAME} is already up to date!`);
       return;
     }
 
@@ -40,13 +40,13 @@ export function createUpdateCommand(): Command {
     const packageManager = await detectPackageManager();
 
     if (!packageManager) {
-      Logger.error('Could not detect how bcc was installed');
+      Logger.error(`Could not detect how ${APP_CLI_NAME} was installed`);
       Logger.dim('Please update manually using your package manager');
       return;
     }
 
     Logger.info(`📦 Detected package manager: ${packageManager}`);
-    Logger.loading(`Updating bcc from ${currentVersion} to ${latestVersion}...`);
+    Logger.loading(`Updating ${APP_CLI_NAME} from ${currentVersion} to ${latestVersion}...`);
 
     const updateCommand = getUpdateCommand(packageManager);
     const { stdout, stderr } = await execAsync(updateCommand);
@@ -56,7 +56,7 @@ export function createUpdateCommand(): Command {
       return;
     }
 
-    Logger.success(`bcc updated successfully from ${currentVersion} to ${latestVersion}!`);
+    Logger.success(`${APP_CLI_NAME} updated successfully from ${currentVersion} to ${latestVersion}!`);
 
     if (stdout) {
       Logger.dim(stdout);
@@ -147,7 +147,7 @@ function getCurrentVersion(): string | null {
 
 async function getLatestVersion(): Promise<string | null> {
   try {
-    const { stdout } = await execAsync('npm view bcc version');
+    const { stdout } = await execAsync(`npm view ${APP_CLI_NAME} version`);
     return stdout.trim();
   } catch {
     return null;

@@ -1,4 +1,4 @@
-import { BACKEND_PORT } from '@better-claude-code/shared';
+import { APP_CLI_NAME, BACKEND_PORT } from '@better-claude-code/shared';
 import { Command } from 'commander';
 import { getCommand } from '../../definitions/commands.js';
 import { CommandNames } from '../../definitions/types.js';
@@ -51,9 +51,9 @@ export function createServerCommand(): Command {
     if (!options.start) {
       Logger.error('Please specify --start or --stop');
       Logger.info('Examples:');
-      Logger.info('  bcc server --start');
-      Logger.info('  bcc server --start --detach');
-      Logger.info('  bcc server --stop');
+      Logger.info(`  ${APP_CLI_NAME} server --start`);
+      Logger.info(`  ${APP_CLI_NAME} server --start --detach`);
+      Logger.info(`  ${APP_CLI_NAME} server --stop`);
       process.exit(1);
     }
 

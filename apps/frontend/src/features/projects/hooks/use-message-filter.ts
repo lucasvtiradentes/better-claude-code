@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import type { GetApiSessionsProjectNameSessionId200MessagesItem } from '@/api/_generated/schemas';
+import {
+  type GetApiSessionsProjectNameSessionId200MessagesItem,
+  GetApiSessionsProjectNameSessionId200MessagesItemType
+} from '@/api/_generated/schemas';
 
 export function useMessageFilter(
   messages: GetApiSessionsProjectNameSessionId200MessagesItem[],
@@ -11,7 +14,9 @@ export function useMessageFilter(
   const [searchMatchIndex, setSearchMatchIndex] = useState(0);
 
   let filteredMessages = messages.filter(
-    (msg) => (msg.type === 'user' && showUserMessages) || (msg.type === 'assistant' && showAssistantMessages)
+    (msg) =>
+      (msg.type === GetApiSessionsProjectNameSessionId200MessagesItemType.user && showUserMessages) ||
+      (msg.type === GetApiSessionsProjectNameSessionId200MessagesItemType.assistant && showAssistantMessages)
   );
 
   if (!showToolCalls) {

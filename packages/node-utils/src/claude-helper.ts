@@ -3,6 +3,13 @@ import { existsSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 
+export const CLAUDE_CODE_SESSION_COMPACTION_ID = 'CLAUDE_CODE_SESSION_COMPACTION_ID';
+
+export enum MessageSource {
+  USER = 'user',
+  CC = 'assistant'
+}
+
 export class ClaudeHelper {
   static getClaudeDir() {
     return join(homedir(), '.claude');
@@ -55,12 +62,20 @@ export class ClaudeHelper {
     return dirPath.replace(/\/_/g, '--').replace(/\//g, '-').replace(/_/g, '-');
   }
 
-  static isCompactionSession(lines: string[], CLAUDE_CODE_SESSION_COMPACTION_ID: string) {
+  static isUserMessage(messageSource: MessageSource) {
+    return messageSource === MessageSource.USER;
+  }
+
+  static isCCMessage(messageSource: MessageSource) {
+    return messageSource === MessageSource.CC;
+  }
+
+  static isCompactionSession(lines: string[]) {
     try {
       for (const line of lines) {
         try {
           const parsed = JSON.parse(line);
-          if (parsed.type === 'user') {
+          if (ClaudeHelper.isUserMessage(parsed.type)) {
             const messageContent = parsed.message?.content;
 
             let textContent = '';

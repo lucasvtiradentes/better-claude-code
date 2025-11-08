@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { APP_CLI_NAME } from '@better-claude-code/shared';
-import { COMMANDS_SCHEMA } from '../src/definitions/commands.js';
+import { getAllCommands } from '../src/definitions/commands.js';
 import { generateBashCompletion, generateZshCompletion } from '../src/definitions/generators/completion-generator.js';
 import { generateHelp } from '../src/definitions/generators/help-generator.js';
 import { generateReadmeSections } from '../src/definitions/generators/readme-generator.js';
@@ -22,7 +22,7 @@ function validateSchema() {
 
   let hasErrors = false;
 
-  for (const cmd of COMMANDS_SCHEMA) {
+  for (const cmd of getAllCommands()) {
     if (!cmd.name) {
       console.error(`❌ Command missing name`);
       hasErrors = true;

@@ -1,12 +1,14 @@
 import { APP_CLI_NAME } from '@better-claude-code/shared';
-import { COMMANDS_SCHEMA } from '../commands.js';
+import { getAllCommands } from '../commands.js';
+
+const COMMANDS_TO_GENERATE = getAllCommands();
 
 export function generateZshCompletion() {
-  const commands = COMMANDS_SCHEMA.map((cmd) => `        '${cmd.name}:${cmd.description}'`).join('\n');
+  const commands = COMMANDS_TO_GENERATE.map((cmd) => `        '${cmd.name}:${cmd.description}'`).join('\n');
 
   let completionFunctions = '';
 
-  for (const cmd of COMMANDS_SCHEMA) {
+  for (const cmd of COMMANDS_TO_GENERATE) {
     if (cmd.subcommands && cmd.subcommands.length > 0) {
       const commandsName = `_sheet_${cmd.name}_commands`;
 
@@ -69,7 +71,7 @@ ${subcommandFunctions}`;
     }
   }
 
-  const caseStatements = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
+  const caseStatements = COMMANDS_TO_GENERATE.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
     .map((cmd) => {
       const aliases = cmd.aliases ? `|${cmd.aliases.join('|')}` : '';
       return `                ${cmd.name}${aliases})
@@ -110,16 +112,16 @@ _sheet_cmd "$@"
 }
 
 export function generateBashCompletion() {
-  const mainCommands = COMMANDS_SCHEMA.map((cmd) => cmd.name).join(' ');
+  const mainCommands = COMMANDS_TO_GENERATE.map((cmd) => cmd.name).join(' ');
 
-  const subcommandVars = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
+  const subcommandVars = COMMANDS_TO_GENERATE.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
     .map((cmd) => {
       const subcommands = cmd.subcommands?.map((sub) => sub.name).join(' ');
       return `    local ${cmd.name}_commands="${subcommands}"`;
     })
     .join('\n');
 
-  const flagVars = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
+  const flagVars = COMMANDS_TO_GENERATE.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
     .flatMap(
       (cmd) =>
         cmd.subcommands
@@ -131,7 +133,7 @@ export function generateBashCompletion() {
     )
     .join('\n');
 
-  const caseStatements = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
+  const caseStatements = COMMANDS_TO_GENERATE.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
     .map((cmd) => {
       const aliases = cmd.aliases ? `|${cmd.aliases.join('|')}` : '';
       return `            ${cmd.name}${aliases})
@@ -140,7 +142,7 @@ export function generateBashCompletion() {
     })
     .join('\n');
 
-  const flagCases = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
+  const flagCases = COMMANDS_TO_GENERATE.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
     .flatMap(
       (cmd) =>
         cmd.subcommands

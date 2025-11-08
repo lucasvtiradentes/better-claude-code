@@ -3,10 +3,10 @@
   "version": "0.0.14",
   "description": "CLI auxiliary tools for Claude Code",
   "type": "module",
-  "main": "./dist/cli/cli.js",
+  "main": "./dist/cli//main.js",
   "bin": {
-    "bcc": "./dist/cli/cli.js",
-    "better-cloude-code": "./dist/cli/cli.js"
+    "bcc": "./dist/cli//main.js",
+    "better-cloude-code": "./dist/cli//main.js"
   },
   "files": [
     "dist"
@@ -23,7 +23,7 @@
     "access": "public"
   },
   "scripts": {
-    "dev": "tsx src/cli.ts",
+    "dev": "tsx src//main.ts",
     "typecheck": "tsc --noEmit",
     "build": "rimraf ./dist && tsc",
     "postbuild": "tsx scripts/postbuild.ts && pnpm run update-docs",

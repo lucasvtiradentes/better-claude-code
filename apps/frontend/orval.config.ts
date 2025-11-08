@@ -9,6 +9,7 @@ export default defineConfig({
       schemas: './src/api/_generated/schemas',
       client: 'react-query',
       override: {
+        // enumGenerationType: 'enum',
         mutator: {
           path: './src/api/custom-instance.ts',
           name: 'customInstance'

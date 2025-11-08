@@ -5,21 +5,21 @@
   "packageManager": "pnpm@10.20.0",
   "type": "module",
   "scripts": {
-    "prepare": "npm run build:packages",
-    "start": "node ./apps/cli/dist/cli/cli.js",
-    "dev": "pnpm --filter better-claude-code dev",
-    "dev:app": "pnpm --filter '@better-claude-code/backend' --filter '@better-claude-code/frontend' dev",
-    "build": "pnpm build:packages && pnpm build:apps",
-    "build:packages": "pnpm --filter './packages/*' build",
-    "build:apps": "pnpm --filter '@better-claude-code/backend' build && pnpm --filter '@better-claude-code/frontend' build && pnpm --filter 'better-claude-code' build",
-    "typecheck": "pnpm build:packages && pnpm -r typecheck",
+    "prepare": "turbo build --filter='./packages/*'",
+    "start": "node ./apps/cli/dist/cli/main.js",
+    "dev": "npm run dev:app",
+    "dev:cli": "turbo dev --filter=better-claude-code",
+    "dev:app": "turbo dev --filter='@better-claude-code/backend' --filter='@better-claude-code/frontend' --parallel",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
     "format": "biome format --write .",
     "lint": "biome check --write .",
     "changeset": "changeset",
-    "release": "pnpm build && changeset publish"
+    "release": "turbo build && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.2",
-    "@changesets/cli": "^2.29.7"
+    "@changesets/cli": "^2.29.7",
+    "turbo": "^2.5.4"
   }
 }

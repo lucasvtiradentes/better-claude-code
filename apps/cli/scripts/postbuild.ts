@@ -9,7 +9,7 @@ import {
   writeFileSync
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -85,7 +85,8 @@ function fixImportsInDirectory(dir: string) {
     } else if (file.endsWith('.js')) {
       let content = readFileSync(fullPath, 'utf-8');
 
-      const hasImports = content.includes('@better-claude-code/shared') || content.includes('@better-claude-code/node-utils');
+      const hasImports =
+        content.includes('@better-claude-code/shared') || content.includes('@better-claude-code/node-utils');
       if (hasImports) {
         console.log(`Fixing imports in: ${fullPath}`);
       }

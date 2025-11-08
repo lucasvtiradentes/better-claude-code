@@ -1,6 +1,6 @@
 import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { colors } from '../../utils/colors.js';
-import { COMMANDS_SCHEMA } from '../commands.js';
+import { getAllCommands } from '../commands.js';
 import type { Command, SubCommand } from '../types.js';
 
 function formatFlag(flag: { name: string; description?: string; type?: string; required?: boolean }) {
@@ -54,7 +54,7 @@ function formatCommand(cmd: Command) {
 function generateExamplesSection() {
   const examples: string[] = [];
 
-  for (const cmd of COMMANDS_SCHEMA) {
+  for (const cmd of getAllCommands()) {
     if (cmd.examples && cmd.examples.length > 0) {
       examples.push(...cmd.examples);
     }
@@ -74,7 +74,9 @@ function generateExamplesSection() {
 }
 
 export function generateHelp() {
-  const commandsSection = COMMANDS_SCHEMA.map((cmd) => formatCommand(cmd)).join('\n');
+  const commandsSection = getAllCommands()
+    .map((cmd) => formatCommand(cmd))
+    .join('\n');
   const examplesSection = generateExamplesSection();
 
   return `

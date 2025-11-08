@@ -1,0 +1,107 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "remoteCache": {
+    "enabled": true
+  },
+  "tasks": {
+    "typecheck": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "./src/**",
+        "./*.config.*",
+        "./tsconfig.json",
+        "./package.json"
+      ]
+    },
+    "build": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "inputs": [
+        "./src/**",
+        "./tsconfig.json",
+        "./*.config.*",
+        "./package.json"
+      ]
+    },
+    "generate:swagger": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "@better-claude-code/backend#build"
+      ],
+      "outputs": [
+        "_generated/swagger.json"
+      ],
+      "inputs": [
+        "./src/**",
+        "./scripts/generate-swagger.ts",
+        "./package.json"
+      ]
+    },
+    "generate:orval": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "@better-claude-code/backend#generate:swagger"
+      ],
+      "outputs": [
+        "./src/api/_generated/**"
+      ],
+      "inputs": [
+        "../backend/_generated/swagger.json",
+        "./orval.config.ts",
+        "./package.json"
+      ]
+    },
+    "@better-claude-code/frontend#build": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "^build",
+        "generate:orval"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "inputs": [
+        "./src/**",
+        "./index.html",
+        "./vite.config.ts",
+        "./tsconfig.json",
+        "./package.json"
+      ]
+    },
+    "dev": {
+      "outputLogs": "full",
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false,
+      "persistent": true,
+      "env": [
+        "NODE_ENV"
+      ]
+    },
+    "start": {
+      "outputLogs": "full",
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "format": {
+      "outputLogs": "new-only",
+      "cache": false
+    },
+    "lint": {
+      "outputLogs": "new-only",
+      "cache": false
+    }
+  }
+}
