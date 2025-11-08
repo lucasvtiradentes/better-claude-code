@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.16
+
+### Patch Changes
+
+- 0c2c3ad: fix frontend build error
+
 ## 0.0.15
 
 ### Patch Changes
