@@ -33,6 +33,7 @@ type SessionsSidebarProps = {
   onLabelToggle?: (sessionId: string, labelId: string) => void;
   projectId: string;
   isGitRepo?: boolean;
+  onSortByChange?: (sortBy: 'date' | 'token-percentage') => void;
 };
 
 export const SessionsSidebar = ({
@@ -52,13 +53,21 @@ export const SessionsSidebar = ({
   onDeleteSession,
   onLabelToggle,
   projectId,
-  isGitRepo
+  isGitRepo,
+  onSortByChange
 }: SessionsSidebarProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: settingsData } = useGetApiSettings();
   const [showSettings, setShowSettings] = useState(false);
 
   const settings = settingsData?.sessions;
+
+  useEffect(() => {
+    if (settings && onSortByChange) {
+      const sortBy = settings.groupBy === 'token-percentage' ? 'token-percentage' : 'date';
+      onSortByChange(sortBy);
+    }
+  }, [settings?.groupBy, onSortByChange]);
 
   const groupedSessions = useMemo(() => {
     if (!sessions || !settings) return undefined;

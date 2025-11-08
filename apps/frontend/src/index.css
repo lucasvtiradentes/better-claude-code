@@ -162,3 +162,8 @@ body {
   -webkit-text-fill-color: transparent;
   animation: rainbow 3s linear infinite;
 }
+
+
+.tsqd-open-btn-container {
+  bottom: 45px !important;
+}

@@ -7,7 +7,6 @@ import {
   useGetApiProjects,
   useGetApiSessionsProjectNameSessionId,
   useGetApiSessionsProjectNameSessionIdPaths,
-  useGetApiSettings,
   useInfinitySessions,
   usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
@@ -46,7 +45,6 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     search: searchQuery
   } = searchParams;
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
-  const { data: settingsData } = useGetApiSettings();
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -54,9 +52,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
   const { mutate: deleteSessionMutation, isPending: isDeleting } = useDeleteApiSessionsProjectNameSessionId();
   const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels();
-
-  const settings = settingsData?.sessions;
-  const sortBy = settings?.groupBy === 'token-percentage' ? 'token-percentage' : 'date';
+  const [sortBy, setSortBy] = useState<'date' | 'token-percentage'>('date');
 
   const { data: projects, isLoading: projectsLoading, error: projectsError } = useGetApiProjects();
   const {
@@ -202,6 +198,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
       onLabelToggle={handleLabelToggle}
       projectId={selectedProjectData?.id || selectedProject}
       isGitRepo={selectedProjectData?.isGitRepo}
+      onSortByChange={setSortBy}
     />
   );
 

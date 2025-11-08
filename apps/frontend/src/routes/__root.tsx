@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { configs } from '@/configs';
 
 type RouterContext = {
   queryClient: QueryClient;
@@ -14,7 +15,7 @@ function RootComponent() {
   return (
     <>
       <Outlet />
-      <TanStackRouterDevtools position="bottom-right" />
+      {configs.enableTanstackRouterDev && <TanStackRouterDevtools position="bottom-right" />}
     </>
   );
 }

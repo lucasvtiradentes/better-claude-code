@@ -4,6 +4,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Toaster } from 'sonner';
+import { configs } from './configs';
 import './index.css';
 import { queryClient } from './lib/tanstack-query';
 import { routeTree } from './routeTree.gen';
@@ -24,12 +25,22 @@ declare module '@tanstack/react-router' {
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Root element not found');
 
-createRoot(rootElement).render(
-  <StrictMode>
+const App = () => {
+  return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
-      <ReactQueryDevtools initialIsOpen={false} />
       <Toaster position="top-right" />
+      {configs.enableTanstackQueryDev && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
-  </StrictMode>
+  );
+};
+
+createRoot(rootElement).render(
+  configs.enableStrictMode ? (
+    <StrictMode>
+      <App />
+    </StrictMode>
+  ) : (
+    <App />
+  )
 );
