@@ -5,6 +5,7 @@ import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper
 const IGNORE_EMPTY_SESSIONS = true;
 const MAX_TITLE_LENGTH = 80;
 const TOKEN_LIMIT = 180000;
+const CLAUDE_CODE_COMMANDS = ['clear', 'ide', 'model', 'compact', 'init'];
 
 export enum MessageCountMode {
   TURN = 'turn',
@@ -103,7 +104,7 @@ function isValidUserMessage(content: string): boolean {
   const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
   if (commandMatch) {
     const commandName = commandMatch[1];
-    if (commandName === 'clear') {
+    if (CLAUDE_CODE_COMMANDS.includes(commandName)) {
       return false;
     }
   }
@@ -235,7 +236,7 @@ function extractTitle(lines: string[], titleSource: TitleSource): string {
 
           if (parsedCommand) {
             const commandName = parsedCommand.match(/<command-name>\/?([^<]+)<\/command-name>/)?.[1];
-            if (commandName === 'clear') {
+            if (commandName && CLAUDE_CODE_COMMANDS.includes(commandName)) {
               continue;
             }
           }
@@ -292,7 +293,10 @@ function countCustomCommands(lines: string[]): number {
         if (content) {
           const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
           if (commandMatch) {
-            count++;
+            const commandName = commandMatch[1];
+            if (!CLAUDE_CODE_COMMANDS.includes(commandName)) {
+              count++;
+            }
           }
         }
       }
