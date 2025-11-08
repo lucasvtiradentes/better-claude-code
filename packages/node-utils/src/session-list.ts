@@ -1,4 +1,5 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync } from 'node:fs';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper.js';
 
@@ -323,15 +324,113 @@ function countFilesOrFolders(lines: string[]): number {
   return count;
 }
 
-function readLabels(sessionsPath: string, sessionId: string): string[] | undefined {
+async function readLabels(sessionsPath: string, sessionId: string): Promise<string[] | undefined> {
   const metadataPath = join(sessionsPath, '.metadata', `${sessionId}.json`);
   try {
-    const metadataContent = readFileSync(metadataPath, 'utf-8');
+    const metadataContent = await readFile(metadataPath, 'utf-8');
     const metadata = JSON.parse(metadataContent);
     return metadata.labels?.length > 0 ? metadata.labels : undefined;
   } catch {
     return undefined;
   }
+}
+
+async function processSessionFile(
+  filePath: string,
+  file: string,
+  sessionsPath: string,
+  options: {
+    search: string;
+    messageCountMode: MessageCountMode;
+    titleSource: TitleSource;
+    includeImages: boolean;
+    includeCustomCommands: boolean;
+    includeFilesOrFolders: boolean;
+    includeLabels: boolean;
+  }
+): Promise<SessionListItem | null> {
+  const content = await readFile(filePath, 'utf-8');
+  const lines = content.trim().split('\n').filter(Boolean);
+
+  if (ClaudeHelper.isCompactionSession(lines)) return null;
+
+  const firstUserMessage = extractTextContent(
+    lines
+      .map((line) => {
+        try {
+          const parsed = JSON.parse(line);
+          if (ClaudeHelper.isUserMessage(parsed.type)) {
+            return parsed.message?.content;
+          }
+        } catch {}
+        return null;
+      })
+      .find((msg) => msg)
+  );
+
+  if (firstUserMessage.startsWith(CLAUDE_CODE_SESSION_COMPACTION_ID)) {
+    return null;
+  }
+
+  const title = extractTitle(lines, options.titleSource);
+
+  if (!title && IGNORE_EMPTY_SESSIONS) {
+    return null;
+  }
+
+  let searchMatchCount: number | undefined;
+  if (options.search) {
+    const searchLower = options.search.toLowerCase();
+    const titleMatch = title.toLowerCase().includes(searchLower);
+    const contentLower = content.toLowerCase();
+    const contentMatches = contentLower.split(searchLower).length - 1;
+
+    if (!titleMatch && contentMatches === 0) {
+      return null;
+    }
+
+    searchMatchCount = contentMatches + (titleMatch ? 1 : 0);
+  }
+
+  const tokenPercentage = calculateTokenPercentage(lines);
+  const messageCounts = countMessages(lines, options.messageCountMode);
+  const stats = await stat(filePath);
+  const sessionId = file.replace('.jsonl', '');
+
+  const session: SessionListItem = {
+    id: sessionId,
+    title: title || 'Empty session',
+    messageCount: messageCounts.totalCount,
+    createdAt: stats.birthtimeMs,
+    tokenPercentage,
+    searchMatchCount,
+    filePath,
+    shortId: sessionId.slice(-12),
+    userMessageCount: messageCounts.userCount,
+    assistantMessageCount: messageCounts.assistantCount
+  };
+
+  if (options.includeImages) {
+    const imageCount = countImages(lines);
+    if (imageCount > 0) session.imageCount = imageCount;
+  }
+
+  if (options.includeCustomCommands) {
+    const customCommandCount = countCustomCommands(lines);
+    if (customCommandCount > 0) session.customCommandCount = customCommandCount;
+  }
+
+  if (options.includeFilesOrFolders) {
+    const filesOrFoldersCount = countFilesOrFolders(lines);
+    if (filesOrFoldersCount > 0) session.filesOrFoldersCount = filesOrFoldersCount;
+  }
+
+  if (options.includeLabels) {
+    const labels = await readLabels(sessionsPath, sessionId);
+    if (labels) session.labels = labels;
+  }
+
+  return session;
 }
 
 export async function listSessions(options: SessionListOptions): Promise<SessionListResult> {
@@ -357,96 +456,66 @@ export async function listSessions(options: SessionListOptions): Promise<Session
     throw new Error(`Project directory not found: ${sessionsPath}`);
   }
 
-  const files = readdirSync(sessionsPath);
+  const files = await readdir(sessionsPath);
   const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
-  const sessions: SessionListItem[] = [];
+  const processOptions = {
+    search,
+    messageCountMode,
+    titleSource,
+    includeImages,
+    includeCustomCommands,
+    includeFilesOrFolders,
+    includeLabels
+  };
 
-  for (const file of sessionFiles) {
-    const filePath = join(sessionsPath, file);
-    const content = readFileSync(filePath, 'utf-8');
-    const lines = content.trim().split('\n').filter(Boolean);
+  let sessions: SessionListItem[];
 
-    if (ClaudeHelper.isCompactionSession(lines)) continue;
+  if (!search && sortBy === SessionSortBy.DATE) {
+    const fileStatsPromises = sessionFiles.map(async (file) => {
+      const filePath = join(sessionsPath, file);
+      const stats = await stat(filePath);
+      return { file, filePath, birthtimeMs: stats.birthtimeMs };
+    });
 
-    const firstUserMessage = extractTextContent(
-      lines
-        .map((line) => {
-          try {
-            const parsed = JSON.parse(line);
-            if (ClaudeHelper.isUserMessage(parsed.type)) {
-              return parsed.message?.content;
-            }
-          } catch {}
-          return null;
-        })
-        .find((msg) => msg)
+    const fileStats = await Promise.all(fileStatsPromises);
+    fileStats.sort((a, b) => b.birthtimeMs - a.birthtimeMs);
+
+    const totalItems = fileStats.length;
+    const totalPages = Math.ceil(totalItems / limit);
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const filesToProcess = enablePagination ? fileStats.slice(startIndex, endIndex) : fileStats.slice(0, limit);
+
+    const sessionPromises = filesToProcess.map(({ file, filePath }) =>
+      processSessionFile(filePath, file, sessionsPath, processOptions)
     );
 
-    if (firstUserMessage.startsWith(CLAUDE_CODE_SESSION_COMPACTION_ID)) {
-      continue;
+    const sessionsResults = await Promise.all(sessionPromises);
+    sessions = sessionsResults.filter((s) => s !== null) as SessionListItem[];
+
+    if (enablePagination) {
+      return {
+        items: sessions,
+        meta: {
+          totalItems,
+          totalPages,
+          page,
+          limit
+        }
+      };
     }
 
-    const title = extractTitle(lines, titleSource);
-
-    if (!title && IGNORE_EMPTY_SESSIONS) {
-      continue;
-    }
-
-    let searchMatchCount: number | undefined;
-    if (search) {
-      const searchLower = search.toLowerCase();
-      const titleMatch = title.toLowerCase().includes(searchLower);
-      const contentLower = content.toLowerCase();
-      const contentMatches = contentLower.split(searchLower).length - 1;
-
-      if (!titleMatch && contentMatches === 0) {
-        continue;
-      }
-
-      searchMatchCount = contentMatches + (titleMatch ? 1 : 0);
-    }
-
-    const tokenPercentage = calculateTokenPercentage(lines);
-    const messageCounts = countMessages(lines, messageCountMode);
-    const stats = statSync(filePath);
-    const sessionId = file.replace('.jsonl', '');
-
-    const session: SessionListItem = {
-      id: sessionId,
-      title: title || 'Empty session',
-      messageCount: messageCounts.totalCount,
-      createdAt: stats.birthtimeMs,
-      tokenPercentage,
-      searchMatchCount,
-      filePath,
-      shortId: sessionId.slice(-12),
-      userMessageCount: messageCounts.userCount,
-      assistantMessageCount: messageCounts.assistantCount
-    };
-
-    if (includeImages) {
-      const imageCount = countImages(lines);
-      if (imageCount > 0) session.imageCount = imageCount;
-    }
-
-    if (includeCustomCommands) {
-      const customCommandCount = countCustomCommands(lines);
-      if (customCommandCount > 0) session.customCommandCount = customCommandCount;
-    }
-
-    if (includeFilesOrFolders) {
-      const filesOrFoldersCount = countFilesOrFolders(lines);
-      if (filesOrFoldersCount > 0) session.filesOrFoldersCount = filesOrFoldersCount;
-    }
-
-    if (includeLabels) {
-      const labels = readLabels(sessionsPath, sessionId);
-      if (labels) session.labels = labels;
-    }
-
-    sessions.push(session);
+    return { items: sessions };
   }
+
+  const sessionPromises = sessionFiles.map((file) => {
+    const filePath = join(sessionsPath, file);
+    return processSessionFile(filePath, file, sessionsPath, processOptions);
+  });
+
+  const sessionsResults = await Promise.all(sessionPromises);
+  sessions = sessionsResults.filter((s) => s !== null) as SessionListItem[];
 
   if (sortBy === SessionSortBy.TOKEN_PERCENTAGE) {
     sessions.sort((a, b) => {

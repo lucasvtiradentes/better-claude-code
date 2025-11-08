@@ -1,5 +1,7 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { createReadStream } from 'node:fs';
+import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { createInterface } from 'node:readline';
 import { execAsync } from '@better-claude-code/node-utils';
 import os from 'os';
 import { AppSettings } from '../../common/schemas.js';
@@ -8,7 +10,7 @@ const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 
 export async function readSettings(): Promise<AppSettings | null> {
   try {
-    const content = readFileSync(SETTINGS_PATH, 'utf-8');
+    const content = await readFile(SETTINGS_PATH, 'utf-8');
     return JSON.parse(content);
   } catch {
     return null;
@@ -17,24 +19,39 @@ export async function readSettings(): Promise<AppSettings | null> {
 
 export async function getRealPathFromSession(folderPath: string): Promise<string | null> {
   try {
-    const files = readdirSync(folderPath);
+    const files = await readdir(folderPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
     if (sessionFiles.length === 0) return null;
 
     const firstSession = join(folderPath, sessionFiles[0]);
-    const content = readFileSync(firstSession, 'utf-8');
-    const lines = content.split('\n');
 
-    for (const line of lines) {
+    const fileStream = createReadStream(firstSession, { encoding: 'utf-8' });
+    const rl = createInterface({
+      input: fileStream,
+      crlfDelay: Infinity
+    });
+
+    let lineCount = 0;
+    for await (const line of rl) {
+      if (lineCount >= 20) {
+        rl.close();
+        fileStream.close();
+        break;
+      }
+
       if (!line.trim()) continue;
 
       try {
         const parsed = JSON.parse(line);
         if (parsed.cwd) {
+          rl.close();
+          fileStream.close();
           return parsed.cwd;
         }
       } catch {}
+
+      lineCount++;
     }
 
     return null;

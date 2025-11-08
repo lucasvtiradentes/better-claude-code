@@ -1,4 +1,4 @@
-import { accessSync, readdirSync, statSync } from 'node:fs';
+import { access, readdir, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
@@ -51,25 +51,23 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const projectsPath = ClaudeHelper.getProjectsDir();
-    const folders = readdirSync(projectsPath);
+    const folders = await readdir(projectsPath);
 
     const settings = await readSettings();
 
-    const projects: any[] = [];
-
-    for (const folder of folders) {
+    const projectPromises = folders.map(async (folder) => {
       const folderPath = join(projectsPath, folder);
-      const stats = statSync(folderPath);
+      const stats = await stat(folderPath);
 
-      if (!stats.isDirectory()) continue;
+      if (!stats.isDirectory()) return null;
 
       const realPath = await getRealPathFromSession(folderPath);
 
-      if (!realPath) continue;
+      if (!realPath) return null;
 
       let sessionFiles: string[] = [];
       try {
-        const files = readdirSync(folderPath);
+        const files = await readdir(folderPath);
         sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
       } catch {
         sessionFiles = [];
@@ -77,17 +75,17 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
       const sessionsCount = sessionFiles.length;
 
-      const fileStats = sessionFiles.map((f) => statSync(join(folderPath, f)).mtimeMs);
+      const fileStatsPromises = sessionFiles.map((f) => stat(join(folderPath, f)).then((s) => s.mtimeMs));
+      const fileStats = await Promise.all(fileStatsPromises);
       const lastModified = Math.max(...fileStats, stats.mtimeMs);
 
       let isGitRepo = false;
       let githubUrl: string | undefined;
       let currentBranch: string | undefined;
       try {
-        accessSync(join(realPath, '.git'));
+        await access(join(realPath, '.git'));
         isGitRepo = true;
-        githubUrl = await getGitHubUrl(realPath);
-        currentBranch = await getCurrentBranch(realPath);
+        [githubUrl, currentBranch] = await Promise.all([getGitHubUrl(realPath), getCurrentBranch(realPath)]);
       } catch {
         isGitRepo = false;
       }
@@ -97,7 +95,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
       const projectSettings = settings?.projects.projectSettings[folder];
 
-      projects.push({
+      return {
         id: folder,
         name,
         path: displayPath,
@@ -108,8 +106,11 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         currentBranch,
         labels: projectSettings?.labels || [],
         hidden: projectSettings?.hidden || false
-      });
-    }
+      };
+    });
+
+    const projectsResults = await Promise.all(projectPromises);
+    const projects = projectsResults.filter((p) => p !== null);
 
     projects.sort((a, b) => b.lastModified - a.lastModified);
 
