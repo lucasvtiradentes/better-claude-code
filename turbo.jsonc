@@ -76,6 +76,23 @@
         "./package.json"
       ]
     },
+    "better-claude-code#build": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "^build",
+        "@better-claude-code/frontend#build",
+        "@better-claude-code/backend#build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "inputs": [
+        "./src/**",
+        "./scripts/**",
+        "./tsconfig.json",
+        "./package.json"
+      ]
+    },
     "dev": {
       "outputLogs": "full",
       "dependsOn": [
