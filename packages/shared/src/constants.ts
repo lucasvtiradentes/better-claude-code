@@ -2,6 +2,8 @@ export const APP_NAME = 'Better Claude Code';
 
 export const APP_CLI_NAME = 'bcc';
 
+export const APP_NPM_PACKAGE_NAME = 'better-claude-code';
+
 export const APP_DESCRIPTION = 'CLI auxiliary tools for Claude Code';
 
 export const FRONTEND_PORT = 5001;

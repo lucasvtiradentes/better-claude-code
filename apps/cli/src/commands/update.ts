@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { platform } from 'node:os';
 import { execAsync } from '@better-claude-code/node-utils';
-import { APP_CLI_NAME } from '@better-claude-code/shared';
+import { APP_CLI_NAME, APP_NPM_PACKAGE_NAME } from '@better-claude-code/shared';
 import { Command } from 'commander';
 import { createCommandFromSchema } from '../definitions/command-builder.js';
 import { CommandNames } from '../definitions/types.js';
@@ -125,8 +125,8 @@ async function getGlobalNpmPath(): Promise<string | null> {
     }
   } catch {
     try {
-      const { stdout } = await execAsync('npm list -g --depth=0 bcc');
-      if (stdout.includes('bcc')) {
+      const { stdout } = await execAsync(`npm list -g --depth=0 ${APP_NPM_PACKAGE_NAME}`);
+      if (stdout.includes(APP_NPM_PACKAGE_NAME)) {
         return 'npm';
       }
     } catch {}
@@ -147,7 +147,7 @@ function getCurrentVersion(): string | null {
 
 async function getLatestVersion(): Promise<string | null> {
   try {
-    const { stdout } = await execAsync(`npm view ${APP_CLI_NAME} version`);
+    const { stdout } = await execAsync(`npm view ${APP_NPM_PACKAGE_NAME} version`);
     return stdout.trim();
   } catch {
     return null;
@@ -157,12 +157,12 @@ async function getLatestVersion(): Promise<string | null> {
 function getUpdateCommand(packageManager: string) {
   switch (packageManager) {
     case 'npm':
-      return 'npm update -g bcc';
+      return `npm install -g ${APP_NPM_PACKAGE_NAME}`;
     case 'yarn':
-      return 'yarn global upgrade bcc';
+      return `yarn global add ${APP_NPM_PACKAGE_NAME}`;
     case 'pnpm':
-      return 'pnpm update -g bcc';
+      return `pnpm add -g ${APP_NPM_PACKAGE_NAME}`;
     default:
-      return 'npm update -g bcc';
+      return `npm install -g ${APP_NPM_PACKAGE_NAME}`;
   }
 }
