@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.15
+
+### Patch Changes
+
+- dba100c: share formatting functions
+
 ## 0.0.14
 
 ### Patch Changes
