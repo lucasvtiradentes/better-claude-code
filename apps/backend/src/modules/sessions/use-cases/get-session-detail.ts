@@ -114,10 +114,16 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     const messages: Array<{ type: MessageSource; content: string; timestamp?: number }> = [];
 
+    let skipNextAssistant = false;
+
     for (const event of events) {
       if (ClaudeHelper.isUserMessage(event.type)) {
         const textContent = extractTextContent(event.message?.content || event.content);
-        if (textContent && textContent !== 'Warmup') {
+        if (textContent === 'Warmup') {
+          skipNextAssistant = true;
+          continue;
+        }
+        if (textContent) {
           const cleanedParts = cleanUserMessage(textContent);
           for (const part of cleanedParts) {
             messages.push({
@@ -128,6 +134,10 @@ export const handler: RouteHandler<typeof route> = async (c) => {
           }
         }
       } else if (ClaudeHelper.isCCMessage(event.type)) {
+        if (skipNextAssistant) {
+          skipNextAssistant = false;
+          continue;
+        }
         const textContent = extractTextContent(event.message?.content || event.content);
         if (textContent && textContent !== 'Warmup') {
           messages.push({
