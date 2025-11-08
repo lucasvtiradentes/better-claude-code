@@ -1,5 +1,5 @@
 export const MESSAGE_PATTERNS = {
-  FILE_OR_FOLDER_AT: /(^|\s)@([a-zA-Z][\w\-.]*(?:\/[\w\-./]+)*)/g,
+  FILE_OR_FOLDER_AT: /(^|\s)@([a-zA-Z][\w\-.]*(?:\/[\w\-./]+)*(?:#L\d+(?:-\d+)?)?)/g,
   FILE_OR_FOLDER_SLASH: /\/([\w\-./]+)/g,
   TOOL_WITH_PATH: /\[Tool: ([^\]]+)\] (\/[^\s<>,]+)/g,
   PATH_PROPERTY: /path: (\/[^\s<>,]+)/g,
