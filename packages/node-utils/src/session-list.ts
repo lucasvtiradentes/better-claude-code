@@ -34,6 +34,7 @@ export interface SessionListOptions {
   includeImages?: boolean;
   includeCustomCommands?: boolean;
   includeFilesOrFolders?: boolean;
+  includeUrls?: boolean;
   includeLabels?: boolean;
   enablePagination?: boolean;
 }
@@ -47,6 +48,7 @@ export interface SessionListItem {
   imageCount?: number;
   customCommandCount?: number;
   filesOrFoldersCount?: number;
+  urlCount?: number;
   labels?: string[];
   searchMatchCount?: number;
   filePath?: string;
@@ -324,6 +326,26 @@ function countFilesOrFolders(lines: string[]): number {
   return count;
 }
 
+function countUrls(lines: string[]): number {
+  let count = 0;
+  const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\]]+/g;
+  for (const line of lines) {
+    try {
+      const parsed = JSON.parse(line);
+      if (ClaudeHelper.isUserMessage(parsed.type)) {
+        const content = extractTextContent(parsed.message?.content);
+        if (content) {
+          const urlMatches = content.match(urlRegex);
+          if (urlMatches) {
+            count += urlMatches.length;
+          }
+        }
+      }
+    } catch {}
+  }
+  return count;
+}
+
 async function readLabels(sessionsPath: string, sessionId: string): Promise<string[] | undefined> {
   const metadataPath = join(sessionsPath, '.metadata', `${sessionId}.json`);
   try {
@@ -346,6 +368,7 @@ async function processSessionFile(
     includeImages: boolean;
     includeCustomCommands: boolean;
     includeFilesOrFolders: boolean;
+    includeUrls: boolean;
     includeLabels: boolean;
   }
 ): Promise<SessionListItem | null> {
@@ -382,8 +405,20 @@ async function processSessionFile(
   if (options.search) {
     const searchLower = options.search.toLowerCase();
     const titleMatch = title.toLowerCase().includes(searchLower);
-    const contentLower = content.toLowerCase();
-    const contentMatches = contentLower.split(searchLower).length - 1;
+
+    let contentMatches = 0;
+    for (const line of lines) {
+      try {
+        const parsed = JSON.parse(line);
+        if (ClaudeHelper.isUserMessage(parsed.type) || ClaudeHelper.isCCMessage(parsed.type)) {
+          const messageContent = extractTextContent(parsed.message?.content);
+          if (messageContent) {
+            const matches = messageContent.toLowerCase().split(searchLower).length - 1;
+            contentMatches += matches;
+          }
+        }
+      } catch {}
+    }
 
     if (!titleMatch && contentMatches === 0) {
       return null;
@@ -425,6 +460,11 @@ async function processSessionFile(
     if (filesOrFoldersCount > 0) session.filesOrFoldersCount = filesOrFoldersCount;
   }
 
+  if (options.includeUrls) {
+    const urlCount = countUrls(lines);
+    if (urlCount > 0) session.urlCount = urlCount;
+  }
+
   if (options.includeLabels) {
     const labels = await readLabels(sessionsPath, sessionId);
     if (labels) session.labels = labels;
@@ -445,6 +485,7 @@ export async function listSessions(options: SessionListOptions): Promise<Session
     includeImages = false,
     includeCustomCommands = false,
     includeFilesOrFolders = false,
+    includeUrls = false,
     includeLabels = false,
     enablePagination = false
   } = options;
@@ -466,6 +507,7 @@ export async function listSessions(options: SessionListOptions): Promise<Session
     includeImages,
     includeCustomCommands,
     includeFilesOrFolders,
+    includeUrls,
     includeLabels
   };
 

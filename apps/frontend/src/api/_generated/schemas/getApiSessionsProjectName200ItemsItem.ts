@@ -16,5 +16,6 @@ export type GetApiSessionsProjectName200ItemsItem = {
   imageCount?: number;
   customCommandCount?: number;
   filesOrFoldersCount?: number;
+  urlCount?: number;
   labels?: string[];
 };

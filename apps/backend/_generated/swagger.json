@@ -614,6 +614,9 @@
                           "filesOrFoldersCount": {
                             "type": "number"
                           },
+                          "urlCount": {
+                            "type": "number"
+                          },
                           "labels": {
                             "type": "array",
                             "items": {

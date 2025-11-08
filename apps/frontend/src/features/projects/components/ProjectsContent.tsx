@@ -1,17 +1,16 @@
-import { FileText, Image, Search, Terminal } from 'lucide-react';
 import type { RefObject } from 'react';
 import type {
   GetApiSessionsProjectName200ItemsItem,
   GetApiSessionsProjectNameSessionId200,
   GetApiSessionsProjectNameSessionId200MessagesItem
 } from '@/api/_generated/schemas';
-import { IconWithBadge } from '../../../components/IconWithBadge';
 import { FilterButtons } from './FilterButtons';
 import { FileModal } from './modals/FileModal';
 import { FolderModal } from './modals/FolderModal';
 import { ImageModal } from './modals/ImageModal';
 import { SearchNavigation } from './sessions-chat/SearchNavigation';
 import { SessionMessage } from './sessions-chat/SessionMessage';
+import { SessionBadges } from './sessions-sidebar/SessionBadges';
 
 interface ProjectsContentProps {
   contentRef: RefObject<HTMLDivElement | null>;
@@ -72,36 +71,7 @@ export function ProjectsContent({
       <div className="p-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 text-muted-foreground">
-            {currentSession?.searchMatchCount !== undefined && currentSession.searchMatchCount > 0 && (
-              <span className="text-primary">
-                <IconWithBadge
-                  icon={Search}
-                  count={currentSession.searchMatchCount}
-                  label={`${currentSession.searchMatchCount} matches`}
-                />
-              </span>
-            )}
-            {currentSession?.imageCount !== undefined && currentSession.imageCount > 0 && (
-              <IconWithBadge
-                icon={Image}
-                count={currentSession.imageCount}
-                label={`${currentSession.imageCount} images`}
-              />
-            )}
-            {currentSession?.customCommandCount !== undefined && currentSession.customCommandCount > 0 && (
-              <IconWithBadge
-                icon={Terminal}
-                count={currentSession.customCommandCount}
-                label={`${currentSession.customCommandCount} custom commands`}
-              />
-            )}
-            {currentSession?.filesOrFoldersCount !== undefined && currentSession.filesOrFoldersCount > 0 && (
-              <IconWithBadge
-                icon={FileText}
-                count={currentSession.filesOrFoldersCount}
-                label={`${currentSession.filesOrFoldersCount} files/folders`}
-              />
-            )}
+            {currentSession && <SessionBadges session={currentSession} showSearch />}
           </div>
         </div>
         <FilterButtons />

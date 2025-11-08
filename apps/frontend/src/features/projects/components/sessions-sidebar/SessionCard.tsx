@@ -1,8 +1,9 @@
 import { FolderEntry } from '@better-claude-code/shared';
-import { FileText, Image, MoreHorizontal, Search, Tag, Terminal, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Search, Tag, Trash2 } from 'lucide-react';
 import { useGetApiSettings } from '@/api';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
 import { IconWithBadge } from '@/components/IconWithBadge';
+import { SessionBadges } from './SessionBadges';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -102,27 +103,7 @@ export const SessionCard = ({
                 />
               </span>
             )}
-            {displaySettings.showAttachments && (
-              <>
-                {session.imageCount !== undefined && session.imageCount > 0 && (
-                  <IconWithBadge icon={Image} count={session.imageCount} label={`${session.imageCount} images`} />
-                )}
-                {session.customCommandCount !== undefined && session.customCommandCount > 0 && (
-                  <IconWithBadge
-                    icon={Terminal}
-                    count={session.customCommandCount}
-                    label={`${session.customCommandCount} custom commands`}
-                  />
-                )}
-                {session.filesOrFoldersCount !== undefined && session.filesOrFoldersCount > 0 && (
-                  <IconWithBadge
-                    icon={FileText}
-                    count={session.filesOrFoldersCount}
-                    label={`${session.filesOrFoldersCount} files/folders`}
-                  />
-                )}
-              </>
-            )}
+            {displaySettings.showAttachments && <SessionBadges session={session} />}
           </div>
 
           {displaySettings.showTokenPercentage && session.tokenPercentage !== undefined && (

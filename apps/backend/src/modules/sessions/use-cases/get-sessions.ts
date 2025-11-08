@@ -24,6 +24,7 @@ const SessionSchema = z.object({
   imageCount: z.number().optional(),
   customCommandCount: z.number().optional(),
   filesOrFoldersCount: z.number().optional(),
+  urlCount: z.number().optional(),
   labels: z.array(z.string()).optional()
 });
 
@@ -76,6 +77,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       includeImages: true,
       includeCustomCommands: true,
       includeFilesOrFolders: true,
+      includeUrls: true,
       includeLabels: true,
       enablePagination: true
     });
@@ -90,6 +92,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       imageCount: item.imageCount,
       customCommandCount: item.customCommandCount,
       filesOrFoldersCount: item.filesOrFoldersCount,
+      urlCount: item.urlCount,
       labels: item.labels
     }));
 

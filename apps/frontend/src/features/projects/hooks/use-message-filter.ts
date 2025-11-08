@@ -56,7 +56,9 @@ export function useMessageFilter(
     const searchLower = searchQuery.toLowerCase();
     filteredMessages.forEach((msg, idx) => {
       const content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
-      if (content.toLowerCase().includes(searchLower)) {
+      const contentLower = content.toLowerCase();
+      const occurrences = contentLower.split(searchLower).length - 1;
+      for (let i = 0; i < occurrences; i++) {
         searchMatches.push(idx);
       }
     });
