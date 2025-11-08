@@ -10,7 +10,8 @@ import {
   formatSearchHighlight,
   formatToolPath,
   formatToolWithQuote,
-  formatUltrathink
+  formatUltrathink,
+  formatUrl
 } from '@/features/projects/utils/message-patterns';
 import { isUserMessage } from '../../utils/message-utils';
 
@@ -62,6 +63,8 @@ function applyCommonFormatting(
   formatted = formatted.replace(MESSAGE_PATTERNS.FILE_OR_FOLDER_AT, (_match, prefix, filePath) =>
     formatFileOrFolderMention(prefix, filePath, pathValidation)
   );
+
+  formatted = formatted.replace(MESSAGE_PATTERNS.URL, (match) => formatUrl(match));
 
   formatted = formatted.replace(MESSAGE_PATTERNS.ULTRATHINK, formatUltrathink);
 

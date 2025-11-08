@@ -7,6 +7,7 @@ export const MESSAGE_PATTERNS = {
   TOOL_WITH_QUOTE: /\[Tool: ([^\]]+)\] "([^"]+)"/g,
   IMAGE_TAG: /\[Image #(\d+)\]/g,
   ULTRATHINK: /ultrathink/gi,
+  URL: /https?:\/\/[^\s<>,]+/g,
   COMMAND_FORMAT: /<command-name>\/?([^<]+)<\/command-name>/,
   COMMAND_ARGS: /<command-args>([^<]+)<\/command-args>/,
   COMMAND_WORDS:

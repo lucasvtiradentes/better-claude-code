@@ -19,6 +19,14 @@ export function getLabelActiveColor() {
   return MESSAGE_COLORS.LABEL_ACTIVE;
 }
 
+export function getUrlColor() {
+  return MESSAGE_COLORS.URL;
+}
+
+export function getUltrathinkColor() {
+  return MESSAGE_COLORS.ULTRATHINK;
+}
+
 function escapeHtml(text: string) {
   return text
     .replace(/&/g, '&amp;')
@@ -86,6 +94,10 @@ export function formatUltrathink() {
   return `<span class="${MESSAGE_COLORS.ULTRATHINK}">ultrathink</span>`;
 }
 
+export function formatUrl(url: string) {
+  return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="${MESSAGE_COLORS.URL}">${escapeHtml(url)}</a>`;
+}
+
 export function formatSearchHighlight(term: string) {
   return `<mark class="${MESSAGE_COLORS.SEARCH_HIGHLIGHT}">${term}</mark>`;
 }
@@ -98,36 +110,63 @@ export function formatImageTag(index: number, exists = true) {
   return `<span ${dataAttr} class="${classes}">[Image #${index}]</span>`;
 }
 
-export function parseTitle(title: string): Array<{ text: string; type: 'normal' | 'file' | 'command' }> {
-  const parts: Array<{ text: string; type: 'normal' | 'file' | 'command' }> = [];
+export function parseTitle(
+  title: string
+): Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' }> {
+  const parts: Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' }> = [];
   const isCommand = MESSAGE_PATTERNS.COMMAND_WORDS.test(title) || MESSAGE_PATTERNS.SLASH_COMMAND.test(title);
 
-  const fileMatches: Array<{ index: number; text: string }> = [];
-  const regex = new RegExp(MESSAGE_PATTERNS.FILE_OR_FOLDER_AT.source, 'g');
-  let match: RegExpExecArray | null = regex.exec(title);
+  const allMatches: Array<{ index: number; text: string; type: 'file' | 'url' | 'ultrathink' }> = [];
 
-  while (match !== null) {
-    const prefixLength = match[1].length;
-    fileMatches.push({
-      index: match.index + prefixLength,
-      text: `@${match[2]}`
+  const fileRegex = new RegExp(MESSAGE_PATTERNS.FILE_OR_FOLDER_AT.source, 'g');
+  let fileMatch: RegExpExecArray | null = fileRegex.exec(title);
+  while (fileMatch !== null) {
+    const prefixLength = fileMatch[1].length;
+    allMatches.push({
+      index: fileMatch.index + prefixLength,
+      text: `@${fileMatch[2]}`,
+      type: 'file'
     });
-    match = regex.exec(title);
+    fileMatch = fileRegex.exec(title);
   }
 
-  if (fileMatches.length === 0) {
+  const urlRegex = new RegExp(MESSAGE_PATTERNS.URL.source, 'g');
+  let urlMatch: RegExpExecArray | null = urlRegex.exec(title);
+  while (urlMatch !== null) {
+    allMatches.push({
+      index: urlMatch.index,
+      text: urlMatch[0],
+      type: 'url'
+    });
+    urlMatch = urlRegex.exec(title);
+  }
+
+  const ultrathinkRegex = new RegExp(MESSAGE_PATTERNS.ULTRATHINK.source, 'gi');
+  let ultrathinkMatch: RegExpExecArray | null = ultrathinkRegex.exec(title);
+  while (ultrathinkMatch !== null) {
+    allMatches.push({
+      index: ultrathinkMatch.index,
+      text: ultrathinkMatch[0],
+      type: 'ultrathink'
+    });
+    ultrathinkMatch = ultrathinkRegex.exec(title);
+  }
+
+  allMatches.sort((a, b) => a.index - b.index);
+
+  if (allMatches.length === 0) {
     parts.push({ text: title, type: isCommand ? 'command' : 'normal' });
     return parts;
   }
 
   let lastIndex = 0;
-  for (const fileMatch of fileMatches) {
-    if (fileMatch.index > lastIndex) {
-      const text = title.slice(lastIndex, fileMatch.index);
+  for (const match of allMatches) {
+    if (match.index > lastIndex) {
+      const text = title.slice(lastIndex, match.index);
       parts.push({ text, type: isCommand ? 'command' : 'normal' });
     }
-    parts.push({ text: fileMatch.text, type: 'file' });
-    lastIndex = fileMatch.index + fileMatch.text.length;
+    parts.push({ text: match.text, type: match.type });
+    lastIndex = match.index + match.text.length;
   }
 
   if (lastIndex < title.length) {

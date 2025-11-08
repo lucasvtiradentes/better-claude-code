@@ -11,7 +11,11 @@ export const MESSAGE_COLORS = {
   COMMAND: 'text-green-500 font-semibold',
 
   // ultrathink
-  ULTRATHINK: 'bg-gradient-to-r from-destructive via-primary to-chart-4 bg-clip-text text-transparent font-semibold',
+  ULTRATHINK: 'rainbow-text font-semibold',
+
+  // url
+  URL: 'text-purple-500 font-semibold',
+
   // tokens
   TOKEN_HIGH: 'text-red-500',
   TOKEN_MEDIUM: 'text-primary',

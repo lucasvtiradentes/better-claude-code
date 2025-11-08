@@ -18,6 +18,8 @@ import {
   getFileInTitleColor,
   getLabelActiveColor,
   getTokenColor,
+  getUrlColor,
+  getUltrathinkColor,
   parseTitle
 } from '@/features/projects/utils/message-patterns';
 
@@ -75,7 +77,11 @@ export const SessionCard = ({
                   ? getFileInTitleColor()
                   : part.type === 'command'
                     ? getCommandInTitleColor()
-                    : ''
+                    : part.type === 'url'
+                      ? getUrlColor()
+                      : part.type === 'ultrathink'
+                        ? getUltrathinkColor()
+                        : ''
               }
             >
               {part.text}
