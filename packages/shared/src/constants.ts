@@ -6,7 +6,7 @@ export const APP_DESCRIPTION = 'CLI auxiliary tools for Claude Code';
 
 export const FRONTEND_PORT = 5001;
 
-export const BACKEND_PORT = 5002;
+export const BACKEND_PORT = 5000;
 
 export const API_PREFIX = '/api';
 

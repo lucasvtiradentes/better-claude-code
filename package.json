@@ -7,7 +7,8 @@
   "scripts": {
     "prepare": "turbo build --filter='./packages/*'",
     "start": "node ./apps/cli/dist/cli/main.js",
-    "dev": "turbo dev --filter=better-claude-code",
+    "dev": "npm run dev:app",
+    "dev:cli": "turbo dev --filter=better-claude-code",
     "dev:app": "turbo dev --filter='@better-claude-code/backend' --filter='@better-claude-code/frontend' --parallel",
     "build": "turbo build",
     "typecheck": "turbo typecheck",
