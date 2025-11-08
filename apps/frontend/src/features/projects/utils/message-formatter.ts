@@ -89,7 +89,16 @@ export function formatMessageContent(
     formatted = formatted.replace(regex, (_match, term) => formatSearchHighlight(term));
   }
 
+  formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+  formatted = formatted.replace(
+    /`([^`]+)`/g,
+    '<code class="bg-muted/80 dark:bg-muted px-1.5 py-0.5 rounded text-sm border border-border dark:border-border/80 dark:text-foreground/95">$1</code>'
+  );
+
   formatted = formatted.replace(/\n---\n/g, '<div class="h-px bg-border my-3 w-[40%] mx-auto"></div>');
+
+  formatted = formatted.replace(/\n(\d+)\.\s/g, '<br />$1. ');
 
   formatted = formatted.replace(/\n/g, '<br />');
 
