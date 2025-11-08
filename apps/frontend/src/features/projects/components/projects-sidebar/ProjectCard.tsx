@@ -72,12 +72,15 @@ export const ProjectCard = ({
     >
       <button type="button" onClick={onClick} title={project.path} className="w-full text-left">
         <div className="mb-1">
-          <div className="text-sm font-semibold wrap-break-word line-clamp-1 pr-8">{project.name}</div>
-          {displaySettings.showCurrentBranch && project.currentBranch && (
-            <div className="text-[10px] text-muted-foreground mt-0.5">
-              <span>{project.currentBranch}</span>
-            </div>
-          )}
+          <div className="text-sm font-semibold wrap-break-word line-clamp-1 pr-8">
+            {project.name}
+            {displaySettings.showCurrentBranch &&
+              project.currentBranch &&
+              project.currentBranch !== 'main' &&
+              project.currentBranch !== 'master' && (
+                <span className="text-[10px] text-muted-foreground font-normal ml-1">({project.currentBranch})</span>
+              )}
+          </div>
         </div>
 
         <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
