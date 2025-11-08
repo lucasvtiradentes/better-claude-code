@@ -178,6 +178,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
       isLoading={sessionsLoading}
       error={sessionsError}
       projectName={selectedProjectData?.name || selectedProject}
+      projectPath={selectedProjectData?.path || ''}
       selectedSessionId={sessionId}
       totalSessions={totalSessions}
       searchValue={searchQuery}

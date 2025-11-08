@@ -7,6 +7,7 @@ import {
   TOKEN_PERCENTAGE_GROUP_ORDER
 } from '@better-claude-code/shared';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { useGetApiSettings } from '@/api';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
 import { GroupCardItems } from '@/components/GroupCardItems';
@@ -20,6 +21,7 @@ type SessionsSidebarProps = {
   isLoading: boolean;
   error: unknown;
   projectName: string;
+  projectPath: string;
   selectedSessionId?: string;
   totalSessions: number;
   searchValue?: string;
@@ -41,6 +43,7 @@ export const SessionsSidebar = ({
   isLoading,
   error,
   projectName,
+  projectPath,
   selectedSessionId,
   totalSessions,
   searchValue,
@@ -57,10 +60,19 @@ export const SessionsSidebar = ({
   onSortByChange
 }: SessionsSidebarProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const { data: settingsData } = useGetApiSettings();
   const [showSettings, setShowSettings] = useState(false);
 
   const settings = settingsData?.sessions;
+
+  const handleCreateSession = () => {
+    navigate({
+      to: '/live/$sessionId',
+      params: { sessionId: 'new' },
+      search: { projectPath, projectName }
+    });
+  };
 
   useEffect(() => {
     if (settings && onSortByChange) {
@@ -193,6 +205,7 @@ export const SessionsSidebar = ({
           onSearchChange={onSearchChange}
           onSettingsClick={() => setShowSettings(true)}
           onBackClick={onBack}
+          onCreateSession={handleCreateSession}
           projectId={projectId}
           isGitRepo={isGitRepo}
         />

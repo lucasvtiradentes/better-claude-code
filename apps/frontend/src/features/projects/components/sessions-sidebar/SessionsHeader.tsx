@@ -1,5 +1,5 @@
 import { ProjectAction } from '@better-claude-code/shared';
-import { ArrowLeft, Code, Settings, Terminal } from 'lucide-react';
+import { ArrowLeft, Code, Plus, Settings, Terminal } from 'lucide-react';
 import { usePostApiProjectsProjectIdActionAction } from '@/api';
 import { SearchInput } from '@/components/SearchInput';
 
@@ -10,6 +10,7 @@ type SessionsHeaderProps = {
   onSearchChange: (value: string) => void;
   onSettingsClick: () => void;
   onBackClick: () => void;
+  onCreateSession: () => void;
   projectId: string;
   isGitRepo?: boolean;
 };
@@ -21,6 +22,7 @@ export const SessionsHeader = ({
   onSearchChange,
   onSettingsClick,
   onBackClick,
+  onCreateSession,
   projectId,
   isGitRepo
 }: SessionsHeaderProps) => {
@@ -73,14 +75,24 @@ export const SessionsHeader = ({
           placeholder="Search sessions..."
           debounce={500}
         />
-        <button
-          type="button"
-          onClick={onSettingsClick}
-          className="p-1.5 hover:bg-accent rounded transition-colors"
-          title="Settings"
-        >
-          <Settings size={16} />
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onCreateSession}
+            className="p-1.5 hover:bg-accent rounded transition-colors"
+            title="Create live session"
+          >
+            <Plus size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={onSettingsClick}
+            className="p-1.5 hover:bg-accent rounded transition-colors"
+            title="Settings"
+          >
+            <Settings size={16} />
+          </button>
+        </div>
       </div>
     </div>
   );

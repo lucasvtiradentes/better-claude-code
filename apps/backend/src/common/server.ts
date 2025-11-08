@@ -17,6 +17,7 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
 import { ENV } from '../env.js';
 import { filesRouter } from '../modules/files/router.js';
+import { liveSessionsRouter } from '../modules/live-sessions/router.js';
 import { projectsRouter } from '../modules/projects/router.js';
 import { sessionsRouter } from '../modules/sessions/router.js';
 import { settingsRouter } from '../modules/settings/router.js';
@@ -109,6 +110,7 @@ export const createServer = (port: number, staticPath?: string) => {
   setupHealthRoute(app);
 
   app.route(`${API_PREFIX}/files`, filesRouter);
+  app.route(`${API_PREFIX}/live-sessions`, liveSessionsRouter);
   app.route(`${API_PREFIX}/projects`, projectsRouter);
   app.route(`${API_PREFIX}/sessions`, sessionsRouter);
   app.route(`${API_PREFIX}/settings`, settingsRouter);

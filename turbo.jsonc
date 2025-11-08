@@ -95,9 +95,6 @@
     },
     "dev": {
       "outputLogs": "full",
-      "dependsOn": [
-        "^build"
-      ],
       "cache": false,
       "persistent": true,
       "env": [
