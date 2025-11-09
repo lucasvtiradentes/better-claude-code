@@ -372,24 +372,27 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
       return;
     }
 
+    if (connectedSessionRef.current && connectedSessionRef.current !== sessionId) {
+      cleanup();
+      setMessages([]);
+      setStatus('idle');
+      setError(null);
+      setPendingPermissions([]);
+      setToolCalls([]);
+      connectedSessionRef.current = null;
+    }
+
     if (sessionId !== 'new' && !eventSourceRef.current) {
       connectStream();
       setIsNavigating(false);
     } else if (sessionId !== 'new' && eventSourceRef.current) {
       setIsNavigating(false);
-    } else {
     }
 
     return () => {
       if (preventCleanupRef.current) {
         preventCleanupRef.current = false;
         return;
-      }
-
-      if (connectedSessionRef.current !== sessionId) {
-        cleanup();
-        connectedSessionRef.current = null;
-      } else {
       }
     };
   }, [sessionId, enabled, projectPath, connectStream, cleanup]);

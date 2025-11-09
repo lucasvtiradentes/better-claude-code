@@ -134,7 +134,7 @@ export async function startStream(
 
       const events = lines.map((line) => JSON.parse(line));
       const { messages } = parseSessionMessages(events, {
-        groupMessages: false,
+        groupMessages: true,
         includeImages: false
       });
 

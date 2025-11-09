@@ -55,6 +55,7 @@ export interface SessionListItem {
   shortId?: string;
   userMessageCount?: number;
   assistantMessageCount?: number;
+  summary?: string;
 }
 
 export interface SessionListResult {
@@ -194,6 +195,18 @@ function calculateTokenPercentage(lines: string[]): number | undefined {
         if (total > 0) {
           return Math.floor((total * 100) / TOKEN_LIMIT);
         }
+      }
+    } catch {}
+  }
+  return undefined;
+}
+
+function extractSummary(lines: string[]): string | undefined {
+  for (const line of lines) {
+    try {
+      const parsed = JSON.parse(line);
+      if (parsed.type === 'summary' && parsed.summary) {
+        return parsed.summary;
       }
     } catch {}
   }
@@ -432,6 +445,8 @@ async function processSessionFile(
   const stats = await stat(filePath);
   const sessionId = file.replace('.jsonl', '');
 
+  const summary = extractSummary(lines);
+
   const session: SessionListItem = {
     id: sessionId,
     title: title || 'Empty session',
@@ -442,7 +457,8 @@ async function processSessionFile(
     filePath,
     shortId: sessionId.slice(-12),
     userMessageCount: messageCounts.userCount,
-    assistantMessageCount: messageCounts.assistantCount
+    assistantMessageCount: messageCounts.assistantCount,
+    summary
   };
 
   if (options.includeImages) {

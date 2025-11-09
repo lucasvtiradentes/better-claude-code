@@ -1,4 +1,4 @@
-import { Send } from 'lucide-react';
+import { Loader2, Send } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,12 +7,14 @@ type LiveMessageInputProps = {
   onSend: (message: string) => void;
   disabled?: boolean;
   placeholder?: string;
+  isStreaming?: boolean;
 };
 
 export const LiveMessageInput = ({
   onSend,
   disabled = false,
-  placeholder = 'Type your message...'
+  placeholder = 'Type your message...',
+  isStreaming = false
 }: LiveMessageInputProps) => {
   const [message, setMessage] = useState('');
 
@@ -42,10 +44,9 @@ export const LiveMessageInput = ({
           className="min-h-[60px] max-h-[200px] resize-none"
         />
         <Button onClick={handleSend} disabled={disabled || !message.trim()} size="icon" className="shrink-0">
-          <Send className="h-4 w-4" />
+          {isStreaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
       </div>
-      <p className="mt-2 text-xs text-muted-foreground">Press Enter to send, Shift+Enter for new line</p>
     </div>
   );
 };

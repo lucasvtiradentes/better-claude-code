@@ -25,7 +25,8 @@ const SessionSchema = z.object({
   customCommandCount: z.number().optional(),
   filesOrFoldersCount: z.number().optional(),
   urlCount: z.number().optional(),
-  labels: z.array(z.string()).optional()
+  labels: z.array(z.string()).optional(),
+  summary: z.string().optional()
 });
 
 const responseSchema = z.object({
@@ -93,7 +94,8 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       customCommandCount: item.customCommandCount,
       filesOrFoldersCount: item.filesOrFoldersCount,
       urlCount: item.urlCount,
-      labels: item.labels
+      labels: item.labels,
+      summary: item.summary
     }));
 
     return c.json(

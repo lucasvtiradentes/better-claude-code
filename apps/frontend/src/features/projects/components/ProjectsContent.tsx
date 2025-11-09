@@ -42,6 +42,7 @@ interface ProjectsContentProps {
   onSendMessage?: (message: string) => void;
   messageInputDisabled?: boolean;
   messageInputPlaceholder?: string;
+  isStreaming?: boolean;
 }
 
 export function ProjectsContent({
@@ -71,7 +72,8 @@ export function ProjectsContent({
   onFolderModalFileClick,
   onSendMessage,
   messageInputDisabled = false,
-  messageInputPlaceholder = 'Type your message...'
+  messageInputPlaceholder = 'Type your message...',
+  isStreaming = false
 }: ProjectsContentProps) {
   return (
     <div className="flex h-full flex-col">
@@ -156,6 +158,7 @@ export function ProjectsContent({
           onSend={onSendMessage}
           disabled={messageInputDisabled}
           placeholder={messageInputPlaceholder}
+          isStreaming={isStreaming}
         />
       )}
 

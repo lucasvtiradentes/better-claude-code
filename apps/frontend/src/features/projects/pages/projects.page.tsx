@@ -80,7 +80,11 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
   const shouldEnableStream = !!(sessionId && selectedProjectData?.path && selectedProjectData?.name);
 
-  const { messages: liveMessages, sendMessage } = useClaudeStream(
+  const {
+    messages: liveMessages,
+    status: streamStatus,
+    sendMessage
+  } = useClaudeStream(
     sessionId || 'placeholder',
     selectedProjectData?.path || 'placeholder',
     selectedProjectData?.name || 'placeholder',
@@ -335,8 +339,9 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
           updateSearch({ folderPath: path });
         }}
         onSendMessage={sendMessage}
-        messageInputDisabled={false}
-        messageInputPlaceholder="Type your message..."
+        messageInputDisabled={streamStatus === 'streaming'}
+        messageInputPlaceholder={streamStatus === 'streaming' ? 'Claude is responding...' : 'Type your message...'}
+        isStreaming={streamStatus === 'streaming'}
       />
     );
   }
