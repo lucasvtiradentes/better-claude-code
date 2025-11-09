@@ -185,7 +185,9 @@ export function parseSessionMessages(
     finalMessages = groupedMessages.filter((msg) => msg.content.trim().length > 0);
   }
 
-  const images: Array<{ index: number; data: string }> = [];
+  const imagesWithData: Array<{ data: string }> = [];
+  const imageIndicesInText: number[] = [];
+
   if (options.includeImages) {
     try {
       for (const event of events) {
@@ -194,13 +196,33 @@ export function parseSessionMessages(
             if (item.type === 'image') {
               const imageData = item.source?.type === 'base64' ? item.source.data : null;
               if (imageData) {
-                images.push({ index: images.length + 1, data: imageData });
+                imagesWithData.push({ data: imageData });
               }
             }
           }
         }
       }
     } catch {}
+  }
+
+  for (const msg of finalMessages) {
+    const matches = msg.content.matchAll(/\[Image #(\d+)\]/g);
+    for (const match of matches) {
+      const index = Number.parseInt(match[1], 10);
+      if (!imageIndicesInText.includes(index)) {
+        imageIndicesInText.push(index);
+      }
+    }
+  }
+
+  const images: Array<{ index: number; data: string }> = [];
+  imageIndicesInText.sort((a, b) => a - b);
+
+  for (let i = 0; i < Math.min(imagesWithData.length, imageIndicesInText.length); i++) {
+    images.push({
+      index: imageIndicesInText[i],
+      data: imagesWithData[i].data
+    });
   }
 
   return { messages: finalMessages, images };
