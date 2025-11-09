@@ -137,12 +137,18 @@ export function parseSessionMessages(
 ): ParsedSession {
   const messages: ParsedMessage[] = [];
   const imageToMessageMap = new Map<string, Array<{ localIndex: number; data: string }>>();
+  const seenMessages = new Set<string>();
   let skipNextAssistant = false;
 
   for (const event of events) {
     if (ClaudeHelper.isUserMessage(event.type)) {
-      const messageId = event.uuid || `${event.timestamp}-${Math.random()}`;
       const textContent = extractTextContent(event.message?.content || event.content);
+
+      const messageKey = `user-${event.timestamp}-${textContent}`;
+      if (seenMessages.has(messageKey)) continue;
+      seenMessages.add(messageKey);
+
+      const messageId = event.uuid || `${event.timestamp}-${Math.random()}`;
       const messageImages: Array<{ localIndex: number; data: string }> = [];
 
       if (Array.isArray(event.message?.content)) {
@@ -183,8 +189,13 @@ export function parseSessionMessages(
         skipNextAssistant = false;
         continue;
       }
-      const messageId = event.uuid || `${event.timestamp}-${Math.random()}`;
       const textContent = extractTextContent(event.message?.content || event.content);
+
+      const messageKey = `assistant-${event.timestamp}-${textContent}`;
+      if (seenMessages.has(messageKey)) continue;
+      seenMessages.add(messageKey);
+
+      const messageId = event.uuid || `${event.timestamp}-${Math.random()}`;
       if (textContent && textContent !== 'Warmup') {
         messages.push({
           id: messageId,
