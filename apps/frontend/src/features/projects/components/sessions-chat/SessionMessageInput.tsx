@@ -1,4 +1,4 @@
-import { Loader2, Send, X } from 'lucide-react';
+import { ImagePlus, Loader2, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +20,7 @@ export const SessionMessageInput = ({
   const [imagePaths, setImagePaths] = useState<string[]>([]);
   const [imagePreview, setImagePreview] = useState<Record<string, string>>({});
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSend = () => {
     if ((message.trim() || imagePaths.length > 0) && !disabled) {
@@ -145,6 +146,49 @@ export const SessionMessageInput = ({
     });
   };
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith('image/')) continue;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target?.result as string;
+        const data = base64.split(',')[1];
+
+        try {
+          const response = await fetch('/api/files/clipboard-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data, mediaType: file.type })
+          });
+
+          if (!response.ok) throw new Error('Failed to save image');
+
+          const result = await response.json();
+          const imagePath = result.path;
+
+          setImagePaths((prev) => {
+            const newPaths = [...prev, imagePath];
+            const imageRef = `[Image #${newPaths.length}]`;
+            setMessage((prevMessage) => (prevMessage ? `${prevMessage} ${imageRef}` : imageRef));
+            return newPaths;
+          });
+          setImagePreview((prev) => ({ ...prev, [imagePath]: base64 }));
+        } catch (error) {
+          console.error('Failed to save image:', error);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="border-t bg-card p-4">
       <div className="space-y-2">
@@ -181,14 +225,33 @@ export const SessionMessageInput = ({
             className="resize-none overflow-y-auto"
             style={{ height: '60px' }}
           />
-          <Button
-            onClick={handleSend}
-            disabled={disabled || (!message.trim() && imagePaths.length === 0)}
-            size="icon"
-            className="shrink-0"
-          >
-            {isStreaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button
+              onClick={handleSend}
+              disabled={disabled || (!message.trim() && imagePaths.length === 0)}
+              size="icon"
+              className="shrink-0"
+            >
+              {isStreaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={disabled}
+              size="icon"
+              variant="outline"
+              className="shrink-0"
+            >
+              <ImagePlus className="h-4 w-4" />
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleImageSelect}
+            />
+          </div>
         </div>
       </div>
     </div>
