@@ -60,8 +60,8 @@ export const SessionMessage = ({
 
       <div
         className={`
-          p-2 px-3 rounded-md wrap-break-word
-          ${isUser ? 'bg-secondary ml-10' : 'bg-card mr-10'}
+          p-2 px-3 rounded-md wrap-break-word max-w-[85%]
+          ${isUser ? 'bg-secondary' : 'bg-card'}
           ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
         `}
       >

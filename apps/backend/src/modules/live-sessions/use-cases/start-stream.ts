@@ -131,12 +131,43 @@ export async function startStream(
       const lines = fileContent.trim().split('\n');
       console.log(`[Claude CLI] Found ${lines.length} lines in session file`);
 
+      const CLAUDE_CODE_COMMANDS = ['clear', 'ide', 'model', 'compact', 'init'];
+
+      const isValidUserMessage = (content: string): boolean => {
+        if (!content || content === 'Warmup') {
+          return false;
+        }
+
+        const firstLine = content.split('\n')[0].replace(/\\/g, '').replace(/\s+/g, ' ').trim();
+
+        if (firstLine.includes('Caveat:')) {
+          return false;
+        }
+
+        const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
+        if (commandMatch) {
+          const commandName = commandMatch[1];
+          if (CLAUDE_CODE_COMMANDS.includes(commandName)) {
+            return false;
+          }
+        }
+
+        const isSystemMessage =
+          firstLine.startsWith('<local-command-') ||
+          firstLine.startsWith('[Tool:') ||
+          firstLine.startsWith('[Request interrupted');
+
+        return !isSystemMessage;
+      };
+
       for (const line of lines) {
         try {
           const event = JSON.parse(line);
           if (event.type === 'user' && event.message?.content) {
-            const text = event.message.content.map((c: any) => c.text || '').join('');
-            if (text) {
+            const text = typeof event.message.content === 'string'
+              ? event.message.content
+              : event.message.content.map((c: any) => c.text || '').join('');
+            if (text && isValidUserMessage(text)) {
               historyMessages.push({
                 id: event.uuid || randomUUID(),
                 role: 'user',
@@ -145,7 +176,9 @@ export async function startStream(
               });
             }
           } else if (event.type === 'assistant' && event.message?.content) {
-            const text = event.message.content.map((c: any) => c.text || '').join('');
+            const text = typeof event.message.content === 'string'
+              ? event.message.content
+              : event.message.content.map((c: any) => c.text || '').join('');
             if (text) {
               historyMessages.push({
                 id: event.uuid || randomUUID(),
