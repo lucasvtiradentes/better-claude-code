@@ -4,6 +4,7 @@ import type {
   GetApiSessionsProjectNameSessionId200,
   GetApiSessionsProjectNameSessionId200MessagesItem
 } from '@/api/_generated/schemas';
+import { LiveMessageInput } from '@/features/live-sessions/LiveMessageInput';
 import { FilterButtons } from './FilterButtons';
 import { FileModal } from './modals/FileModal';
 import { FolderModal } from './modals/FolderModal';
@@ -38,6 +39,9 @@ interface ProjectsContentProps {
   onFolderModalClose: () => void;
   onFolderModalFileClick: (path: string) => void;
   onFolderModalFolderClick: (path: string) => void;
+  onSendMessage?: (message: string) => void;
+  messageInputDisabled?: boolean;
+  messageInputPlaceholder?: string;
 }
 
 export function ProjectsContent({
@@ -64,10 +68,13 @@ export function ProjectsContent({
   onImageModalPrev,
   onFileModalClose,
   onFolderModalClose,
-  onFolderModalFileClick
+  onFolderModalFileClick,
+  onSendMessage,
+  messageInputDisabled = false,
+  messageInputPlaceholder = 'Type your message...'
 }: ProjectsContentProps) {
   return (
-    <>
+    <div className="flex h-full flex-col">
       <div className="p-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -103,6 +110,14 @@ export function ProjectsContent({
         ))}
       </div>
 
+      {onSendMessage && (
+        <LiveMessageInput
+          onSend={onSendMessage}
+          disabled={messageInputDisabled}
+          placeholder={messageInputPlaceholder}
+        />
+      )}
+
       {imageModalIndex !== null && (
         <ImageModal
           images={sessionData.images}
@@ -131,6 +146,6 @@ export function ProjectsContent({
           onFileClick={onFolderModalFileClick}
         />
       )}
-    </>
+    </div>
   );
 }

@@ -57,7 +57,6 @@ export const SessionCard = ({
 
   const handleMenuAction = (e: React.MouseEvent<HTMLDivElement>, action: () => void) => {
     e.stopPropagation();
-    console.log('[SessionCard] handleMenuAction called', { hasOnDelete: !!onDelete });
     action();
   };
 
@@ -164,7 +163,6 @@ export const SessionCard = ({
             <DropdownMenuItem
               onClick={(e: React.MouseEvent<HTMLDivElement>) =>
                 handleMenuAction(e, () => {
-                  console.log('[SessionCard] Delete clicked', { sessionId: session.id, onDelete: !!onDelete });
                   onDelete?.(session.id);
                 })
               }

@@ -11,6 +11,7 @@ import {
   useInfinitySessions,
   usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
+import { useClaudeStream } from '@/features/live-sessions/hooks/useClaudeStream';
 import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
 import { ConfirmDialog } from '../../../components/ConfirmDialog';
@@ -83,6 +84,12 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   const selectedProjectData = projects?.find((p) => p.id === selectedProject);
   const currentSession = sessions?.find((s) => s.id === sessionId);
 
+  const { messages: liveMessages, sendMessage } = useClaudeStream(
+    sessionId || '',
+    selectedProjectData?.path || '',
+    selectedProjectData?.name || ''
+  );
+
   const { imageModalIndex, setImageModalIndex, fileModalPath, setFileModalPath, folderModalPath, setFolderModalPath } =
     useModalState(imageIndex, urlFolderPath, urlFilePath, sessionData?.images);
 
@@ -97,8 +104,16 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
   useScrollPersistence(contentRef, selectedProject, sessionId);
 
+  const convertedLiveMessages = liveMessages.map((msg) => ({
+    type: msg.role,
+    content: msg.content,
+    timestamp: msg.timestamp.getTime()
+  }));
+
+  const displayMessages = liveMessages.length > 0 ? convertedLiveMessages : sessionData?.messages || [];
+
   const { filteredMessages, searchMatches, searchMatchIndex, handleNextMatch, handlePreviousMatch } = useMessageFilter(
-    sessionData?.messages || [],
+    displayMessages,
     showUserMessages,
     showAssistantMessages,
     showToolCalls,
@@ -106,11 +121,12 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   );
 
   useEffect(() => {
-    console.log('[projects.page] State changed:', { deleteModalOpen, sessionToDelete });
-  }, [deleteModalOpen, sessionToDelete]);
+    if (liveMessages.length > 0 && contentRef.current) {
+      contentRef.current.scrollTop = contentRef.current.scrollHeight;
+    }
+  }, [liveMessages]);
 
   const handleDeleteSession = (sessionId: string) => {
-    console.log('[projects.page] handleDeleteSession called', { sessionId });
     setSessionToDelete(sessionId);
     setTimeout(() => {
       setDeleteModalOpen(true);
@@ -277,8 +293,6 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
         onPreviousMatch={handlePreviousMatch}
         onCloseSearch={() => updateSearch({ search: undefined })}
         onImageClick={(index: number) => {
-          console.log('[projects.tsx] onImageClick called with index:', index);
-          console.log('[projects.tsx] sessionData.images:', sessionData?.images);
           setImageModalIndex(index);
           updateSearch({ imageIndex: index });
         }}
@@ -318,11 +332,12 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
           setFolderModalPath(path);
           updateSearch({ folderPath: path });
         }}
+        onSendMessage={sendMessage}
+        messageInputDisabled={false}
+        messageInputPlaceholder="Type your message..."
       />
     );
   }
-
-  console.log('[projects.page] Render state:', { deleteModalOpen, sessionToDelete });
 
   return (
     <>

@@ -35,15 +35,9 @@ export const SessionMessage = ({
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
-    console.log('[SessionMessage] Click detected:', {
-      tagName: target.tagName,
-      className: target.className,
-      imageIndex: target.dataset.imageIndex,
-      path: target.dataset.path
-    });
+
     if (target.dataset.imageIndex) {
       const index = Number.parseInt(target.dataset.imageIndex, 10);
-      console.log('[SessionMessage] Calling onImageClick with index:', index);
       onImageClick(index);
     } else if (target.dataset.path && onPathClick) {
       const exists = target.dataset.exists === 'true';
