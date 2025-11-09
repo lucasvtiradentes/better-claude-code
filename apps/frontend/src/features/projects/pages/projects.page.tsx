@@ -312,13 +312,10 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
         onNextMatch={handleNextMatch}
         onPreviousMatch={handlePreviousMatch}
         onCloseSearch={() => updateSearch({ search: undefined })}
-        onImageClick={(index: number) => {
+        onImageClick={(arrayPosition: number) => {
           if (!sessionData) return;
-          const arrayPosition = sessionData.images.findIndex((img) => img.index === index);
-          if (arrayPosition !== -1) {
-            setImageModalIndex(arrayPosition);
-            updateSearch({ imageIndex: arrayPosition });
-          }
+          setImageModalIndex(arrayPosition);
+          updateSearch({ imageIndex: arrayPosition });
         }}
         onPathClick={(path: string) => handlePathClick(path, folderModalPath, setFileModalPath, setFolderModalPath)}
         onImageModalClose={() => {

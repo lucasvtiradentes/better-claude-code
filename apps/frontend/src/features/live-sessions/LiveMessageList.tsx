@@ -21,7 +21,10 @@ export const LiveMessageList = ({ messages, images = [], toolCalls, status }: Li
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log('[LiveMessageList] Messages:', messages.map(m => ({ id: m.id, content: m.content.substring(0, 50) })));
+    console.log(
+      '[LiveMessageList] Messages:',
+      messages.map((m) => ({ id: m.id, content: m.content.substring(0, 50) }))
+    );
     console.log('[LiveMessageList] Images:', images);
   }, [messages, images]);
 
@@ -58,7 +61,7 @@ export const LiveMessageList = ({ messages, images = [], toolCalls, status }: Li
                 message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
               )}
             >
-              <div className="whitespace-pre-wrap break-words">{message.content}</div>
+              <div className="whitespace-pre-wrap wrap-break-word">{message.content}</div>
               {message.role === 'user' && images.filter((img) => img.messageId === message.id).length > 0 && (
                 <div className="mt-2 flex gap-2 overflow-x-auto">
                   {images
@@ -67,7 +70,7 @@ export const LiveMessageList = ({ messages, images = [], toolCalls, status }: Li
                       <div key={`${message.id}-${image.index}`} className="relative shrink-0">
                         <img
                           src={`data:image/png;base64,${image.data}`}
-                          alt={`Image #${image.index}`}
+                          alt={`Img #${image.index}`}
                           className="h-32 w-32 rounded border object-cover"
                         />
                         <div className="absolute bottom-0 left-0 bg-black/70 text-white text-xs font-semibold px-1.5 py-0.5 rounded-tr-md">

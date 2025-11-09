@@ -124,6 +124,7 @@ function countMessages(
   mode: MessageCountMode
 ): { userCount: number; assistantCount: number; totalCount: number } {
   if (mode === MessageCountMode.TURN) {
+    const seenMessages = new Set<string>();
     let userCount = 0;
     let assistantCount = 0;
     let prevType = '';
@@ -131,12 +132,42 @@ function countMessages(
     for (const line of lines) {
       try {
         const parsed = JSON.parse(line);
+
+        if (parsed.type === 'queue-operation') {
+          continue;
+        }
+
         const currentType = parsed.type;
 
         if (ClaudeHelper.isUserMessage(currentType) || ClaudeHelper.isCCMessage(currentType)) {
+          let textContent = '';
+
           if (ClaudeHelper.isUserMessage(currentType)) {
-            const content = extractTextContent(parsed.message?.content);
-            if (!isValidUserMessage(content)) {
+            textContent = extractTextContent(parsed.message?.content || parsed.content);
+            const messageKey = `user-${parsed.timestamp}-${textContent}`;
+
+            if (seenMessages.has(messageKey)) {
+              continue;
+            }
+            seenMessages.add(messageKey);
+
+            if (!textContent || textContent === 'Warmup') {
+              continue;
+            }
+
+            if (!isValidUserMessage(textContent)) {
+              continue;
+            }
+          } else {
+            textContent = extractTextContent(parsed.message?.content || parsed.content);
+            const messageKey = `assistant-${parsed.timestamp}-${textContent}`;
+
+            if (seenMessages.has(messageKey)) {
+              continue;
+            }
+            seenMessages.add(messageKey);
+
+            if (!textContent || textContent === 'Warmup') {
               continue;
             }
           }
@@ -155,27 +186,51 @@ function countMessages(
 
     return { userCount, assistantCount, totalCount: userCount + assistantCount };
   } else {
-    const userCount = lines.filter((line) => {
-      try {
-        const parsed = JSON.parse(line);
-        if (!ClaudeHelper.isUserMessage(parsed.type)) {
-          return false;
-        }
-        const content = extractTextContent(parsed.message?.content);
-        return isValidUserMessage(content);
-      } catch {
-        return false;
-      }
-    }).length;
+    const seenMessages = new Set<string>();
+    let userCount = 0;
+    let assistantCount = 0;
 
-    const assistantCount = lines.filter((line) => {
+    for (const line of lines) {
       try {
         const parsed = JSON.parse(line);
-        return ClaudeHelper.isCCMessage(parsed.type);
-      } catch {
-        return false;
-      }
-    }).length;
+
+        if (parsed.type === 'queue-operation') {
+          continue;
+        }
+
+        if (ClaudeHelper.isUserMessage(parsed.type)) {
+          const textContent = extractTextContent(parsed.message?.content || parsed.content);
+          const messageKey = `user-${parsed.timestamp}-${textContent}`;
+
+          if (seenMessages.has(messageKey)) {
+            continue;
+          }
+          seenMessages.add(messageKey);
+
+          if (!textContent || textContent === 'Warmup') {
+            continue;
+          }
+
+          if (isValidUserMessage(textContent)) {
+            userCount++;
+          }
+        } else if (ClaudeHelper.isCCMessage(parsed.type)) {
+          const textContent = extractTextContent(parsed.message?.content || parsed.content);
+          const messageKey = `assistant-${parsed.timestamp}-${textContent}`;
+
+          if (seenMessages.has(messageKey)) {
+            continue;
+          }
+          seenMessages.add(messageKey);
+
+          if (!textContent || textContent === 'Warmup') {
+            continue;
+          }
+
+          assistantCount++;
+        }
+      } catch {}
+    }
 
     return { userCount, assistantCount, totalCount: userCount + assistantCount };
   }
@@ -280,12 +335,34 @@ function extractTitle(lines: string[], titleSource: TitleSource): string {
 }
 
 function countImages(lines: string[]): number {
+  const seenMessages = new Set<string>();
   let count = 0;
+
   for (const line of lines) {
     try {
       const parsed = JSON.parse(line);
-      const messageContent = parsed.message?.content;
 
+      if (parsed.type === 'queue-operation') {
+        continue;
+      }
+
+      if (!ClaudeHelper.isUserMessage(parsed.type)) {
+        continue;
+      }
+
+      const textContent = extractTextContent(parsed.message?.content || parsed.content);
+      const messageKey = `user-${parsed.timestamp}-${textContent}`;
+
+      if (seenMessages.has(messageKey)) {
+        continue;
+      }
+      seenMessages.add(messageKey);
+
+      if (!textContent || textContent === 'Warmup') {
+        continue;
+      }
+
+      const messageContent = parsed.message?.content;
       if (Array.isArray(messageContent)) {
         for (const item of messageContent) {
           if (item.type === 'image') {

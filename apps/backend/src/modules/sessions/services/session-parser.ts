@@ -141,6 +141,10 @@ export function parseSessionMessages(
   let skipNextAssistant = false;
 
   for (const event of events) {
+    if (event.type === 'queue-operation') {
+      continue;
+    }
+
     if (ClaudeHelper.isUserMessage(event.type)) {
       const textContent = extractTextContent(event.message?.content || event.content);
 
@@ -226,7 +230,11 @@ export function parseSessionMessages(
 
   if (options.includeImages) {
     try {
+      const validMessageIds = new Set(messages.map((m) => m.id));
       for (const [messageId, messageImages] of imageToMessageMap.entries()) {
+        if (!validMessageIds.has(messageId)) {
+          continue;
+        }
         for (const img of messageImages) {
           images.push({
             index: img.localIndex,

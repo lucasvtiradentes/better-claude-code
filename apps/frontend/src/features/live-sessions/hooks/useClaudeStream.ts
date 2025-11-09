@@ -240,7 +240,7 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
         const imageRefMatches = userMessage.match(/\[Image #(\d+)\]/g) || [];
         const imageIndexes = imageRefMatches.map((match) => {
           const num = match.match(/\d+/);
-          return num ? parseInt(num[0]) : 0;
+          return num ? parseInt(num[0], 10) : 0;
         });
 
         console.log('[useClaudeStream] Extracted image indexes:', imageIndexes);
@@ -256,7 +256,11 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
                 data: result.data,
                 messageId
               };
-              console.log('[useClaudeStream] Loaded image:', { index: imageData.index, messageId: imageData.messageId, dataLength: imageData.data.length });
+              console.log('[useClaudeStream] Loaded image:', {
+                index: imageData.index,
+                messageId: imageData.messageId,
+                dataLength: imageData.data.length
+              });
               newImages.push(imageData);
             }
           } catch (error) {

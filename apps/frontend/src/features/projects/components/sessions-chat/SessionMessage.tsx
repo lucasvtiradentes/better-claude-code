@@ -118,26 +118,35 @@ export const SessionMessage = ({
           );
         })}
 
-        {isUser && allImageRefs.filter(img => img.data).length > 0 && (
+        {isUser && allImageRefs.filter((img) => img.data).length > 0 && (
           <div className="mt-2 flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-            {allImageRefs.filter(img => img.data).map((imageRef) => (
-              <div key={imageRef.index} className="shrink-0">
-                <button
-                  type="button"
-                  onClick={() => onImageClick(imageRef.index)}
-                  className="relative block w-32 h-32 rounded-lg border border-border overflow-hidden hover:opacity-90 transition-opacity cursor-pointer"
-                >
-                  <img
-                    src={`data:image/png;base64,${imageRef.data}`}
-                    alt={`#${imageRef.index}`}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute bottom-0 left-0 bg-black/70 text-white text-xs font-semibold px-1.5 py-0.5 rounded-tr-md">
-                    #{imageRef.index}
+            {allImageRefs
+              .filter((img) => img.data)
+              .map((imageRef) => {
+                const messageId = messages[0].id;
+                const globalImageIndex = images.findIndex(
+                  (img) => img.messageId === messageId && img.index === imageRef.index
+                );
+
+                return (
+                  <div key={`${messageId}-${imageRef.index}`} className="shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => onImageClick(globalImageIndex >= 0 ? globalImageIndex : 0)}
+                      className="relative block w-32 h-32 rounded-lg border border-border overflow-hidden hover:opacity-90 transition-opacity cursor-pointer"
+                    >
+                      <img
+                        src={`data:image/png;base64,${imageRef.data}`}
+                        alt={`#${imageRef.index}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 bg-black/70 text-white text-xs font-semibold px-1.5 py-0.5 rounded-tr-md">
+                        #{imageRef.index}
+                      </div>
+                    </button>
                   </div>
-                </button>
-              </div>
-            ))}
+                );
+              })}
           </div>
         )}
       </div>
