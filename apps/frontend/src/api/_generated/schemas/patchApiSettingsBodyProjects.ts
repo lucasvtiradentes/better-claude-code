@@ -5,17 +5,11 @@
  * CLI auxiliary tools for Claude Code
  * OpenAPI spec version: 1.0.0
  */
-import type { PatchApiSettingsBodyProjectsGroupBy } from './patchApiSettingsBodyProjectsGroupBy';
-import type { PatchApiSettingsBodyProjectsFilters } from './patchApiSettingsBodyProjectsFilters';
 import type { PatchApiSettingsBodyProjectsDisplay } from './patchApiSettingsBodyProjectsDisplay';
 import type { PatchApiSettingsBodyProjectsLabelsItem } from './patchApiSettingsBodyProjectsLabelsItem';
-import type { PatchApiSettingsBodyProjectsProjectSettings } from './patchApiSettingsBodyProjectsProjectSettings';
 
 export type PatchApiSettingsBodyProjects = {
-  groupBy: PatchApiSettingsBodyProjectsGroupBy;
-  filters: PatchApiSettingsBodyProjectsFilters;
   display: PatchApiSettingsBodyProjectsDisplay;
-  search: string;
   labels: PatchApiSettingsBodyProjectsLabelsItem[];
-  projectSettings: PatchApiSettingsBodyProjectsProjectSettings;
+  hiddenProjects: string[];
 };

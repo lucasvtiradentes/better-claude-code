@@ -7,31 +7,24 @@ const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 
 const DEFAULT_SETTINGS: AppSettings = {
   projects: {
-    groupBy: 'date',
-    filters: {
-      selectedLabels: [] as string[]
-    },
     display: {
       showSessionCount: true,
       showCurrentBranch: true,
       showActionButtons: true,
       showProjectLabel: true
     },
-    search: '',
     labels: [
-      { id: 'personal', name: 'Personal', color: '#0e639c' },
-      { id: 'work', name: 'Work', color: '#00875a' }
+      { id: 'personal', name: 'Personal', color: '#0e639c', projects: [] },
+      { id: 'work', name: 'Work', color: '#00875a', projects: [] }
     ],
-    projectSettings: {}
+    hiddenProjects: []
   },
   sessions: {
-    groupBy: 'date',
-    filters: {},
     display: {
       showTokenPercentage: true,
       showAttachments: false
     },
-    labels: [{ id: 'important', name: 'Important', color: '#f59e0b' }]
+    labels: [{ id: 'important', name: 'Important', color: '#f59e0b', sessions: {} }]
   }
 };
 

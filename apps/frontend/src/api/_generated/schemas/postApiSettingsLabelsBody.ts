@@ -10,4 +10,6 @@ export type PostApiSettingsLabelsBody = {
   id: string;
   name: string;
   color: string;
+  usageCount?: number;
+  projects?: string[];
 };

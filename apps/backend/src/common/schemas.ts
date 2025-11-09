@@ -3,7 +3,9 @@ import { z } from 'zod';
 export const ProjectLabelSchema = z.object({
   id: z.string(),
   name: z.string(),
-  color: z.string()
+  color: z.string(),
+  usageCount: z.number().optional(),
+  projects: z.array(z.string()).optional()
 });
 
 export const ErrorSchema = z.object({
@@ -22,35 +24,31 @@ export const PaginationMetaSchema = z.object({
   limit: z.number()
 });
 
-export const ProjectSettingSchema = z.object({
-  labels: z.array(z.string()),
-  hidden: z.boolean()
+export const SessionLabelSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  color: z.string(),
+  usageCount: z.number().optional(),
+  sessions: z.record(z.string(), z.array(z.string())).optional()
 });
 
 export const AppSettingsSchema = z.object({
   projects: z.object({
-    groupBy: z.enum(['date', 'label', 'session-count']),
-    filters: z.object({
-      selectedLabels: z.array(z.string())
-    }),
     display: z.object({
       showSessionCount: z.boolean(),
       showCurrentBranch: z.boolean(),
       showActionButtons: z.boolean(),
       showProjectLabel: z.boolean()
     }),
-    search: z.string(),
     labels: z.array(ProjectLabelSchema),
-    projectSettings: z.record(z.string(), ProjectSettingSchema)
+    hiddenProjects: z.array(z.string())
   }),
   sessions: z.object({
-    groupBy: z.enum(['date', 'token-percentage', 'label']),
-    filters: z.record(z.string(), z.unknown()),
     display: z.object({
       showTokenPercentage: z.boolean(),
       showAttachments: z.boolean()
     }),
-    labels: z.array(ProjectLabelSchema)
+    labels: z.array(SessionLabelSchema)
   })
 });
 

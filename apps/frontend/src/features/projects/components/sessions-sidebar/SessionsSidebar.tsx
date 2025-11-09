@@ -11,6 +11,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
 import { GroupCardItems } from '@/components/GroupCardItems';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
+import { useProjectSessionUIStore } from '@/stores/project-session-ui-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
 import { SessionCard } from './SessionCard';
@@ -61,6 +62,7 @@ export const SessionsSidebar = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const settingsData = useSettingsStore((state) => state.settings);
+  const groupBy = useProjectSessionUIStore((state) => state.groupBy);
   const [showSettings, setShowSettings] = useState(false);
 
   const settings = settingsData?.sessions;
@@ -76,7 +78,7 @@ export const SessionsSidebar = ({
   const groupedSessions = useMemo(() => {
     if (!sessions || !settings) return undefined;
 
-    if (settings.groupBy === 'date') {
+    if (groupBy === 'date') {
       return sessions.reduce(
         (acc, session) => {
           const group = getTimeGroup(session.createdAt);
@@ -88,7 +90,7 @@ export const SessionsSidebar = ({
       );
     }
 
-    if (settings.groupBy === 'token-percentage') {
+    if (groupBy === 'token-percentage') {
       return sessions.reduce(
         (acc, session) => {
           const group = getTokenPercentageGroup(session.tokenPercentage);
@@ -100,7 +102,7 @@ export const SessionsSidebar = ({
       );
     }
 
-    if (settings.groupBy === 'label') {
+    if (groupBy === 'label') {
       const grouped: Record<string, GetApiSessionsProjectName200ItemsItem[]> = {
         'no-label': []
       };
@@ -123,20 +125,20 @@ export const SessionsSidebar = ({
     }
 
     return undefined;
-  }, [sessions, settings]);
+  }, [sessions, settings, groupBy]);
 
   const getGroupLabel = (groupKey: string) => {
     if (!settings) return groupKey;
 
-    if (settings.groupBy === 'date') {
+    if (groupBy === 'date') {
       return TIME_GROUP_LABELS[groupKey as keyof typeof TIME_GROUP_LABELS] || groupKey;
     }
 
-    if (settings.groupBy === 'token-percentage') {
+    if (groupBy === 'token-percentage') {
       return TOKEN_PERCENTAGE_GROUP_LABELS[groupKey as keyof typeof TOKEN_PERCENTAGE_GROUP_LABELS] || groupKey;
     }
 
-    if (settings.groupBy === 'label') {
+    if (groupBy === 'label') {
       if (groupKey === 'no-label') return 'No Label';
       const label = settings.labels.find((l) => l.id === groupKey);
       return label ? label.name : groupKey;
@@ -146,7 +148,7 @@ export const SessionsSidebar = ({
   };
 
   const getGroupLabelColor = (groupKey: string) => {
-    if (!settings || settings.groupBy !== 'label' || groupKey === 'no-label') return undefined;
+    if (!settings || groupBy !== 'label' || groupKey === 'no-label') return undefined;
     const label = settings.labels.find((l) => l.id === groupKey);
     return label?.color;
   };
@@ -154,15 +156,15 @@ export const SessionsSidebar = ({
   const getGroupOrder = (): string[] => {
     if (!settings) return [];
 
-    if (settings.groupBy === 'date') {
+    if (groupBy === 'date') {
       return TIME_GROUP_ORDER;
     }
 
-    if (settings.groupBy === 'token-percentage') {
+    if (groupBy === 'token-percentage') {
       return TOKEN_PERCENTAGE_GROUP_ORDER;
     }
 
-    if (settings.groupBy === 'label') {
+    if (groupBy === 'label') {
       const labelIds = settings.labels.map((l) => l.id);
       return [...labelIds, 'no-label'];
     }
@@ -241,7 +243,7 @@ export const SessionsSidebar = ({
         </div>
       </MiddleSidebar>
 
-      {showSettings && <SessionSettingsModal onClose={() => setShowSettings(false)} projectName={projectId} />}
+      {showSettings && <SessionSettingsModal onClose={() => setShowSettings(false)} />}
     </>
   );
 };

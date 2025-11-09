@@ -5,9 +5,12 @@
  * CLI auxiliary tools for Claude Code
  * OpenAPI spec version: 1.0.0
  */
+import type { GetApiSettings200SessionsLabelsItemSessions } from './getApiSettings200SessionsLabelsItemSessions';
 
 export type GetApiSettings200SessionsLabelsItem = {
   id: string;
   name: string;
   color: string;
+  usageCount?: number;
+  sessions?: GetApiSettings200SessionsLabelsItemSessions;
 };

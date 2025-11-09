@@ -4,6 +4,7 @@ import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
+import { readSettings, writeSettings } from '../../settings/utils.js';
 
 const paramsSchema = z.object({
   projectName: z.string(),
@@ -105,13 +106,41 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     }
 
     const labelIndex = metadata.labels.indexOf(labelId);
-    if (labelIndex === -1) {
-      metadata.labels = [labelId];
+    const hadLabel = labelIndex !== -1;
+
+    if (hadLabel) {
+      metadata.labels = metadata.labels.filter((id) => id !== labelId);
     } else {
-      metadata.labels = [];
+      metadata.labels.push(labelId);
     }
 
     writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+
+    const settings = await readSettings();
+    const label = settings.sessions.labels.find((l) => l.id === labelId);
+
+    if (label) {
+      if (!label.sessions) {
+        label.sessions = {};
+      }
+
+      if (!label.sessions[projectName]) {
+        label.sessions[projectName] = [];
+      }
+
+      if (hadLabel) {
+        label.sessions[projectName] = label.sessions[projectName].filter((id) => id !== sessionId);
+        if (label.sessions[projectName].length === 0) {
+          delete label.sessions[projectName];
+        }
+      } else {
+        if (!label.sessions[projectName].includes(sessionId)) {
+          label.sessions[projectName].push(sessionId);
+        }
+      }
+
+      await writeSettings(settings);
+    }
 
     return c.json({ success: true, labels: metadata.labels } satisfies z.infer<typeof responseSchema>, 200);
   } catch (error) {

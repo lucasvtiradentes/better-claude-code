@@ -8,7 +8,6 @@ import {
   useDeleteApiSessionsProjectNameSessionId,
   useGetApiProjects,
   useGetApiSessionsProjectNameSessionId,
-  useGetApiSettings,
   useInfinitySessions,
   usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
@@ -23,6 +22,7 @@ import { useModalState } from '@/features/projects/hooks/use-modal-state';
 import { useScrollPersistence } from '@/features/projects/hooks/use-scroll-persistence';
 import { useFilterStore } from '@/features/projects/stores/filter-store';
 import { queryClient } from '@/lib/tanstack-query';
+import { useProjectSessionUIStore } from '@/stores/project-session-ui-store';
 
 type SessionDetailSearchParams = {
   projectSearch?: string;
@@ -66,15 +66,60 @@ function SessionDetailComponent() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+  const groupBy = useProjectSessionUIStore((state) => state.groupBy);
+  const hasHydrated = useProjectSessionUIStore((state) => state._hasHydrated);
 
   const { mutate: deleteSessionMutation, isPending: isDeleting } = useDeleteApiSessionsProjectNameSessionId();
-  const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels();
+  const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
+    mutation: {
+      onMutate: async (variables) => {
+        await queryClient.cancelQueries({ queryKey: ['sessions', variables.projectName, sessionSearch || '', sortBy] });
+
+        const previousData = queryClient.getQueryData(['sessions', variables.projectName, sessionSearch || '', sortBy]);
+
+        queryClient.setQueryData(['sessions', variables.projectName, sessionSearch || '', sortBy], (oldData: any) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any) => ({
+              ...page,
+              items: page.items.map((item: any) => {
+                if (item.id !== variables.sessionId) return item;
+
+                const currentLabels = item.labels || [];
+                const hasLabel = currentLabels.includes(variables.data.labelId);
+
+                return {
+                  ...item,
+                  labels: hasLabel
+                    ? currentLabels.filter((id: string) => id !== variables.data.labelId)
+                    : [...currentLabels, variables.data.labelId]
+                };
+              })
+            }))
+          };
+        });
+
+        return { previousData };
+      },
+      onError: (error, variables, context) => {
+        console.error('Failed to toggle label:', error);
+        toast.error('Failed to toggle label');
+
+        if (context?.previousData) {
+          queryClient.setQueryData(
+            ['sessions', variables.projectName, sessionSearch || '', sortBy],
+            context.previousData
+          );
+        }
+      }
+    }
+  });
 
   const { data: projects } = useGetApiProjects();
-  const { data: settings } = useGetApiSettings();
 
-  const sortBy = urlSortBy || (settings?.sessions?.groupBy === 'token-percentage' ? 'token-percentage' : 'date');
-  const isSettingsLoaded = !!settings;
+  const sortBy = urlSortBy || (groupBy === 'token-percentage' ? 'token-percentage' : 'date');
 
   const {
     data: sessionsData,
@@ -83,7 +128,7 @@ function SessionDetailComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useInfinitySessions(projectName, sessionSearch || '', sortBy, isSettingsLoaded);
+  } = useInfinitySessions(projectName, sessionSearch || '', sortBy, hasHydrated);
   const {
     data: sessionData,
     isLoading: sessionLoading,
@@ -173,16 +218,7 @@ function SessionDetailComponent() {
 
   const handleLabelToggle = (sessionId: string, labelId: string) => {
     if (!projectName) return;
-
-    toggleLabel(
-      { projectName, sessionId, data: { labelId } },
-      {
-        onError: (error) => {
-          console.error('Failed to toggle label:', error);
-          alert('Failed to toggle label');
-        }
-      }
-    );
+    toggleLabel({ projectName, sessionId, data: { labelId } });
   };
 
   const confirmDeleteSession = () => {

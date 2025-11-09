@@ -1,3 +1,6 @@
+import { accessSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema, SuccessSchema } from '../../../common/schemas.js';
@@ -44,6 +47,37 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const settings = await readSettings();
 
     settings.sessions.labels = settings.sessions.labels.filter((l) => l.id !== labelId);
+
+    const sessionsDir = ClaudeHelper.getProjectsDir();
+    try {
+      accessSync(sessionsDir);
+      const projects = readdirSync(sessionsDir, { withFileTypes: true }).filter((dirent) => dirent.isDirectory());
+
+      for (const project of projects) {
+        const projectPath = join(sessionsDir, project.name);
+        const metadataDir = join(projectPath, '.metadata');
+
+        try {
+          accessSync(metadataDir);
+          const metadataFiles = readdirSync(metadataDir).filter((file) => file.endsWith('.json'));
+
+          for (const metadataFile of metadataFiles) {
+            const metadataPath = join(metadataDir, metadataFile);
+            try {
+              const content = readFileSync(metadataPath, 'utf-8');
+              const metadata = JSON.parse(content) as { labels?: string[] };
+
+              if (metadata?.labels?.includes(labelId)) {
+                metadata.labels = metadata.labels.filter((id) => id !== labelId);
+                writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+              }
+            } catch {}
+          }
+        } catch {}
+      }
+    } catch {
+      // Sessions directory doesn't exist or is not accessible
+    }
 
     await writeSettings(settings);
     return c.json({ success: true } satisfies z.infer<typeof responseSchema>, 200);

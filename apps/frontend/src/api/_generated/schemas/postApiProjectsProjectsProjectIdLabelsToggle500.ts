@@ -6,10 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type PatchApiSettingsSessionsLabelsLabelId200 = {
-  id: string;
-  name: string;
-  color: string;
-  usageCount?: number;
-  projects?: string[];
+export type PostApiProjectsProjectsProjectIdLabelsToggle500 = {
+  error: string;
+  details?: string;
 };

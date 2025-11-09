@@ -1,4 +1,4 @@
-import { access, readdir, stat } from 'node:fs/promises';
+import { access, readdir, readFile, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
@@ -93,7 +93,17 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       const name = extractProjectName(realPath);
       const displayPath = realPath.replace(homedir(), '~');
 
-      const projectSettings = settings?.projects.projectSettings[folder];
+      const hidden = settings?.projects.hiddenProjects.includes(folder) || false;
+
+      const metadataDir = join(realPath, '.metadata');
+      const metadataFile = join(metadataDir, 'project.json');
+      let labels: string[] = [];
+      try {
+        await access(metadataFile);
+        const content = await readFile(metadataFile, 'utf-8');
+        const metadata = JSON.parse(content) as { labels?: string[] };
+        labels = metadata.labels || [];
+      } catch {}
 
       return {
         id: folder,
@@ -104,8 +114,8 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         isGitRepo,
         githubUrl,
         currentBranch,
-        labels: projectSettings?.labels || [],
-        hidden: projectSettings?.hidden || false
+        labels,
+        hidden
       };
     });
 

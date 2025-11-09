@@ -38,9 +38,6 @@ import type {
   PatchApiSettingsLabelsLabelId404,
   PatchApiSettingsLabelsLabelId500,
   PatchApiSettingsLabelsLabelIdBody,
-  PatchApiSettingsProjectsProjectId200,
-  PatchApiSettingsProjectsProjectId500,
-  PatchApiSettingsProjectsProjectIdBody,
   PatchApiSettingsSessionsLabelsLabelId200,
   PatchApiSettingsSessionsLabelsLabelId404,
   PatchApiSettingsSessionsLabelsLabelId500,
@@ -201,64 +198,6 @@ const {mutation: mutationOptions} = options ?
       > => {
 
       const mutationOptions = getPatchApiSettingsMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    export const patchApiSettingsProjectsProjectId = (
-    projectId: string,
-    patchApiSettingsProjectsProjectIdBody: PatchApiSettingsProjectsProjectIdBody,
- ) => {
-      
-      
-      return customInstance<PatchApiSettingsProjectsProjectId200>(
-      {url: `/api/settings/projects/${projectId}`, method: 'PATCH',
-      headers: {'Content-Type': 'application/json', },
-      data: patchApiSettingsProjectsProjectIdBody
-    },
-      );
-    }
-  
-
-
-export const getPatchApiSettingsProjectsProjectIdMutationOptions = <TError = ErrorType<PatchApiSettingsProjectsProjectId500>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>, TError,{projectId: string;data: PatchApiSettingsProjectsProjectIdBody}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>, TError,{projectId: string;data: PatchApiSettingsProjectsProjectIdBody}, TContext> => {
-
-const mutationKey = ['patchApiSettingsProjectsProjectId'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>, {projectId: string;data: PatchApiSettingsProjectsProjectIdBody}> = (props) => {
-          const {projectId,data} = props ?? {};
-
-          return  patchApiSettingsProjectsProjectId(projectId,data,)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PatchApiSettingsProjectsProjectIdMutationResult = NonNullable<Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>>
-    export type PatchApiSettingsProjectsProjectIdMutationBody = PatchApiSettingsProjectsProjectIdBody
-    export type PatchApiSettingsProjectsProjectIdMutationError = ErrorType<PatchApiSettingsProjectsProjectId500>
-
-    export const usePatchApiSettingsProjectsProjectId = <TError = ErrorType<PatchApiSettingsProjectsProjectId500>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>, TError,{projectId: string;data: PatchApiSettingsProjectsProjectIdBody}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof patchApiSettingsProjectsProjectId>>,
-        TError,
-        {projectId: string;data: PatchApiSettingsProjectsProjectIdBody},
-        TContext
-      > => {
-
-      const mutationOptions = getPatchApiSettingsProjectsProjectIdMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

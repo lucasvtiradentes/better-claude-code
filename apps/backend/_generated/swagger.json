@@ -1261,6 +1261,81 @@
         }
       }
     },
+    "/api/projects/projects/{projectId}/labels/toggle": {
+      "post": {
+        "tags": [
+          "Projects"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "labelId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "labelId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Toggle project label",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/sessions/{projectName}": {
       "get": {
         "tags": [
@@ -2151,28 +2226,6 @@
                     "projects": {
                       "type": "object",
                       "properties": {
-                        "groupBy": {
-                          "type": "string",
-                          "enum": [
-                            "date",
-                            "label",
-                            "session-count"
-                          ]
-                        },
-                        "filters": {
-                          "type": "object",
-                          "properties": {
-                            "selectedLabels": {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            }
-                          },
-                          "required": [
-                            "selectedLabels"
-                          ]
-                        },
                         "display": {
                           "type": "object",
                           "properties": {
@@ -2196,9 +2249,6 @@
                             "showProjectLabel"
                           ]
                         },
-                        "search": {
-                          "type": "string"
-                        },
                         "labels": {
                           "type": "array",
                           "items": {
@@ -2212,6 +2262,15 @@
                               },
                               "color": {
                                 "type": "string"
+                              },
+                              "usageCount": {
+                                "type": "number"
+                              },
+                              "projects": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
                               }
                             },
                             "required": [
@@ -2221,52 +2280,22 @@
                             ]
                           }
                         },
-                        "projectSettings": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "object",
-                            "properties": {
-                              "labels": {
-                                "type": "array",
-                                "items": {
-                                  "type": "string"
-                                }
-                              },
-                              "hidden": {
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "labels",
-                              "hidden"
-                            ]
+                        "hiddenProjects": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
                           }
                         }
                       },
                       "required": [
-                        "groupBy",
-                        "filters",
                         "display",
-                        "search",
                         "labels",
-                        "projectSettings"
+                        "hiddenProjects"
                       ]
                     },
                     "sessions": {
                       "type": "object",
                       "properties": {
-                        "groupBy": {
-                          "type": "string",
-                          "enum": [
-                            "date",
-                            "token-percentage",
-                            "label"
-                          ]
-                        },
-                        "filters": {
-                          "type": "object",
-                          "additionalProperties": {}
-                        },
                         "display": {
                           "type": "object",
                           "properties": {
@@ -2295,6 +2324,18 @@
                               },
                               "color": {
                                 "type": "string"
+                              },
+                              "usageCount": {
+                                "type": "number"
+                              },
+                              "sessions": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
                               }
                             },
                             "required": [
@@ -2306,8 +2347,6 @@
                         }
                       },
                       "required": [
-                        "groupBy",
-                        "filters",
                         "display",
                         "labels"
                       ]
@@ -2357,28 +2396,6 @@
                   "projects": {
                     "type": "object",
                     "properties": {
-                      "groupBy": {
-                        "type": "string",
-                        "enum": [
-                          "date",
-                          "label",
-                          "session-count"
-                        ]
-                      },
-                      "filters": {
-                        "type": "object",
-                        "properties": {
-                          "selectedLabels": {
-                            "type": "array",
-                            "items": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "required": [
-                          "selectedLabels"
-                        ]
-                      },
                       "display": {
                         "type": "object",
                         "properties": {
@@ -2402,9 +2419,6 @@
                           "showProjectLabel"
                         ]
                       },
-                      "search": {
-                        "type": "string"
-                      },
                       "labels": {
                         "type": "array",
                         "items": {
@@ -2418,6 +2432,15 @@
                             },
                             "color": {
                               "type": "string"
+                            },
+                            "usageCount": {
+                              "type": "number"
+                            },
+                            "projects": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
                             }
                           },
                           "required": [
@@ -2427,52 +2450,22 @@
                           ]
                         }
                       },
-                      "projectSettings": {
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "object",
-                          "properties": {
-                            "labels": {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            },
-                            "hidden": {
-                              "type": "boolean"
-                            }
-                          },
-                          "required": [
-                            "labels",
-                            "hidden"
-                          ]
+                      "hiddenProjects": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
                         }
                       }
                     },
                     "required": [
-                      "groupBy",
-                      "filters",
                       "display",
-                      "search",
                       "labels",
-                      "projectSettings"
+                      "hiddenProjects"
                     ]
                   },
                   "sessions": {
                     "type": "object",
                     "properties": {
-                      "groupBy": {
-                        "type": "string",
-                        "enum": [
-                          "date",
-                          "token-percentage",
-                          "label"
-                        ]
-                      },
-                      "filters": {
-                        "type": "object",
-                        "additionalProperties": {}
-                      },
                       "display": {
                         "type": "object",
                         "properties": {
@@ -2501,6 +2494,18 @@
                             },
                             "color": {
                               "type": "string"
+                            },
+                            "usageCount": {
+                              "type": "number"
+                            },
+                            "sessions": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
                             }
                           },
                           "required": [
@@ -2512,8 +2517,6 @@
                       }
                     },
                     "required": [
-                      "groupBy",
-                      "filters",
                       "display",
                       "labels"
                     ]
@@ -2534,28 +2537,6 @@
                     "projects": {
                       "type": "object",
                       "properties": {
-                        "groupBy": {
-                          "type": "string",
-                          "enum": [
-                            "date",
-                            "label",
-                            "session-count"
-                          ]
-                        },
-                        "filters": {
-                          "type": "object",
-                          "properties": {
-                            "selectedLabels": {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            }
-                          },
-                          "required": [
-                            "selectedLabels"
-                          ]
-                        },
                         "display": {
                           "type": "object",
                           "properties": {
@@ -2579,9 +2560,6 @@
                             "showProjectLabel"
                           ]
                         },
-                        "search": {
-                          "type": "string"
-                        },
                         "labels": {
                           "type": "array",
                           "items": {
@@ -2595,6 +2573,15 @@
                               },
                               "color": {
                                 "type": "string"
+                              },
+                              "usageCount": {
+                                "type": "number"
+                              },
+                              "projects": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
                               }
                             },
                             "required": [
@@ -2604,52 +2591,22 @@
                             ]
                           }
                         },
-                        "projectSettings": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "object",
-                            "properties": {
-                              "labels": {
-                                "type": "array",
-                                "items": {
-                                  "type": "string"
-                                }
-                              },
-                              "hidden": {
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "labels",
-                              "hidden"
-                            ]
+                        "hiddenProjects": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
                           }
                         }
                       },
                       "required": [
-                        "groupBy",
-                        "filters",
                         "display",
-                        "search",
                         "labels",
-                        "projectSettings"
+                        "hiddenProjects"
                       ]
                     },
                     "sessions": {
                       "type": "object",
                       "properties": {
-                        "groupBy": {
-                          "type": "string",
-                          "enum": [
-                            "date",
-                            "token-percentage",
-                            "label"
-                          ]
-                        },
-                        "filters": {
-                          "type": "object",
-                          "additionalProperties": {}
-                        },
                         "display": {
                           "type": "object",
                           "properties": {
@@ -2678,6 +2635,18 @@
                               },
                               "color": {
                                 "type": "string"
+                              },
+                              "usageCount": {
+                                "type": "number"
+                              },
+                              "sessions": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
                               }
                             },
                             "required": [
@@ -2689,8 +2658,6 @@
                         }
                       },
                       "required": [
-                        "groupBy",
-                        "filters",
                         "display",
                         "labels"
                       ]
@@ -2706,91 +2673,6 @@
           },
           "500": {
             "description": "Failed to update settings",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "details": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/settings/projects/{projectId}": {
-      "patch": {
-        "tags": [
-          "Settings"
-        ],
-        "parameters": [
-          {
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "name": "projectId",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "labels": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "hidden": {
-                    "type": "boolean"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns updated project settings",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "labels": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "hidden": {
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "labels",
-                    "hidden"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Failed to update project settings",
             "content": {
               "application/json": {
                 "schema": {
@@ -2832,6 +2714,15 @@
                   },
                   "color": {
                     "type": "string"
+                  },
+                  "usageCount": {
+                    "type": "number"
+                  },
+                  "projects": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 },
                 "required": [
@@ -2859,6 +2750,15 @@
                     },
                     "color": {
                       "type": "string"
+                    },
+                    "usageCount": {
+                      "type": "number"
+                    },
+                    "projects": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -2944,6 +2844,15 @@
                   },
                   "color": {
                     "type": "string"
+                  },
+                  "usageCount": {
+                    "type": "number"
+                  },
+                  "projects": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -2966,6 +2875,15 @@
                     },
                     "color": {
                       "type": "string"
+                    },
+                    "usageCount": {
+                      "type": "number"
+                    },
+                    "projects": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -3097,6 +3015,15 @@
                   },
                   "color": {
                     "type": "string"
+                  },
+                  "usageCount": {
+                    "type": "number"
+                  },
+                  "projects": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 },
                 "required": [
@@ -3124,6 +3051,15 @@
                     },
                     "color": {
                       "type": "string"
+                    },
+                    "usageCount": {
+                      "type": "number"
+                    },
+                    "projects": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -3209,6 +3145,15 @@
                   },
                   "color": {
                     "type": "string"
+                  },
+                  "usageCount": {
+                    "type": "number"
+                  },
+                  "projects": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -3231,6 +3176,15 @@
                     },
                     "color": {
                       "type": "string"
+                    },
+                    "usageCount": {
+                      "type": "number"
+                    },
+                    "projects": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [

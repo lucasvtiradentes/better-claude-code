@@ -1,35 +1,29 @@
-import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { usePatchApiSettings } from '@/api';
-import type { GetApiSettings200Sessions } from '@/api/_generated/schemas';
-import { getGetApiSettingsQueryKey } from '@/api/_generated/settings/settings';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSettingsStore } from '@/stores/settings-store';
 import { queryClient } from '@/lib/tanstack-query';
+import { useProjectSessionUIStore } from '@/stores/project-session-ui-store';
+import { useSettingsStore } from '@/stores/settings-store';
 
 type SettingsFormData = {
-  groupBy: GetApiSettings200Sessions['groupBy'];
+  groupBy: 'date' | 'token-percentage' | 'label';
   showTokenPercentage: boolean;
   showAttachments: boolean;
 };
 
-type SessionSettingsTabProps = {
-  projectName?: string;
-};
-
-export const SessionSettingsTab = ({ projectName }: SessionSettingsTabProps) => {
-  const navigate = useNavigate();
+export const SessionSettingsTab = () => {
   const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: updateSettings } = usePatchApiSettings();
+  const { groupBy, setGroupBy } = useProjectSessionUIStore();
 
   const settings = settingsData?.sessions;
 
   const form = useForm<SettingsFormData>({
     defaultValues: {
-      groupBy: settings?.groupBy || 'date',
+      groupBy,
       showTokenPercentage: settings?.display.showTokenPercentage ?? true,
       showAttachments: settings?.display.showAttachments ?? false
     }
@@ -38,53 +32,32 @@ export const SessionSettingsTab = ({ projectName }: SessionSettingsTabProps) => 
   useEffect(() => {
     if (settings) {
       form.reset({
-        groupBy: settings.groupBy,
+        groupBy,
         showTokenPercentage: settings.display.showTokenPercentage,
         showAttachments: settings.display.showAttachments
       });
     }
-  }, [settings, form]);
+  }, [settings, form, groupBy]);
 
-  const handleChange = (field: keyof SettingsFormData, value: boolean | string) => {
+  const handleGroupByChange = (value: 'date' | 'token-percentage' | 'label') => {
+    setGroupBy(value);
+    queryClient.invalidateQueries({ queryKey: ['sessions'] });
+  };
+
+  const handleDisplayChange = (field: keyof Omit<SettingsFormData, 'groupBy'>, value: boolean) => {
     if (!settings) return;
 
-    if (field === 'groupBy') {
-      updateSettings(
-        {
-          data: {
-            sessions: {
-              ...settings,
-              groupBy: value as GetApiSettings200Sessions['groupBy']
-            }
-          }
-        },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['sessions'] });
-            queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
-
-            if (projectName) {
-              navigate({
-                to: '/projects/$projectName',
-                params: { projectName }
-              });
-            }
+    updateSettings({
+      data: {
+        sessions: {
+          ...settings,
+          display: {
+            ...settings.display,
+            [field]: value
           }
         }
-      );
-    } else {
-      updateSettings({
-        data: {
-          sessions: {
-            ...settings,
-            display: {
-              ...settings.display,
-              [field]: value
-            }
-          }
-        }
-      });
-    }
+      }
+    });
   };
 
   if (!settings) return null;
@@ -103,7 +76,7 @@ export const SessionSettingsTab = ({ projectName }: SessionSettingsTabProps) => 
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      handleChange('groupBy', value);
+                      handleGroupByChange(value as 'date' | 'token-percentage' | 'label');
                     }}
                     value={field.value}
                   >
@@ -136,7 +109,7 @@ export const SessionSettingsTab = ({ projectName }: SessionSettingsTabProps) => 
                       checked={field.value}
                       onCheckedChange={(checked) => {
                         field.onChange(checked);
-                        handleChange('showTokenPercentage', checked as boolean);
+                        handleDisplayChange('showTokenPercentage', checked as boolean);
                       }}
                     />
                   </FormControl>
@@ -157,7 +130,7 @@ export const SessionSettingsTab = ({ projectName }: SessionSettingsTabProps) => 
                       checked={field.value}
                       onCheckedChange={(checked) => {
                         field.onChange(checked);
-                        handleChange('showAttachments', checked as boolean);
+                        handleDisplayChange('showAttachments', checked as boolean);
                       }}
                     />
                   </FormControl>

@@ -30,7 +30,10 @@ import type {
   PostApiProjectsProjectIdActionAction200,
   PostApiProjectsProjectIdActionAction400,
   PostApiProjectsProjectIdActionAction404,
-  PostApiProjectsProjectIdActionAction500
+  PostApiProjectsProjectIdActionAction500,
+  PostApiProjectsProjectsProjectIdLabelsToggle200,
+  PostApiProjectsProjectsProjectIdLabelsToggle500,
+  PostApiProjectsProjectsProjectIdLabelsToggleBody
 } from '.././schemas';
 
 import { customInstance } from '../../custom-instance';
@@ -179,6 +182,65 @@ const {mutation: mutationOptions} = options ?
       > => {
 
       const mutationOptions = getPostApiProjectsProjectIdActionActionMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const postApiProjectsProjectsProjectIdLabelsToggle = (
+    projectId: string,
+    postApiProjectsProjectsProjectIdLabelsToggleBody: PostApiProjectsProjectsProjectIdLabelsToggleBody,
+ signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PostApiProjectsProjectsProjectIdLabelsToggle200>(
+      {url: `/api/projects/projects/${projectId}/labels/toggle`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiProjectsProjectsProjectIdLabelsToggleBody, signal
+    },
+      );
+    }
+  
+
+
+export const getPostApiProjectsProjectsProjectIdLabelsToggleMutationOptions = <TError = ErrorType<PostApiProjectsProjectsProjectIdLabelsToggle500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>, TError,{projectId: string;data: PostApiProjectsProjectsProjectIdLabelsToggleBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>, TError,{projectId: string;data: PostApiProjectsProjectsProjectIdLabelsToggleBody}, TContext> => {
+
+const mutationKey = ['postApiProjectsProjectsProjectIdLabelsToggle'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>, {projectId: string;data: PostApiProjectsProjectsProjectIdLabelsToggleBody}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  postApiProjectsProjectsProjectIdLabelsToggle(projectId,data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiProjectsProjectsProjectIdLabelsToggleMutationResult = NonNullable<Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>>
+    export type PostApiProjectsProjectsProjectIdLabelsToggleMutationBody = PostApiProjectsProjectsProjectIdLabelsToggleBody
+    export type PostApiProjectsProjectsProjectIdLabelsToggleMutationError = ErrorType<PostApiProjectsProjectsProjectIdLabelsToggle500>
+
+    export const usePostApiProjectsProjectsProjectIdLabelsToggle = <TError = ErrorType<PostApiProjectsProjectsProjectIdLabelsToggle500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>, TError,{projectId: string;data: PostApiProjectsProjectsProjectIdLabelsToggleBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>,
+        TError,
+        {projectId: string;data: PostApiProjectsProjectsProjectIdLabelsToggleBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiProjectsProjectsProjectIdLabelsToggleMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

@@ -1,36 +1,30 @@
-import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { usePatchApiSettings } from '@/api';
-import type { GetApiSettings200Projects } from '@/api/_generated/schemas';
-import { getGetApiSettingsQueryKey } from '@/api/_generated/settings/settings';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { queryClient } from '@/lib/tanstack-query';
+import { useProjectUIStore } from '@/stores/project-ui-store';
 import { useSettingsStore } from '@/stores/settings-store';
 
 type SettingsFormData = {
-  groupBy: GetApiSettings200Projects['groupBy'];
+  groupBy: 'date' | 'label' | 'session-count';
   showSessionCount: boolean;
   showCurrentBranch: boolean;
   showActionButtons: boolean;
 };
 
-type SettingsTabProps = {
-  onProjectsRoute?: boolean;
-};
-
-export const SettingsTab = ({ onProjectsRoute }: SettingsTabProps) => {
-  const navigate = useNavigate();
+export const SettingsTab = () => {
   const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: updateSettings } = usePatchApiSettings();
+  const { groupBy, setGroupBy } = useProjectUIStore();
 
   const settings = settingsData?.projects;
 
   const form = useForm<SettingsFormData>({
     defaultValues: {
-      groupBy: settings?.groupBy || 'date',
+      groupBy,
       showSessionCount: settings?.display.showSessionCount ?? true,
       showCurrentBranch: settings?.display.showCurrentBranch ?? true,
       showActionButtons: settings?.display.showActionButtons ?? true
@@ -40,51 +34,33 @@ export const SettingsTab = ({ onProjectsRoute }: SettingsTabProps) => {
   useEffect(() => {
     if (settings) {
       form.reset({
-        groupBy: settings.groupBy,
+        groupBy,
         showSessionCount: settings.display.showSessionCount,
         showCurrentBranch: settings.display.showCurrentBranch,
         showActionButtons: settings.display.showActionButtons
       });
     }
-  }, [settings, form]);
+  }, [settings, form, groupBy]);
 
-  const handleChange = (field: keyof SettingsFormData, value: boolean | string) => {
+  const handleGroupByChange = (value: 'date' | 'label' | 'session-count') => {
+    setGroupBy(value);
+    queryClient.invalidateQueries({ queryKey: ['projects'] });
+  };
+
+  const handleDisplayChange = (field: keyof Omit<SettingsFormData, 'groupBy'>, value: boolean) => {
     if (!settings) return;
 
-    if (field === 'groupBy') {
-      updateSettings(
-        {
-          data: {
-            projects: {
-              ...settings,
-              groupBy: value as GetApiSettings200Projects['groupBy']
-            }
-          }
-        },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['projects'] });
-            queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
-
-            if (onProjectsRoute) {
-              navigate({ to: '/projects' });
-            }
+    updateSettings({
+      data: {
+        projects: {
+          ...settings,
+          display: {
+            ...settings.display,
+            [field]: value
           }
         }
-      );
-    } else {
-      updateSettings({
-        data: {
-          projects: {
-            ...settings,
-            display: {
-              ...settings.display,
-              [field]: value
-            }
-          }
-        }
-      });
-    }
+      }
+    });
   };
 
   if (!settings) return null;
@@ -103,7 +79,7 @@ export const SettingsTab = ({ onProjectsRoute }: SettingsTabProps) => {
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      handleChange('groupBy', value);
+                      handleGroupByChange(value as 'date' | 'label' | 'session-count');
                     }}
                     value={field.value}
                   >
@@ -136,7 +112,7 @@ export const SettingsTab = ({ onProjectsRoute }: SettingsTabProps) => {
                       checked={field.value}
                       onCheckedChange={(checked) => {
                         field.onChange(checked);
-                        handleChange('showSessionCount', checked as boolean);
+                        handleDisplayChange('showSessionCount', checked as boolean);
                       }}
                     />
                   </FormControl>
@@ -157,7 +133,7 @@ export const SettingsTab = ({ onProjectsRoute }: SettingsTabProps) => {
                       checked={field.value}
                       onCheckedChange={(checked) => {
                         field.onChange(checked);
-                        handleChange('showCurrentBranch', checked as boolean);
+                        handleDisplayChange('showCurrentBranch', checked as boolean);
                       }}
                     />
                   </FormControl>
@@ -178,7 +154,7 @@ export const SettingsTab = ({ onProjectsRoute }: SettingsTabProps) => {
                       checked={field.value}
                       onCheckedChange={(checked) => {
                         field.onChange(checked);
-                        handleChange('showActionButtons', checked as boolean);
+                        handleDisplayChange('showActionButtons', checked as boolean);
                       }}
                     />
                   </FormControl>

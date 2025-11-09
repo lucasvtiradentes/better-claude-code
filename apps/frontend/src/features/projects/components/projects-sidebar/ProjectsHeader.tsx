@@ -30,7 +30,7 @@ export const ProjectsHeader = ({ projectCount, searchValue, onSearchChange }: Pr
         </button>
       </div>
 
-      {showModal && <ProjectSettingsModal onClose={() => setShowModal(false)} onProjectsRoute={true} />}
+      {showModal && <ProjectSettingsModal onClose={() => setShowModal(false)} />}
     </div>
   );
 };

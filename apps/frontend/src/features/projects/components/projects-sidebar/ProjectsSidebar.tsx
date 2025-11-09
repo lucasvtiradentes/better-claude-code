@@ -7,10 +7,11 @@ import {
   TIME_GROUP_ORDER
 } from '@better-claude-code/shared';
 import { useMemo } from 'react';
-import { usePatchApiSettingsProjectsProjectId } from '@/api';
+import { usePostApiProjectsProjectsProjectIdLabelsToggle } from '@/api';
 import type { GetApiProjects200Item } from '@/api/_generated/schemas';
 import { GroupCardItems } from '@/components/GroupCardItems';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
+import { useProjectUIStore } from '@/stores/project-ui-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
@@ -33,23 +34,16 @@ export const ProjectsSidebar = ({
   onSelectProject
 }: ProjectsSidebarProps) => {
   const settingsData = useSettingsStore((state) => state.settings);
-  const { mutate: updateLabels } = usePatchApiSettingsProjectsProjectId();
+  const { mutate: toggleLabel } = usePostApiProjectsProjectsProjectIdLabelsToggle();
+  const groupBy = useProjectUIStore((state) => state.groupBy);
 
   const settings = settingsData?.projects;
 
   const handleLabelToggle = (projectId: string, labelId: string) => {
-    const project = projects?.find((p) => p.id === projectId);
-    if (!project) return;
-
-    const currentLabels = project.labels || [];
-    const hasLabel = currentLabels.includes(labelId);
-    const newLabels = hasLabel ? [] : [labelId];
-
-    updateLabels(
-      { projectId, data: { labels: newLabels } },
+    toggleLabel(
+      { projectId, data: { labelId } },
       {
-        onError: (error) => {
-          console.error('Failed to toggle label:', error);
+        onError: () => {
           alert('Failed to toggle label');
         }
       }
@@ -76,7 +70,7 @@ export const ProjectsSidebar = ({
   const groupedProjects = useMemo(() => {
     if (!filteredProjects || !settings) return undefined;
 
-    if (settings.groupBy === 'date') {
+    if (groupBy === 'date') {
       return filteredProjects.reduce(
         (acc, project) => {
           const group = getTimeGroup(project.lastModified);
@@ -88,7 +82,7 @@ export const ProjectsSidebar = ({
       );
     }
 
-    if (settings.groupBy === 'session-count') {
+    if (groupBy === 'session-count') {
       return filteredProjects.reduce(
         (acc, project) => {
           const group = getSessionCountGroup(project.sessionsCount);
@@ -100,7 +94,7 @@ export const ProjectsSidebar = ({
       );
     }
 
-    if (settings.groupBy === 'label') {
+    if (groupBy === 'label') {
       const grouped: Record<string, GetApiProjects200Item[]> = {
         'no-label': []
       };
@@ -123,20 +117,20 @@ export const ProjectsSidebar = ({
     }
 
     return undefined;
-  }, [filteredProjects, settings]);
+  }, [filteredProjects, settings, groupBy]);
 
   const getGroupLabel = (groupKey: string) => {
     if (!settings) return groupKey;
 
-    if (settings.groupBy === 'date') {
+    if (groupBy === 'date') {
       return TIME_GROUP_LABELS[groupKey as keyof typeof TIME_GROUP_LABELS] || groupKey;
     }
 
-    if (settings.groupBy === 'session-count') {
+    if (groupBy === 'session-count') {
       return SESSION_COUNT_GROUP_LABELS[groupKey as keyof typeof SESSION_COUNT_GROUP_LABELS] || groupKey;
     }
 
-    if (settings.groupBy === 'label') {
+    if (groupBy === 'label') {
       if (groupKey === 'no-label') return 'No Label';
       const label = settings.labels.find((l) => l.id === groupKey);
       return label ? label.name : groupKey;
@@ -146,7 +140,7 @@ export const ProjectsSidebar = ({
   };
 
   const getGroupLabelColor = (groupKey: string) => {
-    if (!settings || settings.groupBy !== 'label' || groupKey === 'no-label') return undefined;
+    if (!settings || groupBy !== 'label' || groupKey === 'no-label') return undefined;
     const label = settings.labels.find((l) => l.id === groupKey);
     return label?.color;
   };
@@ -154,15 +148,15 @@ export const ProjectsSidebar = ({
   const getGroupOrder = (): string[] => {
     if (!settings) return [];
 
-    if (settings.groupBy === 'date') {
+    if (groupBy === 'date') {
       return TIME_GROUP_ORDER;
     }
 
-    if (settings.groupBy === 'session-count') {
+    if (groupBy === 'session-count') {
       return SESSION_COUNT_GROUP_ORDER;
     }
 
-    if (settings.groupBy === 'label') {
+    if (groupBy === 'label') {
       const labelIds = settings.labels.map((l) => l.id);
       return [...labelIds, 'no-label'];
     }

@@ -1,8 +1,11 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { useGetApiProjects, useGetApiSettings, useInfinitySessions } from '@/api';
+import { toast } from 'sonner';
+import { useGetApiProjects, useInfinitySessions, usePostApiSessionsProjectNameSessionIdLabels } from '@/api';
 import { Layout } from '@/components/layout/Layout';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
+import { useProjectSessionUIStore } from '@/stores/project-session-ui-store';
 
 type SessionsSearchParams = {
   projectSearch?: string;
@@ -31,12 +34,59 @@ function SessionsListComponent() {
   const { projectName } = Route.useParams();
   const { projectSearch, sessionSearch, sortBy: urlSortBy } = Route.useSearch();
   const navigate = Route.useNavigate();
+  const queryClient = useQueryClient();
+  const groupBy = useProjectSessionUIStore((state) => state.groupBy);
+  const hasHydrated = useProjectSessionUIStore((state) => state._hasHydrated);
 
   const { data: projects } = useGetApiProjects();
-  const { data: settings } = useGetApiSettings();
+  const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
+    mutation: {
+      onMutate: async (variables) => {
+        await queryClient.cancelQueries({ queryKey: ['sessions', variables.projectName, sessionSearch || '', sortBy] });
 
-  const sortBy = urlSortBy || (settings?.sessions?.groupBy === 'token-percentage' ? 'token-percentage' : 'date');
-  const isSettingsLoaded = !!settings;
+        const previousData = queryClient.getQueryData(['sessions', variables.projectName, sessionSearch || '', sortBy]);
+
+        queryClient.setQueryData(['sessions', variables.projectName, sessionSearch || '', sortBy], (oldData: any) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any) => ({
+              ...page,
+              items: page.items.map((item: any) => {
+                if (item.id !== variables.sessionId) return item;
+
+                const currentLabels = item.labels || [];
+                const hasLabel = currentLabels.includes(variables.data.labelId);
+
+                return {
+                  ...item,
+                  labels: hasLabel
+                    ? currentLabels.filter((id: string) => id !== variables.data.labelId)
+                    : [...currentLabels, variables.data.labelId]
+                };
+              })
+            }))
+          };
+        });
+
+        return { previousData };
+      },
+      onError: (error, variables, context) => {
+        console.error('Failed to toggle label:', error);
+        toast.error('Failed to toggle label');
+
+        if (context?.previousData) {
+          queryClient.setQueryData(
+            ['sessions', variables.projectName, sessionSearch || '', sortBy],
+            context.previousData
+          );
+        }
+      }
+    }
+  });
+
+  const sortBy = urlSortBy || (groupBy === 'token-percentage' ? 'token-percentage' : 'date');
 
   const {
     data: sessionsData,
@@ -45,7 +95,7 @@ function SessionsListComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useInfinitySessions(projectName, sessionSearch || '', sortBy, isSettingsLoaded);
+  } = useInfinitySessions(projectName, sessionSearch || '', sortBy, hasHydrated);
 
   const sessions = sessionsData?.pages.flatMap((page) => page.items) || [];
   const totalSessions = sessionsData?.pages[0]?.meta.totalItems || 0;
@@ -68,7 +118,11 @@ function SessionsListComponent() {
   };
 
   const handleDeleteSession = () => {};
-  const handleLabelToggle = () => {};
+
+  const handleLabelToggle = (sessionId: string, labelId: string) => {
+    if (!projectName) return;
+    toggleLabel({ projectName, sessionId, data: { labelId } });
+  };
 
   const handleSortByChange = (newSortBy: 'date' | 'token-percentage') => {
     navigate({ search: (prev) => ({ ...prev, sortBy: newSortBy }) });
