@@ -136,39 +136,39 @@ export function parseSessionMessages(
   options: ParseSessionOptions = { groupMessages: true, includeImages: true }
 ): ParsedSession {
   const messages: ParsedMessage[] = [];
-  const imageToMessageMap = new Map<number, string>();
+  const imageToMessageMap = new Map<string, Array<{ localIndex: number; data: string }>>();
   let skipNextAssistant = false;
-  let globalImageIndex = 1;
 
   for (const event of events) {
     if (ClaudeHelper.isUserMessage(event.type)) {
       const messageId = event.uuid || `${event.timestamp}-${Math.random()}`;
       const textContent = extractTextContent(event.message?.content || event.content);
-      let imageCount = 0;
+      const messageImages: Array<{ localIndex: number; data: string }> = [];
+
       if (Array.isArray(event.message?.content)) {
+        let localImageIndex = 1;
         for (const item of event.message.content) {
-          if (item.type === 'image') imageCount++;
+          if (item.type === 'image') {
+            const imageData = item.source?.type === 'base64' ? item.source.data : null;
+            if (imageData) {
+              messageImages.push({ localIndex: localImageIndex, data: imageData });
+            }
+            localImageIndex++;
+          }
         }
+      }
+
+      if (messageImages.length > 0) {
+        imageToMessageMap.set(messageId, messageImages);
       }
 
       if (textContent === 'Warmup') {
         skipNextAssistant = true;
-        for (let i = 0; i < imageCount; i++) {
-          imageToMessageMap.set(globalImageIndex++, messageId);
-        }
         continue;
       }
-      if (textContent) {
-        let adjustedContent = textContent;
-        for (let localIdx = 1; localIdx <= imageCount; localIdx++) {
-          const localRef = `[Image #${localIdx}]`;
-          const globalRef = `[Image #${globalImageIndex}]`;
-          adjustedContent = adjustedContent.replace(localRef, globalRef);
-          imageToMessageMap.set(globalImageIndex, messageId);
-          globalImageIndex++;
-        }
 
-        const cleanedParts = cleanUserMessage(adjustedContent);
+      if (textContent) {
+        const cleanedParts = cleanUserMessage(textContent);
         for (const part of cleanedParts) {
           messages.push({
             id: messageId,
@@ -176,10 +176,6 @@ export function parseSessionMessages(
             content: part,
             timestamp: event.timestamp
           });
-        }
-      } else {
-        for (let i = 0; i < imageCount; i++) {
-          imageToMessageMap.set(globalImageIndex++, messageId);
         }
       }
     } else if (ClaudeHelper.isCCMessage(event.type)) {
@@ -218,20 +214,14 @@ export function parseSessionMessages(
   const images: Array<{ index: number; data: string; messageId: string }> = [];
 
   if (options.includeImages) {
-    let globalImageIndex = 1;
     try {
-      for (const event of events) {
-        if (ClaudeHelper.isUserMessage(event.type) && Array.isArray(event.message?.content)) {
-          for (const item of event.message.content) {
-            if (item.type === 'image') {
-              const imageData = item.source?.type === 'base64' ? item.source.data : null;
-              if (imageData) {
-                const messageId = imageToMessageMap.get(globalImageIndex) || '';
-                images.push({ index: globalImageIndex, data: imageData, messageId });
-                globalImageIndex++;
-              }
-            }
-          }
+      for (const [messageId, messageImages] of imageToMessageMap.entries()) {
+        for (const img of messageImages) {
+          images.push({
+            index: img.localIndex,
+            data: img.data,
+            messageId
+          });
         }
       }
     } catch {}

@@ -1,4 +1,5 @@
 import { Bot } from 'lucide-react';
+import { useMemo } from 'react';
 import type {
   GetApiSessionsProjectNameSessionId200ImagesItem,
   GetApiSessionsProjectNameSessionId200MessagesItem
@@ -28,6 +29,24 @@ export const SessionMessage = ({
   availableImages = [],
   images = []
 }: SessionMessageProps) => {
+  const allImageRefs = useMemo(() => {
+    const refs: Array<{ index: number; exists: boolean; data?: string }> = [];
+    for (const message of messages) {
+      if (typeof message.content === 'string') {
+        const { imageRefs } = formatMessageContent(message.content, {
+          source: FormatterSource.SESSION_MESSAGE,
+          pathValidation,
+          searchTerm,
+          availableImages,
+          images,
+          messageId: message.id
+        });
+        refs.push(...imageRefs);
+      }
+    }
+    return refs;
+  }, [messages, pathValidation, searchTerm, availableImages, images]);
+
   if (messages.length === 0) {
     return null;
   }
@@ -101,6 +120,44 @@ export const SessionMessage = ({
             </div>
           );
         })}
+
+        {allImageRefs.length > 0 && (
+          <div className="mt-2 flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+            {allImageRefs.map((imageRef) => (
+              <div key={imageRef.index} className="shrink-0">
+                {imageRef.data ? (
+                  <button
+                    type="button"
+                    onClick={() => onImageClick(imageRef.index)}
+                    className="relative block w-32 h-32 rounded-lg border border-border overflow-hidden hover:opacity-90 transition-opacity cursor-pointer"
+                  >
+                    <img
+                      src={`data:image/png;base64,${imageRef.data}`}
+                      alt={`#${imageRef.index}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 bg-black/70 text-white text-xs font-semibold px-1.5 py-0.5 rounded-tr-md">
+                      #{imageRef.index}
+                    </div>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => imageRef.exists && onImageClick(imageRef.index)}
+                    disabled={!imageRef.exists}
+                    className={`flex items-center justify-center w-32 h-32 rounded-lg border text-sm font-semibold transition-colors ${
+                      imageRef.exists
+                        ? 'border-chart-1 bg-chart-1/10 text-chart-1 hover:bg-chart-1/20 cursor-pointer'
+                        : 'border-muted-foreground/20 bg-muted/10 text-muted-foreground cursor-not-allowed opacity-50'
+                    }`}
+                  >
+                    [Image {imageRef.index}]
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {isUser && (

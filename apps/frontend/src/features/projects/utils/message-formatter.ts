@@ -1,10 +1,10 @@
 import { MESSAGE_PATTERNS } from '@better-claude-code/shared';
+import { MESSAGE_COLORS } from './message-colors';
 import {
   detectCommand,
   formatCommand,
   formatFileOrFolderMention,
   formatFlag,
-  formatImageTag,
   formatPathProperty,
   formatPattern,
   formatSearchHighlight,
@@ -40,7 +40,7 @@ function escapeHtml(text: string) {
 export function formatMessageContent(
   text: string,
   options: FormatOptions
-): { html: string; imageRefs: Array<{ placeholder: string; index: number }> } {
+): { html: string; imageRefs: Array<{ index: number; exists: boolean; data?: string }> } {
   const { source, pathValidation, searchTerm, availableImages = [], images = [], messageId } = options;
 
   if (source === MessageSource.SESSION_CARD) {
@@ -68,11 +68,18 @@ export function formatMessageContent(
     formatToolWithQuote(tool, quote)
   );
 
-  const imageRefs: Array<{ placeholder: string; index: number }> = [];
+  const imageRefs: Array<{ index: number; exists: boolean; data?: string }> = [];
   formatted = formatted.replace(MESSAGE_PATTERNS.IMAGE_TAG, (_match, num) => {
-    const placeholder = `__IMAGE_${num}__`;
-    imageRefs.push({ placeholder, index: Number.parseInt(num, 10) });
-    return placeholder;
+    const index = Number.parseInt(num, 10);
+    const exists = availableImages.includes(index);
+    const image = images.find((img) => img.index === index && img.messageId === messageId);
+    imageRefs.push({ index, exists, data: image?.data });
+
+    const colorClasses = exists ? MESSAGE_COLORS.EXISTING_IMAGE_TAG : MESSAGE_COLORS.NOT_FOUND_IMAGE_TAG;
+    const interactionClasses = exists ? 'cursor-pointer' : '';
+    const classes = `inline-block text-sm px-2 py-1 rounded border transition-colors font-semibold ${colorClasses} ${interactionClasses}`;
+    const dataAttr = exists ? `data-image-index="${index}"` : '';
+    return `<span ${dataAttr} class="${classes}">[Image #${index}]</span>`;
   });
 
   formatted = formatted.replace(MESSAGE_PATTERNS.FILE_OR_FOLDER_AT, (_match, prefix, filePath) =>
@@ -104,12 +111,5 @@ export function formatMessageContent(
 
   formatted = formatted.replace(/\n/g, '<br />');
 
-  const finalHtml = imageRefs.reduce((content, { placeholder, index }) => {
-    const exists = availableImages.includes(index);
-    const image = images.find((img) => img.index === index && img.messageId === messageId);
-    const imageData = image?.data;
-    return content.replace(placeholder, formatImageTag(index, exists, imageData));
-  }, formatted);
-
-  return { html: finalHtml, imageRefs };
+  return { html: formatted, imageRefs };
 }

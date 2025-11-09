@@ -149,9 +149,12 @@ export async function startStream(
 
       console.log(`[Claude CLI] Loaded ${historyMessages.length} messages from session file`);
 
-      const existingMessages = sessionManager.getMessages(sessionId);
-      if (existingMessages.length === 0 && historyMessages.length > 0) {
-        console.log(`[Claude CLI] Populating session with ${historyMessages.length} messages from JSONL`);
+      if (historyMessages.length > 0) {
+        console.log(`[Claude CLI] Replacing session messages with ${historyMessages.length} messages from JSONL`);
+        const currentSession = sessionManager.getSession(sessionId);
+        if (currentSession) {
+          currentSession.messages = [];
+        }
         for (const msg of historyMessages) {
           sessionManager.addMessage(sessionId, {
             id: msg.id,
@@ -160,8 +163,6 @@ export async function startStream(
             timestamp: msg.timestamp
           });
         }
-      } else {
-        console.log(`[Claude CLI] Session already has ${existingMessages.length} messages, skipping JSONL load`);
       }
     } catch (e) {
       console.error('[Claude CLI] Failed to read session file:', e);
