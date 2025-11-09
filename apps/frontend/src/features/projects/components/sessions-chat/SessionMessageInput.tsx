@@ -1,5 +1,5 @@
 import { Loader2, Send, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -19,6 +19,7 @@ export const SessionMessageInput = ({
   const [message, setMessage] = useState('');
   const [imagePaths, setImagePaths] = useState<string[]>([]);
   const [imagePreview, setImagePreview] = useState<Record<string, string>>({});
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSend = () => {
     if ((message.trim() || imagePaths.length > 0) && !disabled) {
@@ -126,6 +127,15 @@ export const SessionMessageInput = ({
     }
   }, [message, imagePaths, imagePreview]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: none
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '60px';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = `${Math.min(Math.max(scrollHeight, 60), 200)}px`;
+    }
+  }, [message]);
+
   const handleRemoveImage = (path: string) => {
     setImagePaths((prev) => prev.filter((p) => p !== path));
     setImagePreview((prev) => {
@@ -161,13 +171,15 @@ export const SessionMessageInput = ({
         )}
         <div className="flex gap-2">
           <Textarea
+            ref={textareaRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             placeholder={placeholder}
             disabled={disabled}
-            className="min-h-[60px] max-h-[200px] resize-none"
+            className="resize-none overflow-y-auto"
+            style={{ height: '60px' }}
           />
           <Button
             onClick={handleSend}
