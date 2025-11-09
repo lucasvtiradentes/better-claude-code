@@ -1,15 +1,16 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import {
   useDeleteApiSessionsProjectNameSessionId,
   useGetApiProjects,
   useGetApiSessionsProjectNameSessionId,
-  useGetApiSessionsProjectNameSessionIdPaths,
   useInfinitySessions,
   usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
+import { useClaudeStream } from '@/features/live-sessions/hooks/useClaudeStream';
 import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
 import { ConfirmDialog } from '../../../components/ConfirmDialog';
@@ -46,6 +47,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   } = searchParams;
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
@@ -70,16 +72,20 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   } = useGetApiSessionsProjectNameSessionId(selectedProject || '', sessionId || '', {
     query: { enabled: !!(selectedProject && sessionId) }
   });
-  const { data: pathValidation, isLoading: pathValidationLoading } = useGetApiSessionsProjectNameSessionIdPaths(
-    selectedProject || '',
-    sessionId || '',
-    { query: { enabled: !!(selectedProject && sessionId) } }
-  );
 
   const sessions = sessionsData?.pages.flatMap((page) => page.items) || [];
   const totalSessions = sessionsData?.pages[0]?.meta.totalItems || 0;
   const selectedProjectData = projects?.find((p) => p.id === selectedProject);
   const currentSession = sessions?.find((s) => s.id === sessionId);
+
+  const shouldEnableStream = !!(sessionId && selectedProjectData?.path && selectedProjectData?.name);
+
+  const { messages: liveMessages, sendMessage } = useClaudeStream(
+    sessionId || 'placeholder',
+    selectedProjectData?.path || 'placeholder',
+    selectedProjectData?.name || 'placeholder',
+    shouldEnableStream
+  );
 
   const { imageModalIndex, setImageModalIndex, fileModalPath, setFileModalPath, folderModalPath, setFolderModalPath } =
     useModalState(imageIndex, urlFolderPath, urlFilePath, sessionData?.images);
@@ -95,13 +101,48 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
   useScrollPersistence(contentRef, selectedProject, sessionId);
 
+  const convertedLiveMessages = liveMessages.map((msg) => ({
+    type: msg.role,
+    content: msg.content,
+    timestamp: msg.timestamp.getTime()
+  }));
+
+  const displayMessages = liveMessages.length > 0 ? convertedLiveMessages : sessionData?.messages || [];
+
   const { filteredMessages, searchMatches, searchMatchIndex, handleNextMatch, handlePreviousMatch } = useMessageFilter(
-    sessionData?.messages || [],
+    displayMessages,
     showUserMessages,
     showAssistantMessages,
     showToolCalls,
     searchQuery
   );
+
+  useEffect(() => {
+    if (liveMessages.length > 0 && contentRef.current) {
+      contentRef.current.scrollTop = contentRef.current.scrollHeight;
+    }
+  }, [liveMessages]);
+
+  const handleDeleteSession = (sessionId: string) => {
+    setSessionToDelete(sessionId);
+    setTimeout(() => {
+      setDeleteModalOpen(true);
+    }, 0);
+  };
+
+  const handleLabelToggle = (sessionId: string, labelId: string) => {
+    if (!selectedProject) return;
+
+    toggleLabel(
+      { projectName: selectedProject, sessionId, data: { labelId } },
+      {
+        onError: (error) => {
+          console.error('Failed to toggle label:', error);
+          alert('Failed to toggle label');
+        }
+      }
+    );
+  };
 
   const confirmDeleteSession = () => {
     if (!sessionToDelete || !selectedProject) return;
@@ -110,6 +151,22 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
       { projectName: selectedProject, sessionId: sessionToDelete },
       {
         onSuccess: async () => {
+          queryClient.setQueryData(['sessions', selectedProject, searchQuery || '', sortBy], (oldData: any) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                items: page.items.filter((item: any) => item.id !== sessionToDelete),
+                meta: {
+                  ...page.meta,
+                  totalItems: page.meta.totalItems - 1
+                }
+              }))
+            };
+          });
+
           if (sessionId === sessionToDelete) {
             await navigate({
               to: '/projects',
@@ -136,40 +193,46 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     );
   };
 
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={deleteModalOpen}
+      onClose={() => {
+        setDeleteModalOpen(false);
+        setSessionToDelete(null);
+      }}
+      onConfirm={confirmDeleteSession}
+      title="Delete Session"
+      description="Are you sure you want to delete this session? This action cannot be undone and all messages will be permanently removed."
+      confirmText="Delete"
+      cancelText="Cancel"
+      variant="destructive"
+      isLoading={isDeleting}
+    />
+  );
+
   if (!selectedProject) {
     return (
-      <Layout
-        sidebar={
-          <ProjectsSidebar
-            projects={projects}
-            isLoading={projectsLoading}
-            error={projectsError}
-            onSelectProject={navigateToProject}
-          />
-        }
-      >
-        <EmptyState message="Select a project to view sessions" />
-      </Layout>
+      <>
+        <Layout
+          sidebar={
+            <ProjectsSidebar
+              projects={projects}
+              isLoading={projectsLoading}
+              error={projectsError}
+              onSelectProject={navigateToProject}
+            />
+          }
+        >
+          <EmptyState message="Select a project to view sessions" />
+        </Layout>
+        {renderConfirmDialog()}
+      </>
     );
   }
 
-  const handleDeleteSession = (sessionId: string) => {
-    setSessionToDelete(sessionId);
-    setDeleteModalOpen(true);
-  };
-
-  const handleLabelToggle = (sessionId: string, labelId: string) => {
-    if (!selectedProject) return;
-
-    toggleLabel(
-      { projectName: selectedProject, sessionId, data: { labelId } },
-      {
-        onError: (error) => {
-          console.error('Failed to toggle label:', error);
-          alert('Failed to toggle label');
-        }
-      }
-    );
+  const getProjectDisplayName = () => {
+    if (selectedProjectData?.name) return selectedProjectData.name;
+    return '...';
   };
 
   const sessionsSidebar = (
@@ -177,7 +240,8 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
       sessions={sessions}
       isLoading={sessionsLoading}
       error={sessionsError}
-      projectName={selectedProjectData?.name || selectedProject}
+      projectName={getProjectDisplayName()}
+      projectPath={selectedProjectData?.path || ''}
       selectedSessionId={sessionId}
       totalSessions={totalSessions}
       searchValue={searchQuery}
@@ -197,16 +261,19 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
   if (!sessionId) {
     return (
-      <Layout sidebar={sessionsSidebar}>
-        <EmptyState message="Select a session to view messages" />
-      </Layout>
+      <>
+        <Layout sidebar={sessionsSidebar}>
+          <EmptyState message="Select a session to view messages" />
+        </Layout>
+        {renderConfirmDialog()}
+      </>
     );
   }
 
   let content: ReactNode;
   if (sessionError) {
     content = <EmptyState message="Failed to load session" isError />;
-  } else if (sessionLoading || !sessionData || pathValidationLoading) {
+  } else if (sessionLoading || !sessionData) {
     content = <EmptyState message="Loading session..." />;
   } else {
     content = (
@@ -214,7 +281,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
         contentRef={contentRef}
         currentSession={currentSession}
         filteredMessages={filteredMessages}
-        pathValidation={pathValidation}
+        pathValidation={sessionData.paths}
         searchQuery={searchQuery}
         searchMatches={searchMatches}
         searchMatchIndex={searchMatchIndex}
@@ -228,8 +295,6 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
         onPreviousMatch={handlePreviousMatch}
         onCloseSearch={() => updateSearch({ search: undefined })}
         onImageClick={(index: number) => {
-          console.log('[projects.tsx] onImageClick called with index:', index);
-          console.log('[projects.tsx] sessionData.images:', sessionData?.images);
           setImageModalIndex(index);
           updateSearch({ imageIndex: index });
         }}
@@ -269,6 +334,9 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
           setFolderModalPath(path);
           updateSearch({ folderPath: path });
         }}
+        onSendMessage={sendMessage}
+        messageInputDisabled={false}
+        messageInputPlaceholder="Type your message..."
       />
     );
   }
@@ -276,20 +344,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   return (
     <>
       <Layout sidebar={sessionsSidebar}>{content}</Layout>
-      <ConfirmDialog
-        open={deleteModalOpen}
-        onClose={() => {
-          setDeleteModalOpen(false);
-          setSessionToDelete(null);
-        }}
-        onConfirm={confirmDeleteSession}
-        title="Delete Session"
-        description="Are you sure you want to delete this session? This action cannot be undone and all messages will be permanently removed."
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="destructive"
-        isLoading={isDeleting}
-      />
+      {renderConfirmDialog()}
     </>
   );
 }

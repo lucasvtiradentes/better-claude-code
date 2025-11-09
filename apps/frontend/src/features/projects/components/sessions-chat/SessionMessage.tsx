@@ -1,9 +1,10 @@
+import { Bot } from 'lucide-react';
 import type { GetApiSessionsProjectNameSessionId200MessagesItem } from '@/api/_generated/schemas';
 import { MessageSource as FormatterSource, formatMessageContent } from '@/features/projects/utils/message-formatter';
 import { isUserMessage } from '../../utils/message-utils';
 
 type SessionMessageProps = {
-  message: GetApiSessionsProjectNameSessionId200MessagesItem;
+  messages: GetApiSessionsProjectNameSessionId200MessagesItem[];
   imageOffset: number;
   onImageClick: (imageIndex: number) => void;
   onPathClick?: (path: string) => void;
@@ -14,7 +15,7 @@ type SessionMessageProps = {
 };
 
 export const SessionMessage = ({
-  message,
+  messages,
   onImageClick,
   onPathClick,
   pathValidation,
@@ -22,28 +23,15 @@ export const SessionMessage = ({
   isSearchMatch,
   availableImages = []
 }: SessionMessageProps) => {
-  if (typeof message.content !== 'string') {
+  if (messages.length === 0) {
     return null;
   }
 
-  const { html } = formatMessageContent(message.content, {
-    source: FormatterSource.SESSION_MESSAGE,
-    pathValidation,
-    searchTerm,
-    availableImages
-  });
-
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     const target = e.target as HTMLElement;
-    console.log('[SessionMessage] Click detected:', {
-      tagName: target.tagName,
-      className: target.className,
-      imageIndex: target.dataset.imageIndex,
-      path: target.dataset.path
-    });
+
     if (target.dataset.imageIndex) {
       const index = Number.parseInt(target.dataset.imageIndex, 10);
-      console.log('[SessionMessage] Calling onImageClick with index:', index);
       onImageClick(index);
     } else if (target.dataset.path && onPathClick) {
       const exists = target.dataset.exists === 'true';
@@ -53,31 +41,64 @@ export const SessionMessage = ({
     }
   };
 
+  const isUser = isUserMessage(messages[0].type);
+
   return (
-    <div
-      className={`
-        mb-3 p-2 px-3 rounded-md wrap-break-word
-        ${isUserMessage(message.type) ? 'bg-secondary ml-10' : 'bg-card mr-10'}
-        ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
-      `}
-    >
-      <div className="text-[11px] font-semibold mb-1 opacity-70 uppercase leading-none">
-        {isUserMessage(message.type) ? 'User' : 'Claude Code'}
+    <div className={`mb-3 flex gap-2 items-start ${isUser ? 'justify-end' : ''}`}>
+      {!isUser && (
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground mt-2">
+          <Bot className="h-4 w-4" />
+        </div>
+      )}
+
+      <div
+        className={`
+          p-2 px-3 rounded-md wrap-break-word max-w-[85%] flex flex-col gap-2
+          ${isUser ? 'bg-secondary' : 'bg-card'}
+          ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
+        `}
+      >
+        {messages.map((message, idx) => {
+          if (typeof message.content !== 'string') {
+            return null;
+          }
+
+          const { html } = formatMessageContent(message.content, {
+            source: FormatterSource.SESSION_MESSAGE,
+            pathValidation,
+            searchTerm,
+            availableImages
+          });
+
+          const messageKey = message.timestamp ? `${message.timestamp}-${idx}` : `msg-${idx}`;
+
+          return (
+            <div key={messageKey}>
+              {idx > 0 && (
+                <div className="flex justify-center my-2">
+                  <div className="w-1/2 border-t border-border" />
+                </div>
+              )}
+              <button
+                type="button"
+                className="whitespace-pre-wrap text-left w-full"
+                onClick={handleClick}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    handleClick(e as any);
+                  }
+                }}
+                tabIndex={0}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            </div>
+          );
+        })}
       </div>
 
-      {/* biome-ignore lint/a11y/useSemanticElements: dangerouslySetInnerHTML requires div */}
-      <div
-        className="whitespace-pre-wrap"
-        onClick={handleClick}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            handleClick(e as any);
-          }
-        }}
-        role="button"
-        tabIndex={0}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      {isUser && (
+        <img src="https://github.com/lucasvtiradentes.png" alt="User" className="h-6 w-6 shrink-0 rounded-full mt-2" />
+      )}
     </div>
   );
 };

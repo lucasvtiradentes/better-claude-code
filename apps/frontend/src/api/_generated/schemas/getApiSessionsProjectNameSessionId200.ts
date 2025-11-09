@@ -7,8 +7,10 @@
  */
 import type { GetApiSessionsProjectNameSessionId200MessagesItem } from './getApiSessionsProjectNameSessionId200MessagesItem';
 import type { GetApiSessionsProjectNameSessionId200ImagesItem } from './getApiSessionsProjectNameSessionId200ImagesItem';
+import type { GetApiSessionsProjectNameSessionId200PathsItem } from './getApiSessionsProjectNameSessionId200PathsItem';
 
 export type GetApiSessionsProjectNameSessionId200 = {
   messages: GetApiSessionsProjectNameSessionId200MessagesItem[];
   images: GetApiSessionsProjectNameSessionId200ImagesItem[];
+  paths: GetApiSessionsProjectNameSessionId200PathsItem[];
 };

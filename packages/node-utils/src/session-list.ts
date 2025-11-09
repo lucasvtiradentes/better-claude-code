@@ -523,22 +523,22 @@ export async function listSessions(options: SessionListOptions): Promise<Session
     const fileStats = await Promise.all(fileStatsPromises);
     fileStats.sort((a, b) => b.birthtimeMs - a.birthtimeMs);
 
-    const totalItems = fileStats.length;
-    const totalPages = Math.ceil(totalItems / limit);
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const filesToProcess = enablePagination ? fileStats.slice(startIndex, endIndex) : fileStats.slice(0, limit);
-
-    const sessionPromises = filesToProcess.map(({ file, filePath }) =>
-      processSessionFile(filePath, file, sessionsPath, processOptions)
-    );
-
-    const sessionsResults = await Promise.all(sessionPromises);
-    sessions = sessionsResults.filter((s) => s !== null) as SessionListItem[];
-
     if (enablePagination) {
+      const sessionPromises = fileStats.map(({ file, filePath }) =>
+        processSessionFile(filePath, file, sessionsPath, processOptions)
+      );
+
+      const sessionsResults = await Promise.all(sessionPromises);
+      const allValidSessions = sessionsResults.filter((s) => s !== null) as SessionListItem[];
+
+      const totalItems = allValidSessions.length;
+      const totalPages = Math.ceil(totalItems / limit);
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedSessions = allValidSessions.slice(startIndex, endIndex);
+
       return {
-        items: sessions,
+        items: paginatedSessions,
         meta: {
           totalItems,
           totalPages,
@@ -547,6 +547,14 @@ export async function listSessions(options: SessionListOptions): Promise<Session
         }
       };
     }
+
+    const filesToProcess = fileStats.slice(0, limit);
+    const sessionPromises = filesToProcess.map(({ file, filePath }) =>
+      processSessionFile(filePath, file, sessionsPath, processOptions)
+    );
+
+    const sessionsResults = await Promise.all(sessionPromises);
+    sessions = sessionsResults.filter((s) => s !== null) as SessionListItem[];
 
     return { items: sessions };
   }

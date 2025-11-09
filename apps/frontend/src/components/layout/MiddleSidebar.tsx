@@ -17,7 +17,7 @@ export const MiddleSidebar = ({ title, backButton, children, hidden = false, scr
   }
 
   return (
-    <aside className="w-[420px] bg-card border-r border-border flex flex-col">
+    <aside className="w-[420px] h-screen bg-card border-r border-border flex flex-col">
       {(title || backButton) && (
         <div className="px-4 py-4 border-b border-border flex items-center justify-between min-h-[48px]">
           {backButton && (
@@ -32,7 +32,7 @@ export const MiddleSidebar = ({ title, backButton, children, hidden = false, scr
           {title && <span className="font-semibold text-sm text-foreground">{title}</span>}
         </div>
       )}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="flex-1 flex flex-col overflow-hidden">
         {children}
       </div>
     </aside>

@@ -12,11 +12,7 @@ export const SessionBadges = ({ session, showSearch = false }: SessionBadgesProp
     <>
       {showSearch && session.searchMatchCount !== undefined && session.searchMatchCount > 0 && (
         <span className="text-primary">
-          <IconWithBadge
-            icon={Search}
-            count={session.searchMatchCount}
-            label={`${session.searchMatchCount} matches`}
-          />
+          <IconWithBadge icon={Search} count={session.searchMatchCount} label={`${session.searchMatchCount} matches`} />
         </span>
       )}
       {session.imageCount !== undefined && session.imageCount > 0 && (

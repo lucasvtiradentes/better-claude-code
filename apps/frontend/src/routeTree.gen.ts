@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LiveSessionIdRouteImport } from './routes/live/$sessionId'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -34,18 +35,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LiveSessionIdRoute = LiveSessionIdRouteImport.update({
+  id: '/live/$sessionId',
+  path: '/live/$sessionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/files': typeof FilesRoute
   '/projects': typeof ProjectsRoute
   '/settings': typeof SettingsRoute
+  '/live/$sessionId': typeof LiveSessionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/files': typeof FilesRoute
   '/projects': typeof ProjectsRoute
   '/settings': typeof SettingsRoute
+  '/live/$sessionId': typeof LiveSessionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,20 @@ export interface FileRoutesById {
   '/files': typeof FilesRoute
   '/projects': typeof ProjectsRoute
   '/settings': typeof SettingsRoute
+  '/live/$sessionId': typeof LiveSessionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/files' | '/projects' | '/settings'
+  fullPaths: '/' | '/files' | '/projects' | '/settings' | '/live/$sessionId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/files' | '/projects' | '/settings'
-  id: '__root__' | '/' | '/files' | '/projects' | '/settings'
+  to: '/' | '/files' | '/projects' | '/settings' | '/live/$sessionId'
+  id:
+    | '__root__'
+    | '/'
+    | '/files'
+    | '/projects'
+    | '/settings'
+    | '/live/$sessionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +82,7 @@ export interface RootRouteChildren {
   FilesRoute: typeof FilesRoute
   ProjectsRoute: typeof ProjectsRoute
   SettingsRoute: typeof SettingsRoute
+  LiveSessionIdRoute: typeof LiveSessionIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/live/$sessionId': {
+      id: '/live/$sessionId'
+      path: '/live/$sessionId'
+      fullPath: '/live/$sessionId'
+      preLoaderRoute: typeof LiveSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +130,7 @@ const rootRouteChildren: RootRouteChildren = {
   FilesRoute: FilesRoute,
   ProjectsRoute: ProjectsRoute,
   SettingsRoute: SettingsRoute,
+  LiveSessionIdRoute: LiveSessionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

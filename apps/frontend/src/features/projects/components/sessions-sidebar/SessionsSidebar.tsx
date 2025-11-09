@@ -6,6 +6,7 @@ import {
   TOKEN_PERCENTAGE_GROUP_LABELS,
   TOKEN_PERCENTAGE_GROUP_ORDER
 } from '@better-claude-code/shared';
+import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useGetApiSettings } from '@/api';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
@@ -20,6 +21,7 @@ type SessionsSidebarProps = {
   isLoading: boolean;
   error: unknown;
   projectName: string;
+  projectPath: string;
   selectedSessionId?: string;
   totalSessions: number;
   searchValue?: string;
@@ -41,6 +43,7 @@ export const SessionsSidebar = ({
   isLoading,
   error,
   projectName,
+  projectPath,
   selectedSessionId,
   totalSessions,
   searchValue,
@@ -57,13 +60,22 @@ export const SessionsSidebar = ({
   onSortByChange
 }: SessionsSidebarProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const { data: settingsData } = useGetApiSettings();
   const [showSettings, setShowSettings] = useState(false);
 
   const settings = settingsData?.sessions;
 
+  const handleCreateSession = () => {
+    navigate({
+      to: '/live/$sessionId',
+      params: { sessionId: 'new' },
+      search: { projectPath, projectName }
+    });
+  };
+
   useEffect(() => {
-    if (settings && onSortByChange) {
+    if (settings?.groupBy && onSortByChange) {
       const sortBy = settings.groupBy === 'token-percentage' ? 'token-percentage' : 'date';
       onSortByChange(sortBy);
     }
@@ -185,7 +197,7 @@ export const SessionsSidebar = ({
 
   return (
     <>
-      <MiddleSidebar scrollRef={scrollRef}>
+      <MiddleSidebar>
         <SessionsHeader
           projectName={projectName}
           totalSessions={totalSessions}
@@ -193,45 +205,48 @@ export const SessionsSidebar = ({
           onSearchChange={onSearchChange}
           onSettingsClick={() => setShowSettings(true)}
           onBackClick={onBack}
+          onCreateSession={handleCreateSession}
           projectId={projectId}
           isGitRepo={isGitRepo}
         />
 
-        {error ? (
-          <div className="p-4 text-red-500">Failed to load sessions</div>
-        ) : isLoading ? (
-          <div className="p-4 text-muted-foreground">Loading sessions...</div>
-        ) : (
-          <>
-            {getGroupOrder().map((groupKey) => {
-              const groupSessions = groupedSessions?.[groupKey];
-              if (!groupSessions?.length) return null;
+        <div ref={scrollRef} className="flex-1 overflow-y-auto">
+          {error ? (
+            <div className="p-4 text-red-500">Failed to load sessions</div>
+          ) : isLoading ? (
+            <div className="p-4 text-muted-foreground">Loading sessions...</div>
+          ) : (
+            <>
+              {getGroupOrder().map((groupKey) => {
+                const groupSessions = groupedSessions?.[groupKey];
+                if (!groupSessions?.length) return null;
 
-              return (
-                <GroupCardItems
-                  key={groupKey}
-                  label={getGroupLabel(groupKey)}
-                  groupKey={groupKey as any}
-                  labelColor={getGroupLabelColor(groupKey)}
-                >
-                  {groupSessions.map((session) => (
-                    <SessionCard
-                      key={session.id}
-                      session={session}
-                      projectName={projectName}
-                      isActive={session.id === selectedSessionId}
-                      onClick={() => onSelectSession(session.id)}
-                      displaySettings={settings?.display}
-                      onDelete={onDeleteSession}
-                      onLabelToggle={onLabelToggle}
-                    />
-                  ))}
-                </GroupCardItems>
-              );
-            })}
-            {isFetchingNextPage && <div className="p-4 text-center text-muted-foreground">Loading more...</div>}
-          </>
-        )}
+                return (
+                  <GroupCardItems
+                    key={groupKey}
+                    label={getGroupLabel(groupKey)}
+                    groupKey={groupKey as any}
+                    labelColor={getGroupLabelColor(groupKey)}
+                  >
+                    {groupSessions.map((session) => (
+                      <SessionCard
+                        key={session.id}
+                        session={session}
+                        projectName={projectName}
+                        isActive={session.id === selectedSessionId}
+                        onClick={() => onSelectSession(session.id)}
+                        displaySettings={settings?.display}
+                        onDelete={onDeleteSession}
+                        onLabelToggle={onLabelToggle}
+                      />
+                    ))}
+                  </GroupCardItems>
+                );
+              })}
+              {isFetchingNextPage && <div className="p-4 text-center text-muted-foreground">Loading more...</div>}
+            </>
+          )}
+        </div>
       </MiddleSidebar>
 
       {showSettings && <SessionSettingsModal onClose={() => setShowSettings(false)} />}

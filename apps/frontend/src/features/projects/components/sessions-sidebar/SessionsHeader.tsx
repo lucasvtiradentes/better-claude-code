@@ -1,5 +1,5 @@
 import { ProjectAction } from '@better-claude-code/shared';
-import { ArrowLeft, Code, Settings, Terminal } from 'lucide-react';
+import { ArrowLeft, Code, Plus, Settings, Terminal } from 'lucide-react';
 import { usePostApiProjectsProjectIdActionAction } from '@/api';
 import { SearchInput } from '@/components/SearchInput';
 
@@ -10,6 +10,7 @@ type SessionsHeaderProps = {
   onSearchChange: (value: string) => void;
   onSettingsClick: () => void;
   onBackClick: () => void;
+  onCreateSession: () => void;
   projectId: string;
   isGitRepo?: boolean;
 };
@@ -21,6 +22,7 @@ export const SessionsHeader = ({
   onSearchChange,
   onSettingsClick,
   onBackClick,
+  onCreateSession,
   projectId,
   isGitRepo
 }: SessionsHeaderProps) => {
@@ -41,9 +43,14 @@ export const SessionsHeader = ({
         >
           <ArrowLeft size={16} />
         </button>
-        <span className="font-semibold text-sm">
-          {projectName} ({totalSessions})
-        </span>
+        {projectName === '...' ? (
+          <div className="h-5 w-32 bg-muted animate-pulse rounded" />
+        ) : (
+          <span className="font-semibold text-sm">
+            {projectName}
+            {totalSessions > 0 ? ` (${totalSessions})` : ''}
+          </span>
+        )}
         <div className="absolute right-0 flex items-center gap-1.5">
           {isGitRepo && (
             <button
@@ -73,14 +80,24 @@ export const SessionsHeader = ({
           placeholder="Search sessions..."
           debounce={500}
         />
-        <button
-          type="button"
-          onClick={onSettingsClick}
-          className="p-1.5 hover:bg-accent rounded transition-colors"
-          title="Settings"
-        >
-          <Settings size={16} />
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onCreateSession}
+            className="p-1.5 hover:bg-accent rounded transition-colors"
+            title="Create live session"
+          >
+            <Plus size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={onSettingsClick}
+            className="p-1.5 hover:bg-accent rounded transition-colors"
+            title="Settings"
+          >
+            <Settings size={16} />
+          </button>
+        </div>
       </div>
     </div>
   );

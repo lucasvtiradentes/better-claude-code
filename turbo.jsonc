@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalPassThroughEnv": ["DISPLAY", "XAUTHORITY", "DBUS_SESSION_BUS_ADDRESS"],
   "remoteCache": {
     "enabled": true
   },
@@ -95,9 +96,6 @@
     },
     "dev": {
       "outputLogs": "full",
-      "dependsOn": [
-        "^build"
-      ],
       "cache": false,
       "persistent": true,
       "env": [

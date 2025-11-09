@@ -99,17 +99,14 @@ export const handler: RouteHandler<typeof route> = async (c) => {
           command = 'cmd';
           args = ['/c', 'start', 'cmd', '/K', `cd /d "${realPath}"`];
         } else {
-          command = 'sh';
-          args = [
-            '-c',
-            `cd "${realPath}" && (gnome-terminal --working-directory="${realPath}" || konsole --workdir "${realPath}" || xfce4-terminal --working-directory="${realPath}" || x-terminal-emulator || xterm)`
-          ];
+          command = 'gnome-terminal';
+          args = [`--working-directory=${realPath}`];
         }
         break;
 
       case ProjectAction.OPEN_EDITOR:
         command = 'code';
-        args = [realPath];
+        args = ['--new-window', realPath];
         break;
 
       default:
@@ -119,7 +116,8 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     spawn(command, args, {
       detached: true,
       stdio: 'ignore',
-      shell: platform === 'win32'
+      shell: platform === 'win32',
+      env: process.env
     }).unref();
 
     return c.json({ success: true, action, path: realPath } satisfies z.infer<typeof responseSchema>, 200);

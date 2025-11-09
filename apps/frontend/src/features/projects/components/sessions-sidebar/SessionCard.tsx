@@ -3,7 +3,6 @@ import { MoreHorizontal, Search, Tag, Trash2 } from 'lucide-react';
 import { useGetApiSettings } from '@/api';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
 import { IconWithBadge } from '@/components/IconWithBadge';
-import { SessionBadges } from './SessionBadges';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +23,7 @@ import {
   getUrlColor,
   parseTitle
 } from '@/features/projects/utils/message-patterns';
+import { SessionBadges } from './SessionBadges';
 
 type SessionCardProps = {
   session: GetApiSessionsProjectName200ItemsItem;
@@ -161,7 +161,11 @@ export const SessionCard = ({
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
-              onClick={(e: React.MouseEvent<HTMLDivElement>) => handleMenuAction(e, () => onDelete?.(session.id))}
+              onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+                handleMenuAction(e, () => {
+                  onDelete?.(session.id);
+                })
+              }
               className="text-destructive focus:text-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />
