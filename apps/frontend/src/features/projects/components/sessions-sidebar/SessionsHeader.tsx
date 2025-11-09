@@ -13,6 +13,7 @@ type SessionsHeaderProps = {
   onCreateSession: () => void;
   projectId: string;
   isGitRepo?: boolean;
+  isLoading?: boolean;
 };
 
 export const SessionsHeader = ({
@@ -24,7 +25,8 @@ export const SessionsHeader = ({
   onBackClick,
   onCreateSession,
   projectId,
-  isGitRepo
+  isGitRepo,
+  isLoading
 }: SessionsHeaderProps) => {
   const { mutate: executeAction } = usePostApiProjectsProjectIdActionAction();
 
@@ -43,7 +45,7 @@ export const SessionsHeader = ({
         >
           <ArrowLeft size={16} />
         </button>
-        {projectName === '...' ? (
+        {isLoading || projectName.includes('/') ? (
           <div className="h-5 w-32 bg-muted animate-pulse rounded" />
         ) : (
           <span className="font-semibold text-sm">

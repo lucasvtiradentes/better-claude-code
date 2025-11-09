@@ -75,6 +75,7 @@ export const SessionsSidebar = ({
           onCreateSession={handleCreateSession}
           projectId={projectId}
           isGitRepo={isGitRepo}
+          isLoading={isLoading}
         />
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
