@@ -1,3 +1,4 @@
+import { generateUuid } from '@better-claude-code/node-utils';
 import { sessionManager } from '../session-manager.js';
 import { SessionStatus } from '../types.js';
 
@@ -5,7 +6,7 @@ export function sendMessage(
   sessionId: string,
   message: string,
   _projectPath?: string
-): { success: boolean; error?: string; pending?: boolean } {
+): { success: boolean; error?: string; pending?: boolean; messageId?: string } {
   console.log(`[send-message] Received message for session: ${sessionId}`);
 
   const session = sessionManager.getSession(sessionId);
@@ -23,8 +24,9 @@ export function sendMessage(
     };
   }
 
-  console.log(`[send-message] Adding message to session ${sessionId}`);
-  sessionManager.addMessage(sessionId, { role: 'user', content: message });
+  const messageId = generateUuid();
+  console.log(`[send-message] Adding message to session ${sessionId} with ID ${messageId}`);
+  sessionManager.addMessage(sessionId, { id: messageId, role: 'user', content: message });
 
   if (!session.process || session.process.killed) {
     console.log('[send-message] No active process yet, message queued. Stream will send it when connected.');
@@ -50,7 +52,7 @@ export function sendMessage(
     sessionManager.updateStatus(sessionId, SessionStatus.STREAMING);
     session.process.stdin.write(userMessage);
     console.log('[send-message] Message sent to stdin, status updated to STREAMING');
-    return { success: true };
+    return { success: true, messageId };
   } catch (e) {
     console.error('[send-message] Error:', e);
     sessionManager.updateStatus(sessionId, SessionStatus.ERROR);

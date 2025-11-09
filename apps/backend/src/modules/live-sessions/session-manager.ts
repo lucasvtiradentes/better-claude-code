@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { generateUuid } from '@better-claude-code/node-utils';
 import { EventEmitter } from 'events';
 import type { LiveSessionProcess, Permission, SessionStatus } from './types';
 
@@ -11,7 +11,7 @@ class SessionManager extends EventEmitter {
       throw new Error(`Maximum number of concurrent sessions (${this.MAX_SESSIONS}) reached`);
     }
 
-    const id = sessionId || randomUUID();
+    const id = sessionId || generateUuid();
 
     const existingSession = this.sessions.get(id);
     if (existingSession) {
@@ -81,14 +81,17 @@ class SessionManager extends EventEmitter {
     return Array.from(this.sessions.values());
   }
 
-  addMessage(sessionId: string, message: { role: 'user' | 'assistant'; content: string }): void {
+  addMessage(
+    sessionId: string,
+    message: { id?: string; role: 'user' | 'assistant'; content: string; timestamp?: Date }
+  ): void {
     const session = this.sessions.get(sessionId);
     if (session) {
       session.messages.push({
-        id: randomUUID(),
+        id: message.id || generateUuid(),
         role: message.role,
         content: message.content,
-        timestamp: new Date()
+        timestamp: message.timestamp || new Date()
       });
     }
   }

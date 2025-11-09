@@ -1,5 +1,8 @@
 import { Bot } from 'lucide-react';
-import type { GetApiSessionsProjectNameSessionId200MessagesItem } from '@/api/_generated/schemas';
+import type {
+  GetApiSessionsProjectNameSessionId200ImagesItem,
+  GetApiSessionsProjectNameSessionId200MessagesItem
+} from '@/api/_generated/schemas';
 import { MessageSource as FormatterSource, formatMessageContent } from '@/features/projects/utils/message-formatter';
 import { isUserMessage } from '../../utils/message-utils';
 
@@ -12,6 +15,7 @@ type SessionMessageProps = {
   searchTerm?: string;
   isSearchMatch?: boolean;
   availableImages?: number[];
+  images?: GetApiSessionsProjectNameSessionId200ImagesItem[];
 };
 
 export const SessionMessage = ({
@@ -21,7 +25,8 @@ export const SessionMessage = ({
   pathValidation,
   searchTerm,
   isSearchMatch,
-  availableImages = []
+  availableImages = [],
+  images = []
 }: SessionMessageProps) => {
   if (messages.length === 0) {
     return null;
@@ -67,10 +72,12 @@ export const SessionMessage = ({
             source: FormatterSource.SESSION_MESSAGE,
             pathValidation,
             searchTerm,
-            availableImages
+            availableImages,
+            images,
+            messageId: message.id
           });
 
-          const messageKey = message.timestamp ? `${message.timestamp}-${idx}` : `msg-${idx}`;
+          const messageKey = message.id || `msg-${message.timestamp}-${idx}`;
 
           return (
             <div key={messageKey}>

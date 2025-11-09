@@ -1162,6 +1162,9 @@
                             "items": {
                               "type": "string"
                             }
+                          },
+                          "summary": {
+                            "type": "string"
                           }
                         },
                         "required": [
@@ -1264,6 +1267,9 @@
                       "items": {
                         "type": "object",
                         "properties": {
+                          "id": {
+                            "type": "string"
+                          },
                           "type": {
                             "type": "string",
                             "enum": [
@@ -1279,6 +1285,7 @@
                           }
                         },
                         "required": [
+                          "id",
                           "type",
                           "content"
                         ]
@@ -1294,11 +1301,15 @@
                           },
                           "data": {
                             "type": "string"
+                          },
+                          "messageId": {
+                            "type": "string"
                           }
                         },
                         "required": [
                           "index",
-                          "data"
+                          "data",
+                          "messageId"
                         ]
                       }
                     },

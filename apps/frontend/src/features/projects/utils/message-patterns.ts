@@ -110,7 +110,11 @@ export function formatSearchHighlight(term: string) {
   return `<mark class="${MESSAGE_COLORS.SEARCH_HIGHLIGHT}">${term}</mark>`;
 }
 
-export function formatImageTag(index: number, exists = true) {
+export function formatImageTag(index: number, exists = true, imageData?: string) {
+  if (imageData) {
+    return `<div class="my-2 max-w-md"><img src="data:image/png;base64,${imageData}" alt="Image #${index}" class="rounded-lg border border-border shadow-sm cursor-pointer hover:opacity-90 transition-opacity w-full" data-image-index="${index}" /></div>`;
+  }
+
   const colorClasses = exists ? MESSAGE_COLORS.EXISTING_IMAGE_TAG : MESSAGE_COLORS.NOT_FOUND_IMAGE_TAG;
   const interactionClasses = exists ? 'cursor-pointer' : '';
   const classes = `inline-block text-sm px-2 py-1 rounded border transition-colors font-semibold ${colorClasses} ${interactionClasses}`;

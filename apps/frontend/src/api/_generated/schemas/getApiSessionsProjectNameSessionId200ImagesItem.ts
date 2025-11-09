@@ -9,4 +9,5 @@
 export type GetApiSessionsProjectNameSessionId200ImagesItem = {
   index: number;
   data: string;
+  messageId: string;
 };

@@ -8,6 +8,7 @@
 import type { GetApiSessionsProjectNameSessionId200MessagesItemType } from './getApiSessionsProjectNameSessionId200MessagesItemType';
 
 export type GetApiSessionsProjectNameSessionId200MessagesItem = {
+  id: string;
   type: GetApiSessionsProjectNameSessionId200MessagesItemType;
   content: string;
   timestamp?: number;

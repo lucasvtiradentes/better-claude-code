@@ -18,4 +18,5 @@ export type GetApiSessionsProjectName200ItemsItem = {
   filesOrFoldersCount?: number;
   urlCount?: number;
   labels?: string[];
+  summary?: string;
 };

@@ -1,3 +1,4 @@
+import { generateUuid } from '@better-claude-code/node-utils';
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
 import { streamSSE } from 'hono/streaming';
 import {
@@ -164,7 +165,8 @@ liveSessionsRouter.openapi(sendMessageRoute, async (c) => {
     }
 
     const tempSessionId = sessionManager.createSession(projectPath);
-    sessionManager.addMessage(tempSessionId, { role: 'user', content: message });
+    const messageId = generateUuid();
+    sessionManager.addMessage(tempSessionId, { id: messageId, role: 'user', content: message });
 
     return c.json({ success: true, pending: true, tempSessionId }, 200);
   }

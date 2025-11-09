@@ -105,7 +105,8 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
   useScrollPersistence(contentRef, selectedProject, sessionId);
 
-  const convertedLiveMessages = liveMessages.map((msg) => ({
+  const convertedLiveMessages = liveMessages.map((msg, index) => ({
+    id: msg.id || `live-${msg.timestamp.getTime()}-${index}`,
     type: msg.role,
     content: msg.content,
     timestamp: msg.timestamp.getTime()

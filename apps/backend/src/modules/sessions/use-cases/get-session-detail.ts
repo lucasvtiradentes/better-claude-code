@@ -14,6 +14,7 @@ const paramsSchema = z.object({
 });
 
 const MessageSchema = z.object({
+  id: z.string(),
   type: z.enum(MessageSource),
   content: z.string(),
   timestamp: z.number().optional()
@@ -21,7 +22,8 @@ const MessageSchema = z.object({
 
 const ImageSchema = z.object({
   index: z.number(),
-  data: z.string()
+  data: z.string(),
+  messageId: z.string()
 });
 
 const PathValidationSchema = z.object({

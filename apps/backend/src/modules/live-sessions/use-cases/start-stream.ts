@@ -1,5 +1,5 @@
+import { generateUuid } from '@better-claude-code/node-utils';
 import { spawn } from 'child_process';
-import { randomUUID } from 'crypto';
 import { existsSync, readFileSync } from 'fs';
 import type { SSEStreamingApi } from 'hono/streaming';
 import { homedir } from 'os';
@@ -140,7 +140,7 @@ export async function startStream(
 
       for (const msg of messages) {
         historyMessages.push({
-          id: randomUUID(),
+          id: msg.id,
           role: msg.type === 'user' ? 'user' : 'assistant',
           content: msg.content,
           timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
@@ -153,7 +153,12 @@ export async function startStream(
       if (existingMessages.length === 0 && historyMessages.length > 0) {
         console.log(`[Claude CLI] Populating session with ${historyMessages.length} messages from JSONL`);
         for (const msg of historyMessages) {
-          sessionManager.addMessage(sessionId, { role: msg.role, content: msg.content });
+          sessionManager.addMessage(sessionId, {
+            id: msg.id,
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.timestamp
+          });
         }
       } else {
         console.log(`[Claude CLI] Session already has ${existingMessages.length} messages, skipping JSONL load`);
@@ -310,7 +315,12 @@ export async function startStream(
             if (queuedMessages.length > 0) {
               console.log(`[start-stream] Migrating ${queuedMessages.length} messages to new session`);
               for (const msg of queuedMessages) {
-                sessionManager.addMessage(claudeSessionId, { role: msg.role, content: msg.content });
+                sessionManager.addMessage(claudeSessionId, {
+                  id: msg.id,
+                  role: msg.role,
+                  content: msg.content,
+                  timestamp: msg.timestamp
+                });
               }
             }
 
@@ -357,6 +367,7 @@ export async function startStream(
           console.log('[Claude CLI] User message replayed');
         } else if (event.type === 'assistant') {
           let assistantContent = '';
+          const messageId = event.uuid || generateUuid();
           const content = event.message?.content || [];
           for (const block of content) {
             if (block.type === 'text') {
@@ -382,7 +393,7 @@ export async function startStream(
           }
 
           if (assistantContent) {
-            sessionManager.addMessage(actualSessionId, { role: 'assistant', content: assistantContent });
+            sessionManager.addMessage(actualSessionId, { id: messageId, role: 'assistant', content: assistantContent });
           }
         } else if (event.type === 'result') {
           console.log('[Claude CLI] Turn completed:', {

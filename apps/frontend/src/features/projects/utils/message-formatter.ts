@@ -24,6 +24,8 @@ type FormatOptions = {
   pathValidation?: Array<{ path: string; exists: boolean }>;
   searchTerm?: string;
   availableImages?: number[];
+  images?: Array<{ index: number; data: string; messageId: string }>;
+  messageId?: string;
 };
 
 function escapeHtml(text: string) {
@@ -39,7 +41,7 @@ export function formatMessageContent(
   text: string,
   options: FormatOptions
 ): { html: string; imageRefs: Array<{ placeholder: string; index: number }> } {
-  const { source, pathValidation, searchTerm, availableImages = [] } = options;
+  const { source, pathValidation, searchTerm, availableImages = [], images = [], messageId } = options;
 
   if (source === MessageSource.SESSION_CARD) {
     return { html: text, imageRefs: [] };
@@ -104,7 +106,9 @@ export function formatMessageContent(
 
   const finalHtml = imageRefs.reduce((content, { placeholder, index }) => {
     const exists = availableImages.includes(index);
-    return content.replace(placeholder, formatImageTag(index, exists));
+    const image = images.find((img) => img.index === index && img.messageId === messageId);
+    const imageData = image?.data;
+    return content.replace(placeholder, formatImageTag(index, exists, imageData));
   }, formatted);
 
   return { html: finalHtml, imageRefs };

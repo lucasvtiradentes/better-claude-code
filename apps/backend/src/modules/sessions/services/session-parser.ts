@@ -3,6 +3,7 @@ import { ClaudeHelper, MessageSource } from '@better-claude-code/node-utils';
 const CLAUDE_CODE_COMMANDS = ['clear', 'ide', 'model', 'compact', 'init'];
 
 export interface ParsedMessage {
+  id: string;
   type: MessageSource;
   content: string;
   timestamp?: number;
@@ -127,7 +128,7 @@ export interface ParseSessionOptions {
 
 export interface ParsedSession {
   messages: ParsedMessage[];
-  images: Array<{ index: number; data: string }>;
+  images: Array<{ index: number; data: string; messageId: string }>;
 }
 
 export function parseSessionMessages(
@@ -135,23 +136,50 @@ export function parseSessionMessages(
   options: ParseSessionOptions = { groupMessages: true, includeImages: true }
 ): ParsedSession {
   const messages: ParsedMessage[] = [];
+  const imageToMessageMap = new Map<number, string>();
   let skipNextAssistant = false;
+  let globalImageIndex = 1;
 
   for (const event of events) {
     if (ClaudeHelper.isUserMessage(event.type)) {
+      const messageId = event.uuid || `${event.timestamp}-${Math.random()}`;
       const textContent = extractTextContent(event.message?.content || event.content);
+      let imageCount = 0;
+      if (Array.isArray(event.message?.content)) {
+        for (const item of event.message.content) {
+          if (item.type === 'image') imageCount++;
+        }
+      }
+
       if (textContent === 'Warmup') {
         skipNextAssistant = true;
+        for (let i = 0; i < imageCount; i++) {
+          imageToMessageMap.set(globalImageIndex++, messageId);
+        }
         continue;
       }
       if (textContent) {
-        const cleanedParts = cleanUserMessage(textContent);
+        let adjustedContent = textContent;
+        for (let localIdx = 1; localIdx <= imageCount; localIdx++) {
+          const localRef = `[Image #${localIdx}]`;
+          const globalRef = `[Image #${globalImageIndex}]`;
+          adjustedContent = adjustedContent.replace(localRef, globalRef);
+          imageToMessageMap.set(globalImageIndex, messageId);
+          globalImageIndex++;
+        }
+
+        const cleanedParts = cleanUserMessage(adjustedContent);
         for (const part of cleanedParts) {
           messages.push({
+            id: messageId,
             type: event.type,
             content: part,
             timestamp: event.timestamp
           });
+        }
+      } else {
+        for (let i = 0; i < imageCount; i++) {
+          imageToMessageMap.set(globalImageIndex++, messageId);
         }
       }
     } else if (ClaudeHelper.isCCMessage(event.type)) {
@@ -159,9 +187,11 @@ export function parseSessionMessages(
         skipNextAssistant = false;
         continue;
       }
+      const messageId = event.uuid || `${event.timestamp}-${Math.random()}`;
       const textContent = extractTextContent(event.message?.content || event.content);
       if (textContent && textContent !== 'Warmup') {
         messages.push({
+          id: messageId,
           type: event.type,
           content: textContent,
           timestamp: event.timestamp
@@ -185,10 +215,10 @@ export function parseSessionMessages(
     finalMessages = groupedMessages.filter((msg) => msg.content.trim().length > 0);
   }
 
-  const imagesWithData: Array<{ data: string }> = [];
-  const imageIndicesInText: number[] = [];
+  const images: Array<{ index: number; data: string; messageId: string }> = [];
 
   if (options.includeImages) {
+    let globalImageIndex = 1;
     try {
       for (const event of events) {
         if (ClaudeHelper.isUserMessage(event.type) && Array.isArray(event.message?.content)) {
@@ -196,33 +226,15 @@ export function parseSessionMessages(
             if (item.type === 'image') {
               const imageData = item.source?.type === 'base64' ? item.source.data : null;
               if (imageData) {
-                imagesWithData.push({ data: imageData });
+                const messageId = imageToMessageMap.get(globalImageIndex) || '';
+                images.push({ index: globalImageIndex, data: imageData, messageId });
+                globalImageIndex++;
               }
             }
           }
         }
       }
     } catch {}
-  }
-
-  for (const msg of finalMessages) {
-    const matches = msg.content.matchAll(/\[Image #(\d+)\]/g);
-    for (const match of matches) {
-      const index = Number.parseInt(match[1], 10);
-      if (!imageIndicesInText.includes(index)) {
-        imageIndicesInText.push(index);
-      }
-    }
-  }
-
-  const images: Array<{ index: number; data: string }> = [];
-  imageIndicesInText.sort((a, b) => a - b);
-
-  for (let i = 0; i < Math.min(imagesWithData.length, imageIndicesInText.length); i++) {
-    images.push({
-      index: imageIndicesInText[i],
-      data: imagesWithData[i].data
-    });
   }
 
   return { messages: finalMessages, images };

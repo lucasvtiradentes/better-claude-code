@@ -131,8 +131,8 @@ export function ProjectsContent({
           return groupedMessages.map((group) => {
             const hasSearchMatch = group.messages.some((_, idx) => searchMatches.includes(group.startIndex + idx));
 
-            const groupKey = group.messages[0].timestamp
-              ? `${group.messages[0].type}-${group.messages[0].timestamp}`
+            const groupKey = group.messages[0].id
+              ? `${group.messages[0].id}`
               : `${group.messages[0].type}-${group.startIndex}`;
 
             return (
@@ -145,7 +145,8 @@ export function ProjectsContent({
                   pathValidation={pathValidation}
                   searchTerm={searchQuery}
                   isSearchMatch={hasSearchMatch}
-                  availableImages={sessionData.images.map((img) => img.index)}
+                  availableImages={sessionData?.images?.map((img) => img.index) || []}
+                  images={sessionData?.images || []}
                 />
               </div>
             );
@@ -162,7 +163,7 @@ export function ProjectsContent({
         />
       )}
 
-      {imageModalIndex !== null && (
+      {imageModalIndex !== null && sessionData?.images && (
         <ImageModal
           images={sessionData.images}
           currentIndex={imageModalIndex}
