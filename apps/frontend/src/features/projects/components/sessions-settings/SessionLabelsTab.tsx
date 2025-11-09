@@ -6,11 +6,11 @@ import {
   usePatchApiSettingsSessionsLabelsLabelId,
   usePostApiSettingsSessionsLabels
 } from '@/api';
-import { useSettingsStore } from '@/stores/settings-store';
 import type { GetApiSettings200SessionsLabelsItem } from '@/api/_generated/schemas';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useSettingsStore } from '@/stores/settings-store';
 
 type LabelFormData = {
   name: string;

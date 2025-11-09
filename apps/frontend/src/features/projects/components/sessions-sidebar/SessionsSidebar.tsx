@@ -9,9 +9,9 @@ import {
 import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
-import { useSettingsStore } from '@/stores/settings-store';
 import { GroupCardItems } from '@/components/GroupCardItems';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
+import { useSettingsStore } from '@/stores/settings-store';
 import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
 import { SessionCard } from './SessionCard';
 import { SessionsHeader } from './SessionsHeader';
@@ -56,8 +56,7 @@ export const SessionsSidebar = ({
   onDeleteSession,
   onLabelToggle,
   projectId,
-  isGitRepo,
-  onSortByChange
+  isGitRepo
 }: SessionsSidebarProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -73,13 +72,6 @@ export const SessionsSidebar = ({
       search: { projectPath, projectName }
     });
   };
-
-  useEffect(() => {
-    if (settings?.groupBy && onSortByChange) {
-      const sortBy = settings.groupBy === 'token-percentage' ? 'token-percentage' : 'date';
-      onSortByChange(sortBy);
-    }
-  }, [settings?.groupBy, onSortByChange]);
 
   const groupedSessions = useMemo(() => {
     if (!sessions || !settings) return undefined;

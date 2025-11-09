@@ -1,16 +1,12 @@
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-  useDeleteApiSettingsLabelsLabelId,
-  usePatchApiSettingsLabelsLabelId,
-  usePostApiSettingsLabels
-} from '@/api';
-import { useSettingsStore } from '@/stores/settings-store';
+import { useDeleteApiSettingsLabelsLabelId, usePatchApiSettingsLabelsLabelId, usePostApiSettingsLabels } from '@/api';
 import type { GetApiSettings200ProjectsLabelsItem } from '@/api/_generated/schemas';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useSettingsStore } from '@/stores/settings-store';
 
 type LabelFormData = {
   name: string;

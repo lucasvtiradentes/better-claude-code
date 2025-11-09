@@ -9,10 +9,9 @@ import {
 import { useMemo } from 'react';
 import { usePatchApiSettingsProjectsProjectId } from '@/api';
 import type { GetApiProjects200Item } from '@/api/_generated/schemas';
-import { useSettingsStore } from '@/stores/settings-store';
 import { GroupCardItems } from '@/components/GroupCardItems';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { useProjectsStore } from '@/features/projects/stores/projects-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
 
@@ -20,11 +19,19 @@ type ProjectsSidebarProps = {
   projects: GetApiProjects200Item[] | undefined;
   isLoading: boolean;
   error: unknown;
+  searchValue?: string;
+  onSearchChange: (value: string) => void;
   onSelectProject: (projectName: string) => void;
 };
 
-export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }: ProjectsSidebarProps) => {
-  const { search } = useProjectsStore();
+export const ProjectsSidebar = ({
+  projects,
+  isLoading,
+  error,
+  searchValue,
+  onSearchChange,
+  onSelectProject
+}: ProjectsSidebarProps) => {
   const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: updateLabels } = usePatchApiSettingsProjectsProjectId();
 
@@ -54,8 +61,8 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
 
     let filtered = projects;
 
-    if (search) {
-      const searchLower = search.toLowerCase();
+    if (searchValue) {
+      const searchLower = searchValue.toLowerCase();
       filtered = filtered.filter(
         (p) => p.name.toLowerCase().includes(searchLower) || p.path.toLowerCase().includes(searchLower)
       );
@@ -64,7 +71,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
     filtered = filtered.filter((p) => !p.hidden);
 
     return filtered;
-  }, [projects, search]);
+  }, [projects, searchValue]);
 
   const groupedProjects = useMemo(() => {
     if (!filteredProjects || !settings) return undefined;
@@ -165,7 +172,11 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
 
   return (
     <MiddleSidebar>
-      <ProjectsHeader projectCount={filteredProjects?.length || 0} />
+      <ProjectsHeader
+        projectCount={filteredProjects?.length || 0}
+        searchValue={searchValue}
+        onSearchChange={onSearchChange}
+      />
       <div className="flex-1 overflow-y-auto">
         {error ? (
           <div className="p-4 text-red-500">Failed to load projects</div>

@@ -1,20 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { ProjectsPage, ProjectsSearchParams } from '@/features/projects/pages/projects.page';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { getGetApiProjectsQueryOptions, getGetApiSettingsQueryOptions } from '@/api';
+import { queryClient } from '@/lib/tanstack-query';
 
 export const Route = createFileRoute('/projects')({
-  component: ProjectsComponent,
-  validateSearch: (search: Record<string, unknown>): ProjectsSearchParams => ({
-    project: (search.project as string) || undefined,
-    sessionId: (search.sessionId as string) || undefined,
-    imageIndex: (search.imageIndex as number) || undefined,
-    folderPath: (search.folderPath as string) || undefined,
-    filePath: (search.filePath as string) || undefined,
-    search: (search.search as string) || undefined
-  })
+  component: ProjectsLayout,
+  loader: () => {
+    queryClient.ensureQueryData(getGetApiProjectsQueryOptions());
+    queryClient.ensureQueryData(getGetApiSettingsQueryOptions());
+  }
 });
 
-function ProjectsComponent() {
-  const searchParams = Route.useSearch();
-
-  return <ProjectsPage searchParams={searchParams} />;
+function ProjectsLayout() {
+  return <Outlet />;
 }

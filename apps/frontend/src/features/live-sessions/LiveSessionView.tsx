@@ -36,7 +36,7 @@ export const LiveSessionView = ({ sessionId, projectPath, projectName }: LiveSes
   };
 
   const handleBack = () => {
-    navigate({ to: '/projects', search: { project: projectName } });
+    navigate({ to: '/projects/$projectName', params: { projectName } });
   };
 
   const showPermissionButton = pendingPermissions.length > 0 && status === 'pending-permissions';

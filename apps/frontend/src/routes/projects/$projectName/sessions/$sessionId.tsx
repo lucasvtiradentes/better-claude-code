@@ -1,52 +1,67 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import {
+  getGetApiSessionsProjectNameSessionIdQueryOptions,
   useDeleteApiSessionsProjectNameSessionId,
   useGetApiProjects,
   useGetApiSessionsProjectNameSessionId,
+  useGetApiSettings,
   useInfinitySessions,
   usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { Layout } from '@/components/layout/Layout';
 import { useClaudeStream } from '@/features/live-sessions/hooks/useClaudeStream';
-import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
+import { EmptyState } from '@/features/projects/components/EmptyState';
+import { ProjectsContent } from '@/features/projects/components/ProjectsContent';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
-import { ConfirmDialog } from '../../../components/ConfirmDialog';
-import { Layout } from '../../../components/layout/Layout';
-import { EmptyState } from '../../../features/projects/components/EmptyState';
-import { ProjectsContent } from '../../../features/projects/components/ProjectsContent';
-import { useMessageFilter } from '../hooks/use-message-filter';
-import { useModalState } from '../hooks/use-modal-state';
-import { useNavigationManager } from '../hooks/use-navigation-manager';
-import { useScrollPersistence } from '../hooks/use-scroll-persistence';
-import { useFilterStore } from '../stores/filter-store';
+import { useMessageFilter } from '@/features/projects/hooks/use-message-filter';
+import { useModalState } from '@/features/projects/hooks/use-modal-state';
+import { useScrollPersistence } from '@/features/projects/hooks/use-scroll-persistence';
+import { useFilterStore } from '@/features/projects/stores/filter-store';
+import { queryClient } from '@/lib/tanstack-query';
 
-export type ProjectsSearchParams = {
-  project?: string;
-  sessionId?: string;
+type SessionDetailSearchParams = {
+  projectSearch?: string;
+  sessionSearch?: string;
   imageIndex?: number;
   folderPath?: string;
   filePath?: string;
-  search?: string;
+  sortBy?: 'date' | 'token-percentage';
 };
 
-type ProjectsPageProps = {
-  searchParams: ProjectsSearchParams;
-};
+export const Route = createFileRoute('/projects/$projectName/sessions/$sessionId')({
+  component: SessionDetailComponent,
+  validateSearch: (search: Record<string, unknown>): SessionDetailSearchParams => ({
+    projectSearch: (search.projectSearch as string) || undefined,
+    sessionSearch: (search.sessionSearch as string) || undefined,
+    imageIndex: (search.imageIndex as number) || undefined,
+    folderPath: (search.folderPath as string) || undefined,
+    filePath: (search.filePath as string) || undefined,
+    sortBy: (search.sortBy as 'date' | 'token-percentage') || undefined
+  }),
+  loader: ({ params }) => {
+    queryClient.ensureQueryData(
+      getGetApiSessionsProjectNameSessionIdQueryOptions(params.projectName, params.sessionId)
+    );
+  }
+});
 
-export function ProjectsPage({ searchParams }: ProjectsPageProps) {
+function SessionDetailComponent() {
+  const { projectName, sessionId } = Route.useParams();
   const {
-    project: selectedProject,
-    sessionId,
+    projectSearch,
+    sessionSearch,
     imageIndex,
     folderPath: urlFolderPath,
     filePath: urlFilePath,
-    search: searchQuery
-  } = searchParams;
+    sortBy: urlSortBy
+  } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -54,9 +69,13 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
   const { mutate: deleteSessionMutation, isPending: isDeleting } = useDeleteApiSessionsProjectNameSessionId();
   const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels();
-  const [sortBy, setSortBy] = useState<'date' | 'token-percentage'>('date');
 
-  const { data: projects, isLoading: projectsLoading, error: projectsError } = useGetApiProjects();
+  const { data: projects } = useGetApiProjects();
+  const { data: settings } = useGetApiSettings();
+
+  const sortBy = urlSortBy || (settings?.sessions?.groupBy === 'token-percentage' ? 'token-percentage' : 'date');
+  const isSettingsLoaded = !!settings;
+
   const {
     data: sessionsData,
     isLoading: sessionsLoading,
@@ -64,18 +83,18 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useInfinitySessions(selectedProject || '', searchQuery || '', sortBy);
+  } = useInfinitySessions(projectName, sessionSearch || '', sortBy, isSettingsLoaded);
   const {
     data: sessionData,
     isLoading: sessionLoading,
     error: sessionError
-  } = useGetApiSessionsProjectNameSessionId(selectedProject || '', sessionId || '', {
-    query: { enabled: !!(selectedProject && sessionId) }
+  } = useGetApiSessionsProjectNameSessionId(projectName, sessionId, {
+    query: { enabled: !!(projectName && sessionId) }
   });
 
   const sessions = sessionsData?.pages.flatMap((page) => page.items) || [];
   const totalSessions = sessionsData?.pages[0]?.meta.totalItems || 0;
-  const selectedProjectData = projects?.find((p) => p.id === selectedProject);
+  const selectedProjectData = projects?.find((p) => p.id === projectName);
   const currentSession = sessions?.find((s) => s.id === sessionId);
 
   const shouldEnableStream = !!(sessionId && selectedProjectData?.path && selectedProjectData?.name);
@@ -95,16 +114,32 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   const { imageModalIndex, setImageModalIndex, fileModalPath, setFileModalPath, folderModalPath, setFolderModalPath } =
     useModalState(imageIndex, urlFolderPath, urlFilePath, sessionData?.images);
 
-  const { updateSearch, handlePathClick, navigateToProject, navigateToSession, navigateBack } = useNavigationManager({
-    selectedProject,
-    sessionId,
-    imageIndex,
-    folderPath: urlFolderPath,
-    filePath: urlFilePath,
-    searchQuery
-  });
+  const updateSearch = (updates: Partial<SessionDetailSearchParams>) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        ...updates
+      })
+    });
+  };
 
-  useScrollPersistence(contentRef, selectedProject, sessionId);
+  const handlePathClick = (
+    path: string,
+    currentFolderPath: string | null,
+    setFile: (path: string | null) => void,
+    setFolder: (path: string | null) => void
+  ) => {
+    const isDirectory = !path.includes('.');
+    if (isDirectory) {
+      setFolder(path);
+      updateSearch({ folderPath: path, filePath: undefined });
+    } else {
+      setFile(path);
+      updateSearch({ filePath: path, folderPath: currentFolderPath || undefined });
+    }
+  };
+
+  useScrollPersistence(contentRef, projectName, sessionId);
 
   const convertedLiveMessages = liveMessages.map((msg, index) => ({
     id: msg.id || `live-${msg.timestamp.getTime()}-${index}`,
@@ -120,7 +155,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     showUserMessages,
     showAssistantMessages,
     showToolCalls,
-    searchQuery
+    sessionSearch
   );
 
   useEffect(() => {
@@ -137,10 +172,10 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   };
 
   const handleLabelToggle = (sessionId: string, labelId: string) => {
-    if (!selectedProject) return;
+    if (!projectName) return;
 
     toggleLabel(
-      { projectName: selectedProject, sessionId, data: { labelId } },
+      { projectName, sessionId, data: { labelId } },
       {
         onError: (error) => {
           console.error('Failed to toggle label:', error);
@@ -151,13 +186,13 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   };
 
   const confirmDeleteSession = () => {
-    if (!sessionToDelete || !selectedProject) return;
+    if (!sessionToDelete || !projectName) return;
 
     deleteSessionMutation(
-      { projectName: selectedProject, sessionId: sessionToDelete },
+      { projectName, sessionId: sessionToDelete },
       {
         onSuccess: async () => {
-          queryClient.setQueryData(['sessions', selectedProject, searchQuery || '', sortBy], (oldData: any) => {
+          queryClient.setQueryData(['sessions', projectName, sessionSearch || '', sortBy], (oldData: any) => {
             if (!oldData) return oldData;
 
             return {
@@ -175,15 +210,8 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
           if (sessionId === sessionToDelete) {
             await navigate({
-              to: '/projects',
-              search: {
-                project: selectedProject,
-                sessionId: undefined,
-                imageIndex: undefined,
-                folderPath: undefined,
-                filePath: undefined,
-                search: undefined
-              }
+              to: '/projects/$projectName',
+              params: { projectName }
             });
           }
 
@@ -197,6 +225,30 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
         }
       }
     );
+  };
+
+  const handleBack = () => {
+    navigate({
+      to: '/projects/$projectName',
+      params: { projectName },
+      search: { projectSearch, sessionSearch, sortBy: urlSortBy }
+    });
+  };
+
+  const handleSelectSession = (newSessionId: string) => {
+    navigate({
+      to: '/projects/$projectName/sessions/$sessionId',
+      params: { projectName, sessionId: newSessionId },
+      search: { projectSearch, sessionSearch, sortBy: urlSortBy }
+    });
+  };
+
+  const handleSearchChange = (value: string) => {
+    updateSearch({ sessionSearch: value || undefined });
+  };
+
+  const handleSortByChange = (newSortBy: 'date' | 'token-percentage') => {
+    updateSearch({ sortBy: newSortBy });
   };
 
   const renderConfirmDialog = () => (
@@ -215,66 +267,6 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
       isLoading={isDeleting}
     />
   );
-
-  if (!selectedProject) {
-    return (
-      <>
-        <Layout
-          sidebar={
-            <ProjectsSidebar
-              projects={projects}
-              isLoading={projectsLoading}
-              error={projectsError}
-              onSelectProject={navigateToProject}
-            />
-          }
-        >
-          <EmptyState message="Select a project to view sessions" />
-        </Layout>
-        {renderConfirmDialog()}
-      </>
-    );
-  }
-
-  const getProjectDisplayName = () => {
-    if (selectedProjectData?.name) return selectedProjectData.name;
-    return '...';
-  };
-
-  const sessionsSidebar = (
-    <SessionsSidebar
-      sessions={sessions}
-      isLoading={sessionsLoading}
-      error={sessionsError}
-      projectName={getProjectDisplayName()}
-      projectPath={selectedProjectData?.path || ''}
-      selectedSessionId={sessionId}
-      totalSessions={totalSessions}
-      searchValue={searchQuery}
-      hasNextPage={hasNextPage}
-      isFetchingNextPage={isFetchingNextPage}
-      onLoadMore={() => fetchNextPage()}
-      onSearchChange={(value) => updateSearch({ search: value })}
-      onBack={navigateBack}
-      onSelectSession={navigateToSession}
-      onDeleteSession={handleDeleteSession}
-      onLabelToggle={handleLabelToggle}
-      projectId={selectedProjectData?.id || selectedProject}
-      isGitRepo={selectedProjectData?.isGitRepo}
-      onSortByChange={setSortBy}
-    />
-  );
-
-  if (!sessionId) {
-    return (
-      <>
-        <Layout sidebar={sessionsSidebar}>
-          <EmptyState message="Select a session to view messages" />
-        </Layout>
-        {renderConfirmDialog()}
-      </>
-    );
-  }
 
   let content: ReactNode;
   if (sessionError) {
@@ -300,18 +292,18 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
         currentSession={currentSession}
         filteredMessages={filteredMessages}
         pathValidation={sessionData.paths}
-        searchQuery={searchQuery}
+        searchQuery={sessionSearch}
         searchMatches={searchMatches}
         searchMatchIndex={searchMatchIndex}
         imageModalIndex={imageModalIndex}
         fileModalPath={fileModalPath}
         folderModalPath={folderModalPath}
-        selectedProject={selectedProject}
+        selectedProject={projectName}
         sessionId={sessionId}
         sessionData={mergedSessionData}
         onNextMatch={handleNextMatch}
         onPreviousMatch={handlePreviousMatch}
-        onCloseSearch={() => updateSearch({ search: undefined })}
+        onCloseSearch={() => updateSearch({ sessionSearch: undefined })}
         onImageClick={(arrayPosition: number) => {
           if (!sessionData) return;
           setImageModalIndex(arrayPosition);
@@ -360,7 +352,33 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
   return (
     <>
-      <Layout sidebar={sessionsSidebar}>{content}</Layout>
+      <Layout
+        sidebar={
+          <SessionsSidebar
+            sessions={sessions}
+            isLoading={sessionsLoading}
+            error={sessionsError}
+            projectName={selectedProjectData?.name || projectName}
+            projectPath={selectedProjectData?.path || ''}
+            selectedSessionId={sessionId}
+            totalSessions={totalSessions}
+            searchValue={sessionSearch}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={() => fetchNextPage()}
+            onSearchChange={handleSearchChange}
+            onBack={handleBack}
+            onSelectSession={handleSelectSession}
+            onDeleteSession={handleDeleteSession}
+            onLabelToggle={handleLabelToggle}
+            projectId={selectedProjectData?.id || projectName}
+            isGitRepo={selectedProjectData?.isGitRepo}
+            onSortByChange={handleSortByChange}
+          />
+        }
+      >
+        {content}
+      </Layout>
       {renderConfirmDialog()}
     </>
   );

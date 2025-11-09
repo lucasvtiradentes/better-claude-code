@@ -3,7 +3,12 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import type { GetApiSessionsProjectName200 } from './_generated/schemas';
 import { customInstance } from './custom-instance';
 
-export const useInfinitySessions = (projectName: string, search: string = '', sortBy: string = 'date') => {
+export const useInfinitySessions = (
+  projectName: string,
+  search: string = '',
+  sortBy: string = 'date',
+  enabled: boolean = true
+) => {
   return useInfiniteQuery({
     queryKey: ['sessions', projectName, search, sortBy],
     queryFn: async ({ pageParam = 1 }) => {
@@ -18,7 +23,9 @@ export const useInfinitySessions = (projectName: string, search: string = '', so
         }
       });
     },
-    enabled: !!projectName,
+    enabled: !!projectName && enabled,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
     placeholderData: (previousData) => previousData,
     getNextPageParam: (lastPage) => {
       if (lastPage.meta.page < lastPage.meta.totalPages) {
