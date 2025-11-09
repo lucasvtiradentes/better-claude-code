@@ -1,5 +1,5 @@
-import { sessionManager } from '../session-manager';
-import { SessionStatus } from '../types';
+import { sessionManager } from '../session-manager.js';
+import { SessionStatus } from '../types.js';
 
 export function sendMessage(
   sessionId: string,

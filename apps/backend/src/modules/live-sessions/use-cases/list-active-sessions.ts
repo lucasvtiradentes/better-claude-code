@@ -1,4 +1,4 @@
-import { sessionManager } from '../session-manager';
+import { sessionManager } from '../session-manager.js';
 
 export function listActiveSessions() {
   const sessions = sessionManager.getActiveSessions();

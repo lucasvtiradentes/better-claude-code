@@ -5,8 +5,8 @@ import type { SSEStreamingApi } from 'hono/streaming';
 import { homedir } from 'os';
 import { join } from 'path';
 import { parseSessionMessages } from '../../sessions/services/session-parser.js';
-import { sessionManager } from '../session-manager';
-import { type LiveSessionEvent, SessionStatus } from '../types';
+import { sessionManager } from '../session-manager.js';
+import { type LiveSessionEvent, SessionStatus } from '../types.js';
 
 function expandPath(path: string): string {
   if (path.startsWith('~/')) {

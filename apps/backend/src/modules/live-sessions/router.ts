@@ -12,15 +12,15 @@ import {
   SendMessageResponseSchema,
   SessionStatusResponseSchema,
   StreamQuerySchema
-} from './schemas';
-import { sessionManager } from './session-manager';
-import { approvePermissions } from './use-cases/approve-permissions';
-import { cancelSession } from './use-cases/cancel-session';
-import { createSession } from './use-cases/create-session';
-import { getSessionStatus } from './use-cases/get-session-status';
-import { listActiveSessions } from './use-cases/list-active-sessions';
-import { sendMessage } from './use-cases/send-message';
-import { startStream } from './use-cases/start-stream';
+} from './schemas.js';
+import { sessionManager } from './session-manager.js';
+import { approvePermissions } from './use-cases/approve-permissions.js';
+import { cancelSession } from './use-cases/cancel-session.js';
+import { createSession } from './use-cases/create-session.js';
+import { getSessionStatus } from './use-cases/get-session-status.js';
+import { listActiveSessions } from './use-cases/list-active-sessions.js';
+import { sendMessage } from './use-cases/send-message.js';
+import { startStream } from './use-cases/start-stream.js';
 
 export const liveSessionsRouter = new OpenAPIHono();
 
