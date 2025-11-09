@@ -224,6 +224,46 @@ function extractSummary(lines: string[]): string | undefined {
   return undefined;
 }
 
+function extractInternalSessionId(lines: string[]): string | undefined {
+  for (const line of lines) {
+    try {
+      const parsed = JSON.parse(line);
+      if (parsed.sessionId) {
+        return parsed.sessionId;
+      }
+    } catch {}
+  }
+  return undefined;
+}
+
+async function findCheckpointedSessions(sessionFiles: string[], sessionsPath: string): Promise<Set<string>> {
+  const originalSessionsToHide = new Set<string>();
+
+  const checkPromises = sessionFiles.map(async (file) => {
+    const filePath = join(sessionsPath, file);
+    const content = await readFile(filePath, 'utf-8');
+    const lines = content.split('\n').filter((l) => l.trim());
+
+    const summary = extractSummary(lines);
+    if (summary) {
+      const internalSessionId = extractInternalSessionId(lines);
+      if (internalSessionId && internalSessionId !== file.replace('.jsonl', '')) {
+        return internalSessionId;
+      }
+    }
+    return null;
+  });
+
+  const results = await Promise.all(checkPromises);
+  results.forEach((sessionId) => {
+    if (sessionId) {
+      originalSessionsToHide.add(sessionId);
+    }
+  });
+
+  return originalSessionsToHide;
+}
+
 function extractTitle(lines: string[], titleSource: TitleSource): string {
   if (titleSource === TitleSource.LAST_CC_MESSAGE) {
     for (let j = lines.length - 1; j >= 0; j--) {
@@ -447,6 +487,8 @@ async function processSessionFile(
     return null;
   }
 
+  const summary = extractSummary(lines);
+
   let searchMatchCount: number | undefined;
   if (options.search) {
     const searchLower = options.search.toLowerCase();
@@ -477,8 +519,6 @@ async function processSessionFile(
   const messageCounts = countMessages(lines, options.messageCountMode);
   const stats = await stat(filePath);
   const sessionId = file.replace('.jsonl', '');
-
-  const summary = extractSummary(lines);
 
   const session: SessionListItem = {
     id: sessionId,
@@ -547,7 +587,10 @@ export async function listSessions(options: SessionListOptions): Promise<Session
   }
 
   const files = await readdir(sessionsPath);
-  const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
+  let sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
+
+  const checkpointedOriginals = await findCheckpointedSessions(sessionFiles, sessionsPath);
+  sessionFiles = sessionFiles.filter((f) => !checkpointedOriginals.has(f.replace('.jsonl', '')));
 
   const processOptions = {
     search,
