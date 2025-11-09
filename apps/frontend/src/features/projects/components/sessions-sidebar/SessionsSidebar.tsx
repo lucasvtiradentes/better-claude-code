@@ -75,7 +75,7 @@ export const SessionsSidebar = ({
   };
 
   useEffect(() => {
-    if (settings && onSortByChange) {
+    if (settings?.groupBy && onSortByChange) {
       const sortBy = settings.groupBy === 'token-percentage' ? 'token-percentage' : 'date';
       onSortByChange(sortBy);
     }
@@ -197,7 +197,7 @@ export const SessionsSidebar = ({
 
   return (
     <>
-      <MiddleSidebar scrollRef={scrollRef}>
+      <MiddleSidebar>
         <SessionsHeader
           projectName={projectName}
           totalSessions={totalSessions}
@@ -210,41 +210,43 @@ export const SessionsSidebar = ({
           isGitRepo={isGitRepo}
         />
 
-        {error ? (
-          <div className="p-4 text-red-500">Failed to load sessions</div>
-        ) : isLoading ? (
-          <div className="p-4 text-muted-foreground">Loading sessions...</div>
-        ) : (
-          <>
-            {getGroupOrder().map((groupKey) => {
-              const groupSessions = groupedSessions?.[groupKey];
-              if (!groupSessions?.length) return null;
+        <div ref={scrollRef} className="flex-1 overflow-y-auto">
+          {error ? (
+            <div className="p-4 text-red-500">Failed to load sessions</div>
+          ) : isLoading ? (
+            <div className="p-4 text-muted-foreground">Loading sessions...</div>
+          ) : (
+            <>
+              {getGroupOrder().map((groupKey) => {
+                const groupSessions = groupedSessions?.[groupKey];
+                if (!groupSessions?.length) return null;
 
-              return (
-                <GroupCardItems
-                  key={groupKey}
-                  label={getGroupLabel(groupKey)}
-                  groupKey={groupKey as any}
-                  labelColor={getGroupLabelColor(groupKey)}
-                >
-                  {groupSessions.map((session) => (
-                    <SessionCard
-                      key={session.id}
-                      session={session}
-                      projectName={projectName}
-                      isActive={session.id === selectedSessionId}
-                      onClick={() => onSelectSession(session.id)}
-                      displaySettings={settings?.display}
-                      onDelete={onDeleteSession}
-                      onLabelToggle={onLabelToggle}
-                    />
-                  ))}
-                </GroupCardItems>
-              );
-            })}
-            {isFetchingNextPage && <div className="p-4 text-center text-muted-foreground">Loading more...</div>}
-          </>
-        )}
+                return (
+                  <GroupCardItems
+                    key={groupKey}
+                    label={getGroupLabel(groupKey)}
+                    groupKey={groupKey as any}
+                    labelColor={getGroupLabelColor(groupKey)}
+                  >
+                    {groupSessions.map((session) => (
+                      <SessionCard
+                        key={session.id}
+                        session={session}
+                        projectName={projectName}
+                        isActive={session.id === selectedSessionId}
+                        onClick={() => onSelectSession(session.id)}
+                        displaySettings={settings?.display}
+                        onDelete={onDeleteSession}
+                        onLabelToggle={onLabelToggle}
+                      />
+                    ))}
+                  </GroupCardItems>
+                );
+              })}
+              {isFetchingNextPage && <div className="p-4 text-center text-muted-foreground">Loading more...</div>}
+            </>
+          )}
+        </div>
       </MiddleSidebar>
 
       {showSettings && <SessionSettingsModal onClose={() => setShowSettings(false)} />}

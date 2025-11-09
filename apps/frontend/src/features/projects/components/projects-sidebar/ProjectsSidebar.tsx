@@ -165,12 +165,13 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
   return (
     <MiddleSidebar>
       <ProjectsHeader projectCount={filteredProjects?.length || 0} />
-      {error ? (
-        <div className="p-4 text-red-500">Failed to load projects</div>
-      ) : isLoading ? (
-        <div className="p-4 text-muted-foreground">Loading projects...</div>
-      ) : (
-        getGroupOrder().map((groupKey) => {
+      <div className="flex-1 overflow-y-auto">
+        {error ? (
+          <div className="p-4 text-red-500">Failed to load projects</div>
+        ) : isLoading ? (
+          <div className="p-4 text-muted-foreground">Loading projects...</div>
+        ) : (
+          getGroupOrder().map((groupKey) => {
           const groupProjects = groupedProjects?.[groupKey];
           if (!groupProjects?.length) return null;
 
@@ -194,6 +195,7 @@ export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }:
           );
         })
       )}
+      </div>
     </MiddleSidebar>
   );
 };

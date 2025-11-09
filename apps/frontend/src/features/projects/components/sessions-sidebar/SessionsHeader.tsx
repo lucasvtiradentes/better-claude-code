@@ -44,10 +44,11 @@ export const SessionsHeader = ({
           <ArrowLeft size={16} />
         </button>
         {projectName === '...' ? (
-          <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+          <div className="h-5 w-32 bg-muted animate-pulse rounded" />
         ) : (
           <span className="font-semibold text-sm">
-            {projectName}{totalSessions > 0 ? ` (${totalSessions})` : ''}
+            {projectName}
+            {totalSessions > 0 ? ` (${totalSessions})` : ''}
           </span>
         )}
         <div className="absolute right-0 flex items-center gap-1.5">

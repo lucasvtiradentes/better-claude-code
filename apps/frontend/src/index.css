@@ -7,16 +7,17 @@ body {
   font-family: system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }
 
 html {
   scrollbar-gutter: stable;
+  overflow: hidden;
 }
 
-* {
+aside, div {
   scrollbar-gutter: stable;
 }
-
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
