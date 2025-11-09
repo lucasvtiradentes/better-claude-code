@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.17
+
+### Patch Changes
+
+- 3e4dd4f: add live session
+
 ## 0.0.16
 
 ### Patch Changes
