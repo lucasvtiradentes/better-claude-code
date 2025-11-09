@@ -15,15 +15,13 @@ import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar
 type SessionsSearchParams = {
   projectSearch?: string;
   sessionSearch?: string;
-  sortBy?: 'date' | 'token-percentage';
 };
 
 export const Route = createFileRoute('/projects/$projectName/')({
   component: SessionsListComponent,
   validateSearch: (search: Record<string, unknown>): SessionsSearchParams => ({
     projectSearch: (search.projectSearch as string) || undefined,
-    sessionSearch: (search.sessionSearch as string) || undefined,
-    sortBy: (search.sortBy as 'date' | 'token-percentage') || undefined
+    sessionSearch: (search.sessionSearch as string) || undefined
   }),
   beforeLoad: ({ params }) => {
     if (params.projectName.includes('/sessions/')) {
@@ -37,7 +35,7 @@ export const Route = createFileRoute('/projects/$projectName/')({
 
 function SessionsListComponent() {
   const { projectName } = Route.useParams();
-  const { projectSearch, sessionSearch, sortBy: urlSortBy } = Route.useSearch();
+  const { projectSearch, sessionSearch } = Route.useSearch();
   const navigate = Route.useNavigate();
   const queryClient = useQueryClient();
   const groupBy = useProjectSessionUIStore((state) => state.groupBy);
@@ -92,7 +90,7 @@ function SessionsListComponent() {
     navigate({
       to: '/projects/$projectName/sessions/$sessionId',
       params: { projectName, sessionId },
-      search: { projectSearch, sessionSearch, sortBy: urlSortBy }
+      search: { projectSearch, sessionSearch }
     });
   };
 
@@ -101,10 +99,6 @@ function SessionsListComponent() {
   const handleLabelToggle = (sessionId: string, labelId: string) => {
     if (!projectName) return;
     toggleLabel({ projectName, sessionId, data: { labelId } });
-  };
-
-  const handleSortByChange = (newSortBy: 'date' | 'token-percentage') => {
-    navigate({ search: (prev) => ({ ...prev, sortBy: newSortBy }) });
   };
 
   return (
@@ -129,7 +123,6 @@ function SessionsListComponent() {
           onLabelToggle={handleLabelToggle}
           projectId={projectName}
           isGitRepo={selectedProjectData?.isGitRepo}
-          onSortByChange={handleSortByChange}
         />
       }
     >

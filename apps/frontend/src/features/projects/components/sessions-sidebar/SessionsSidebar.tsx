@@ -27,7 +27,6 @@ type SessionsSidebarProps = {
   onLabelToggle?: (sessionId: string, labelId: string) => void;
   projectId: string;
   isGitRepo?: boolean;
-  onSortByChange?: (sortBy: 'date' | 'token-percentage') => void;
 };
 
 export const SessionsSidebar = ({

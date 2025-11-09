@@ -31,7 +31,6 @@ type SessionDetailSearchParams = {
   imageIndex?: number;
   folderPath?: string;
   filePath?: string;
-  sortBy?: 'date' | 'token-percentage';
 };
 
 export const Route = createFileRoute('/projects/$projectName/sessions/$sessionId')({
@@ -41,8 +40,7 @@ export const Route = createFileRoute('/projects/$projectName/sessions/$sessionId
     sessionSearch: (search.sessionSearch as string) || undefined,
     imageIndex: (search.imageIndex as number) || undefined,
     folderPath: (search.folderPath as string) || undefined,
-    filePath: (search.filePath as string) || undefined,
-    sortBy: (search.sortBy as 'date' | 'token-percentage') || undefined
+    filePath: (search.filePath as string) || undefined
   }),
   loader: ({ params }) => {
     queryClient.ensureQueryData(
@@ -58,8 +56,7 @@ function SessionDetailComponent() {
     sessionSearch,
     imageIndex,
     folderPath: urlFolderPath,
-    filePath: urlFilePath,
-    sortBy: urlSortBy
+    filePath: urlFilePath
   } = Route.useSearch();
   const navigate = Route.useNavigate();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
@@ -243,7 +240,7 @@ function SessionDetailComponent() {
     navigate({
       to: '/projects/$projectName',
       params: { projectName },
-      search: { projectSearch, sessionSearch, sortBy: urlSortBy }
+      search: { projectSearch, sessionSearch }
     });
   };
 
@@ -251,16 +248,12 @@ function SessionDetailComponent() {
     navigate({
       to: '/projects/$projectName/sessions/$sessionId',
       params: { projectName, sessionId: newSessionId },
-      search: { projectSearch, sessionSearch, sortBy: urlSortBy }
+      search: { projectSearch, sessionSearch }
     });
   };
 
   const handleSearchChange = (value: string) => {
     updateSearch({ sessionSearch: value || undefined });
-  };
-
-  const handleSortByChange = (newSortBy: 'date' | 'token-percentage') => {
-    updateSearch({ sortBy: newSortBy });
   };
 
   const renderConfirmDialog = () => (
@@ -385,7 +378,6 @@ function SessionDetailComponent() {
             onLabelToggle={handleLabelToggle}
             projectId={selectedProjectData?.id || projectName}
             isGitRepo={selectedProjectData?.isGitRepo}
-            onSortByChange={handleSortByChange}
           />
         }
       >
