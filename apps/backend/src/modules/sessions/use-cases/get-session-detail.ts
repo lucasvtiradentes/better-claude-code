@@ -4,7 +4,7 @@ import { MessageSource } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
-import { extractTextContent } from '../utils.js';
+import { parseSessionMessages } from '../services/session-parser.js';
 
 const paramsSchema = z.object({
   projectName: z.string(),
@@ -56,53 +56,6 @@ export const route = createRoute({
   responses: ResponseSchemas
 });
 
-function cleanCommandMessage(content: string): string {
-  const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
-  if (!commandMatch) return content;
-
-  const commandName = commandMatch[1];
-  const argsMatch = content.match(/<command-args>([^<]+)<\/command-args>/);
-  const args = argsMatch ? ` ${argsMatch[1]}` : '';
-
-  let cleaned = content.replace(/<command-message>[^<]*<\/command-message>/g, '').trim();
-  cleaned = cleaned.replace(/<command-name>\/?[^<]+<\/command-name>/g, `/${commandName}${args}`).trim();
-  cleaned = cleaned.replace(/<command-args>[^<]+<\/command-args>/g, '').trim();
-
-  return cleaned;
-}
-
-function cleanUserMessage(content: string): string[] {
-  const parts = content.split('---').map((p) => p.trim());
-  const cleanedParts: string[] = [];
-
-  for (const part of parts) {
-    if (!part) continue;
-    if (part === 'Warmup') continue;
-
-    const firstLine = part.split('\n')[0].replace(/\\/g, '').replace(/\s+/g, ' ').trim();
-
-    if (firstLine.includes('Caveat:')) continue;
-
-    const commandMatch = firstLine.match(/<command-name>\/?([^<]+)<\/command-name>/);
-    if (commandMatch) {
-      const commandName = commandMatch[1];
-      if (commandName === 'clear') continue;
-    }
-
-    const isSystemMessage =
-      firstLine.startsWith('<local-command-') ||
-      firstLine.startsWith('[Tool:') ||
-      firstLine.startsWith('[Request interrupted');
-
-    if (isSystemMessage) continue;
-
-    const cleaned = cleanCommandMessage(part);
-    cleanedParts.push(cleaned);
-  }
-
-  return cleanedParts;
-}
-
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const { projectName, sessionId } = c.req.valid('param');
@@ -112,72 +65,12 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const lines = content.trim().split('\n').filter(Boolean);
     const events = lines.map((line) => JSON.parse(line));
 
-    const messages: Array<{ type: MessageSource; content: string; timestamp?: number }> = [];
+    const { messages, images } = parseSessionMessages(events, {
+      groupMessages: true,
+      includeImages: true
+    });
 
-    let skipNextAssistant = false;
-
-    for (const event of events) {
-      if (ClaudeHelper.isUserMessage(event.type)) {
-        const textContent = extractTextContent(event.message?.content || event.content);
-        if (textContent === 'Warmup') {
-          skipNextAssistant = true;
-          continue;
-        }
-        if (textContent) {
-          const cleanedParts = cleanUserMessage(textContent);
-          for (const part of cleanedParts) {
-            messages.push({
-              type: event.type,
-              content: part,
-              timestamp: event.timestamp
-            });
-          }
-        }
-      } else if (ClaudeHelper.isCCMessage(event.type)) {
-        if (skipNextAssistant) {
-          skipNextAssistant = false;
-          continue;
-        }
-        const textContent = extractTextContent(event.message?.content || event.content);
-        if (textContent && textContent !== 'Warmup') {
-          messages.push({
-            type: event.type,
-            content: textContent,
-            timestamp: event.timestamp
-          });
-        }
-      }
-    }
-
-    const groupedMessages: Array<{ type: MessageSource; content: string; timestamp?: number }> = [];
-    for (const msg of messages) {
-      const lastMsg = groupedMessages[groupedMessages.length - 1];
-      if (lastMsg && lastMsg.type === msg.type) {
-        lastMsg.content = `${lastMsg.content}\n---\n${msg.content}`;
-      } else {
-        groupedMessages.push({ ...msg });
-      }
-    }
-
-    const filteredMessages = groupedMessages.filter((msg) => msg.content.trim().length > 0);
-
-    const images: Array<{ index: number; data: string }> = [];
-    try {
-      for (const event of events) {
-        if (ClaudeHelper.isUserMessage(event.type) && Array.isArray(event.message?.content)) {
-          for (const item of event.message.content) {
-            if (item.type === 'image') {
-              const imageData = item.source?.type === 'base64' ? item.source.data : null;
-              if (imageData) {
-                images.push({ index: images.length + 1, data: imageData });
-              }
-            }
-          }
-        }
-      }
-    } catch {}
-
-    return c.json({ messages: filteredMessages, images } satisfies z.infer<typeof responseSchema>, 200);
+    return c.json({ messages, images } satisfies z.infer<typeof responseSchema>, 200);
   } catch {
     return c.json({ error: 'Failed to read session' } satisfies z.infer<typeof ErrorSchema>, 500);
   }

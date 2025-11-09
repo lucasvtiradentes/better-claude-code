@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from 'fs';
 import type { SSEStreamingApi } from 'hono/streaming';
 import { homedir } from 'os';
 import { join } from 'path';
+import { parseSessionMessages } from '../../sessions/services/session-parser.js';
 import { sessionManager } from '../session-manager';
 import { type LiveSessionEvent, SessionStatus } from '../types';
 
@@ -131,66 +132,19 @@ export async function startStream(
       const lines = fileContent.trim().split('\n');
       console.log(`[Claude CLI] Found ${lines.length} lines in session file`);
 
-      const CLAUDE_CODE_COMMANDS = ['clear', 'ide', 'model', 'compact', 'init'];
+      const events = lines.map((line) => JSON.parse(line));
+      const { messages } = parseSessionMessages(events, {
+        groupMessages: false,
+        includeImages: false
+      });
 
-      const isValidUserMessage = (content: string): boolean => {
-        if (!content || content === 'Warmup') {
-          return false;
-        }
-
-        const firstLine = content.split('\n')[0].replace(/\\/g, '').replace(/\s+/g, ' ').trim();
-
-        if (firstLine.includes('Caveat:')) {
-          return false;
-        }
-
-        const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
-        if (commandMatch) {
-          const commandName = commandMatch[1];
-          if (CLAUDE_CODE_COMMANDS.includes(commandName)) {
-            return false;
-          }
-        }
-
-        const isSystemMessage =
-          firstLine.startsWith('<local-command-') ||
-          firstLine.startsWith('[Tool:') ||
-          firstLine.startsWith('[Request interrupted');
-
-        return !isSystemMessage;
-      };
-
-      for (const line of lines) {
-        try {
-          const event = JSON.parse(line);
-          if (event.type === 'user' && event.message?.content) {
-            const text = typeof event.message.content === 'string'
-              ? event.message.content
-              : event.message.content.map((c: any) => c.text || '').join('');
-            if (text && isValidUserMessage(text)) {
-              historyMessages.push({
-                id: event.uuid || randomUUID(),
-                role: 'user',
-                content: text,
-                timestamp: new Date(event.timestamp)
-              });
-            }
-          } else if (event.type === 'assistant' && event.message?.content) {
-            const text = typeof event.message.content === 'string'
-              ? event.message.content
-              : event.message.content.map((c: any) => c.text || '').join('');
-            if (text) {
-              historyMessages.push({
-                id: event.uuid || randomUUID(),
-                role: 'assistant',
-                content: text,
-                timestamp: new Date(event.timestamp)
-              });
-            }
-          }
-        } catch (e) {
-          console.error('[Claude CLI] Failed to parse JSONL line:', e);
-        }
+      for (const msg of messages) {
+        historyMessages.push({
+          id: randomUUID(),
+          role: msg.type === 'user' ? 'user' : 'assistant',
+          content: msg.content,
+          timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
+        });
       }
 
       console.log(`[Claude CLI] Loaded ${historyMessages.length} messages from session file`);

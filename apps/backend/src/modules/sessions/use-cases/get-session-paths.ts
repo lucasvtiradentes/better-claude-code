@@ -4,7 +4,8 @@ import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
-import { extractPathsFromText, extractTextContent, getRealPathFromSession } from '../utils.js';
+import { extractTextContent } from '../services/session-parser.js';
+import { extractPathsFromText, getRealPathFromSession } from '../utils.js';
 
 const paramsSchema = z.object({
   projectName: z.string(),
