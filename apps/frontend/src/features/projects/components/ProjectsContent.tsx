@@ -127,19 +127,14 @@ export function ProjectsContent({
           }
 
           return groupedMessages.map((group) => {
-            const hasSearchMatch = group.messages.some((_, idx) =>
-              searchMatches.includes(group.startIndex + idx)
-            );
+            const hasSearchMatch = group.messages.some((_, idx) => searchMatches.includes(group.startIndex + idx));
 
             const groupKey = group.messages[0].timestamp
               ? `${group.messages[0].type}-${group.messages[0].timestamp}`
               : `${group.messages[0].type}-${group.startIndex}`;
 
             return (
-              <div
-                key={groupKey}
-                data-message-index={group.startIndex}
-              >
+              <div key={groupKey} data-message-index={group.startIndex}>
                 <SessionMessage
                   messages={group.messages}
                   imageOffset={0}

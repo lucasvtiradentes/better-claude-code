@@ -33,7 +33,6 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
   const connectedSessionRef = useRef<string | null>(null);
 
   const cleanup = useCallback(() => {
-    console.log('[cleanup] Closing EventSource');
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
       eventSourceRef.current = null;
@@ -55,12 +54,10 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
 
   const connectStream = useCallback(async () => {
     if (eventSourceRef.current) {
-      console.log('[connectStream] Stream already exists, skipping');
       return;
     }
 
     if (isConnectingRef.current) {
-      console.log('[connectStream] Already connecting, skipping duplicate connection attempt');
       return;
     }
 
@@ -79,7 +76,6 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
 
     const url = `/api/live-sessions/${sessionId}/stream?projectPath=${encodeURIComponent(projectPath)}`;
     const es = new EventSource(url);
-    console.log('[connectStream] Connecting to stream:', url);
 
     es.addEventListener('message', (e) => {
       try {
@@ -164,7 +160,6 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
         const event = JSON.parse(e.data);
 
         if (event.type === 'history') {
-          console.log('Received message history:', event.messages);
           setMessages(
             event.messages.map((msg: any) => ({
               ...msg,
@@ -177,8 +172,7 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
       }
     });
 
-    es.addEventListener('complete', (e) => {
-      console.log('[connectStream] Complete event received:', e.data);
+    es.addEventListener('complete', (_e) => {
       setStatus('completed');
       cleanup();
     });
@@ -204,7 +198,6 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
     eventSourceRef.current = es;
     connectedSessionRef.current = sessionId;
     isConnectingRef.current = false;
-    console.log('[connectStream] Connection established for session:', sessionId);
   }, [sessionId, projectPath, cleanup, initializeSession]);
 
   const sendMessage = useCallback(
@@ -232,8 +225,6 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
       currentMessageRef.current = '';
 
       try {
-        console.log('[sendMessage] Sending to sessionId:', sessionId);
-
         const response = await fetch(`/api/live-sessions/${sessionId}/messages`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -250,23 +241,16 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
         const data = await response.json();
 
         if (sessionId === 'new' && data.pending && data.tempSessionId) {
-          console.log('[sendMessage] First message queued, temp session:', data.tempSessionId);
-
           if (!eventSourceRef.current) {
-            console.log('[sendMessage] Connecting to temp session stream');
             setIsNavigating(true);
             const url = `/api/live-sessions/${data.tempSessionId}/stream?projectPath=${encodeURIComponent(projectPath)}`;
             const es = new EventSource(url);
-            console.log('[sendMessage] Stream connected to:', url);
 
             es.addEventListener('init', (e) => {
               try {
                 const event = JSON.parse(e.data);
 
                 if (event.type === 'session-init' && event.sessionId) {
-                  console.log('[sendMessage] Init received, Claude session:', event.sessionId);
-
-                  console.log('[sendMessage] Keeping temp stream alive, navigating to:', event.sessionId);
                   preventCleanupRef.current = true;
                   navigate({
                     to: '/live/$sessionId',
@@ -321,7 +305,6 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
               try {
                 const event = JSON.parse(e.data);
                 if (event.type === 'history') {
-                  console.log('Received message history:', event.messages);
                   setMessages(
                     event.messages.map((msg: any) => ({
                       ...msg,
@@ -381,64 +364,32 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
   );
 
   useEffect(() => {
-    console.log(
-      '[useClaudeStream] useEffect triggered - sessionId:',
-      sessionId,
-      'enabled:',
-      enabled,
-      'projectPath:',
-      projectPath,
-      'hasEventSource:',
-      !!eventSourceRef.current,
-      'connectedSession:',
-      connectedSessionRef.current,
-      'preventCleanup:',
-      preventCleanupRef.current
-    );
-
     if (!enabled || !sessionId || !projectPath || sessionId === 'placeholder' || projectPath === 'placeholder') {
-      console.log('[useClaudeStream] Stream disabled or missing required params, skipping connection');
       return;
     }
 
     if (connectedSessionRef.current === sessionId && eventSourceRef.current) {
-      console.log('[useClaudeStream] Already connected to this session, skipping reconnection');
       return;
     }
 
     if (sessionId !== 'new' && !eventSourceRef.current) {
-      console.log('[useClaudeStream] Connecting stream for session:', sessionId);
       connectStream();
       setIsNavigating(false);
     } else if (sessionId !== 'new' && eventSourceRef.current) {
-      console.log('[useClaudeStream] Stream already connected, skipping reconnection');
       setIsNavigating(false);
     } else {
-      console.log('[useClaudeStream] Skipping stream connection for new session - will connect after POST message');
     }
 
     return () => {
-      console.log(
-        '[useClaudeStream] Cleanup triggered for sessionId:',
-        sessionId,
-        'connectedSession:',
-        connectedSessionRef.current,
-        'preventCleanup:',
-        preventCleanupRef.current
-      );
-
       if (preventCleanupRef.current) {
-        console.log('[useClaudeStream] Skipping cleanup due to preventCleanup flag');
         preventCleanupRef.current = false;
         return;
       }
 
       if (connectedSessionRef.current !== sessionId) {
-        console.log('[useClaudeStream] SessionId will change, calling cleanup()');
         cleanup();
         connectedSessionRef.current = null;
       } else {
-        console.log('[useClaudeStream] Staying on same session, skipping cleanup');
       }
     };
   }, [sessionId, enabled, projectPath, connectStream, cleanup]);

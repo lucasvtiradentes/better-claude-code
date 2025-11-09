@@ -15,7 +15,6 @@ class SessionManager extends EventEmitter {
 
     const existingSession = this.sessions.get(id);
     if (existingSession) {
-      console.log(`[SessionManager] Session ${id} already exists in memory, reusing`);
       return id;
     }
 
@@ -29,7 +28,6 @@ class SessionManager extends EventEmitter {
     };
 
     this.sessions.set(id, session as LiveSessionProcess);
-    console.log(`[SessionManager] Created new in-memory session ${id}`);
     return id;
   }
 
@@ -92,7 +90,6 @@ class SessionManager extends EventEmitter {
         content: message.content,
         timestamp: new Date()
       });
-      console.log(`[SessionManager] Added ${message.role} message to in-memory session ${sessionId}`);
     }
   }
 

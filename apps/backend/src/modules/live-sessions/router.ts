@@ -163,15 +163,12 @@ liveSessionsRouter.openapi(sendMessageRoute, async (c) => {
       return c.json({ error: 'projectPath required for new sessions' }, 400);
     }
 
-    console.log('[Router] Creating temp session for first message');
     const tempSessionId = sessionManager.createSession(projectPath);
     sessionManager.addMessage(tempSessionId, { role: 'user', content: message });
 
-    console.log(`[Router] Temp session created: ${tempSessionId}, message queued`);
     return c.json({ success: true, pending: true, tempSessionId }, 200);
   }
 
-  console.log(`[Router] Sending message to session ${sessionId}`);
   const result = sendMessage(sessionId, message, projectPath);
 
   if (!result.success) {
