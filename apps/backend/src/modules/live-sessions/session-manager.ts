@@ -83,7 +83,13 @@ class SessionManager extends EventEmitter {
 
   addMessage(
     sessionId: string,
-    message: { id?: string; role: 'user' | 'assistant'; content: string; timestamp?: Date }
+    message: {
+      id?: string;
+      role: 'user' | 'assistant';
+      content: string;
+      timestamp?: Date;
+      imagePaths?: string[];
+    }
   ): void {
     const session = this.sessions.get(sessionId);
     if (session) {
@@ -91,7 +97,8 @@ class SessionManager extends EventEmitter {
         id: message.id || generateUuid(),
         role: message.role,
         content: message.content,
-        timestamp: message.timestamp || new Date()
+        timestamp: message.timestamp || new Date(),
+        imagePaths: message.imagePaths
       });
     }
   }

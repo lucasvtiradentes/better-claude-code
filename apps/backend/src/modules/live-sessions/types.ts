@@ -1,10 +1,11 @@
 import type { ChildProcess } from 'child_process';
 
 export type Message = {
-  id: string;
+  id?: string;
   role: 'user' | 'assistant';
   content: string;
-  timestamp: Date;
+  timestamp?: Date;
+  imagePaths?: string[];
 };
 
 export type LiveSessionProcess = {

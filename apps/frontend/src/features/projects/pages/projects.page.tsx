@@ -82,6 +82,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
 
   const {
     messages: liveMessages,
+    images: liveImages,
     status: streamStatus,
     sendMessage
   } = useClaudeStream(
@@ -281,6 +282,18 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   } else if (sessionLoading || !sessionData) {
     content = <EmptyState message="Loading session..." />;
   } else {
+    const mergedSessionData = {
+      ...sessionData,
+      images: [
+        ...(sessionData.images || []),
+        ...liveImages.map((img) => ({
+          index: img.index,
+          data: img.data,
+          messageId: img.messageId
+        }))
+      ]
+    };
+
     content = (
       <ProjectsContent
         contentRef={contentRef}
@@ -295,7 +308,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
         folderModalPath={folderModalPath}
         selectedProject={selectedProject}
         sessionId={sessionId}
-        sessionData={sessionData}
+        sessionData={mergedSessionData}
         onNextMatch={handleNextMatch}
         onPreviousMatch={handlePreviousMatch}
         onCloseSearch={() => updateSearch({ search: undefined })}

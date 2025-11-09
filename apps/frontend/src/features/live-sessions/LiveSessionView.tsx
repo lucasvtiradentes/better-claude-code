@@ -17,11 +17,13 @@ export const LiveSessionView = ({ sessionId, projectPath, projectName }: LiveSes
   const navigate = useNavigate();
   const [showPermissionModal, setShowPermissionModal] = useState(false);
 
-  const { messages, status, error, pendingPermissions, toolCalls, sendMessage, cancel, approvePermissions } =
+  const { messages, images, status, error, pendingPermissions, toolCalls, sendMessage, cancel, approvePermissions } =
     useClaudeStream(sessionId, projectPath, projectName, true);
 
-  const handleSendMessage = (message: string) => {
-    sendMessage(message);
+  console.log('[LiveSessionView] Images state:', images);
+
+  const handleSendMessage = (message: string, imagePaths?: string[]) => {
+    sendMessage(message, imagePaths);
   };
 
   const handleCancel = async () => {
@@ -76,7 +78,7 @@ export const LiveSessionView = ({ sessionId, projectPath, projectName }: LiveSes
         </div>
       </div>
 
-      <LiveMessageList messages={messages} toolCalls={toolCalls} status={status} />
+      <LiveMessageList messages={messages} images={images} toolCalls={toolCalls} status={status} />
 
       {error && (
         <div className="border-t bg-destructive/10 p-3 text-sm text-destructive">

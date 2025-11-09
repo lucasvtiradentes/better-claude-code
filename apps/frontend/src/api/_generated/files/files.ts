@@ -29,9 +29,18 @@ import type {
   GetApiFiles400,
   GetApiFiles404,
   GetApiFiles500,
+  GetApiFilesImage200,
+  GetApiFilesImage400,
+  GetApiFilesImage404,
+  GetApiFilesImage500,
+  GetApiFilesImageParams,
   GetApiFilesList200,
   GetApiFilesList500,
   GetApiFilesParams,
+  PostApiFilesClipboardImage200,
+  PostApiFilesClipboardImage400,
+  PostApiFilesClipboardImage500,
+  PostApiFilesClipboardImageBody,
   PutApiFiles200,
   PutApiFiles400,
   PutApiFiles404,
@@ -272,6 +281,151 @@ const {mutation: mutationOptions} = options ?
       > => {
 
       const mutationOptions = getPutApiFilesMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const getApiFilesImage = (
+    params: GetApiFilesImageParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<GetApiFilesImage200>(
+      {url: `/api/files/image`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getGetApiFilesImageQueryKey = (params?: GetApiFilesImageParams,) => {
+    return [
+    `/api/files/image`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetApiFilesImageQueryOptions = <TData = Awaited<ReturnType<typeof getApiFilesImage>>, TError = ErrorType<GetApiFilesImage400 | GetApiFilesImage404 | GetApiFilesImage500>>(params: GetApiFilesImageParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilesImage>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiFilesImageQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFilesImage>>> = ({ signal }) => getApiFilesImage(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiFilesImage>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiFilesImageQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFilesImage>>>
+export type GetApiFilesImageQueryError = ErrorType<GetApiFilesImage400 | GetApiFilesImage404 | GetApiFilesImage500>
+
+
+export function useGetApiFilesImage<TData = Awaited<ReturnType<typeof getApiFilesImage>>, TError = ErrorType<GetApiFilesImage400 | GetApiFilesImage404 | GetApiFilesImage500>>(
+ params: GetApiFilesImageParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilesImage>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiFilesImage>>,
+          TError,
+          Awaited<ReturnType<typeof getApiFilesImage>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiFilesImage<TData = Awaited<ReturnType<typeof getApiFilesImage>>, TError = ErrorType<GetApiFilesImage400 | GetApiFilesImage404 | GetApiFilesImage500>>(
+ params: GetApiFilesImageParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilesImage>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiFilesImage>>,
+          TError,
+          Awaited<ReturnType<typeof getApiFilesImage>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiFilesImage<TData = Awaited<ReturnType<typeof getApiFilesImage>>, TError = ErrorType<GetApiFilesImage400 | GetApiFilesImage404 | GetApiFilesImage500>>(
+ params: GetApiFilesImageParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilesImage>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiFilesImage<TData = Awaited<ReturnType<typeof getApiFilesImage>>, TError = ErrorType<GetApiFilesImage400 | GetApiFilesImage404 | GetApiFilesImage500>>(
+ params: GetApiFilesImageParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilesImage>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiFilesImageQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+export const postApiFilesClipboardImage = (
+    postApiFilesClipboardImageBody: PostApiFilesClipboardImageBody,
+ signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PostApiFilesClipboardImage200>(
+      {url: `/api/files/clipboard-image`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiFilesClipboardImageBody, signal
+    },
+      );
+    }
+  
+
+
+export const getPostApiFilesClipboardImageMutationOptions = <TError = ErrorType<PostApiFilesClipboardImage400 | PostApiFilesClipboardImage500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFilesClipboardImage>>, TError,{data: PostApiFilesClipboardImageBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiFilesClipboardImage>>, TError,{data: PostApiFilesClipboardImageBody}, TContext> => {
+
+const mutationKey = ['postApiFilesClipboardImage'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFilesClipboardImage>>, {data: PostApiFilesClipboardImageBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiFilesClipboardImage(data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiFilesClipboardImageMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFilesClipboardImage>>>
+    export type PostApiFilesClipboardImageMutationBody = PostApiFilesClipboardImageBody
+    export type PostApiFilesClipboardImageMutationError = ErrorType<PostApiFilesClipboardImage400 | PostApiFilesClipboardImage500>
+
+    export const usePostApiFilesClipboardImage = <TError = ErrorType<PostApiFilesClipboardImage400 | PostApiFilesClipboardImage500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFilesClipboardImage>>, TError,{data: PostApiFilesClipboardImageBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiFilesClipboardImage>>,
+        TError,
+        {data: PostApiFilesClipboardImageBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiFilesClipboardImageMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

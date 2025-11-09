@@ -157,7 +157,7 @@ const sendMessageRoute = createRoute({
 
 liveSessionsRouter.openapi(sendMessageRoute, async (c) => {
   const { sessionId } = c.req.valid('param');
-  const { message, projectPath } = c.req.valid('json');
+  const { message, imagePaths, projectPath } = c.req.valid('json');
 
   if (sessionId === 'new') {
     if (!projectPath) {
@@ -166,12 +166,12 @@ liveSessionsRouter.openapi(sendMessageRoute, async (c) => {
 
     const tempSessionId = sessionManager.createSession(projectPath);
     const messageId = generateUuid();
-    sessionManager.addMessage(tempSessionId, { id: messageId, role: 'user', content: message });
+    sessionManager.addMessage(tempSessionId, { id: messageId, role: 'user', content: message, imagePaths });
 
     return c.json({ success: true, pending: true, tempSessionId }, 200);
   }
 
-  const result = sendMessage(sessionId, message, projectPath);
+  const result = sendMessage(sessionId, message, imagePaths, projectPath);
 
   if (!result.success) {
     console.error(`[Router] Failed to send message to ${sessionId}:`, result.error);
