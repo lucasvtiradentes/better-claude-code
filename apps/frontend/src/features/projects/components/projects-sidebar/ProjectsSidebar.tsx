@@ -7,8 +7,9 @@ import {
   TIME_GROUP_ORDER
 } from '@better-claude-code/shared';
 import { useMemo } from 'react';
-import { useGetApiSettings, usePatchApiSettingsProjectsProjectId } from '@/api';
+import { usePatchApiSettingsProjectsProjectId } from '@/api';
 import type { GetApiProjects200Item } from '@/api/_generated/schemas';
+import { useSettingsStore } from '@/stores/settings-store';
 import { GroupCardItems } from '@/components/GroupCardItems';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
 import { useProjectsStore } from '@/features/projects/stores/projects-store';
@@ -24,7 +25,7 @@ type ProjectsSidebarProps = {
 
 export const ProjectsSidebar = ({ projects, isLoading, error, onSelectProject }: ProjectsSidebarProps) => {
   const { search } = useProjectsStore();
-  const { data: settingsData } = useGetApiSettings();
+  const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: updateLabels } = usePatchApiSettingsProjectsProjectId();
 
   const settings = settingsData?.projects;

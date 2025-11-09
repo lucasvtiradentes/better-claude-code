@@ -1,7 +1,7 @@
 import { FolderEntry } from '@better-claude-code/shared';
 import { MoreHorizontal, Search, Tag, Trash2 } from 'lucide-react';
-import { useGetApiSettings } from '@/api';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
+import { useSettingsStore } from '@/stores/settings-store';
 import { IconWithBadge } from '@/components/IconWithBadge';
 import {
   DropdownMenu,
@@ -49,8 +49,7 @@ export const SessionCard = ({
   onDelete,
   onLabelToggle
 }: SessionCardProps) => {
-  const { data: settingsData } = useGetApiSettings();
-
+  const settingsData = useSettingsStore((state) => state.settings);
   const settings = settingsData?.sessions;
 
   const titleParts = parseTitle(session.title);

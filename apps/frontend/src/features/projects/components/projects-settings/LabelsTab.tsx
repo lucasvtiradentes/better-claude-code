@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   useDeleteApiSettingsLabelsLabelId,
-  useGetApiSettings,
   usePatchApiSettingsLabelsLabelId,
   usePostApiSettingsLabels
 } from '@/api';
+import { useSettingsStore } from '@/stores/settings-store';
 import type { GetApiSettings200ProjectsLabelsItem } from '@/api/_generated/schemas';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
@@ -18,7 +18,7 @@ type LabelFormData = {
 };
 
 export const LabelsTab = () => {
-  const { data: settingsData } = useGetApiSettings();
+  const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: addLabel } = usePostApiSettingsLabels();
   const { mutate: updateLabel } = usePatchApiSettingsLabelsLabelId();
   const { mutate: deleteLabel } = useDeleteApiSettingsLabelsLabelId();

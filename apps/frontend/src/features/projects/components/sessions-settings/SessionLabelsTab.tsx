@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   useDeleteApiSettingsSessionsLabelsLabelId,
-  useGetApiSettings,
   usePatchApiSettingsSessionsLabelsLabelId,
   usePostApiSettingsSessionsLabels
 } from '@/api';
+import { useSettingsStore } from '@/stores/settings-store';
 import type { GetApiSettings200SessionsLabelsItem } from '@/api/_generated/schemas';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
@@ -18,7 +18,7 @@ type LabelFormData = {
 };
 
 export const SessionLabelsTab = () => {
-  const { data: settingsData } = useGetApiSettings();
+  const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: addLabel } = usePostApiSettingsSessionsLabels();
   const { mutate: updateLabel } = usePatchApiSettingsSessionsLabelsLabelId();
   const { mutate: deleteLabel } = useDeleteApiSettingsSessionsLabelsLabelId();

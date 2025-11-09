@@ -1,8 +1,9 @@
 import { ProjectAction } from '@better-claude-code/shared';
 import { Code, FolderOpen, Github, MessageSquare, MoreHorizontal, Tag, Terminal } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
-import { useGetApiSettings, usePostApiProjectsProjectIdActionAction } from '@/api';
+import { usePostApiProjectsProjectIdActionAction } from '@/api';
 import type { GetApiProjects200Item } from '@/api/_generated/schemas';
+import { useSettingsStore } from '@/stores/settings-store';
 import { IconWithBadge } from '@/components/IconWithBadge';
 import {
   DropdownMenu,
@@ -40,7 +41,7 @@ export const ProjectCard = ({
   },
   onLabelToggle
 }: ProjectCardProps) => {
-  const { data: settingsData } = useGetApiSettings();
+  const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: executeAction } = usePostApiProjectsProjectIdActionAction();
 
   const settings = settingsData?.projects;

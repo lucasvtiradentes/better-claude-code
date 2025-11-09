@@ -8,8 +8,8 @@ import {
 } from '@better-claude-code/shared';
 import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useGetApiSettings } from '@/api';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
+import { useSettingsStore } from '@/stores/settings-store';
 import { GroupCardItems } from '@/components/GroupCardItems';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
 import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
@@ -61,7 +61,7 @@ export const SessionsSidebar = ({
 }: SessionsSidebarProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { data: settingsData } = useGetApiSettings();
+  const settingsData = useSettingsStore((state) => state.settings);
   const [showSettings, setShowSettings] = useState(false);
 
   const settings = settingsData?.sessions;

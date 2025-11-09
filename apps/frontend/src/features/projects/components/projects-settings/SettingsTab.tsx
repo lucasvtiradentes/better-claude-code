@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useGetApiSettings, usePatchApiSettings } from '@/api';
+import { usePatchApiSettings } from '@/api';
 import type { GetApiSettings200Projects } from '@/api/_generated/schemas';
+import { useSettingsStore } from '@/stores/settings-store';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,7 +15,7 @@ type SettingsFormData = {
 };
 
 export const SettingsTab = () => {
-  const { data: settingsData } = useGetApiSettings();
+  const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: updateSettings } = usePatchApiSettings();
 
   const settings = settingsData?.projects;
