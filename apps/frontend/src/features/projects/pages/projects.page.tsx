@@ -7,7 +7,6 @@ import {
   useDeleteApiSessionsProjectNameSessionId,
   useGetApiProjects,
   useGetApiSessionsProjectNameSessionId,
-  useGetApiSessionsProjectNameSessionIdPaths,
   useInfinitySessions,
   usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
@@ -73,11 +72,6 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   } = useGetApiSessionsProjectNameSessionId(selectedProject || '', sessionId || '', {
     query: { enabled: !!(selectedProject && sessionId) }
   });
-  const { data: pathValidation, isLoading: pathValidationLoading } = useGetApiSessionsProjectNameSessionIdPaths(
-    selectedProject || '',
-    sessionId || '',
-    { query: { enabled: !!(selectedProject && sessionId) } }
-  );
 
   const sessions = sessionsData?.pages.flatMap((page) => page.items) || [];
   const totalSessions = sessionsData?.pages[0]?.meta.totalItems || 0;
@@ -279,7 +273,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   let content: ReactNode;
   if (sessionError) {
     content = <EmptyState message="Failed to load session" isError />;
-  } else if (sessionLoading || !sessionData || pathValidationLoading) {
+  } else if (sessionLoading || !sessionData) {
     content = <EmptyState message="Loading session..." />;
   } else {
     content = (
@@ -287,7 +281,7 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
         contentRef={contentRef}
         currentSession={currentSession}
         filteredMessages={filteredMessages}
-        pathValidation={pathValidation}
+        pathValidation={sessionData.paths}
         searchQuery={searchQuery}
         searchMatches={searchMatches}
         searchMatchIndex={searchMatchIndex}

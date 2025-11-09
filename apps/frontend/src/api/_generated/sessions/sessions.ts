@@ -46,9 +46,6 @@ import type {
   GetApiSessionsProjectNameSessionIdFolderParams,
   GetApiSessionsProjectNameSessionIdImages200Item,
   GetApiSessionsProjectNameSessionIdImages500,
-  GetApiSessionsProjectNameSessionIdPaths200Item,
-  GetApiSessionsProjectNameSessionIdPaths404,
-  GetApiSessionsProjectNameSessionIdPaths500,
   PostApiSessionsProjectNameSessionIdLabels200,
   PostApiSessionsProjectNameSessionIdLabels400,
   PostApiSessionsProjectNameSessionIdLabels404,
@@ -660,96 +657,4 @@ const {mutation: mutationOptions} = options ?
 
       return useMutation(mutationOptions, queryClient);
     }
-    export const getApiSessionsProjectNameSessionIdPaths = (
-    projectName: string,
-    sessionId: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<GetApiSessionsProjectNameSessionIdPaths200Item[]>(
-      {url: `/api/sessions/${projectName}/${sessionId}/paths`, method: 'GET', signal
-    },
-      );
-    }
-  
-
-
-
-export const getGetApiSessionsProjectNameSessionIdPathsQueryKey = (projectName?: string,
-    sessionId?: string,) => {
-    return [
-    `/api/sessions/${projectName}/${sessionId}/paths`
-    ] as const;
-    }
-
     
-export const getGetApiSessionsProjectNameSessionIdPathsQueryOptions = <TData = Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError = ErrorType<GetApiSessionsProjectNameSessionIdPaths404 | GetApiSessionsProjectNameSessionIdPaths500>>(projectName: string,
-    sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetApiSessionsProjectNameSessionIdPathsQueryKey(projectName,sessionId);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>> = ({ signal }) => getApiSessionsProjectNameSessionIdPaths(projectName,sessionId, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(projectName && sessionId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetApiSessionsProjectNameSessionIdPathsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>>
-export type GetApiSessionsProjectNameSessionIdPathsQueryError = ErrorType<GetApiSessionsProjectNameSessionIdPaths404 | GetApiSessionsProjectNameSessionIdPaths500>
-
-
-export function useGetApiSessionsProjectNameSessionIdPaths<TData = Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError = ErrorType<GetApiSessionsProjectNameSessionIdPaths404 | GetApiSessionsProjectNameSessionIdPaths500>>(
- projectName: string,
-    sessionId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>,
-          TError,
-          Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiSessionsProjectNameSessionIdPaths<TData = Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError = ErrorType<GetApiSessionsProjectNameSessionIdPaths404 | GetApiSessionsProjectNameSessionIdPaths500>>(
- projectName: string,
-    sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>,
-          TError,
-          Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiSessionsProjectNameSessionIdPaths<TData = Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError = ErrorType<GetApiSessionsProjectNameSessionIdPaths404 | GetApiSessionsProjectNameSessionIdPaths500>>(
- projectName: string,
-    sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-
-export function useGetApiSessionsProjectNameSessionIdPaths<TData = Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError = ErrorType<GetApiSessionsProjectNameSessionIdPaths404 | GetApiSessionsProjectNameSessionIdPaths500>>(
- projectName: string,
-    sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSessionsProjectNameSessionIdPaths>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetApiSessionsProjectNameSessionIdPathsQueryOptions(projectName,sessionId,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-

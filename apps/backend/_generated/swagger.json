@@ -1301,11 +1301,30 @@
                           "data"
                         ]
                       }
+                    },
+                    "paths": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "exists": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "path",
+                          "exists"
+                        ]
+                      }
                     }
                   },
                   "required": [
                     "messages",
-                    "images"
+                    "images",
+                    "paths"
                   ]
                 }
               }
@@ -1879,100 +1898,6 @@
           },
           "500": {
             "description": "Failed to toggle label",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "details": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/sessions/{projectName}/{sessionId}/paths": {
-      "get": {
-        "tags": [
-          "Sessions"
-        ],
-        "parameters": [
-          {
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "name": "projectName",
-            "in": "path"
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "name": "sessionId",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns validated paths",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "path": {
-                        "type": "string"
-                      },
-                      "exists": {
-                        "type": "boolean"
-                      }
-                    },
-                    "required": [
-                      "path",
-                      "exists"
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Project path not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "details": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Failed to validate paths",
             "content": {
               "application/json": {
                 "schema": {

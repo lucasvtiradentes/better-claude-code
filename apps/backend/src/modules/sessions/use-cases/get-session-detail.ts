@@ -1,10 +1,12 @@
-import { readFileSync } from 'node:fs';
+import { accessSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { MessageSource } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
-import { parseSessionMessages } from '../services/session-parser.js';
+import { extractTextContent, parseSessionMessages } from '../services/session-parser.js';
+import { extractPathsFromText, getRealPathFromSession } from '../utils.js';
 
 const paramsSchema = z.object({
   projectName: z.string(),
@@ -22,9 +24,15 @@ const ImageSchema = z.object({
   data: z.string()
 });
 
+const PathValidationSchema = z.object({
+  path: z.string(),
+  exists: z.boolean()
+});
+
 const responseSchema = z.object({
   messages: z.array(MessageSchema),
-  images: z.array(ImageSchema)
+  images: z.array(ImageSchema),
+  paths: z.array(PathValidationSchema)
 });
 
 const ResponseSchemas = {
@@ -70,7 +78,46 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       includeImages: true
     });
 
-    return c.json({ messages, images } satisfies z.infer<typeof responseSchema>, 200);
+    const projectPath = ClaudeHelper.getProjectDir(projectName);
+    const realProjectPath = await getRealPathFromSession(projectPath);
+
+    const pathsSet = new Set<string>();
+
+    if (realProjectPath) {
+      for (const line of lines) {
+        try {
+          const parsed = JSON.parse(line);
+          if (ClaudeHelper.isUserMessage(parsed.type)) {
+            const textContent = extractTextContent(parsed.message?.content);
+            const paths = extractPathsFromText(textContent);
+            for (const path of paths) {
+              pathsSet.add(path);
+            }
+          }
+        } catch {}
+      }
+    }
+
+    const paths = await Promise.all(
+      Array.from(pathsSet).map(async (pathStr) => {
+        if (!realProjectPath) {
+          return { path: pathStr, exists: false };
+        }
+        try {
+          const cleanPath = pathStr.startsWith('/') ? pathStr.slice(1) : pathStr;
+          const fullPath = resolve(realProjectPath, cleanPath);
+          if (!fullPath.startsWith(realProjectPath)) {
+            return { path: pathStr, exists: false };
+          }
+          accessSync(fullPath);
+          return { path: pathStr, exists: true };
+        } catch {
+          return { path: pathStr, exists: false };
+        }
+      })
+    );
+
+    return c.json({ messages, images, paths } satisfies z.infer<typeof responseSchema>, 200);
   } catch {
     return c.json({ error: 'Failed to read session' } satisfies z.infer<typeof ErrorSchema>, 500);
   }

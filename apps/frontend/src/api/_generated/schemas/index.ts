@@ -40,6 +40,7 @@ export * from './getApiSessionsProjectNameSessionId200';
 export * from './getApiSessionsProjectNameSessionId200ImagesItem';
 export * from './getApiSessionsProjectNameSessionId200MessagesItem';
 export * from './getApiSessionsProjectNameSessionId200MessagesItemType';
+export * from './getApiSessionsProjectNameSessionId200PathsItem';
 export * from './getApiSessionsProjectNameSessionId500';
 export * from './getApiSessionsProjectNameSessionIdFile200';
 export * from './getApiSessionsProjectNameSessionIdFile400';
