@@ -1,6 +1,3 @@
-import { accessSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema, SuccessSchema } from '../../../common/schemas.js';
@@ -39,6 +36,14 @@ export const route = createRoute({
         }
       }
     },
+    404: {
+      description: 'Label not found',
+      content: {
+        'application/json': {
+          schema: ErrorSchema
+        }
+      }
+    },
     500: {
       description: 'Internal server error',
       content: {
@@ -55,56 +60,31 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const { projectId } = c.req.valid('param');
     const { labelId } = c.req.valid('json');
 
-    const projectsDir = ClaudeHelper.getProjectsDir();
-    const projectPath = join(projectsDir, projectId);
-    const metadataDir = join(projectPath, '.metadata');
-    const metadataFile = join(metadataDir, 'project.json');
-
-    try {
-      accessSync(metadataDir);
-    } catch {
-      mkdirSync(metadataDir, { recursive: true });
-    }
-
-    let metadata: { labels?: string[] } = {};
-    try {
-      const content = readFileSync(metadataFile, 'utf-8');
-      metadata = JSON.parse(content);
-    } catch {
-      metadata = { labels: [] };
-    }
-
-    if (!metadata.labels) {
-      metadata.labels = [];
-    }
-
-    const hasLabel = metadata.labels.includes(labelId);
-    if (hasLabel) {
-      metadata.labels = metadata.labels.filter((id) => id !== labelId);
-    } else {
-      metadata.labels = [labelId];
-    }
-
-    writeFileSync(metadataFile, JSON.stringify(metadata, null, 2));
-
     const settings = await readSettings();
-    const label = settings.projects.labels.find((l) => l.id === labelId);
 
-    if (label) {
+    const targetLabel = settings.projects.labels.find((l) => l.id === labelId);
+    if (!targetLabel) {
+      return c.json({ error: 'Label not found' } satisfies z.infer<typeof ErrorSchema>, 404);
+    }
+
+    if (!targetLabel.projects) {
+      targetLabel.projects = [];
+    }
+
+    const hasLabel = targetLabel.projects.includes(projectId);
+
+    for (const label of settings.projects.labels) {
       if (!label.projects) {
         label.projects = [];
       }
-
-      if (hasLabel) {
-        label.projects = label.projects.filter((id) => id !== projectId);
-      } else {
-        if (!label.projects.includes(projectId)) {
-          label.projects.push(projectId);
-        }
-      }
-
-      await writeSettings(settings);
+      label.projects = label.projects.filter((id) => id !== projectId);
     }
+
+    if (!hasLabel) {
+      targetLabel.projects.push(projectId);
+    }
+
+    await writeSettings(settings);
 
     return c.json({ success: true } satisfies z.infer<typeof responseSchema>, 200);
   } catch {

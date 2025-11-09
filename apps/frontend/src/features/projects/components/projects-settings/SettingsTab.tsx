@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { getGetApiProjectsQueryKey, usePatchApiSettings } from '@/api';
+import { usePatchApiSettings } from '@/api';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { queryClient } from '@/lib/tanstack-query';
 import { useProjectUIStore } from '@/stores/project-ui-store';
 import { useSettingsStore } from '@/stores/settings-store';
 
@@ -44,7 +43,6 @@ export const SettingsTab = () => {
 
   const handleGroupByChange = (value: 'date' | 'label' | 'session-count') => {
     setGroupBy(value);
-    queryClient.invalidateQueries({ queryKey: getGetApiProjectsQueryKey() });
   };
 
   const handleDisplayChange = (field: keyof Omit<SettingsFormData, 'groupBy'>, value: boolean) => {

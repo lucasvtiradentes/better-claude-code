@@ -85,7 +85,8 @@ function SessionDetailComponent() {
     }
   });
 
-  const { data: projects } = useGetApiProjects();
+  const { data: projectsData } = useGetApiProjects();
+  const projects = projectsData && !('groups' in projectsData) ? projectsData : undefined;
 
   const {
     data: groupedData,

@@ -43,7 +43,8 @@ function SessionsListComponent() {
   const groupBy = useProjectSessionUIStore((state) => state.groupBy);
   const hasHydrated = useProjectSessionUIStore((state) => state._hasHydrated);
 
-  const { data: projects } = useGetApiProjects();
+  const { data: projectsData } = useGetApiProjects();
+  const projects = projectsData && !('groups' in projectsData) ? projectsData : undefined;
   const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
     mutation: {
       onSuccess: (_data, variables) => {

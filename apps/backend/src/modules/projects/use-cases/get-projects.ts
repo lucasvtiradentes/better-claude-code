@@ -1,11 +1,23 @@
-import { access, readdir, readFile, stat } from 'node:fs/promises';
+import { access, readdir, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
+import {
+  getTimeGroup,
+  getSessionCountGroup,
+  TIME_GROUP_LABELS,
+  TIME_GROUP_ORDER,
+  SESSION_COUNT_GROUP_LABELS,
+  SESSION_COUNT_GROUP_ORDER
+} from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
 import { extractProjectName, getCurrentBranch, getGitHubUrl, getRealPathFromSession, readSettings } from '../utils.js';
+
+const querySchema = z.object({
+  groupBy: z.enum(['date', 'session-count', 'label']).optional()
+});
 
 const ProjectSchema = z.object({
   id: z.string(),
@@ -20,13 +32,29 @@ const ProjectSchema = z.object({
   hidden: z.boolean()
 });
 
-const responseSchema = z.array(ProjectSchema);
+const GroupSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  color: z.string().nullable().optional(),
+  items: z.array(ProjectSchema),
+  totalItems: z.number()
+});
+
+const ungroupedResponseSchema = z.array(ProjectSchema);
+
+const groupedResponseSchema = z.object({
+  groups: z.array(GroupSchema),
+  meta: z.object({
+    totalItems: z.number(),
+    totalGroups: z.number()
+  })
+});
 
 const ResponseSchemas = {
   200: {
     content: {
       'application/json': {
-        schema: responseSchema
+        schema: z.union([ungroupedResponseSchema, groupedResponseSchema])
       }
     },
     description: 'Returns all projects'
@@ -45,11 +73,15 @@ export const route = createRoute({
   method: 'get',
   path: '/',
   tags: ['Projects'],
+  request: {
+    query: querySchema
+  },
   responses: ResponseSchemas
 });
 
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
+    const { groupBy } = c.req.valid('query');
     const projectsPath = ClaudeHelper.getProjectsDir();
     const folders = await readdir(projectsPath);
 
@@ -95,15 +127,14 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
       const hidden = settings?.projects.hiddenProjects.includes(folder) || false;
 
-      const metadataDir = join(realPath, '.metadata');
-      const metadataFile = join(metadataDir, 'project.json');
-      let labels: string[] = [];
-      try {
-        await access(metadataFile);
-        const content = await readFile(metadataFile, 'utf-8');
-        const metadata = JSON.parse(content) as { labels?: string[] };
-        labels = metadata.labels || [];
-      } catch {}
+      const labels: string[] = [];
+      if (settings?.projects.labels) {
+        for (const label of settings.projects.labels) {
+          if (label.projects?.includes(folder)) {
+            labels.push(label.id);
+          }
+        }
+      }
 
       return {
         id: folder,
@@ -124,7 +155,107 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     projects.sort((a, b) => b.lastModified - a.lastModified);
 
-    return c.json(projects satisfies z.infer<typeof responseSchema>, 200);
+    if (!groupBy) {
+      return c.json(projects satisfies z.infer<typeof ungroupedResponseSchema>, 200);
+    }
+
+    const grouped: Record<string, typeof projects> = {};
+
+    if (groupBy === 'date') {
+      projects.forEach((project) => {
+        const groupKey = getTimeGroup(project.lastModified);
+        if (!grouped[groupKey]) grouped[groupKey] = [];
+        grouped[groupKey].push(project);
+      });
+
+      const groups = TIME_GROUP_ORDER.map((key) => ({
+        key,
+        label: TIME_GROUP_LABELS[key as keyof typeof TIME_GROUP_LABELS],
+        color: null,
+        items: grouped[key] || [],
+        totalItems: grouped[key]?.length || 0
+      })).filter((g) => g.totalItems > 0);
+
+      return c.json(
+        {
+          groups,
+          meta: {
+            totalItems: projects.length,
+            totalGroups: groups.length
+          }
+        } satisfies z.infer<typeof groupedResponseSchema>,
+        200
+      );
+    }
+
+    if (groupBy === 'session-count') {
+      projects.forEach((project) => {
+        const groupKey = getSessionCountGroup(project.sessionsCount);
+        if (!grouped[groupKey]) grouped[groupKey] = [];
+        grouped[groupKey].push(project);
+      });
+
+      const groups = SESSION_COUNT_GROUP_ORDER.map((key) => ({
+        key,
+        label: SESSION_COUNT_GROUP_LABELS[key as keyof typeof SESSION_COUNT_GROUP_LABELS],
+        color: null,
+        items: grouped[key] || [],
+        totalItems: grouped[key]?.length || 0
+      })).filter((g) => g.totalItems > 0);
+
+      return c.json(
+        {
+          groups,
+          meta: {
+            totalItems: projects.length,
+            totalGroups: groups.length
+          }
+        } satisfies z.infer<typeof groupedResponseSchema>,
+        200
+      );
+    }
+
+    if (groupBy === 'label') {
+      grouped['no-label'] = [];
+
+      projects.forEach((project) => {
+        if (!project.labels || project.labels.length === 0) {
+          grouped['no-label'].push(project);
+        } else {
+          project.labels.forEach((labelId) => {
+            if (!grouped[labelId]) grouped[labelId] = [];
+            grouped[labelId].push(project);
+          });
+        }
+      });
+
+      const labelIds = settings?.projects.labels.map((l) => l.id) || [];
+      const groups = [...labelIds, 'no-label']
+        .map((key) => {
+          const label = settings?.projects.labels.find((l) => l.id === key);
+          return {
+            key,
+            label: key === 'no-label' ? 'No Label' : label?.name || key,
+            color: label?.color || null,
+            items: grouped[key] || [],
+            totalItems: grouped[key]?.length || 0
+          };
+        })
+        .filter((g) => g.totalItems > 0);
+
+      return c.json(
+        {
+          groups,
+          meta: {
+            totalItems: projects.length,
+            totalGroups: groups.length
+          }
+        } satisfies z.infer<typeof groupedResponseSchema>,
+        200
+      );
+    }
+
+    return c.json(projects satisfies z.infer<typeof ungroupedResponseSchema>, 200);
   } catch {
     return c.json({ error: 'Failed to read projects' } satisfies z.infer<typeof ErrorSchema>, 500);
   }

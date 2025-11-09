@@ -1057,61 +1057,184 @@
         "tags": [
           "Projects"
         ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "date",
+                "session-count",
+                "label"
+              ]
+            },
+            "required": false,
+            "name": "groupBy",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Returns all projects",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "path": {
-                        "type": "string"
-                      },
-                      "sessionsCount": {
-                        "type": "number"
-                      },
-                      "lastModified": {
-                        "type": "number"
-                      },
-                      "isGitRepo": {
-                        "type": "boolean"
-                      },
-                      "githubUrl": {
-                        "type": "string"
-                      },
-                      "currentBranch": {
-                        "type": "string"
-                      },
-                      "labels": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
-                      },
-                      "hidden": {
-                        "type": "boolean"
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "path": {
+                            "type": "string"
+                          },
+                          "sessionsCount": {
+                            "type": "number"
+                          },
+                          "lastModified": {
+                            "type": "number"
+                          },
+                          "isGitRepo": {
+                            "type": "boolean"
+                          },
+                          "githubUrl": {
+                            "type": "string"
+                          },
+                          "currentBranch": {
+                            "type": "string"
+                          },
+                          "labels": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "hidden": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "path",
+                          "sessionsCount",
+                          "lastModified",
+                          "isGitRepo",
+                          "labels",
+                          "hidden"
+                        ]
                       }
                     },
-                    "required": [
-                      "id",
-                      "name",
-                      "path",
-                      "sessionsCount",
-                      "lastModified",
-                      "isGitRepo",
-                      "labels",
-                      "hidden"
-                    ]
-                  }
+                    {
+                      "type": "object",
+                      "properties": {
+                        "groups": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "color": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "path": {
+                                      "type": "string"
+                                    },
+                                    "sessionsCount": {
+                                      "type": "number"
+                                    },
+                                    "lastModified": {
+                                      "type": "number"
+                                    },
+                                    "isGitRepo": {
+                                      "type": "boolean"
+                                    },
+                                    "githubUrl": {
+                                      "type": "string"
+                                    },
+                                    "currentBranch": {
+                                      "type": "string"
+                                    },
+                                    "labels": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "hidden": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "name",
+                                    "path",
+                                    "sessionsCount",
+                                    "lastModified",
+                                    "isGitRepo",
+                                    "labels",
+                                    "hidden"
+                                  ]
+                                }
+                              },
+                              "totalItems": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "label",
+                              "items",
+                              "totalItems"
+                            ]
+                          }
+                        },
+                        "meta": {
+                          "type": "object",
+                          "properties": {
+                            "totalItems": {
+                              "type": "number"
+                            },
+                            "totalGroups": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "totalItems",
+                            "totalGroups"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "groups",
+                        "meta"
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -1307,6 +1430,27 @@
                   },
                   "required": [
                     "success"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Label not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
                   ]
                 }
               }

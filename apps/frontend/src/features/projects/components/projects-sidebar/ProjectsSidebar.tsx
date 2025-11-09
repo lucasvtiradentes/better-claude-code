@@ -1,23 +1,17 @@
-import {
-  getSessionCountGroup,
-  getTimeGroup,
-  SESSION_COUNT_GROUP_LABELS,
-  SESSION_COUNT_GROUP_ORDER,
-  TIME_GROUP_LABELS,
-  TIME_GROUP_ORDER
-} from '@better-claude-code/shared';
+import { useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { usePostApiProjectsProjectsProjectIdLabelsToggle } from '@/api';
-import type { GetApiProjects200Item } from '@/api/_generated/schemas';
+import { toast } from 'sonner';
+import { getGetApiProjectsQueryKey, usePostApiProjectsProjectsProjectIdLabelsToggle } from '@/api';
+import type { GetApiProjects200AnyOfItem, GetApiProjects200AnyOfTwoGroupsItem } from '@/api/_generated/schemas';
 import { GroupCardItems } from '@/components/GroupCardItems';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { useProjectUIStore } from '@/stores/project-ui-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
 
 type ProjectsSidebarProps = {
-  projects: GetApiProjects200Item[] | undefined;
+  projects?: GetApiProjects200AnyOfItem[];
+  groupedProjects?: GetApiProjects200AnyOfTwoGroupsItem[];
   isLoading: boolean;
   error: unknown;
   searchValue?: string;
@@ -27,6 +21,7 @@ type ProjectsSidebarProps = {
 
 export const ProjectsSidebar = ({
   projects,
+  groupedProjects,
   isLoading,
   error,
   searchValue,
@@ -34,24 +29,29 @@ export const ProjectsSidebar = ({
   onSelectProject
 }: ProjectsSidebarProps) => {
   const settingsData = useSettingsStore((state) => state.settings);
-  const { mutate: toggleLabel } = usePostApiProjectsProjectsProjectIdLabelsToggle();
-  const groupBy = useProjectUIStore((state) => state.groupBy);
+  const queryClient = useQueryClient();
+  const { mutate: toggleLabel } = usePostApiProjectsProjectsProjectIdLabelsToggle({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: getGetApiProjectsQueryKey()
+        });
+      },
+      onError: (error) => {
+        console.error('Failed to toggle label:', error);
+        toast.error('Failed to toggle label');
+      }
+    }
+  });
 
   const settings = settingsData?.projects;
 
   const handleLabelToggle = (projectId: string, labelId: string) => {
-    toggleLabel(
-      { projectId, data: { labelId } },
-      {
-        onError: () => {
-          alert('Failed to toggle label');
-        }
-      }
-    );
+    toggleLabel({ projectId, data: { labelId } });
   };
 
   const filteredProjects = useMemo(() => {
-    if (!projects) return projects;
+    if (!projects) return undefined;
 
     let filtered = projects;
 
@@ -67,103 +67,6 @@ export const ProjectsSidebar = ({
     return filtered;
   }, [projects, searchValue]);
 
-  const groupedProjects = useMemo(() => {
-    if (!filteredProjects || !settings) return undefined;
-
-    if (groupBy === 'date') {
-      return filteredProjects.reduce(
-        (acc, project) => {
-          const group = getTimeGroup(project.lastModified);
-          if (!acc[group]) acc[group] = [];
-          acc[group].push(project);
-          return acc;
-        },
-        {} as Record<string, GetApiProjects200Item[]>
-      );
-    }
-
-    if (groupBy === 'session-count') {
-      return filteredProjects.reduce(
-        (acc, project) => {
-          const group = getSessionCountGroup(project.sessionsCount);
-          if (!acc[group]) acc[group] = [];
-          acc[group].push(project);
-          return acc;
-        },
-        {} as Record<string, GetApiProjects200Item[]>
-      );
-    }
-
-    if (groupBy === 'label') {
-      const grouped: Record<string, GetApiProjects200Item[]> = {
-        'no-label': []
-      };
-
-      filteredProjects.forEach((project) => {
-        if (!project.labels || project.labels.length === 0) {
-          grouped['no-label'].push(project);
-        } else {
-          project.labels.forEach((labelId) => {
-            const label = settings.labels.find((l) => l.id === labelId);
-            if (label) {
-              if (!grouped[label.id]) grouped[label.id] = [];
-              grouped[label.id].push(project);
-            }
-          });
-        }
-      });
-
-      return grouped;
-    }
-
-    return undefined;
-  }, [filteredProjects, settings, groupBy]);
-
-  const getGroupLabel = (groupKey: string) => {
-    if (!settings) return groupKey;
-
-    if (groupBy === 'date') {
-      return TIME_GROUP_LABELS[groupKey as keyof typeof TIME_GROUP_LABELS] || groupKey;
-    }
-
-    if (groupBy === 'session-count') {
-      return SESSION_COUNT_GROUP_LABELS[groupKey as keyof typeof SESSION_COUNT_GROUP_LABELS] || groupKey;
-    }
-
-    if (groupBy === 'label') {
-      if (groupKey === 'no-label') return 'No Label';
-      const label = settings.labels.find((l) => l.id === groupKey);
-      return label ? label.name : groupKey;
-    }
-
-    return groupKey;
-  };
-
-  const getGroupLabelColor = (groupKey: string) => {
-    if (!settings || groupBy !== 'label' || groupKey === 'no-label') return undefined;
-    const label = settings.labels.find((l) => l.id === groupKey);
-    return label?.color;
-  };
-
-  const getGroupOrder = (): string[] => {
-    if (!settings) return [];
-
-    if (groupBy === 'date') {
-      return TIME_GROUP_ORDER;
-    }
-
-    if (groupBy === 'session-count') {
-      return SESSION_COUNT_GROUP_ORDER;
-    }
-
-    if (groupBy === 'label') {
-      const labelIds = settings.labels.map((l) => l.id);
-      return [...labelIds, 'no-label'];
-    }
-
-    return [];
-  };
-
   return (
     <MiddleSidebar>
       <ProjectsHeader
@@ -176,19 +79,18 @@ export const ProjectsSidebar = ({
           <div className="p-4 text-red-500">Failed to load projects</div>
         ) : isLoading ? (
           <div className="p-4 text-muted-foreground">Loading projects...</div>
-        ) : (
-          getGroupOrder().map((groupKey) => {
-            const groupProjects = groupedProjects?.[groupKey];
-            if (!groupProjects?.length) return null;
+        ) : groupedProjects ? (
+          groupedProjects.map((group) => {
+            if (!group.items?.length) return null;
 
             return (
               <GroupCardItems
-                key={groupKey}
-                label={getGroupLabel(groupKey)}
-                groupKey={groupKey as any}
-                labelColor={getGroupLabelColor(groupKey)}
+                key={group.key}
+                label={group.label}
+                groupKey={group.key as any}
+                labelColor={group.color || undefined}
               >
-                {groupProjects.map((project) => (
+                {group.items.map((project) => (
                   <ProjectCard
                     key={project.id}
                     project={project}
@@ -200,7 +102,7 @@ export const ProjectsSidebar = ({
               </GroupCardItems>
             );
           })
-        )}
+        ) : null}
       </div>
     </MiddleSidebar>
   );
