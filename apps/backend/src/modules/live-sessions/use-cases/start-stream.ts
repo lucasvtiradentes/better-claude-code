@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from 'fs';
 import type { SSEStreamingApi } from 'hono/streaming';
 import { homedir } from 'os';
 import { join } from 'path';
-import { parseSessionMessages } from '../../sessions/services/session-parser.js';
+import { parseSessionMessages } from '@better-claude-code/node-utils';
 import { sessionManager } from '../session-manager.js';
 import { type LiveSessionEvent, SessionStatus } from '../types.js';
 

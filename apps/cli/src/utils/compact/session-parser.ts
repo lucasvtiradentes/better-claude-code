@@ -1,6 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { ClaudeHelper } from '@better-claude-code/node-utils';
-import { MessageSource } from '@better-claude-code/shared';
+import { ClaudeHelper, MessageSource } from '@better-claude-code/node-utils';
 import { getGitRepoRoot } from '../git.js';
 
 interface MessageBlock {

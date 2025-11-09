@@ -2,11 +2,17 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper.js';
+import {
+  CLAUDE_CODE_COMMANDS,
+  createMessageKey,
+  extractTextContent,
+  shouldSkipAssistantMessage,
+  shouldSkipUserMessage
+} from './session-helpers.js';
 
 const IGNORE_EMPTY_SESSIONS = true;
 const MAX_TITLE_LENGTH = 80;
 const TOKEN_LIMIT = 180000;
-const CLAUDE_CODE_COMMANDS = ['clear', 'ide', 'model', 'compact', 'init'];
 
 export enum MessageCountMode {
   TURN = 'turn',
@@ -68,19 +74,6 @@ export interface SessionListResult {
   };
 }
 
-function extractTextContent(content: any): string {
-  if (typeof content === 'string') {
-    return content;
-  }
-  if (Array.isArray(content)) {
-    return content
-      .filter((item) => item.type === 'text')
-      .map((item) => item.text)
-      .join(' ');
-  }
-  return '';
-}
-
 function parseCommandFromContent(content: string): string | null {
   const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
   if (commandMatch) {
@@ -90,33 +83,6 @@ function parseCommandFromContent(content: string): string | null {
     return `/${commandText}${args}`;
   }
   return null;
-}
-
-function isValidUserMessage(content: string): boolean {
-  if (!content || content === 'Warmup') {
-    return false;
-  }
-
-  const firstLine = content.split('\n')[0].replace(/\\/g, '').replace(/\s+/g, ' ').trim();
-
-  if (firstLine.includes('Caveat:')) {
-    return false;
-  }
-
-  const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
-  if (commandMatch) {
-    const commandName = commandMatch[1];
-    if (CLAUDE_CODE_COMMANDS.includes(commandName)) {
-      return false;
-    }
-  }
-
-  const isSystemMessage =
-    firstLine.startsWith('<local-command-') ||
-    firstLine.startsWith('[Tool:') ||
-    firstLine.startsWith('[Request interrupted');
-
-  return !isSystemMessage;
 }
 
 function countMessages(
@@ -144,30 +110,26 @@ function countMessages(
 
           if (ClaudeHelper.isUserMessage(currentType)) {
             textContent = extractTextContent(parsed.message?.content || parsed.content);
-            const messageKey = `user-${parsed.timestamp}-${textContent}`;
+            const messageKey = createMessageKey('user', parsed.timestamp, textContent);
 
             if (seenMessages.has(messageKey)) {
               continue;
             }
             seenMessages.add(messageKey);
 
-            if (!textContent || textContent === 'Warmup') {
-              continue;
-            }
-
-            if (!isValidUserMessage(textContent)) {
+            if (shouldSkipUserMessage(textContent)) {
               continue;
             }
           } else {
             textContent = extractTextContent(parsed.message?.content || parsed.content);
-            const messageKey = `assistant-${parsed.timestamp}-${textContent}`;
+            const messageKey = createMessageKey('assistant', parsed.timestamp, textContent);
 
             if (seenMessages.has(messageKey)) {
               continue;
             }
             seenMessages.add(messageKey);
 
-            if (!textContent || textContent === 'Warmup') {
+            if (shouldSkipAssistantMessage(textContent)) {
               continue;
             }
           }
@@ -200,34 +162,28 @@ function countMessages(
 
         if (ClaudeHelper.isUserMessage(parsed.type)) {
           const textContent = extractTextContent(parsed.message?.content || parsed.content);
-          const messageKey = `user-${parsed.timestamp}-${textContent}`;
+          const messageKey = createMessageKey('user', parsed.timestamp, textContent);
 
           if (seenMessages.has(messageKey)) {
             continue;
           }
           seenMessages.add(messageKey);
 
-          if (!textContent || textContent === 'Warmup') {
-            continue;
-          }
-
-          if (isValidUserMessage(textContent)) {
+          if (!shouldSkipUserMessage(textContent)) {
             userCount++;
           }
         } else if (ClaudeHelper.isCCMessage(parsed.type)) {
           const textContent = extractTextContent(parsed.message?.content || parsed.content);
-          const messageKey = `assistant-${parsed.timestamp}-${textContent}`;
+          const messageKey = createMessageKey('assistant', parsed.timestamp, textContent);
 
           if (seenMessages.has(messageKey)) {
             continue;
           }
           seenMessages.add(messageKey);
 
-          if (!textContent || textContent === 'Warmup') {
-            continue;
+          if (!shouldSkipAssistantMessage(textContent)) {
+            assistantCount++;
           }
-
-          assistantCount++;
         }
       } catch {}
     }
@@ -351,14 +307,14 @@ function countImages(lines: string[]): number {
       }
 
       const textContent = extractTextContent(parsed.message?.content || parsed.content);
-      const messageKey = `user-${parsed.timestamp}-${textContent}`;
+      const messageKey = createMessageKey('user', parsed.timestamp, textContent);
 
       if (seenMessages.has(messageKey)) {
         continue;
       }
       seenMessages.add(messageKey);
 
-      if (!textContent || textContent === 'Warmup') {
+      if (shouldSkipUserMessage(textContent)) {
         continue;
       }
 
