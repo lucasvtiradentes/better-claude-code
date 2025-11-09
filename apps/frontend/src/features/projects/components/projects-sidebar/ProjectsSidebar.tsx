@@ -1,10 +1,10 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { toast } from 'sonner';
 import { getGetApiProjectsQueryKey, usePostApiProjectsProjectsProjectIdLabelsToggle } from '@/api';
 import type { GetApiProjects200AnyOfItem, GetApiProjects200AnyOfTwoGroupsItem } from '@/api/_generated/schemas';
 import { GroupCardItems } from '@/common/components/GroupCardItems';
 import { MiddleSidebar } from '@/common/components/layout/MiddleSidebar';
+import { queryClient } from '@/common/lib/tanstack-query';
 import { useSettingsStore } from '@/common/stores/settings-store';
 import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
@@ -29,7 +29,6 @@ export const ProjectsSidebar = ({
   onSelectProject
 }: ProjectsSidebarProps) => {
   const settingsData = useSettingsStore((state) => state.settings);
-  const queryClient = useQueryClient();
   const { mutate: toggleLabel } = usePostApiProjectsProjectsProjectIdLabelsToggle({
     mutation: {
       onSuccess: () => {

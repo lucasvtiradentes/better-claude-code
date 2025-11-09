@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
@@ -50,7 +49,6 @@ function SessionDetailComponent() {
   const { imageIndex, folderPath: urlFolderPath, filePath: urlFilePath } = Route.useSearch();
   const navigate = Route.useNavigate();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
-  const queryClient = useQueryClient();
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);

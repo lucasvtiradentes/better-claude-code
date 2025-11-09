@@ -1,16 +1,5 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { toast } from 'sonner';
-import {
-  getGetApiSessionsProjectNameQueryKey,
-  useGetApiProjects,
-  useGetApiSessionsProjectName,
-  usePostApiSessionsProjectNameSessionIdLabels
-} from '@/api';
-import { Layout } from '@/common/components/layout/Layout';
-import { useProjectSessionUIStore } from '@/common/stores/project-session-ui-store';
-import { EmptyState } from '@/features/projects/components/EmptyState';
-import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
+import { SessionsListPage } from '../../../features/project-sessions/pages/sessions-list.page';
 
 export const Route = createFileRoute('/projects/$projectName/')({
   component: SessionsListComponent,
@@ -27,97 +16,6 @@ export const Route = createFileRoute('/projects/$projectName/')({
 function SessionsListComponent() {
   const { projectName } = Route.useParams();
   const navigate = Route.useNavigate();
-  const queryClient = useQueryClient();
-  const sessionSearch = useProjectSessionUIStore((state) => state.search);
-  const setSessionSearch = useProjectSessionUIStore((state) => state.setSearch);
-  const groupBy = useProjectSessionUIStore((state) => state.groupBy);
-  const hasHydrated = useProjectSessionUIStore((state) => state._hasHydrated);
 
-  const { data: projectsData } = useGetApiProjects();
-  const projects = projectsData && !('groups' in projectsData) ? projectsData : undefined;
-  const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
-    mutation: {
-      onSuccess: (_data, variables) => {
-        queryClient.invalidateQueries({
-          queryKey: getGetApiSessionsProjectNameQueryKey(variables.projectName)
-        });
-      },
-      onError: (error) => {
-        console.error('Failed to toggle label:', error);
-        toast.error('Failed to toggle label');
-      }
-    }
-  });
-
-  const {
-    data: groupedData,
-    isLoading,
-    error
-  } = useGetApiSessionsProjectName(
-    projectName,
-    { groupBy, search: sessionSearch || undefined },
-    {
-      query: {
-        enabled: hasHydrated,
-        staleTime: 2 * 60 * 1000,
-        gcTime: 5 * 60 * 1000,
-        placeholderData: (previousData) => previousData
-      }
-    }
-  );
-
-  const sessions = groupedData?.groups || [];
-  const totalSessions = groupedData?.meta.totalItems || 0;
-  const selectedProjectData = projects?.find((p) => p.id === projectName);
-
-  const handleSearchChange = (value: string) => {
-    setSessionSearch(value);
-  };
-
-  const handleBack = () => {
-    navigate({ to: '/projects' });
-  };
-
-  const handleSelectSession = (sessionId: string) => {
-    navigate({
-      to: '/projects/$projectName/sessions/$sessionId',
-      params: { projectName, sessionId }
-    });
-  };
-
-  const handleDeleteSession = () => {};
-
-  const handleLabelToggle = (sessionId: string, labelId: string) => {
-    if (!projectName) return;
-    toggleLabel({ projectName, sessionId, data: { labelId } });
-  };
-
-  return (
-    <Layout
-      sidebar={
-        <SessionsSidebar
-          sessions={sessions}
-          isLoading={isLoading}
-          error={error}
-          projectName={selectedProjectData?.name || projectName}
-          projectPath={selectedProjectData?.path || ''}
-          selectedSessionId={undefined}
-          totalSessions={totalSessions}
-          searchValue={sessionSearch}
-          hasNextPage={false}
-          isFetchingNextPage={false}
-          onLoadMore={() => {}}
-          onSearchChange={handleSearchChange}
-          onBack={handleBack}
-          onSelectSession={handleSelectSession}
-          onDeleteSession={handleDeleteSession}
-          onLabelToggle={handleLabelToggle}
-          projectId={projectName}
-          isGitRepo={selectedProjectData?.isGitRepo}
-        />
-      }
-    >
-      <EmptyState message="Select a session to view messages" />
-    </Layout>
-  );
+  return <SessionsListPage projectName={projectName} navigate={navigate} />;
 }
