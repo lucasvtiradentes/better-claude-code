@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import {
+  getGetApiSessionsProjectNameQueryKey,
   getGetApiSessionsProjectNameSessionIdQueryOptions,
   useDeleteApiSessionsProjectNameSessionId,
   useGetApiProjects,
@@ -72,57 +73,14 @@ function SessionDetailComponent() {
   const { mutate: deleteSessionMutation, isPending: isDeleting } = useDeleteApiSessionsProjectNameSessionId();
   const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
     mutation: {
-      onMutate: async (variables) => {
-        await queryClient.cancelQueries({
-          queryKey: ['sessions-grouped', variables.projectName, groupBy, sessionSearch || '']
+      onSuccess: (_data, variables) => {
+        queryClient.invalidateQueries({
+          queryKey: getGetApiSessionsProjectNameQueryKey(variables.projectName)
         });
-
-        const previousData = queryClient.getQueryData([
-          'sessions-grouped',
-          variables.projectName,
-          groupBy,
-          sessionSearch || ''
-        ]);
-
-        queryClient.setQueryData(
-          ['sessions-grouped', variables.projectName, groupBy, sessionSearch || ''],
-          (oldData: any) => {
-            if (!oldData) return oldData;
-
-            return {
-              ...oldData,
-              groups: oldData.groups.map((group: any) => ({
-                ...group,
-                items: group.items.map((item: any) => {
-                  if (item.id !== variables.sessionId) return item;
-
-                  const currentLabels = item.labels || [];
-                  const hasLabel = currentLabels.includes(variables.data.labelId);
-
-                  return {
-                    ...item,
-                    labels: hasLabel
-                      ? currentLabels.filter((id: string) => id !== variables.data.labelId)
-                      : [...currentLabels, variables.data.labelId]
-                  };
-                })
-              }))
-            };
-          }
-        );
-
-        return { previousData };
       },
-      onError: (error, variables, context) => {
+      onError: (error) => {
         console.error('Failed to toggle label:', error);
         toast.error('Failed to toggle label');
-
-        if (context?.previousData) {
-          queryClient.setQueryData(
-            ['sessions-grouped', variables.projectName, groupBy, sessionSearch || ''],
-            context.previousData
-          );
-        }
       }
     }
   });

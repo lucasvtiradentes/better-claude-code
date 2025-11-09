@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { usePatchApiSettings } from '@/api';
+import { getGetApiSessionsProjectNameQueryKey, usePatchApiSettings } from '@/api';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -41,7 +41,7 @@ export const SessionSettingsTab = () => {
 
   const handleGroupByChange = (value: 'date' | 'token-percentage' | 'label') => {
     setGroupBy(value);
-    queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    queryClient.invalidateQueries({ queryKey: getGetApiSessionsProjectNameQueryKey() });
   };
 
   const handleDisplayChange = (field: keyof Omit<SettingsFormData, 'groupBy'>, value: boolean) => {

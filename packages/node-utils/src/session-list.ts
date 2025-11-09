@@ -43,6 +43,14 @@ export interface SessionListOptions {
   includeUrls?: boolean;
   includeLabels?: boolean;
   enablePagination?: boolean;
+  settings?: {
+    sessions: {
+      labels: Array<{
+        id: string;
+        sessions?: Record<string, string[]>;
+      }>;
+    };
+  };
 }
 
 export interface SessionListItem {
@@ -432,21 +440,25 @@ function countUrls(lines: string[]): number {
   return count;
 }
 
-async function readLabels(sessionsPath: string, sessionId: string): Promise<string[] | undefined> {
-  const metadataPath = join(sessionsPath, '.metadata', `${sessionId}.json`);
-  try {
-    const metadataContent = await readFile(metadataPath, 'utf-8');
-    const metadata = JSON.parse(metadataContent);
-    return metadata.labels?.length > 0 ? metadata.labels : undefined;
-  } catch {
-    return undefined;
-  }
+function getLabelsFromSettings(
+  settings: SessionListOptions['settings'],
+  projectName: string,
+  sessionId: string
+): string[] | undefined {
+  if (!settings) return undefined;
+
+  const labels = settings.sessions.labels
+    .filter((label) => label.sessions?.[projectName]?.includes(sessionId))
+    .map((label) => label.id);
+
+  return labels.length > 0 ? labels : undefined;
 }
 
 async function processSessionFile(
   filePath: string,
   file: string,
   sessionsPath: string,
+  projectName: string,
   options: {
     search: string;
     messageCountMode: MessageCountMode;
@@ -456,6 +468,7 @@ async function processSessionFile(
     includeFilesOrFolders: boolean;
     includeUrls: boolean;
     includeLabels: boolean;
+    settings?: SessionListOptions['settings'];
   }
 ): Promise<SessionListItem | null> {
   const content = await readFile(filePath, 'utf-8');
@@ -554,8 +567,8 @@ async function processSessionFile(
     if (urlCount > 0) session.urlCount = urlCount;
   }
 
-  if (options.includeLabels) {
-    const labels = await readLabels(sessionsPath, sessionId);
+  if (options.includeLabels && options.settings) {
+    const labels = getLabelsFromSettings(options.settings, projectName, sessionId);
     if (labels) session.labels = labels;
   }
 
@@ -600,7 +613,8 @@ export async function listSessions(options: SessionListOptions): Promise<Session
     includeCustomCommands,
     includeFilesOrFolders,
     includeUrls,
-    includeLabels
+    includeLabels,
+    settings: options.settings
   };
 
   let sessions: SessionListItem[];
@@ -617,7 +631,7 @@ export async function listSessions(options: SessionListOptions): Promise<Session
 
     if (enablePagination) {
       const sessionPromises = fileStats.map(({ file, filePath }) =>
-        processSessionFile(filePath, file, sessionsPath, processOptions)
+        processSessionFile(filePath, file, sessionsPath, normalizedPath, processOptions)
       );
 
       const sessionsResults = await Promise.all(sessionPromises);
@@ -642,7 +656,7 @@ export async function listSessions(options: SessionListOptions): Promise<Session
 
     const filesToProcess = fileStats.slice(0, limit);
     const sessionPromises = filesToProcess.map(({ file, filePath }) =>
-      processSessionFile(filePath, file, sessionsPath, processOptions)
+      processSessionFile(filePath, file, sessionsPath, normalizedPath, processOptions)
     );
 
     const sessionsResults = await Promise.all(sessionPromises);
@@ -653,7 +667,7 @@ export async function listSessions(options: SessionListOptions): Promise<Session
 
   const sessionPromises = sessionFiles.map((file) => {
     const filePath = join(sessionsPath, file);
-    return processSessionFile(filePath, file, sessionsPath, processOptions);
+    return processSessionFile(filePath, file, sessionsPath, normalizedPath, processOptions);
   });
 
   const sessionsResults = await Promise.all(sessionPromises);

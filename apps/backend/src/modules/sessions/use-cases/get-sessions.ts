@@ -91,6 +91,8 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     const sortBy = groupBy === 'token-percentage' ? SessionSortBy.TOKEN_PERCENTAGE : SessionSortBy.DATE;
 
+    const settings = await readSettings();
+
     const result = await listSessions({
       projectPath: projectName,
       limit: 999999,
@@ -102,7 +104,8 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       includeFilesOrFolders: true,
       includeUrls: true,
       includeLabels: true,
-      enablePagination: false
+      enablePagination: false,
+      settings
     });
 
     const items = result.items.map((item) => ({
@@ -119,8 +122,6 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       labels: item.labels,
       summary: item.summary
     }));
-
-    const settings = await readSettings();
     const grouped: Record<string, typeof items> = {};
 
     if (groupBy === 'date') {
