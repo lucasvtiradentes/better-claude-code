@@ -6,7 +6,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type GetApiSessionsProjectName200Meta = {
-  totalItems: number;
-  totalGroups: number;
-};
+export type GetApiSessionsProjectName200GroupsItemColor = string | null;

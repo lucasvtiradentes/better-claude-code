@@ -1386,10 +1386,15 @@
           {
             "schema": {
               "type": "string",
+              "enum": [
+                "date",
+                "token-percentage",
+                "label"
+              ],
               "default": "date"
             },
             "required": false,
-            "name": "sortBy",
+            "name": "groupBy",
             "in": "query"
           }
         ],
@@ -1401,56 +1406,85 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "items": {
+                    "groups": {
                       "type": "array",
                       "items": {
                         "type": "object",
                         "properties": {
-                          "id": {
+                          "key": {
                             "type": "string"
                           },
-                          "title": {
+                          "label": {
                             "type": "string"
                           },
-                          "messageCount": {
-                            "type": "number"
+                          "color": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
                           },
-                          "createdAt": {
-                            "type": "number"
-                          },
-                          "tokenPercentage": {
-                            "type": "number"
-                          },
-                          "searchMatchCount": {
-                            "type": "number"
-                          },
-                          "imageCount": {
-                            "type": "number"
-                          },
-                          "customCommandCount": {
-                            "type": "number"
-                          },
-                          "filesOrFoldersCount": {
-                            "type": "number"
-                          },
-                          "urlCount": {
-                            "type": "number"
-                          },
-                          "labels": {
+                          "items": {
                             "type": "array",
                             "items": {
-                              "type": "string"
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "messageCount": {
+                                  "type": "number"
+                                },
+                                "createdAt": {
+                                  "type": "number"
+                                },
+                                "tokenPercentage": {
+                                  "type": "number"
+                                },
+                                "searchMatchCount": {
+                                  "type": "number"
+                                },
+                                "imageCount": {
+                                  "type": "number"
+                                },
+                                "customCommandCount": {
+                                  "type": "number"
+                                },
+                                "filesOrFoldersCount": {
+                                  "type": "number"
+                                },
+                                "urlCount": {
+                                  "type": "number"
+                                },
+                                "labels": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "summary": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "title",
+                                "messageCount",
+                                "createdAt"
+                              ]
                             }
                           },
-                          "summary": {
-                            "type": "string"
+                          "totalItems": {
+                            "type": "number"
                           }
                         },
                         "required": [
-                          "id",
-                          "title",
-                          "messageCount",
-                          "createdAt"
+                          "key",
+                          "label",
+                          "items",
+                          "totalItems"
                         ]
                       }
                     },
@@ -1460,26 +1494,18 @@
                         "totalItems": {
                           "type": "number"
                         },
-                        "totalPages": {
-                          "type": "number"
-                        },
-                        "page": {
-                          "type": "number"
-                        },
-                        "limit": {
+                        "totalGroups": {
                           "type": "number"
                         }
                       },
                       "required": [
                         "totalItems",
-                        "totalPages",
-                        "page",
-                        "limit"
+                        "totalGroups"
                       ]
                     }
                   },
                   "required": [
-                    "items",
+                    "groups",
                     "meta"
                   ]
                 }

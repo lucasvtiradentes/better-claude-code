@@ -1,7 +1,16 @@
 import { listSessions, SessionSortBy } from '@better-claude-code/node-utils';
+import {
+  getTimeGroup,
+  getTokenPercentageGroup,
+  TIME_GROUP_LABELS,
+  TIME_GROUP_ORDER,
+  TOKEN_PERCENTAGE_GROUP_LABELS,
+  TOKEN_PERCENTAGE_GROUP_ORDER
+} from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { ErrorSchema, PaginationMetaSchema } from '../../../common/schemas.js';
+import { ErrorSchema } from '../../../common/schemas.js';
+import { readSettings } from '../../settings/utils.js';
 
 const paramsSchema = z.object({
   projectName: z.string()
@@ -11,7 +20,7 @@ const querySchema = z.object({
   page: z.coerce.number().optional().default(1),
   limit: z.coerce.number().optional().default(20),
   search: z.string().optional().default(''),
-  sortBy: z.string().optional().default('date')
+  groupBy: z.enum(['date', 'token-percentage', 'label']).default('date')
 });
 
 const SessionSchema = z.object({
@@ -29,9 +38,20 @@ const SessionSchema = z.object({
   summary: z.string().optional()
 });
 
-const responseSchema = z.object({
+const GroupSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  color: z.string().nullable().optional(),
   items: z.array(SessionSchema),
-  meta: PaginationMetaSchema
+  totalItems: z.number()
+});
+
+const responseSchema = z.object({
+  groups: z.array(GroupSchema),
+  meta: z.object({
+    totalItems: z.number(),
+    totalGroups: z.number()
+  })
 });
 
 const ResponseSchemas = {
@@ -67,20 +87,22 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const { projectName } = c.req.valid('param');
-    const { page, limit, search, sortBy } = c.req.valid('query');
+    const { search, groupBy } = c.req.valid('query');
+
+    const sortBy = groupBy === 'token-percentage' ? SessionSortBy.TOKEN_PERCENTAGE : SessionSortBy.DATE;
 
     const result = await listSessions({
       projectPath: projectName,
-      limit,
-      page,
+      limit: 999999,
+      page: 1,
       search,
-      sortBy: sortBy === 'token-percentage' ? SessionSortBy.TOKEN_PERCENTAGE : SessionSortBy.DATE,
+      sortBy,
       includeImages: true,
       includeCustomCommands: true,
       includeFilesOrFolders: true,
       includeUrls: true,
       includeLabels: true,
-      enablePagination: true
+      enablePagination: false
     });
 
     const items = result.items.map((item) => ({
@@ -98,10 +120,110 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       summary: item.summary
     }));
 
+    const settings = await readSettings();
+    const grouped: Record<string, typeof items> = {};
+
+    if (groupBy === 'date') {
+      items.forEach((session) => {
+        const groupKey = getTimeGroup(session.createdAt);
+        if (!grouped[groupKey]) grouped[groupKey] = [];
+        grouped[groupKey].push(session);
+      });
+
+      const groups = TIME_GROUP_ORDER.map((key) => ({
+        key,
+        label: TIME_GROUP_LABELS[key as keyof typeof TIME_GROUP_LABELS],
+        color: null,
+        items: grouped[key] || [],
+        totalItems: grouped[key]?.length || 0
+      })).filter((g) => g.totalItems > 0);
+
+      return c.json(
+        {
+          groups,
+          meta: {
+            totalItems: items.length,
+            totalGroups: groups.length
+          }
+        } satisfies z.infer<typeof responseSchema>,
+        200
+      );
+    }
+
+    if (groupBy === 'token-percentage') {
+      items.forEach((session) => {
+        const groupKey = getTokenPercentageGroup(session.tokenPercentage);
+        if (!grouped[groupKey]) grouped[groupKey] = [];
+        grouped[groupKey].push(session);
+      });
+
+      const groups = TOKEN_PERCENTAGE_GROUP_ORDER.map((key) => ({
+        key,
+        label: TOKEN_PERCENTAGE_GROUP_LABELS[key as keyof typeof TOKEN_PERCENTAGE_GROUP_LABELS],
+        color: null,
+        items: grouped[key] || [],
+        totalItems: grouped[key]?.length || 0
+      })).filter((g) => g.totalItems > 0);
+
+      return c.json(
+        {
+          groups,
+          meta: {
+            totalItems: items.length,
+            totalGroups: groups.length
+          }
+        } satisfies z.infer<typeof responseSchema>,
+        200
+      );
+    }
+
+    if (groupBy === 'label') {
+      grouped['no-label'] = [];
+
+      items.forEach((session) => {
+        if (!session.labels || session.labels.length === 0) {
+          grouped['no-label'].push(session);
+        } else {
+          session.labels.forEach((labelId) => {
+            if (!grouped[labelId]) grouped[labelId] = [];
+            grouped[labelId].push(session);
+          });
+        }
+      });
+
+      const labelIds = settings.sessions.labels.map((l) => l.id);
+      const groups = [...labelIds, 'no-label']
+        .map((key) => {
+          const label = settings.sessions.labels.find((l) => l.id === key);
+          return {
+            key,
+            label: key === 'no-label' ? 'No Label' : label?.name || key,
+            color: label?.color || null,
+            items: grouped[key] || [],
+            totalItems: grouped[key]?.length || 0
+          };
+        })
+        .filter((g) => g.totalItems > 0);
+
+      return c.json(
+        {
+          groups,
+          meta: {
+            totalItems: items.length,
+            totalGroups: groups.length
+          }
+        } satisfies z.infer<typeof responseSchema>,
+        200
+      );
+    }
+
     return c.json(
       {
-        items,
-        meta: result.meta ?? { page: 1, limit: 20, totalItems: 0, totalPages: 0 }
+        groups: [],
+        meta: {
+          totalItems: 0,
+          totalGroups: 0
+        }
       } satisfies z.infer<typeof responseSchema>,
       200
     );

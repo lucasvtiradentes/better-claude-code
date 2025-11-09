@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { useGetApiProjects, useInfinitySessions, usePostApiSessionsProjectNameSessionIdLabels } from '@/api';
+import { useGetApiProjects, useGetApiSessionsProjectName, usePostApiSessionsProjectNameSessionIdLabels } from '@/api';
 import { Layout } from '@/components/layout/Layout';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
@@ -42,33 +42,43 @@ function SessionsListComponent() {
   const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
     mutation: {
       onMutate: async (variables) => {
-        await queryClient.cancelQueries({ queryKey: ['sessions', variables.projectName, sessionSearch || '', sortBy] });
-
-        const previousData = queryClient.getQueryData(['sessions', variables.projectName, sessionSearch || '', sortBy]);
-
-        queryClient.setQueryData(['sessions', variables.projectName, sessionSearch || '', sortBy], (oldData: any) => {
-          if (!oldData) return oldData;
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page: any) => ({
-              ...page,
-              items: page.items.map((item: any) => {
-                if (item.id !== variables.sessionId) return item;
-
-                const currentLabels = item.labels || [];
-                const hasLabel = currentLabels.includes(variables.data.labelId);
-
-                return {
-                  ...item,
-                  labels: hasLabel
-                    ? currentLabels.filter((id: string) => id !== variables.data.labelId)
-                    : [...currentLabels, variables.data.labelId]
-                };
-              })
-            }))
-          };
+        await queryClient.cancelQueries({
+          queryKey: ['sessions-grouped', variables.projectName, groupBy, sessionSearch || '']
         });
+
+        const previousData = queryClient.getQueryData([
+          'sessions-grouped',
+          variables.projectName,
+          groupBy,
+          sessionSearch || ''
+        ]);
+
+        queryClient.setQueryData(
+          ['sessions-grouped', variables.projectName, groupBy, sessionSearch || ''],
+          (oldData: any) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              groups: oldData.groups.map((group: any) => ({
+                ...group,
+                items: group.items.map((item: any) => {
+                  if (item.id !== variables.sessionId) return item;
+
+                  const currentLabels = item.labels || [];
+                  const hasLabel = currentLabels.includes(variables.data.labelId);
+
+                  return {
+                    ...item,
+                    labels: hasLabel
+                      ? currentLabels.filter((id: string) => id !== variables.data.labelId)
+                      : [...currentLabels, variables.data.labelId]
+                  };
+                })
+              }))
+            };
+          }
+        );
 
         return { previousData };
       },
@@ -78,7 +88,7 @@ function SessionsListComponent() {
 
         if (context?.previousData) {
           queryClient.setQueryData(
-            ['sessions', variables.projectName, sessionSearch || '', sortBy],
+            ['sessions-grouped', variables.projectName, groupBy, sessionSearch || ''],
             context.previousData
           );
         }
@@ -86,19 +96,25 @@ function SessionsListComponent() {
     }
   });
 
-  const sortBy = urlSortBy || (groupBy === 'token-percentage' ? 'token-percentage' : 'date');
-
   const {
-    data: sessionsData,
+    data: groupedData,
     isLoading,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage
-  } = useInfinitySessions(projectName, sessionSearch || '', sortBy, hasHydrated);
+    error
+  } = useGetApiSessionsProjectName(
+    projectName,
+    { groupBy, search: sessionSearch || undefined },
+    {
+      query: {
+        enabled: hasHydrated,
+        staleTime: 2 * 60 * 1000,
+        gcTime: 5 * 60 * 1000,
+        placeholderData: (previousData) => previousData
+      }
+    }
+  );
 
-  const sessions = sessionsData?.pages.flatMap((page) => page.items) || [];
-  const totalSessions = sessionsData?.pages[0]?.meta.totalItems || 0;
+  const sessions = groupedData?.groups || [];
+  const totalSessions = groupedData?.meta.totalItems || 0;
   const selectedProjectData = projects?.find((p) => p.id === projectName);
 
   const handleSearchChange = (value: string) => {
@@ -140,9 +156,9 @@ function SessionsListComponent() {
           selectedSessionId={undefined}
           totalSessions={totalSessions}
           searchValue={sessionSearch}
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          onLoadMore={() => fetchNextPage()}
+          hasNextPage={false}
+          isFetchingNextPage={false}
+          onLoadMore={() => {}}
           onSearchChange={handleSearchChange}
           onBack={handleBack}
           onSelectSession={handleSelectSession}

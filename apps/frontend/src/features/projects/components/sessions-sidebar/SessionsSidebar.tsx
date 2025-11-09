@@ -1,24 +1,15 @@
-import {
-  getTimeGroup,
-  getTokenPercentageGroup,
-  TIME_GROUP_LABELS,
-  TIME_GROUP_ORDER,
-  TOKEN_PERCENTAGE_GROUP_LABELS,
-  TOKEN_PERCENTAGE_GROUP_ORDER
-} from '@better-claude-code/shared';
 import { useNavigate } from '@tanstack/react-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
+import { useRef, useState } from 'react';
+import type { GetApiSessionsProjectName200GroupsItem } from '@/api/_generated/schemas';
 import { GroupCardItems } from '@/components/GroupCardItems';
 import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { useProjectSessionUIStore } from '@/stores/project-session-ui-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
 import { SessionCard } from './SessionCard';
 import { SessionsHeader } from './SessionsHeader';
 
 type SessionsSidebarProps = {
-  sessions: GetApiSessionsProjectName200ItemsItem[] | undefined;
+  sessions: GetApiSessionsProjectName200GroupsItem[] | undefined;
   isLoading: boolean;
   error: unknown;
   projectName: string;
@@ -48,9 +39,6 @@ export const SessionsSidebar = ({
   selectedSessionId,
   totalSessions,
   searchValue,
-  hasNextPage,
-  isFetchingNextPage,
-  onLoadMore,
   onSearchChange,
   onBack,
   onSelectSession,
@@ -62,7 +50,6 @@ export const SessionsSidebar = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const settingsData = useSettingsStore((state) => state.settings);
-  const groupBy = useProjectSessionUIStore((state) => state.groupBy);
   const [showSettings, setShowSettings] = useState(false);
 
   const settings = settingsData?.sessions;
@@ -74,120 +61,6 @@ export const SessionsSidebar = ({
       search: { projectPath, projectName }
     });
   };
-
-  const groupedSessions = useMemo(() => {
-    if (!sessions || !settings) return undefined;
-
-    if (groupBy === 'date') {
-      return sessions.reduce(
-        (acc, session) => {
-          const group = getTimeGroup(session.createdAt);
-          if (!acc[group]) acc[group] = [];
-          acc[group].push(session);
-          return acc;
-        },
-        {} as Record<string, GetApiSessionsProjectName200ItemsItem[]>
-      );
-    }
-
-    if (groupBy === 'token-percentage') {
-      return sessions.reduce(
-        (acc, session) => {
-          const group = getTokenPercentageGroup(session.tokenPercentage);
-          if (!acc[group]) acc[group] = [];
-          acc[group].push(session);
-          return acc;
-        },
-        {} as Record<string, GetApiSessionsProjectName200ItemsItem[]>
-      );
-    }
-
-    if (groupBy === 'label') {
-      const grouped: Record<string, GetApiSessionsProjectName200ItemsItem[]> = {
-        'no-label': []
-      };
-
-      sessions.forEach((session) => {
-        if (!session.labels || session.labels.length === 0) {
-          grouped['no-label'].push(session);
-        } else {
-          session.labels.forEach((labelId) => {
-            const label = settings.labels.find((l) => l.id === labelId);
-            if (label) {
-              if (!grouped[label.id]) grouped[label.id] = [];
-              grouped[label.id].push(session);
-            }
-          });
-        }
-      });
-
-      return grouped;
-    }
-
-    return undefined;
-  }, [sessions, settings, groupBy]);
-
-  const getGroupLabel = (groupKey: string) => {
-    if (!settings) return groupKey;
-
-    if (groupBy === 'date') {
-      return TIME_GROUP_LABELS[groupKey as keyof typeof TIME_GROUP_LABELS] || groupKey;
-    }
-
-    if (groupBy === 'token-percentage') {
-      return TOKEN_PERCENTAGE_GROUP_LABELS[groupKey as keyof typeof TOKEN_PERCENTAGE_GROUP_LABELS] || groupKey;
-    }
-
-    if (groupBy === 'label') {
-      if (groupKey === 'no-label') return 'No Label';
-      const label = settings.labels.find((l) => l.id === groupKey);
-      return label ? label.name : groupKey;
-    }
-
-    return groupKey;
-  };
-
-  const getGroupLabelColor = (groupKey: string) => {
-    if (!settings || groupBy !== 'label' || groupKey === 'no-label') return undefined;
-    const label = settings.labels.find((l) => l.id === groupKey);
-    return label?.color;
-  };
-
-  const getGroupOrder = (): string[] => {
-    if (!settings) return [];
-
-    if (groupBy === 'date') {
-      return TIME_GROUP_ORDER;
-    }
-
-    if (groupBy === 'token-percentage') {
-      return TOKEN_PERCENTAGE_GROUP_ORDER;
-    }
-
-    if (groupBy === 'label') {
-      const labelIds = settings.labels.map((l) => l.id);
-      return [...labelIds, 'no-label'];
-    }
-
-    return [];
-  };
-
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-
-      if (isNearBottom && hasNextPage && !isFetchingNextPage) {
-        onLoadMore();
-      }
-    };
-
-    scrollContainer.addEventListener('scroll', handleScroll);
-    return () => scrollContainer.removeEventListener('scroll', handleScroll);
-  }, [hasNextPage, isFetchingNextPage, onLoadMore]);
 
   return (
     <>
@@ -210,35 +83,31 @@ export const SessionsSidebar = ({
           ) : isLoading ? (
             <div className="p-4 text-muted-foreground">Loading sessions...</div>
           ) : (
-            <>
-              {getGroupOrder().map((groupKey) => {
-                const groupSessions = groupedSessions?.[groupKey];
-                if (!groupSessions?.length) return null;
+            sessions?.map((group) => {
+              if (!group.items?.length) return null;
 
-                return (
-                  <GroupCardItems
-                    key={groupKey}
-                    label={getGroupLabel(groupKey)}
-                    groupKey={groupKey as any}
-                    labelColor={getGroupLabelColor(groupKey)}
-                  >
-                    {groupSessions.map((session) => (
-                      <SessionCard
-                        key={session.id}
-                        session={session}
-                        projectName={projectName}
-                        isActive={session.id === selectedSessionId}
-                        onClick={() => onSelectSession(session.id)}
-                        displaySettings={settings?.display}
-                        onDelete={onDeleteSession}
-                        onLabelToggle={onLabelToggle}
-                      />
-                    ))}
-                  </GroupCardItems>
-                );
-              })}
-              {isFetchingNextPage && <div className="p-4 text-center text-muted-foreground">Loading more...</div>}
-            </>
+              return (
+                <GroupCardItems
+                  key={group.key}
+                  label={group.label}
+                  groupKey={group.key as any}
+                  labelColor={group.color || undefined}
+                >
+                  {group.items.map((session) => (
+                    <SessionCard
+                      key={session.id}
+                      session={session}
+                      projectName={projectName}
+                      isActive={session.id === selectedSessionId}
+                      onClick={() => onSelectSession(session.id)}
+                      displaySettings={settings?.display}
+                      onDelete={onDeleteSession}
+                      onLabelToggle={onLabelToggle}
+                    />
+                  ))}
+                </GroupCardItems>
+              );
+            })
           )}
         </div>
       </MiddleSidebar>

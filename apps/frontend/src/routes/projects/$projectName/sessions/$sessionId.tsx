@@ -7,8 +7,8 @@ import {
   getGetApiSessionsProjectNameSessionIdQueryOptions,
   useDeleteApiSessionsProjectNameSessionId,
   useGetApiProjects,
+  useGetApiSessionsProjectName,
   useGetApiSessionsProjectNameSessionId,
-  useInfinitySessions,
   usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -73,33 +73,43 @@ function SessionDetailComponent() {
   const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
     mutation: {
       onMutate: async (variables) => {
-        await queryClient.cancelQueries({ queryKey: ['sessions', variables.projectName, sessionSearch || '', sortBy] });
-
-        const previousData = queryClient.getQueryData(['sessions', variables.projectName, sessionSearch || '', sortBy]);
-
-        queryClient.setQueryData(['sessions', variables.projectName, sessionSearch || '', sortBy], (oldData: any) => {
-          if (!oldData) return oldData;
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page: any) => ({
-              ...page,
-              items: page.items.map((item: any) => {
-                if (item.id !== variables.sessionId) return item;
-
-                const currentLabels = item.labels || [];
-                const hasLabel = currentLabels.includes(variables.data.labelId);
-
-                return {
-                  ...item,
-                  labels: hasLabel
-                    ? currentLabels.filter((id: string) => id !== variables.data.labelId)
-                    : [...currentLabels, variables.data.labelId]
-                };
-              })
-            }))
-          };
+        await queryClient.cancelQueries({
+          queryKey: ['sessions-grouped', variables.projectName, groupBy, sessionSearch || '']
         });
+
+        const previousData = queryClient.getQueryData([
+          'sessions-grouped',
+          variables.projectName,
+          groupBy,
+          sessionSearch || ''
+        ]);
+
+        queryClient.setQueryData(
+          ['sessions-grouped', variables.projectName, groupBy, sessionSearch || ''],
+          (oldData: any) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              groups: oldData.groups.map((group: any) => ({
+                ...group,
+                items: group.items.map((item: any) => {
+                  if (item.id !== variables.sessionId) return item;
+
+                  const currentLabels = item.labels || [];
+                  const hasLabel = currentLabels.includes(variables.data.labelId);
+
+                  return {
+                    ...item,
+                    labels: hasLabel
+                      ? currentLabels.filter((id: string) => id !== variables.data.labelId)
+                      : [...currentLabels, variables.data.labelId]
+                  };
+                })
+              }))
+            };
+          }
+        );
 
         return { previousData };
       },
@@ -109,7 +119,7 @@ function SessionDetailComponent() {
 
         if (context?.previousData) {
           queryClient.setQueryData(
-            ['sessions', variables.projectName, sessionSearch || '', sortBy],
+            ['sessions-grouped', variables.projectName, groupBy, sessionSearch || ''],
             context.previousData
           );
         }
@@ -119,16 +129,25 @@ function SessionDetailComponent() {
 
   const { data: projects } = useGetApiProjects();
 
-  const sortBy = urlSortBy || (groupBy === 'token-percentage' ? 'token-percentage' : 'date');
-
   const {
-    data: sessionsData,
-    isLoading: sessionsLoading,
-    error: sessionsError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage
-  } = useInfinitySessions(projectName, sessionSearch || '', sortBy, hasHydrated);
+    data: groupedData,
+    isLoading: isLoadingGrouped,
+    error: errorGrouped
+  } = useGetApiSessionsProjectName(
+    projectName,
+    { groupBy, search: sessionSearch || undefined },
+    {
+      query: {
+        enabled: hasHydrated,
+        staleTime: 2 * 60 * 1000,
+        gcTime: 5 * 60 * 1000,
+        placeholderData: (previousData) => previousData
+      }
+    }
+  );
+
+  const sessions = groupedData?.groups || [];
+  const totalSessions = groupedData?.meta.totalItems || 0;
   const {
     data: sessionData,
     isLoading: sessionLoading,
@@ -137,10 +156,8 @@ function SessionDetailComponent() {
     query: { enabled: !!(projectName && sessionId) }
   });
 
-  const sessions = sessionsData?.pages.flatMap((page) => page.items) || [];
-  const totalSessions = sessionsData?.pages[0]?.meta.totalItems || 0;
   const selectedProjectData = projects?.find((p) => p.id === projectName);
-  const currentSession = sessions?.find((s) => s.id === sessionId);
+  const currentSession = sessions.flatMap((g) => g.items).find((s) => s.id === sessionId);
 
   const shouldEnableStream = !!(sessionId && selectedProjectData?.path && selectedProjectData?.name);
 
@@ -228,7 +245,7 @@ function SessionDetailComponent() {
       { projectName, sessionId: sessionToDelete },
       {
         onSuccess: async () => {
-          queryClient.setQueryData(['sessions', projectName, sessionSearch || '', sortBy], (oldData: any) => {
+          queryClient.setQueryData(['sessions-grouped', projectName, groupBy, sessionSearch || ''], (oldData: any) => {
             if (!oldData) return oldData;
 
             return {
@@ -392,16 +409,16 @@ function SessionDetailComponent() {
         sidebar={
           <SessionsSidebar
             sessions={sessions}
-            isLoading={sessionsLoading}
-            error={sessionsError}
+            isLoading={isLoadingGrouped}
+            error={errorGrouped}
             projectName={selectedProjectData?.name || projectName}
             projectPath={selectedProjectData?.path || ''}
             selectedSessionId={sessionId}
             totalSessions={totalSessions}
             searchValue={sessionSearch}
-            hasNextPage={hasNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-            onLoadMore={() => fetchNextPage()}
+            hasNextPage={false}
+            isFetchingNextPage={false}
+            onLoadMore={() => {}}
             onSearchChange={handleSearchChange}
             onBack={handleBack}
             onSelectSession={handleSelectSession}

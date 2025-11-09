@@ -6,7 +6,9 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type GetApiSessionsProjectName200Meta = {
+export type GetApiSessionsProjectName200AnyOfMeta = {
   totalItems: number;
-  totalGroups: number;
+  totalPages: number;
+  page: number;
+  limit: number;
 };
