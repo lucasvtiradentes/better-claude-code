@@ -4,9 +4,9 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Toaster } from 'sonner';
+import { useSettingsSync } from './common/hooks/use-settings-sync';
+import { queryClient } from './common/lib/tanstack-query';
 import { configs } from './configs';
-import { useSettingsSync } from './hooks/use-settings-sync';
-import { queryClient } from './lib/tanstack-query';
 import { routeTree } from './routeTree.gen';
 import './index.css';
 

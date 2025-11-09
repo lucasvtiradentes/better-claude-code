@@ -1,7 +1,7 @@
 import { FolderEntry } from '@better-claude-code/shared';
 import { MoreHorizontal, Search, Tag, Trash2 } from 'lucide-react';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
-import { IconWithBadge } from '@/components/IconWithBadge';
+import { IconWithBadge } from '@/common/components/IconWithBadge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +11,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+} from '@/common/components/ui/dropdown-menu';
+import { useSettingsStore } from '@/common/stores/settings-store';
 import {
   getCommandInTitleColor,
   getFileInTitleColor,
@@ -22,7 +23,6 @@ import {
   getUrlColor,
   parseTitle
 } from '@/features/projects/utils/message-patterns';
-import { useSettingsStore } from '@/stores/settings-store';
 import { SessionBadges } from './SessionBadges';
 
 type SessionCardProps = {

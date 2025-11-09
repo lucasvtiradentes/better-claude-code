@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useGetApiSettings } from '@/api';
-import { useSettingsStore } from '@/stores/settings-store';
+import { useSettingsStore } from '@/common/stores/settings-store';
 
 export function useSettingsSync() {
   const { data: settings } = useGetApiSettings();

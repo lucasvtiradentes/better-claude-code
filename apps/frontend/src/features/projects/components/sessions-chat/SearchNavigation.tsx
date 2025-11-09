@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/common/components/ui/button';
 
 type SearchNavigationProps = {
   searchTerm: string;

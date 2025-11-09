@@ -5,12 +5,12 @@ import { useDeleteApiSettingsLabelsLabelId, usePatchApiSettingsLabelsLabelId, us
 import { getGetApiProjectsQueryKey } from '@/api/_generated/projects/projects';
 import type { GetApiSettings200ProjectsLabelsItem } from '@/api/_generated/schemas';
 import { getGetApiSettingsQueryKey } from '@/api/_generated/settings/settings';
-import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { queryClient } from '@/lib/tanstack-query';
-import { useSettingsStore } from '@/stores/settings-store';
+import { ConfirmDialog } from '@/common/components/ConfirmDialog';
+import { Button } from '@/common/components/ui/button';
+import { Form, FormControl, FormField, FormItem } from '@/common/components/ui/form';
+import { Input } from '@/common/components/ui/input';
+import { queryClient } from '@/common/lib/tanstack-query';
+import { useSettingsStore } from '@/common/stores/settings-store';
 
 type LabelFormData = {
   name: string;

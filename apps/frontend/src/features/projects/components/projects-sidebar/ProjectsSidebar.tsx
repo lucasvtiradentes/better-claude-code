@@ -3,9 +3,9 @@ import { useMemo } from 'react';
 import { toast } from 'sonner';
 import { getGetApiProjectsQueryKey, usePostApiProjectsProjectsProjectIdLabelsToggle } from '@/api';
 import type { GetApiProjects200AnyOfItem, GetApiProjects200AnyOfTwoGroupsItem } from '@/api/_generated/schemas';
-import { GroupCardItems } from '@/components/GroupCardItems';
-import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { useSettingsStore } from '@/stores/settings-store';
+import { GroupCardItems } from '@/common/components/GroupCardItems';
+import { MiddleSidebar } from '@/common/components/layout/MiddleSidebar';
+import { useSettingsStore } from '@/common/stores/settings-store';
 import { ProjectCard } from './ProjectCard';
 import { ProjectsHeader } from './ProjectsHeader';
 

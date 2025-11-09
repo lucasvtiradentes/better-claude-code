@@ -1,6 +1,6 @@
 import { FileText, Image, Link, Search, Terminal } from 'lucide-react';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
-import { IconWithBadge } from '@/components/IconWithBadge';
+import { IconWithBadge } from '@/common/components/IconWithBadge';
 
 type SessionBadgesProps = {
   session: GetApiSessionsProjectName200ItemsItem;

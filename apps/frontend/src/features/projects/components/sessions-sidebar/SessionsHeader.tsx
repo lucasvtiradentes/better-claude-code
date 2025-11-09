@@ -1,7 +1,7 @@
 import { ProjectAction } from '@better-claude-code/shared';
 import { ArrowLeft, Code, Plus, Settings, Terminal } from 'lucide-react';
 import { usePostApiProjectsProjectIdActionAction } from '@/api';
-import { SearchInput } from '@/components/SearchInput';
+import { SearchInput } from '@/common/components/SearchInput';
 
 type SessionsHeaderProps = {
   projectName: string;

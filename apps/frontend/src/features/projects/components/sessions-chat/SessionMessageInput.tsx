@@ -1,7 +1,7 @@
 import { ImagePlus, Loader2, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/common/components/ui/button';
+import { Textarea } from '@/common/components/ui/textarea';
 
 type LiveMessageInputProps = {
   onSend: (message: string, imagePaths?: string[]) => void;

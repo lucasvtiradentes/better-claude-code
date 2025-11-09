@@ -1,5 +1,5 @@
 import { useGetApiProjects } from '@/api';
-import { Layout } from '@/components/layout/Layout';
+import { Layout } from '@/common/components/layout/Layout';
 
 export function DashboardPage() {
   const { data: projectsData, isLoading, error } = useGetApiProjects();

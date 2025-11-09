@@ -1,6 +1,6 @@
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
-import { SearchInput } from '@/components/SearchInput';
+import { SearchInput } from '@/common/components/SearchInput';
 import { ProjectSettingsModal } from '../projects-settings/ProjectSettingsModal';
 
 type ProjectsHeaderProps = {

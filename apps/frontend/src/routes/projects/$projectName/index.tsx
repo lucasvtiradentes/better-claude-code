@@ -7,10 +7,10 @@ import {
   useGetApiSessionsProjectName,
   usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
-import { Layout } from '@/components/layout/Layout';
+import { Layout } from '@/common/components/layout/Layout';
+import { useProjectSessionUIStore } from '@/common/stores/project-session-ui-store';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
-import { useProjectSessionUIStore } from '@/stores/project-session-ui-store';
 
 type SessionsSearchParams = {
   projectSearch?: string;

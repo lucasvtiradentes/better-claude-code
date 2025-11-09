@@ -1,9 +1,9 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useRef, useState } from 'react';
 import type { GetApiSessionsProjectName200GroupsItem } from '@/api/_generated/schemas';
-import { GroupCardItems } from '@/components/GroupCardItems';
-import { MiddleSidebar } from '@/components/layout/MiddleSidebar';
-import { useSettingsStore } from '@/stores/settings-store';
+import { GroupCardItems } from '@/common/components/GroupCardItems';
+import { MiddleSidebar } from '@/common/components/layout/MiddleSidebar';
+import { useSettingsStore } from '@/common/stores/settings-store';
 import { SessionSettingsModal } from '../sessions-settings/SessionSettingsModal';
 import { SessionCard } from './SessionCard';
 import { SessionsHeader } from './SessionsHeader';

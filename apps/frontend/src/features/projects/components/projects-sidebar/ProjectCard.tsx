@@ -3,7 +3,7 @@ import { Code, FolderOpen, Github, MessageSquare, MoreHorizontal, Tag, Terminal 
 import { twMerge } from 'tailwind-merge';
 import { usePostApiProjectsProjectIdActionAction } from '@/api';
 import type { GetApiProjects200Item } from '@/api/_generated/schemas';
-import { IconWithBadge } from '@/components/IconWithBadge';
+import { IconWithBadge } from '@/common/components/IconWithBadge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,9 +12,9 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+} from '@/common/components/ui/dropdown-menu';
+import { useSettingsStore } from '@/common/stores/settings-store';
 import { getLabelActiveColor } from '@/features/projects/utils/message-patterns';
-import { useSettingsStore } from '@/stores/settings-store';
 
 type ProjectCardProps = {
   project: GetApiProjects200Item;

@@ -12,8 +12,10 @@ import {
   useGetApiSessionsProjectNameSessionId,
   usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
-import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { Layout } from '@/components/layout/Layout';
+import { ConfirmDialog } from '@/common/components/ConfirmDialog';
+import { Layout } from '@/common/components/layout/Layout';
+import { queryClient } from '@/common/lib/tanstack-query';
+import { useProjectSessionUIStore } from '@/common/stores/project-session-ui-store';
 import { useClaudeStream } from '@/features/live-sessions/hooks/useClaudeStream';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { ProjectsContent } from '@/features/projects/components/ProjectsContent';
@@ -22,8 +24,6 @@ import { useMessageFilter } from '@/features/projects/hooks/use-message-filter';
 import { useModalState } from '@/features/projects/hooks/use-modal-state';
 import { useScrollPersistence } from '@/features/projects/hooks/use-scroll-persistence';
 import { useFilterStore } from '@/features/projects/stores/filter-store';
-import { queryClient } from '@/lib/tanstack-query';
-import { useProjectSessionUIStore } from '@/stores/project-session-ui-store';
 
 type SessionDetailSearchParams = {
   projectSearch?: string;

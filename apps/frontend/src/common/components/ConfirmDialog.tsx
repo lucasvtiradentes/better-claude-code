@@ -1,6 +1,6 @@
 import { AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/common/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/common/components/ui/dialog';
 
 interface ConfirmDialogProps {
   open: boolean;

@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useCallback } from 'react';
 import { useGetApiProjects } from '@/api';
-import { Layout } from '@/components/layout/Layout';
+import { Layout } from '@/common/components/layout/Layout';
+import { useProjectUIStore } from '@/common/stores/project-ui-store';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
-import { useProjectUIStore } from '@/stores/project-ui-store';
 
 type ProjectsSearchParams = {
   projectSearch?: string;

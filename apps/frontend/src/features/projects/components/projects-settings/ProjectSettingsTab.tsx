@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { usePatchApiSettings } from '@/api';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useProjectUIStore } from '@/stores/project-ui-store';
-import { useSettingsStore } from '@/stores/settings-store';
+import { Checkbox } from '@/common/components/ui/checkbox';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/common/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/common/components/ui/select';
+import { useProjectUIStore } from '@/common/stores/project-ui-store';
+import { useSettingsStore } from '@/common/stores/settings-store';
 
 type SettingsFormData = {
   groupBy: 'date' | 'label' | 'session-count';

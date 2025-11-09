@@ -1,6 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import { Edit, FolderOpen, Home, Moon, Settings as SettingsIcon, Sun } from 'lucide-react';
-import { Theme, useTheme } from '../../hooks/use-theme';
+import { Theme, useTheme } from '@/common/hooks/use-theme';
 
 type NavItem = {
   path: string;

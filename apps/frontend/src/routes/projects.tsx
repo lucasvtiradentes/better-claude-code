@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { getGetApiSettingsQueryOptions } from '@/api';
-import { queryClient } from '@/lib/tanstack-query';
+import { queryClient } from '@/common/lib/tanstack-query';
 
 export const Route = createFileRoute('/projects')({
   component: ProjectsLayout,
