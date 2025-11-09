@@ -43,9 +43,13 @@ export const SessionsHeader = ({
         >
           <ArrowLeft size={16} />
         </button>
-        <span className="font-semibold text-sm">
-          {projectName} ({totalSessions})
-        </span>
+        {projectName === '...' ? (
+          <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+        ) : (
+          <span className="font-semibold text-sm">
+            {projectName}{totalSessions > 0 ? ` (${totalSessions})` : ''}
+          </span>
+        )}
         <div className="absolute right-0 flex items-center gap-1.5">
           {isGitRepo && (
             <button

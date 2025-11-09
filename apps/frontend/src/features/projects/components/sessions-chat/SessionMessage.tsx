@@ -1,3 +1,4 @@
+import { Bot } from 'lucide-react';
 import type { GetApiSessionsProjectNameSessionId200MessagesItem } from '@/api/_generated/schemas';
 import { MessageSource as FormatterSource, formatMessageContent } from '@/features/projects/utils/message-formatter';
 import { isUserMessage } from '../../utils/message-utils';
@@ -47,31 +48,41 @@ export const SessionMessage = ({
     }
   };
 
+  const isUser = isUserMessage(message.type);
+
   return (
-    <div
-      className={`
-        mb-3 p-2 px-3 rounded-md wrap-break-word
-        ${isUserMessage(message.type) ? 'bg-secondary ml-10' : 'bg-card mr-10'}
-        ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
-      `}
-    >
-      <div className="text-[11px] font-semibold mb-1 opacity-70 uppercase leading-none">
-        {isUserMessage(message.type) ? 'User' : 'Claude Code'}
+    <div className={`mb-3 flex gap-2 items-start ${isUser ? 'justify-end' : ''}`}>
+      {!isUser && (
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground mt-2">
+          <Bot className="h-4 w-4" />
+        </div>
+      )}
+
+      <div
+        className={`
+          p-2 px-3 rounded-md wrap-break-word
+          ${isUser ? 'bg-secondary ml-10' : 'bg-card mr-10'}
+          ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
+        `}
+      >
+        {/* biome-ignore lint/a11y/useSemanticElements: dangerouslySetInnerHTML requires div */}
+        <div
+          className="whitespace-pre-wrap"
+          onClick={handleClick}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              handleClick(e as any);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       </div>
 
-      {/* biome-ignore lint/a11y/useSemanticElements: dangerouslySetInnerHTML requires div */}
-      <div
-        className="whitespace-pre-wrap"
-        onClick={handleClick}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            handleClick(e as any);
-          }
-        }}
-        role="button"
-        tabIndex={0}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      {isUser && (
+        <img src="https://github.com/lucasvtiradentes.png" alt="User" className="h-6 w-6 shrink-0 rounded-full mt-2" />
+      )}
     </div>
   );
 };

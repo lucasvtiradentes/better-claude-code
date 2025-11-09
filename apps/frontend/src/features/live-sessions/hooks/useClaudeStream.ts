@@ -16,7 +16,7 @@ type ToolCall = {
   args: any;
 };
 
-export function useClaudeStream(sessionId: string, projectPath: string, projectName: string) {
+export function useClaudeStream(sessionId: string, projectPath: string, projectName: string, enabled: boolean = true) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<StreamStatus>('idle');
@@ -29,6 +29,8 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
   const eventSourceRef = useRef<EventSource | null>(null);
   const currentMessageRef = useRef<string>('');
   const preventCleanupRef = useRef<boolean>(false);
+  const isConnectingRef = useRef<boolean>(false);
+  const connectedSessionRef = useRef<string | null>(null);
 
   const cleanup = useCallback(() => {
     console.log('[cleanup] Closing EventSource');
@@ -36,6 +38,7 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
       eventSourceRef.current.close();
       eventSourceRef.current = null;
     }
+    isConnectingRef.current = false;
   }, []);
 
   const initializeSession = useCallback(async () => {
@@ -56,10 +59,18 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
       return;
     }
 
+    if (isConnectingRef.current) {
+      console.log('[connectStream] Already connecting, skipping duplicate connection attempt');
+      return;
+    }
+
+    isConnectingRef.current = true;
+
     const initialized = await initializeSession();
     if (!initialized) {
       setError('Failed to initialize session');
       setStatus('error');
+      isConnectingRef.current = false;
       return;
     }
 
@@ -187,9 +198,13 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
         setError('Connection lost');
         setStatus('error');
         cleanup();
+        isConnectingRef.current = false;
       };
 
       eventSourceRef.current = es;
+      connectedSessionRef.current = sessionId;
+      isConnectingRef.current = false;
+      console.log('[connectStream] Connection established for session:', sessionId);
   }, [sessionId, projectPath, projectName, cleanup, initializeSession, navigate]);
 
   const sendMessage = useCallback(
@@ -361,7 +376,17 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
   );
 
   useEffect(() => {
-    console.log('[useClaudeStream] useEffect triggered - sessionId:', sessionId, 'hasEventSource:', !!eventSourceRef.current, 'preventCleanup:', preventCleanupRef.current);
+    console.log('[useClaudeStream] useEffect triggered - sessionId:', sessionId, 'enabled:', enabled, 'projectPath:', projectPath, 'hasEventSource:', !!eventSourceRef.current, 'connectedSession:', connectedSessionRef.current, 'preventCleanup:', preventCleanupRef.current);
+
+    if (!enabled || !sessionId || !projectPath || sessionId === 'placeholder' || projectPath === 'placeholder') {
+      console.log('[useClaudeStream] Stream disabled or missing required params, skipping connection');
+      return;
+    }
+
+    if (connectedSessionRef.current === sessionId && eventSourceRef.current) {
+      console.log('[useClaudeStream] Already connected to this session, skipping reconnection');
+      return;
+    }
 
     if (sessionId !== 'new' && !eventSourceRef.current) {
       console.log('[useClaudeStream] Connecting stream for session:', sessionId);
@@ -375,16 +400,23 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
     }
 
     return () => {
-      console.log('[useClaudeStream] Cleanup triggered for sessionId:', sessionId, 'preventCleanup:', preventCleanupRef.current);
-      if (!preventCleanupRef.current) {
-        console.log('[useClaudeStream] Calling cleanup()');
-        cleanup();
-      } else {
-        console.log('[useClaudeStream] Skipping cleanup in useEffect return due to preventCleanup flag');
+      console.log('[useClaudeStream] Cleanup triggered for sessionId:', sessionId, 'connectedSession:', connectedSessionRef.current, 'preventCleanup:', preventCleanupRef.current);
+
+      if (preventCleanupRef.current) {
+        console.log('[useClaudeStream] Skipping cleanup due to preventCleanup flag');
         preventCleanupRef.current = false;
+        return;
+      }
+
+      if (connectedSessionRef.current !== sessionId) {
+        console.log('[useClaudeStream] SessionId will change, calling cleanup()');
+        cleanup();
+        connectedSessionRef.current = null;
+      } else {
+        console.log('[useClaudeStream] Staying on same session, skipping cleanup');
       }
     };
-  }, [sessionId, connectStream, cleanup]);
+  }, [sessionId, enabled, projectPath, connectStream, cleanup]);
 
   return {
     messages,

@@ -84,10 +84,13 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
   const selectedProjectData = projects?.find((p) => p.id === selectedProject);
   const currentSession = sessions?.find((s) => s.id === sessionId);
 
+  const shouldEnableStream = !!(sessionId && selectedProjectData?.path && selectedProjectData?.name);
+
   const { messages: liveMessages, sendMessage } = useClaudeStream(
-    sessionId || '',
-    selectedProjectData?.path || '',
-    selectedProjectData?.name || ''
+    sessionId || 'placeholder',
+    selectedProjectData?.path || 'placeholder',
+    selectedProjectData?.name || 'placeholder',
+    shouldEnableStream
   );
 
   const { imageModalIndex, setImageModalIndex, fileModalPath, setFileModalPath, folderModalPath, setFolderModalPath } =
@@ -233,12 +236,17 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
     );
   }
 
+  const getProjectDisplayName = () => {
+    if (selectedProjectData?.name) return selectedProjectData.name;
+    return '...';
+  };
+
   const sessionsSidebar = (
     <SessionsSidebar
       sessions={sessions}
       isLoading={sessionsLoading}
       error={sessionsError}
-      projectName={selectedProjectData?.name || selectedProject}
+      projectName={getProjectDisplayName()}
       projectPath={selectedProjectData?.path || ''}
       selectedSessionId={sessionId}
       totalSessions={totalSessions}

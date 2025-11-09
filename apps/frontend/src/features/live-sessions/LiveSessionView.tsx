@@ -18,7 +18,7 @@ export const LiveSessionView = ({ sessionId, projectPath, projectName }: LiveSes
   const [showPermissionModal, setShowPermissionModal] = useState(false);
 
   const { messages, status, error, pendingPermissions, toolCalls, sendMessage, cancel, approvePermissions } =
-    useClaudeStream(sessionId, projectPath, projectName);
+    useClaudeStream(sessionId, projectPath, projectName, true);
 
   const handleSendMessage = (message: string) => {
     sendMessage(message);

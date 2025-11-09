@@ -9,6 +9,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
+* {
+  scrollbar-gutter: stable;
+}
+
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
