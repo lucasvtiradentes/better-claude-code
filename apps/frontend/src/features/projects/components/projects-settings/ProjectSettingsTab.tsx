@@ -14,7 +14,7 @@ type SettingsFormData = {
   showActionButtons: boolean;
 };
 
-export const SettingsTab = () => {
+export const ProjectSettingsTab = () => {
   const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: updateSettings } = usePatchApiSettings();
   const { groupBy, setGroupBy } = useProjectUIStore();

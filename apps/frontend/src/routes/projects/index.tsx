@@ -23,7 +23,11 @@ function ProjectsListComponent() {
   const groupBy = useProjectUIStore((state) => state.groupBy);
   const hasHydrated = useProjectUIStore((state) => state._hasHydrated);
 
-  const { data: projectsData, isLoading, error } = useGetApiProjects(
+  const {
+    data: projectsData,
+    isLoading,
+    error
+  } = useGetApiProjects(
     { groupBy },
     {
       query: {

@@ -7,6 +7,7 @@ import {
   usePostApiSettingsSessionsLabels
 } from '@/api';
 import type { GetApiSettings200SessionsLabelsItem } from '@/api/_generated/schemas';
+import { getGetApiSessionsProjectNameQueryKey } from '@/api/_generated/sessions/sessions';
 import { getGetApiSettingsQueryKey } from '@/api/_generated/settings/settings';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Button } from '@/components/ui/button';
@@ -64,6 +65,7 @@ export const SessionLabelsTab = () => {
           setEditingId(null);
           editForm.reset();
           queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetApiSessionsProjectNameQueryKey() });
         }
       }
     );
@@ -77,6 +79,7 @@ export const SessionLabelsTab = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetApiSessionsProjectNameQueryKey() });
           setDeletingLabel(null);
         }
       }
@@ -141,7 +144,12 @@ export const SessionLabelsTab = () => {
             ) : (
               <>
                 <div className="w-6 h-6 rounded" style={{ backgroundColor: label.color }} />
-                <span className="flex-1 text-sm text-foreground">{label.name}</span>
+                <span className="flex-1 text-sm text-foreground">
+                  {label.name}{' '}
+                  <span className="text-xs text-muted-foreground">
+                    ({Object.values(label.sessions || {}).flat().length})
+                  </span>
+                </span>
                 <Button
                   type="button"
                   size="icon"

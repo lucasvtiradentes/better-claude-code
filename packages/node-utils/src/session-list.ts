@@ -457,7 +457,6 @@ function getLabelsFromSettings(
 async function processSessionFile(
   filePath: string,
   file: string,
-  sessionsPath: string,
   projectName: string,
   options: {
     search: string;
@@ -631,7 +630,7 @@ export async function listSessions(options: SessionListOptions): Promise<Session
 
     if (enablePagination) {
       const sessionPromises = fileStats.map(({ file, filePath }) =>
-        processSessionFile(filePath, file, sessionsPath, normalizedPath, processOptions)
+        processSessionFile(filePath, file, normalizedPath, processOptions)
       );
 
       const sessionsResults = await Promise.all(sessionPromises);
@@ -656,7 +655,7 @@ export async function listSessions(options: SessionListOptions): Promise<Session
 
     const filesToProcess = fileStats.slice(0, limit);
     const sessionPromises = filesToProcess.map(({ file, filePath }) =>
-      processSessionFile(filePath, file, sessionsPath, normalizedPath, processOptions)
+      processSessionFile(filePath, file, normalizedPath, processOptions)
     );
 
     const sessionsResults = await Promise.all(sessionPromises);
@@ -667,7 +666,7 @@ export async function listSessions(options: SessionListOptions): Promise<Session
 
   const sessionPromises = sessionFiles.map((file) => {
     const filePath = join(sessionsPath, file);
-    return processSessionFile(filePath, file, sessionsPath, normalizedPath, processOptions);
+    return processSessionFile(filePath, file, normalizedPath, processOptions);
   });
 
   const sessionsResults = await Promise.all(sessionPromises);

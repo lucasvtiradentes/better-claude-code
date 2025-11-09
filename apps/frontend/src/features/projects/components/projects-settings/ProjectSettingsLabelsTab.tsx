@@ -2,6 +2,7 @@ import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDeleteApiSettingsLabelsLabelId, usePatchApiSettingsLabelsLabelId, usePostApiSettingsLabels } from '@/api';
+import { getGetApiProjectsQueryKey } from '@/api/_generated/projects/projects';
 import type { GetApiSettings200ProjectsLabelsItem } from '@/api/_generated/schemas';
 import { getGetApiSettingsQueryKey } from '@/api/_generated/settings/settings';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -16,7 +17,7 @@ type LabelFormData = {
   color: string;
 };
 
-export const LabelsTab = () => {
+export const ProjectSettingsLabelsTab = () => {
   const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: addLabel } = usePostApiSettingsLabels();
   const { mutate: updateLabel } = usePatchApiSettingsLabelsLabelId();
@@ -60,6 +61,7 @@ export const LabelsTab = () => {
           setEditingId(null);
           editForm.reset();
           queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetApiProjectsQueryKey() });
         }
       }
     );
@@ -73,6 +75,7 @@ export const LabelsTab = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetApiProjectsQueryKey() });
           setDeletingLabel(null);
         }
       }
@@ -137,7 +140,9 @@ export const LabelsTab = () => {
             ) : (
               <>
                 <div className="w-6 h-6 rounded" style={{ backgroundColor: label.color }} />
-                <span className="flex-1 text-sm text-foreground">{label.name}</span>
+                <span className="flex-1 text-sm text-foreground">
+                  {label.name} <span className="text-xs text-muted-foreground">({label.projects?.length || 0})</span>
+                </span>
                 <Button
                   type="button"
                   size="icon"
