@@ -1,6 +1,6 @@
 export const MESSAGE_COLORS = {
   // image
-  EXISTING_IMAGE_TAG: 'text-chart-4 bg-chart-4/20 border-chart-4/30 hover:bg-chart-4/30',
+  EXISTING_IMAGE_TAG: 'text-chart-4 bg-chart-4/20 border-chart-4/30',
   NOT_FOUND_IMAGE_TAG: 'text-chart-4/50 bg-chart-4/10 border-chart-4/20 line-through',
 
   // mentionated file or folder

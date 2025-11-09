@@ -54,10 +54,7 @@ export const SessionMessage = ({
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     const target = e.target as HTMLElement;
 
-    if (target.dataset.imageIndex) {
-      const index = Number.parseInt(target.dataset.imageIndex, 10);
-      onImageClick(index);
-    } else if (target.dataset.path && onPathClick) {
+    if (target.dataset.path && onPathClick) {
       const exists = target.dataset.exists === 'true';
       if (exists) {
         onPathClick(target.dataset.path);
@@ -121,39 +118,24 @@ export const SessionMessage = ({
           );
         })}
 
-        {allImageRefs.length > 0 && (
+        {isUser && allImageRefs.filter(img => img.data).length > 0 && (
           <div className="mt-2 flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-            {allImageRefs.map((imageRef) => (
+            {allImageRefs.filter(img => img.data).map((imageRef) => (
               <div key={imageRef.index} className="shrink-0">
-                {imageRef.data ? (
-                  <button
-                    type="button"
-                    onClick={() => onImageClick(imageRef.index)}
-                    className="relative block w-32 h-32 rounded-lg border border-border overflow-hidden hover:opacity-90 transition-opacity cursor-pointer"
-                  >
-                    <img
-                      src={`data:image/png;base64,${imageRef.data}`}
-                      alt={`#${imageRef.index}`}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 bg-black/70 text-white text-xs font-semibold px-1.5 py-0.5 rounded-tr-md">
-                      #{imageRef.index}
-                    </div>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => imageRef.exists && onImageClick(imageRef.index)}
-                    disabled={!imageRef.exists}
-                    className={`flex items-center justify-center w-32 h-32 rounded-lg border text-sm font-semibold transition-colors ${
-                      imageRef.exists
-                        ? 'border-chart-1 bg-chart-1/10 text-chart-1 hover:bg-chart-1/20 cursor-pointer'
-                        : 'border-muted-foreground/20 bg-muted/10 text-muted-foreground cursor-not-allowed opacity-50'
-                    }`}
-                  >
-                    [Image {imageRef.index}]
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => onImageClick(imageRef.index)}
+                  className="relative block w-32 h-32 rounded-lg border border-border overflow-hidden hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  <img
+                    src={`data:image/png;base64,${imageRef.data}`}
+                    alt={`#${imageRef.index}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-0 left-0 bg-black/70 text-white text-xs font-semibold px-1.5 py-0.5 rounded-tr-md">
+                    #{imageRef.index}
+                  </div>
+                </button>
               </div>
             ))}
           </div>

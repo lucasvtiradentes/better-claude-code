@@ -300,8 +300,12 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
         onPreviousMatch={handlePreviousMatch}
         onCloseSearch={() => updateSearch({ search: undefined })}
         onImageClick={(index: number) => {
-          setImageModalIndex(index);
-          updateSearch({ imageIndex: index });
+          if (!sessionData) return;
+          const arrayPosition = sessionData.images.findIndex((img) => img.index === index);
+          if (arrayPosition !== -1) {
+            setImageModalIndex(arrayPosition);
+            updateSearch({ imageIndex: arrayPosition });
+          }
         }}
         onPathClick={(path: string) => handlePathClick(path, folderModalPath, setFileModalPath, setFolderModalPath)}
         onImageModalClose={() => {
@@ -309,19 +313,16 @@ export function ProjectsPage({ searchParams }: ProjectsPageProps) {
           updateSearch({});
         }}
         onImageModalNext={() => {
-          if (!sessionData) return;
-          const currentIdx = sessionData.images.findIndex((img) => img.index === imageModalIndex);
-          const nextIndex = sessionData.images[(currentIdx + 1) % sessionData.images.length].index;
-          setImageModalIndex(nextIndex);
-          updateSearch({ imageIndex: nextIndex });
+          if (!sessionData || imageModalIndex === null) return;
+          const nextIdx = (imageModalIndex + 1) % sessionData.images.length;
+          setImageModalIndex(nextIdx);
+          updateSearch({ imageIndex: nextIdx });
         }}
         onImageModalPrev={() => {
-          if (!sessionData) return;
-          const currentIdx = sessionData.images.findIndex((img) => img.index === imageModalIndex);
-          const prevIndex =
-            sessionData.images[(currentIdx - 1 + sessionData.images.length) % sessionData.images.length].index;
-          setImageModalIndex(prevIndex);
-          updateSearch({ imageIndex: prevIndex });
+          if (!sessionData || imageModalIndex === null) return;
+          const prevIdx = (imageModalIndex - 1 + sessionData.images.length) % sessionData.images.length;
+          setImageModalIndex(prevIdx);
+          updateSearch({ imageIndex: prevIdx });
         }}
         onFileModalClose={() => {
           setFileModalPath(null);

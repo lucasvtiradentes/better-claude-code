@@ -76,10 +76,8 @@ export function formatMessageContent(
     imageRefs.push({ index, exists, data: image?.data });
 
     const colorClasses = exists ? MESSAGE_COLORS.EXISTING_IMAGE_TAG : MESSAGE_COLORS.NOT_FOUND_IMAGE_TAG;
-    const interactionClasses = exists ? 'cursor-pointer' : '';
-    const classes = `inline-block text-sm px-2 py-1 rounded border transition-colors font-semibold ${colorClasses} ${interactionClasses}`;
-    const dataAttr = exists ? `data-image-index="${index}"` : '';
-    return `<span ${dataAttr} class="${classes}">[Image #${index}]</span>`;
+    const classes = `inline-block text-sm px-2 py-1 rounded border transition-colors font-semibold ${colorClasses}`;
+    return `<span class="${classes}">[Image #${index}]</span>`;
   });
 
   formatted = formatted.replace(MESSAGE_PATTERNS.FILE_OR_FOLDER_AT, (_match, prefix, filePath) =>

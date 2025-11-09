@@ -20,8 +20,7 @@ export const ImageModal = ({ images, currentIndex, onClose, onNext, onPrev }: Im
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrev]);
 
-  const currentImage = images.find((img) => img.index === currentIndex);
-  const currentImageIndex = images.findIndex((img) => img.index === currentIndex);
+  const currentImage = images[currentIndex];
 
   if (!currentImage) return null;
 
@@ -46,7 +45,7 @@ export const ImageModal = ({ images, currentIndex, onClose, onNext, onPrev }: Im
       </button>
 
       <div className="absolute top-5 left-1/2 -translate-x-1/2 text-foreground text-lg font-semibold z-[10000]">
-        {currentImageIndex + 1} / {images.length}
+        {currentIndex + 1} / {images.length}
       </div>
 
       {images.length > 1 && (
@@ -78,7 +77,7 @@ export const ImageModal = ({ images, currentIndex, onClose, onNext, onPrev }: Im
 
       <img
         src={`data:image/png;base64,${currentImage.data}`}
-        alt={`${currentImageIndex + 1}`}
+        alt={`${currentIndex + 1}`}
         className="max-w-[80%] max-h-[80%] object-contain select-none"
         onClick={(e) => e.stopPropagation()}
       />

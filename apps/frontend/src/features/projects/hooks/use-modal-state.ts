@@ -11,9 +11,8 @@ export function useModalState(
   const [folderModalPath, setFolderModalPath] = useState<string | null>(null);
 
   useEffect(() => {
-    if (urlImageIndex && sessionDataImages) {
-      const imageExists = sessionDataImages.some((img) => img.index === urlImageIndex);
-      if (imageExists) {
+    if (urlImageIndex !== undefined && sessionDataImages) {
+      if (urlImageIndex >= 0 && urlImageIndex < sessionDataImages.length) {
         setImageModalIndex(urlImageIndex);
       }
     }
