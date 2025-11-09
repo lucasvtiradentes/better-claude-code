@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Send } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -9,7 +9,11 @@ type LiveMessageInputProps = {
   placeholder?: string;
 };
 
-export const LiveMessageInput = ({ onSend, disabled = false, placeholder = 'Type your message...' }: LiveMessageInputProps) => {
+export const LiveMessageInput = ({
+  onSend,
+  disabled = false,
+  placeholder = 'Type your message...'
+}: LiveMessageInputProps) => {
   const [message, setMessage] = useState('');
 
   const handleSend = () => {

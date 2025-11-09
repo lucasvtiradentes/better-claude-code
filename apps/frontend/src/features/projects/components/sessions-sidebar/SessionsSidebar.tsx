@@ -6,8 +6,8 @@ import {
   TOKEN_PERCENTAGE_GROUP_LABELS,
   TOKEN_PERCENTAGE_GROUP_ORDER
 } from '@better-claude-code/shared';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useGetApiSettings } from '@/api';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
 import { GroupCardItems } from '@/components/GroupCardItems';

@@ -1,10 +1,14 @@
 import { sessionManager } from '../session-manager';
 import { SessionStatus } from '../types';
 
-export function sendMessage(sessionId: string, message: string, projectPath?: string): { success: boolean; error?: string; pending?: boolean } {
+export function sendMessage(
+  sessionId: string,
+  message: string,
+  _projectPath?: string
+): { success: boolean; error?: string; pending?: boolean } {
   console.log(`[send-message] Received message for session: ${sessionId}`);
 
-  let session = sessionManager.getSession(sessionId);
+  const session = sessionManager.getSession(sessionId);
 
   if (!session) {
     if (sessionId === 'new') {
@@ -35,13 +39,13 @@ export function sendMessage(sessionId: string, message: string, projectPath?: st
   }
 
   try {
-    const userMessage = JSON.stringify({
+    const userMessage = `${JSON.stringify({
       type: 'user',
       message: {
         role: 'user',
         content: [{ type: 'text', text: message }]
       }
-    }) + '\n';
+    })}\n`;
 
     sessionManager.updateStatus(sessionId, SessionStatus.STREAMING);
     session.process.stdin.write(userMessage);

@@ -3,7 +3,6 @@ import { MoreHorizontal, Search, Tag, Trash2 } from 'lucide-react';
 import { useGetApiSettings } from '@/api';
 import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
 import { IconWithBadge } from '@/components/IconWithBadge';
-import { SessionBadges } from './SessionBadges';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +23,7 @@ import {
   getUrlColor,
   parseTitle
 } from '@/features/projects/utils/message-patterns';
+import { SessionBadges } from './SessionBadges';
 
 type SessionCardProps = {
   session: GetApiSessionsProjectName200ItemsItem;

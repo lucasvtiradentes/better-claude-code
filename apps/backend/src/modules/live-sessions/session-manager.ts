@@ -1,6 +1,6 @@
-import type { LiveSessionProcess, Permission, SessionStatus } from './types';
 import { randomUUID } from 'crypto';
 import { EventEmitter } from 'events';
+import type { LiveSessionProcess, Permission, SessionStatus } from './types';
 
 class SessionManager extends EventEmitter {
   private sessions: Map<string, LiveSessionProcess> = new Map();
@@ -36,7 +36,6 @@ class SessionManager extends EventEmitter {
   getSession(sessionId: string): LiveSessionProcess | undefined {
     return this.sessions.get(sessionId);
   }
-
 
   setProcess(sessionId: string, process: any): void {
     const session = this.sessions.get(sessionId);
@@ -101,7 +100,6 @@ class SessionManager extends EventEmitter {
     const session = this.sessions.get(sessionId);
     return session?.messages || [];
   }
-
 
   cleanup(): void {
     for (const [sessionId] of this.sessions) {

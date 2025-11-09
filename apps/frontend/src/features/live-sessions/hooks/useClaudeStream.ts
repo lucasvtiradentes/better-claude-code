@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Permission } from '../types';
 
 type Message = {
@@ -81,131 +81,131 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
     const es = new EventSource(url);
     console.log('[connectStream] Connecting to stream:', url);
 
-      es.addEventListener('message', (e) => {
-        try {
-          const event = JSON.parse(e.data);
+    es.addEventListener('message', (e) => {
+      try {
+        const event = JSON.parse(e.data);
 
-          if (event.type === 'text-chunk') {
-            currentMessageRef.current += event.content;
+        if (event.type === 'text-chunk') {
+          currentMessageRef.current += event.content;
 
-            setMessages((prev) => {
-              const last = prev[prev.length - 1];
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
 
-              if (last?.role === 'assistant') {
-                return [
-                  ...prev.slice(0, -1),
-                  {
-                    ...last,
-                    content: currentMessageRef.current
-                  }
-                ];
-              }
-
+            if (last?.role === 'assistant') {
               return [
-                ...prev,
+                ...prev.slice(0, -1),
                 {
-                  id: crypto.randomUUID(),
-                  role: 'assistant',
-                  content: currentMessageRef.current,
-                  timestamp: new Date()
+                  ...last,
+                  content: currentMessageRef.current
                 }
               ];
-            });
-          }
-        } catch (err) {
-          console.error('Failed to parse message event:', err);
-        }
-      });
+            }
 
-      es.addEventListener('tool', (e) => {
-        try {
-          const event = JSON.parse(e.data);
-
-          if (event.type === 'tool-call') {
-            setToolCalls((prev) => [
+            return [
               ...prev,
               {
-                toolName: event.toolName,
-                args: event.args
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: currentMessageRef.current,
+                timestamp: new Date()
               }
-            ]);
-          }
-        } catch (err) {
-          console.error('Failed to parse tool event:', err);
+            ];
+          });
         }
-      });
+      } catch (err) {
+        console.error('Failed to parse message event:', err);
+      }
+    });
 
-      es.addEventListener('permission', (e) => {
-        try {
-          const event = JSON.parse(e.data);
+    es.addEventListener('tool', (e) => {
+      try {
+        const event = JSON.parse(e.data);
 
-          if (event.type === 'permission-request') {
-            setPendingPermissions((prev) => [...prev, event.permission]);
-          }
-        } catch (err) {
-          console.error('Failed to parse permission event:', err);
+        if (event.type === 'tool-call') {
+          setToolCalls((prev) => [
+            ...prev,
+            {
+              toolName: event.toolName,
+              args: event.args
+            }
+          ]);
         }
-      });
+      } catch (err) {
+        console.error('Failed to parse tool event:', err);
+      }
+    });
 
+    es.addEventListener('permission', (e) => {
+      try {
+        const event = JSON.parse(e.data);
 
-      es.addEventListener('status', (e) => {
-        try {
-          const event = JSON.parse(e.data);
-
-          if (event.type === 'status-change') {
-            setStatus(event.status);
-          }
-        } catch (err) {
-          console.error('Failed to parse status event:', err);
+        if (event.type === 'permission-request') {
+          setPendingPermissions((prev) => [...prev, event.permission]);
         }
-      });
+      } catch (err) {
+        console.error('Failed to parse permission event:', err);
+      }
+    });
 
+    es.addEventListener('status', (e) => {
+      try {
+        const event = JSON.parse(e.data);
 
-      es.addEventListener('history', (e) => {
-        try {
-          const event = JSON.parse(e.data);
+        if (event.type === 'status-change') {
+          setStatus(event.status);
+        }
+      } catch (err) {
+        console.error('Failed to parse status event:', err);
+      }
+    });
 
-          if (event.type === 'history') {
-            console.log('Received message history:', event.messages);
-            setMessages(event.messages.map((msg: any) => ({
+    es.addEventListener('history', (e) => {
+      try {
+        const event = JSON.parse(e.data);
+
+        if (event.type === 'history') {
+          console.log('Received message history:', event.messages);
+          setMessages(
+            event.messages.map((msg: any) => ({
               ...msg,
               timestamp: new Date(msg.timestamp)
-            })));
-          }
-        } catch (err) {
-          console.error('Failed to parse history event:', err);
+            }))
+          );
         }
-      });
+      } catch (err) {
+        console.error('Failed to parse history event:', err);
+      }
+    });
 
-      es.addEventListener('complete', (e) => {
-        console.log('[connectStream] Complete event received:', e.data);
-        setStatus('completed');
-        cleanup();
-      });
+    es.addEventListener('complete', (e) => {
+      console.log('[connectStream] Complete event received:', e.data);
+      setStatus('completed');
+      cleanup();
+    });
 
-      es.addEventListener('error', (e) => {
-        try {
-          const event = JSON.parse((e as any).data || '{}');
-          setError(event.message || 'Stream error occurred');
-        } catch {
-          setError('Connection error occurred');
-        }
-        setStatus('error');
-        cleanup();
-      });
+    es.addEventListener('error', (e) => {
+      try {
+        const event = JSON.parse((e as any).data || '{}');
+        setError(event.message || 'Stream error occurred');
+      } catch {
+        setError('Connection error occurred');
+      }
+      setStatus('error');
+      cleanup();
+    });
 
-      es.onerror = () => {
-        setError('Connection lost');
-        setStatus('error');
-        cleanup();
-        isConnectingRef.current = false;
-      };
-
-      eventSourceRef.current = es;
-      connectedSessionRef.current = sessionId;
+    es.onerror = () => {
+      setError('Connection lost');
+      setStatus('error');
+      cleanup();
       isConnectingRef.current = false;
-      console.log('[connectStream] Connection established for session:', sessionId);
-  }, [sessionId, projectPath, projectName, cleanup, initializeSession, navigate]);
+    };
+
+    eventSourceRef.current = es;
+    connectedSessionRef.current = sessionId;
+    isConnectingRef.current = false;
+    console.log('[connectStream] Connection established for session:', sessionId);
+  }, [sessionId, projectPath, cleanup, initializeSession]);
 
   const sendMessage = useCallback(
     async (userMessage: string) => {
@@ -301,12 +301,15 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
                     if (last?.role === 'assistant') {
                       return [...prev.slice(0, -1), { ...last, content: currentMessageRef.current }];
                     }
-                    return [...prev, {
-                      id: crypto.randomUUID(),
-                      role: 'assistant',
-                      content: currentMessageRef.current,
-                      timestamp: new Date()
-                    }];
+                    return [
+                      ...prev,
+                      {
+                        id: crypto.randomUUID(),
+                        role: 'assistant',
+                        content: currentMessageRef.current,
+                        timestamp: new Date()
+                      }
+                    ];
                   });
                 }
               } catch (err) {
@@ -319,10 +322,12 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
                 const event = JSON.parse(e.data);
                 if (event.type === 'history') {
                   console.log('Received message history:', event.messages);
-                  setMessages(event.messages.map((msg: any) => ({
-                    ...msg,
-                    timestamp: new Date(msg.timestamp)
-                  })));
+                  setMessages(
+                    event.messages.map((msg: any) => ({
+                      ...msg,
+                      timestamp: new Date(msg.timestamp)
+                    }))
+                  );
                 }
               } catch (err) {
                 console.error('Failed to parse history event:', err);
@@ -376,7 +381,20 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
   );
 
   useEffect(() => {
-    console.log('[useClaudeStream] useEffect triggered - sessionId:', sessionId, 'enabled:', enabled, 'projectPath:', projectPath, 'hasEventSource:', !!eventSourceRef.current, 'connectedSession:', connectedSessionRef.current, 'preventCleanup:', preventCleanupRef.current);
+    console.log(
+      '[useClaudeStream] useEffect triggered - sessionId:',
+      sessionId,
+      'enabled:',
+      enabled,
+      'projectPath:',
+      projectPath,
+      'hasEventSource:',
+      !!eventSourceRef.current,
+      'connectedSession:',
+      connectedSessionRef.current,
+      'preventCleanup:',
+      preventCleanupRef.current
+    );
 
     if (!enabled || !sessionId || !projectPath || sessionId === 'placeholder' || projectPath === 'placeholder') {
       console.log('[useClaudeStream] Stream disabled or missing required params, skipping connection');
@@ -400,7 +418,14 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
     }
 
     return () => {
-      console.log('[useClaudeStream] Cleanup triggered for sessionId:', sessionId, 'connectedSession:', connectedSessionRef.current, 'preventCleanup:', preventCleanupRef.current);
+      console.log(
+        '[useClaudeStream] Cleanup triggered for sessionId:',
+        sessionId,
+        'connectedSession:',
+        connectedSessionRef.current,
+        'preventCleanup:',
+        preventCleanupRef.current
+      );
 
       if (preventCleanupRef.current) {
         console.log('[useClaudeStream] Skipping cleanup due to preventCleanup flag');

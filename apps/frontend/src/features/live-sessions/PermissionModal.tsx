@@ -1,7 +1,14 @@
+import { AlertTriangle, Check, FileText, Terminal, X } from 'lucide-react';
 import { useState } from 'react';
-import { Check, X, FileText, Terminal, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 import type { Permission } from './types';
 
 type PermissionModalProps = {
@@ -30,7 +37,11 @@ export const PermissionModal = ({ permissions, onApprove, onClose }: PermissionM
   };
 
   const getIcon = (tool: string) => {
-    if (tool.toLowerCase().includes('file') || tool.toLowerCase().includes('read') || tool.toLowerCase().includes('write')) {
+    if (
+      tool.toLowerCase().includes('file') ||
+      tool.toLowerCase().includes('read') ||
+      tool.toLowerCase().includes('write')
+    ) {
       return <FileText className="h-5 w-5" />;
     }
     if (tool.toLowerCase().includes('bash') || tool.toLowerCase().includes('command')) {

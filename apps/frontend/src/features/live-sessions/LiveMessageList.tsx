@@ -1,8 +1,8 @@
+import { Bot, User, Wrench } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { User, Bot, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Message, StreamStatus } from './types';
 import { StreamingIndicator } from './StreamingIndicator';
+import type { Message, StreamStatus } from './types';
 
 type LiveMessageListProps = {
   messages: Message[];
@@ -17,7 +17,7 @@ export const LiveMessageList = ({ messages, toolCalls, status }: LiveMessageList
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, toolCalls]);
+  });
 
   return (
     <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
@@ -33,10 +33,7 @@ export const LiveMessageList = ({ messages, toolCalls, status }: LiveMessageList
 
       <div className="space-y-4">
         {messages.map((message) => (
-          <div
-            key={message.id}
-            className={cn('flex gap-3', message.role === 'user' ? 'justify-end' : 'justify-start')}
-          >
+          <div key={message.id} className={cn('flex gap-3', message.role === 'user' ? 'justify-end' : 'justify-start')}>
             {message.role === 'assistant' && (
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <Bot className="h-5 w-5" />
@@ -65,8 +62,11 @@ export const LiveMessageList = ({ messages, toolCalls, status }: LiveMessageList
 
         {toolCalls.length > 0 && (
           <div className="space-y-2">
-            {toolCalls.map((tool, idx) => (
-              <div key={idx} className="flex items-center gap-2 rounded-lg bg-secondary/50 p-2 text-sm">
+            {toolCalls.map((tool) => (
+              <div
+                key={`${tool.toolName}-${Math.random()}`}
+                className="flex items-center gap-2 rounded-lg bg-secondary/50 p-2 text-sm"
+              >
                 <Wrench className="h-4 w-4 text-muted-foreground" />
                 <span>
                   Using tool: <strong>{tool.toolName}</strong>

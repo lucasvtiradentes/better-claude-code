@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useClaudeStream } from './hooks/useClaudeStream';
-import { LiveMessageList } from './LiveMessageList';
 import { LiveMessageInput } from './LiveMessageInput';
+import { LiveMessageList } from './LiveMessageList';
 import { PermissionModal } from './PermissionModal';
 
 type LiveSessionViewProps = {

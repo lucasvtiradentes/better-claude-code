@@ -1,11 +1,11 @@
 import { spawn } from 'child_process';
+import { randomUUID } from 'crypto';
 import { existsSync, readFileSync } from 'fs';
+import type { SSEStreamingApi } from 'hono/streaming';
 import { homedir } from 'os';
 import { join } from 'path';
-import { randomUUID } from 'crypto';
-import type { SSEStreamingApi } from 'hono/streaming';
 import { sessionManager } from '../session-manager';
-import { SessionStatus, type LiveSessionEvent, type Permission } from '../types';
+import { type LiveSessionEvent, SessionStatus } from '../types';
 
 function expandPath(path: string): string {
   if (path.startsWith('~/')) {
@@ -19,11 +19,11 @@ function expandPath(path: string): string {
 
 export async function startStream(
   sessionId: string,
-  message: string,
+  _message: string,
   projectPath: string,
   stream: SSEStreamingApi,
-  isFirstMessage = true,
-  resumeSessionId?: string
+  _isFirstMessage = true,
+  _resumeSessionId?: string
 ): Promise<void> {
   console.log(`[start-stream] Starting stream for sessionId: ${sessionId}, projectPath: ${projectPath}`);
 
@@ -63,7 +63,7 @@ export async function startStream(
     console.log('[start-stream] New session, will wait for first message and init event from Claude');
   }
 
-  if (session && session.process && !session.process.killed) {
+  if (session?.process && !session.process.killed) {
     console.log(`[start-stream] Session ${sessionId} already has active process, reusing connection`);
     await stream.writeSSE({
       data: JSON.stringify({
@@ -98,7 +98,8 @@ export async function startStream(
     return;
   }
 
-  const claudeCliPath = process.env.CLAUDE_CLI_PATH || '/home/lucas/.claude/local/node_modules/@anthropic-ai/claude-code/cli.js';
+  const claudeCliPath =
+    process.env.CLAUDE_CLI_PATH || '/home/lucas/.claude/local/node_modules/@anthropic-ai/claude-code/cli.js';
 
   if (!existsSync(claudeCliPath)) {
     await stream.writeSSE({
@@ -112,19 +113,14 @@ export async function startStream(
     return;
   }
 
-  const args = [
-    '--print',
-    '--input-format', 'stream-json',
-    '--output-format', 'stream-json',
-    '--verbose'
-  ];
+  const args = ['--print', '--input-format', 'stream-json', '--output-format', 'stream-json', '--verbose'];
 
   const projectPathNormalized = expandedProjectPath.replace(/\//g, '-').replace(/_/g, '-');
   const claudeSessionPath = join(homedir(), '.claude', 'projects', projectPathNormalized, `${sessionId}.jsonl`);
   const sessionFileExists = existsSync(claudeSessionPath);
 
   const shouldResume = sessionId !== 'new' && session && sessionFileExists;
-  let historyMessages: any[] = [];
+  const historyMessages: any[] = [];
 
   if (shouldResume) {
     console.log(`[Claude CLI] Resuming Claude session: ${sessionId} from ${claudeSessionPath}`);
@@ -135,34 +131,34 @@ export async function startStream(
       const lines = fileContent.trim().split('\n');
       console.log(`[Claude CLI] Found ${lines.length} lines in session file`);
 
-        for (const line of lines) {
-          try {
-            const event = JSON.parse(line);
-            if (event.type === 'user' && event.message?.content) {
-              const text = event.message.content.map((c: any) => c.text || '').join('');
-              if (text) {
-                historyMessages.push({
-                  id: event.uuid || randomUUID(),
-                  role: 'user',
-                  content: text,
-                  timestamp: new Date(event.timestamp)
-                });
-              }
-            } else if (event.type === 'assistant' && event.message?.content) {
-              const text = event.message.content.map((c: any) => c.text || '').join('');
-              if (text) {
-                historyMessages.push({
-                  id: event.uuid || randomUUID(),
-                  role: 'assistant',
-                  content: text,
-                  timestamp: new Date(event.timestamp)
-                });
-              }
+      for (const line of lines) {
+        try {
+          const event = JSON.parse(line);
+          if (event.type === 'user' && event.message?.content) {
+            const text = event.message.content.map((c: any) => c.text || '').join('');
+            if (text) {
+              historyMessages.push({
+                id: event.uuid || randomUUID(),
+                role: 'user',
+                content: text,
+                timestamp: new Date(event.timestamp)
+              });
             }
-          } catch (e) {
-            console.error('[Claude CLI] Failed to parse JSONL line:', e);
+          } else if (event.type === 'assistant' && event.message?.content) {
+            const text = event.message.content.map((c: any) => c.text || '').join('');
+            if (text) {
+              historyMessages.push({
+                id: event.uuid || randomUUID(),
+                role: 'assistant',
+                content: text,
+                timestamp: new Date(event.timestamp)
+              });
+            }
           }
+        } catch (e) {
+          console.error('[Claude CLI] Failed to parse JSONL line:', e);
         }
+      }
 
       console.log(`[Claude CLI] Loaded ${historyMessages.length} messages from session file`);
 
@@ -189,7 +185,7 @@ export async function startStream(
     cwd: expandedProjectPath
   });
 
-  let claude;
+  let claude: ReturnType<typeof spawn>;
   try {
     claude = spawn(process.execPath, [claudeCliPath, ...args], {
       cwd: expandedProjectPath,
@@ -279,13 +275,13 @@ export async function startStream(
       console.log(`[Claude CLI] Temp session with ${messages.length} messages, sending to stdin to trigger init`);
       for (const msg of messages) {
         if (msg.role === 'user') {
-          const userMessage = JSON.stringify({
+          const userMessage = `${JSON.stringify({
             type: 'user',
             message: {
               role: 'user',
               content: [{ type: 'text', text: msg.content }]
             }
-          }) + '\n';
+          })}\n`;
           claude.stdin.write(userMessage);
           sessionManager.updateStatus(sessionId, SessionStatus.STREAMING);
           messagesSentToStdin = true;
@@ -344,14 +340,14 @@ export async function startStream(
               console.log(`[start-stream] Sending ${queuedMessages.length} queued messages to Claude stdin`);
               for (const msg of queuedMessages) {
                 if (msg.role === 'user') {
-                  const userMessage = JSON.stringify({
+                  const userMessage = `${JSON.stringify({
                     type: 'user',
                     message: {
                       role: 'user',
                       content: [{ type: 'text', text: msg.content }]
                     }
-                  }) + '\n';
-                  claude.stdin.write(userMessage);
+                  })}\n`;
+                  claude.stdin?.write(userMessage);
                   sessionManager.updateStatus(claudeSessionId, SessionStatus.STREAMING);
                   console.log(`[start-stream] Sent queued message: ${msg.content.substring(0, 50)}...`);
                 }
