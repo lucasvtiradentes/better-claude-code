@@ -1,10 +1,13 @@
+import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { usePatchApiSettings } from '@/api';
 import type { GetApiSettings200Projects } from '@/api/_generated/schemas';
+import { getGetApiSettingsQueryKey } from '@/api/_generated/settings/settings';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { queryClient } from '@/lib/tanstack-query';
 import { useSettingsStore } from '@/stores/settings-store';
 
 type SettingsFormData = {
@@ -14,7 +17,12 @@ type SettingsFormData = {
   showActionButtons: boolean;
 };
 
-export const SettingsTab = () => {
+type SettingsTabProps = {
+  onProjectsRoute?: boolean;
+};
+
+export const SettingsTab = ({ onProjectsRoute }: SettingsTabProps) => {
+  const navigate = useNavigate();
   const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: updateSettings } = usePatchApiSettings();
 
@@ -44,14 +52,26 @@ export const SettingsTab = () => {
     if (!settings) return;
 
     if (field === 'groupBy') {
-      updateSettings({
-        data: {
-          projects: {
-            ...settings,
-            groupBy: value as GetApiSettings200Projects['groupBy']
+      updateSettings(
+        {
+          data: {
+            projects: {
+              ...settings,
+              groupBy: value as GetApiSettings200Projects['groupBy']
+            }
+          }
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
+            queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
+
+            if (onProjectsRoute) {
+              navigate({ to: '/projects' });
+            }
           }
         }
-      });
+      );
     } else {
       updateSettings({
         data: {

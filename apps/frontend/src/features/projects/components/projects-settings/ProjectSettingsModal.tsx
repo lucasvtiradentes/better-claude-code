@@ -5,9 +5,10 @@ import { SettingsTab } from './SettingsTab';
 
 type ProjectSettingsModalProps = {
   onClose: () => void;
+  onProjectsRoute?: boolean;
 };
 
-export const ProjectSettingsModal = ({ onClose }: ProjectSettingsModalProps) => {
+export const ProjectSettingsModal = ({ onClose, onProjectsRoute }: ProjectSettingsModalProps) => {
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
@@ -22,7 +23,7 @@ export const ProjectSettingsModal = ({ onClose }: ProjectSettingsModalProps) => 
           </TabsList>
 
           <TabsContent value="settings" className="mt-4">
-            <SettingsTab />
+            <SettingsTab onProjectsRoute={onProjectsRoute} />
           </TabsContent>
 
           <TabsContent value="labels" className="mt-4">

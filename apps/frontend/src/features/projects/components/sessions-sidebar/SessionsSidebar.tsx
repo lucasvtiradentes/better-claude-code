@@ -241,7 +241,7 @@ export const SessionsSidebar = ({
         </div>
       </MiddleSidebar>
 
-      {showSettings && <SessionSettingsModal onClose={() => setShowSettings(false)} />}
+      {showSettings && <SessionSettingsModal onClose={() => setShowSettings(false)} projectName={projectId} />}
     </>
   );
 };

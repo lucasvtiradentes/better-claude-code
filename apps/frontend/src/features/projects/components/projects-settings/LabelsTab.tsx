@@ -3,9 +3,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDeleteApiSettingsLabelsLabelId, usePatchApiSettingsLabelsLabelId, usePostApiSettingsLabels } from '@/api';
 import type { GetApiSettings200ProjectsLabelsItem } from '@/api/_generated/schemas';
+import { getGetApiSettingsQueryKey } from '@/api/_generated/settings/settings';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { queryClient } from '@/lib/tanstack-query';
 import { useSettingsStore } from '@/stores/settings-store';
 
 type LabelFormData = {
@@ -23,6 +26,7 @@ export const LabelsTab = () => {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [deletingLabel, setDeletingLabel] = useState<GetApiSettings200ProjectsLabelsItem | null>(null);
 
   const addForm = useForm<LabelFormData>({
     defaultValues: { name: '', color: '#0e639c' }
@@ -42,6 +46,7 @@ export const LabelsTab = () => {
         onSuccess: () => {
           addForm.reset();
           setShowAddForm(false);
+          queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
         }
       }
     );
@@ -54,15 +59,24 @@ export const LabelsTab = () => {
         onSuccess: () => {
           setEditingId(null);
           editForm.reset();
+          queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
         }
       }
     );
   };
 
-  const onDeleteLabel = (id: string) => {
-    if (window.confirm('Delete this label? It will be removed from all projects.')) {
-      deleteLabel({ labelId: id });
-    }
+  const onDeleteLabel = () => {
+    if (!deletingLabel) return;
+
+    deleteLabel(
+      { labelId: deletingLabel.id },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
+          setDeletingLabel(null);
+        }
+      }
+    );
   };
 
   const startEditing = (label: GetApiSettings200ProjectsLabelsItem) => {
@@ -137,7 +151,7 @@ export const LabelsTab = () => {
                   type="button"
                   size="icon"
                   variant="ghost"
-                  onClick={() => onDeleteLabel(label.id)}
+                  onClick={() => setDeletingLabel(label)}
                   className="text-destructive hover:text-destructive/80"
                   title="Delete label"
                 >
@@ -199,6 +213,16 @@ export const LabelsTab = () => {
           Add Label
         </Button>
       )}
+
+      <ConfirmDialog
+        open={!!deletingLabel}
+        onClose={() => setDeletingLabel(null)}
+        onConfirm={onDeleteLabel}
+        title="Delete Label"
+        description={`Are you sure you want to delete "${deletingLabel?.name}"? It will be removed from all projects.`}
+        variant="destructive"
+        confirmText="Delete"
+      />
     </div>
   );
 };

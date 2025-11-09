@@ -7,9 +7,12 @@ import {
   usePostApiSettingsSessionsLabels
 } from '@/api';
 import type { GetApiSettings200SessionsLabelsItem } from '@/api/_generated/schemas';
+import { getGetApiSettingsQueryKey } from '@/api/_generated/settings/settings';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { queryClient } from '@/lib/tanstack-query';
 import { useSettingsStore } from '@/stores/settings-store';
 
 type LabelFormData = {
@@ -27,6 +30,7 @@ export const SessionLabelsTab = () => {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [deletingLabel, setDeletingLabel] = useState<GetApiSettings200SessionsLabelsItem | null>(null);
 
   const addForm = useForm<LabelFormData>({
     defaultValues: { name: '', color: '#0e639c' }
@@ -46,6 +50,7 @@ export const SessionLabelsTab = () => {
         onSuccess: () => {
           addForm.reset();
           setShowAddForm(false);
+          queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
         }
       }
     );
@@ -58,15 +63,24 @@ export const SessionLabelsTab = () => {
         onSuccess: () => {
           setEditingId(null);
           editForm.reset();
+          queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
         }
       }
     );
   };
 
-  const onDeleteLabel = (id: string) => {
-    if (window.confirm('Delete this label? It will be removed from all projects.')) {
-      deleteLabel({ labelId: id });
-    }
+  const onDeleteLabel = () => {
+    if (!deletingLabel) return;
+
+    deleteLabel(
+      { labelId: deletingLabel.id },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
+          setDeletingLabel(null);
+        }
+      }
+    );
   };
 
   const startEditing = (label: GetApiSettings200SessionsLabelsItem) => {
@@ -141,7 +155,7 @@ export const SessionLabelsTab = () => {
                   type="button"
                   size="icon"
                   variant="ghost"
-                  onClick={() => onDeleteLabel(label.id)}
+                  onClick={() => setDeletingLabel(label)}
                   className="text-destructive hover:text-destructive/80"
                   title="Delete label"
                 >
@@ -203,6 +217,16 @@ export const SessionLabelsTab = () => {
           Add Label
         </Button>
       )}
+
+      <ConfirmDialog
+        open={!!deletingLabel}
+        onClose={() => setDeletingLabel(null)}
+        onConfirm={onDeleteLabel}
+        title="Delete Label"
+        description={`Are you sure you want to delete "${deletingLabel?.name}"? It will be removed from all sessions.`}
+        variant="destructive"
+        confirmText="Delete"
+      />
     </div>
   );
 };

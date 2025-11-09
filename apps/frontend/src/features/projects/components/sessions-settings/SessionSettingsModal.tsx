@@ -5,9 +5,10 @@ import { SessionSettingsTab } from './SessionSettingsTab';
 
 type SessionSettingsModalProps = {
   onClose: () => void;
+  projectName?: string;
 };
 
-export const SessionSettingsModal = ({ onClose }: SessionSettingsModalProps) => {
+export const SessionSettingsModal = ({ onClose, projectName }: SessionSettingsModalProps) => {
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
@@ -22,7 +23,7 @@ export const SessionSettingsModal = ({ onClose }: SessionSettingsModalProps) => 
           </TabsList>
 
           <TabsContent value="settings" className="mt-4">
-            <SessionSettingsTab />
+            <SessionSettingsTab projectName={projectName} />
           </TabsContent>
 
           <TabsContent value="labels" className="mt-4">

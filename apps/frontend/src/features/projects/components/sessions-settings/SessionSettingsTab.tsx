@@ -1,11 +1,14 @@
+import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { usePatchApiSettings } from '@/api';
 import type { GetApiSettings200Sessions } from '@/api/_generated/schemas';
+import { getGetApiSettingsQueryKey } from '@/api/_generated/settings/settings';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSettingsStore } from '@/stores/settings-store';
+import { queryClient } from '@/lib/tanstack-query';
 
 type SettingsFormData = {
   groupBy: GetApiSettings200Sessions['groupBy'];
@@ -13,7 +16,12 @@ type SettingsFormData = {
   showAttachments: boolean;
 };
 
-export const SessionSettingsTab = () => {
+type SessionSettingsTabProps = {
+  projectName?: string;
+};
+
+export const SessionSettingsTab = ({ projectName }: SessionSettingsTabProps) => {
+  const navigate = useNavigate();
   const settingsData = useSettingsStore((state) => state.settings);
   const { mutate: updateSettings } = usePatchApiSettings();
 
@@ -41,14 +49,29 @@ export const SessionSettingsTab = () => {
     if (!settings) return;
 
     if (field === 'groupBy') {
-      updateSettings({
-        data: {
-          sessions: {
-            ...settings,
-            groupBy: value as GetApiSettings200Sessions['groupBy']
+      updateSettings(
+        {
+          data: {
+            sessions: {
+              ...settings,
+              groupBy: value as GetApiSettings200Sessions['groupBy']
+            }
+          }
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['sessions'] });
+            queryClient.invalidateQueries({ queryKey: getGetApiSettingsQueryKey() });
+
+            if (projectName) {
+              navigate({
+                to: '/projects/$projectName',
+                params: { projectName }
+              });
+            }
           }
         }
-      });
+      );
     } else {
       updateSettings({
         data: {
