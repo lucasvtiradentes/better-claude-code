@@ -6,14 +6,14 @@ import { Textarea } from '@/components/ui/textarea';
 type LiveMessageInputProps = {
   onSend: (message: string, imagePaths?: string[]) => void;
   disabled?: boolean;
-  placeholder?: string;
+  placeholder: string;
   isStreaming?: boolean;
 };
 
-export const LiveMessageInput = ({
+export const SessionMessageInput = ({
   onSend,
+  placeholder,
   disabled = false,
-  placeholder = 'Type your message...',
   isStreaming = false
 }: LiveMessageInputProps) => {
   const [message, setMessage] = useState('');
@@ -144,7 +144,7 @@ export const LiveMessageInput = ({
               <div key={path} className="relative group">
                 <img
                   src={imagePreview[path]}
-                  alt={`Image ${index + 1}`}
+                  alt={`Img ${index + 1}`}
                   className="h-20 w-20 rounded border object-cover"
                 />
                 <Button

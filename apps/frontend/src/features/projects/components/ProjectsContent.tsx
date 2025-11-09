@@ -4,7 +4,7 @@ import type {
   GetApiSessionsProjectNameSessionId200,
   GetApiSessionsProjectNameSessionId200MessagesItem
 } from '@/api/_generated/schemas';
-import { LiveMessageInput } from '@/features/live-sessions/LiveMessageInput';
+import { SessionMessageInput } from '@/features/projects/components/sessions-chat/SessionMessageInput';
 import { FilterButtons } from './FilterButtons';
 import { FileModal } from './modals/FileModal';
 import { FolderModal } from './modals/FolderModal';
@@ -39,9 +39,9 @@ interface ProjectsContentProps {
   onFolderModalClose: () => void;
   onFolderModalFileClick: (path: string) => void;
   onFolderModalFolderClick: (path: string) => void;
+  messageInputPlaceholder: string;
   onSendMessage?: (message: string) => void;
   messageInputDisabled?: boolean;
-  messageInputPlaceholder?: string;
   isStreaming?: boolean;
 }
 
@@ -71,8 +71,8 @@ export function ProjectsContent({
   onFolderModalClose,
   onFolderModalFileClick,
   onSendMessage,
+  messageInputPlaceholder,
   messageInputDisabled = false,
-  messageInputPlaceholder = 'Type your message...',
   isStreaming = false
 }: ProjectsContentProps) {
   return (
@@ -155,7 +155,7 @@ export function ProjectsContent({
       </div>
 
       {onSendMessage && (
-        <LiveMessageInput
+        <SessionMessageInput
           onSend={onSendMessage}
           disabled={messageInputDisabled}
           placeholder={messageInputPlaceholder}

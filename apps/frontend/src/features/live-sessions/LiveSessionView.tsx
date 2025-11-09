@@ -2,8 +2,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { SessionMessageInput } from '../projects/components/sessions-chat/SessionMessageInput';
 import { useClaudeStream } from './hooks/useClaudeStream';
-import { LiveMessageInput } from './LiveMessageInput';
 import { LiveMessageList } from './LiveMessageList';
 import { PermissionModal } from './PermissionModal';
 
@@ -86,7 +86,7 @@ export const LiveSessionView = ({ sessionId, projectPath, projectName }: LiveSes
         </div>
       )}
 
-      <LiveMessageInput
+      <SessionMessageInput
         onSend={handleSendMessage}
         disabled={status === 'streaming' || status === 'pending-permissions'}
         placeholder={status === 'pending-permissions' ? 'Waiting for permission approval...' : 'Type your message...'}
