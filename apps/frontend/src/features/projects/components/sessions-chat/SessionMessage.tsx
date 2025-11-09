@@ -4,7 +4,7 @@ import { MessageSource as FormatterSource, formatMessageContent } from '@/featur
 import { isUserMessage } from '../../utils/message-utils';
 
 type SessionMessageProps = {
-  message: GetApiSessionsProjectNameSessionId200MessagesItem;
+  messages: GetApiSessionsProjectNameSessionId200MessagesItem[];
   imageOffset: number;
   onImageClick: (imageIndex: number) => void;
   onPathClick?: (path: string) => void;
@@ -15,7 +15,7 @@ type SessionMessageProps = {
 };
 
 export const SessionMessage = ({
-  message,
+  messages,
   onImageClick,
   onPathClick,
   pathValidation,
@@ -23,18 +23,11 @@ export const SessionMessage = ({
   isSearchMatch,
   availableImages = []
 }: SessionMessageProps) => {
-  if (typeof message.content !== 'string') {
+  if (messages.length === 0) {
     return null;
   }
 
-  const { html } = formatMessageContent(message.content, {
-    source: FormatterSource.SESSION_MESSAGE,
-    pathValidation,
-    searchTerm,
-    availableImages
-  });
-
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     const target = e.target as HTMLElement;
 
     if (target.dataset.imageIndex) {
@@ -48,7 +41,7 @@ export const SessionMessage = ({
     }
   };
 
-  const isUser = isUserMessage(message.type);
+  const isUser = isUserMessage(messages[0].type);
 
   return (
     <div className={`mb-3 flex gap-2 items-start ${isUser ? 'justify-end' : ''}`}>
@@ -60,24 +53,47 @@ export const SessionMessage = ({
 
       <div
         className={`
-          p-2 px-3 rounded-md wrap-break-word max-w-[85%]
+          p-2 px-3 rounded-md wrap-break-word max-w-[85%] flex flex-col gap-2
           ${isUser ? 'bg-secondary' : 'bg-card'}
           ${isSearchMatch ? 'ring-2 ring-chart-2' : ''}
         `}
       >
-        {/* biome-ignore lint/a11y/useSemanticElements: dangerouslySetInnerHTML requires div */}
-        <div
-          className="whitespace-pre-wrap"
-          onClick={handleClick}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              handleClick(e as any);
-            }
-          }}
-          role="button"
-          tabIndex={0}
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+        {messages.map((message, idx) => {
+          if (typeof message.content !== 'string') {
+            return null;
+          }
+
+          const { html } = formatMessageContent(message.content, {
+            source: FormatterSource.SESSION_MESSAGE,
+            pathValidation,
+            searchTerm,
+            availableImages
+          });
+
+          const messageKey = message.timestamp ? `${message.timestamp}-${idx}` : `msg-${idx}`;
+
+          return (
+            <div key={messageKey}>
+              {idx > 0 && (
+                <div className="flex justify-center my-2">
+                  <div className="w-1/2 border-t border-border" />
+                </div>
+              )}
+              <button
+                type="button"
+                className="whitespace-pre-wrap text-left w-full"
+                onClick={handleClick}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    handleClick(e as any);
+                  }
+                }}
+                tabIndex={0}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            </div>
+          );
+        })}
       </div>
 
       {isUser && (

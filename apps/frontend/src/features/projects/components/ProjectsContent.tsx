@@ -94,20 +94,66 @@ export function ProjectsContent({
         />
       )}
       <div ref={contentRef} className="flex-1 overflow-y-auto p-4">
-        {filteredMessages.map((message, msgIdx) => (
-          <div key={`${message.type}-${msgIdx}`} data-message-index={msgIdx}>
-            <SessionMessage
-              message={message}
-              imageOffset={0}
-              onImageClick={onImageClick}
-              onPathClick={onPathClick}
-              pathValidation={pathValidation}
-              searchTerm={searchQuery}
-              isSearchMatch={searchMatches.includes(msgIdx)}
-              availableImages={sessionData.images.map((img) => img.index)}
-            />
-          </div>
-        ))}
+        {(() => {
+          const groupedMessages: Array<{
+            messages: GetApiSessionsProjectNameSessionId200MessagesItem[];
+            startIndex: number;
+          }> = [];
+
+          let currentGroup: GetApiSessionsProjectNameSessionId200MessagesItem[] = [];
+          let currentGroupStartIndex = 0;
+
+          filteredMessages.forEach((message, idx) => {
+            if (currentGroup.length === 0) {
+              currentGroup = [message];
+              currentGroupStartIndex = idx;
+            } else if (currentGroup[0].type === message.type) {
+              currentGroup.push(message);
+            } else {
+              groupedMessages.push({
+                messages: currentGroup,
+                startIndex: currentGroupStartIndex
+              });
+              currentGroup = [message];
+              currentGroupStartIndex = idx;
+            }
+          });
+
+          if (currentGroup.length > 0) {
+            groupedMessages.push({
+              messages: currentGroup,
+              startIndex: currentGroupStartIndex
+            });
+          }
+
+          return groupedMessages.map((group) => {
+            const hasSearchMatch = group.messages.some((_, idx) =>
+              searchMatches.includes(group.startIndex + idx)
+            );
+
+            const groupKey = group.messages[0].timestamp
+              ? `${group.messages[0].type}-${group.messages[0].timestamp}`
+              : `${group.messages[0].type}-${group.startIndex}`;
+
+            return (
+              <div
+                key={groupKey}
+                data-message-index={group.startIndex}
+              >
+                <SessionMessage
+                  messages={group.messages}
+                  imageOffset={0}
+                  onImageClick={onImageClick}
+                  onPathClick={onPathClick}
+                  pathValidation={pathValidation}
+                  searchTerm={searchQuery}
+                  isSearchMatch={hasSearchMatch}
+                  availableImages={sessionData.images.map((img) => img.index)}
+                />
+              </div>
+            );
+          });
+        })()}
       </div>
 
       {onSendMessage && (
