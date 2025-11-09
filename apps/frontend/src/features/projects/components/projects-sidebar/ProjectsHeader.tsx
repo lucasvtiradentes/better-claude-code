@@ -19,7 +19,12 @@ export const ProjectsHeader = ({ projectCount, searchValue, onSearchChange }: Pr
       </div>
 
       <div className="flex items-center justify-between">
-        <SearchInput value={searchValue || ''} onChange={onSearchChange} placeholder="Search projects..." />
+        <SearchInput
+          value={searchValue || ''}
+          onChange={onSearchChange}
+          placeholder="Search projects..."
+          debounce={500}
+        />
         <button
           type="button"
           onClick={() => setShowModal(true)}

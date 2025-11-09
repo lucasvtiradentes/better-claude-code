@@ -26,8 +26,6 @@ import { useScrollPersistence } from '@/features/projects/hooks/use-scroll-persi
 import { useFilterStore } from '@/features/projects/stores/filter-store';
 
 type SessionDetailSearchParams = {
-  projectSearch?: string;
-  sessionSearch?: string;
   imageIndex?: number;
   folderPath?: string;
   filePath?: string;
@@ -36,8 +34,6 @@ type SessionDetailSearchParams = {
 export const Route = createFileRoute('/projects/$projectName/sessions/$sessionId')({
   component: SessionDetailComponent,
   validateSearch: (search: Record<string, unknown>): SessionDetailSearchParams => ({
-    projectSearch: (search.projectSearch as string) || undefined,
-    sessionSearch: (search.sessionSearch as string) || undefined,
     imageIndex: (search.imageIndex as number) || undefined,
     folderPath: (search.folderPath as string) || undefined,
     filePath: (search.filePath as string) || undefined
@@ -51,19 +47,15 @@ export const Route = createFileRoute('/projects/$projectName/sessions/$sessionId
 
 function SessionDetailComponent() {
   const { projectName, sessionId } = Route.useParams();
-  const {
-    projectSearch,
-    sessionSearch,
-    imageIndex,
-    folderPath: urlFolderPath,
-    filePath: urlFilePath
-  } = Route.useSearch();
+  const { imageIndex, folderPath: urlFolderPath, filePath: urlFilePath } = Route.useSearch();
   const navigate = Route.useNavigate();
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const queryClient = useQueryClient();
   const contentRef = useRef<HTMLDivElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+  const sessionSearch = useProjectSessionUIStore((state) => state.search);
+  const setSessionSearch = useProjectSessionUIStore((state) => state.setSearch);
   const groupBy = useProjectSessionUIStore((state) => state.groupBy);
   const hasHydrated = useProjectSessionUIStore((state) => state._hasHydrated);
 
@@ -239,21 +231,19 @@ function SessionDetailComponent() {
   const handleBack = () => {
     navigate({
       to: '/projects/$projectName',
-      params: { projectName },
-      search: { projectSearch, sessionSearch }
+      params: { projectName }
     });
   };
 
   const handleSelectSession = (newSessionId: string) => {
     navigate({
       to: '/projects/$projectName/sessions/$sessionId',
-      params: { projectName, sessionId: newSessionId },
-      search: { projectSearch, sessionSearch }
+      params: { projectName, sessionId: newSessionId }
     });
   };
 
   const handleSearchChange = (value: string) => {
-    updateSearch({ sessionSearch: value || undefined });
+    setSessionSearch(value);
   };
 
   const renderConfirmDialog = () => (
@@ -308,7 +298,7 @@ function SessionDetailComponent() {
         sessionData={mergedSessionData}
         onNextMatch={handleNextMatch}
         onPreviousMatch={handlePreviousMatch}
-        onCloseSearch={() => updateSearch({ sessionSearch: undefined })}
+        onCloseSearch={() => setSessionSearch('')}
         onImageClick={(arrayPosition: number) => {
           if (!sessionData) return;
           setImageModalIndex(arrayPosition);

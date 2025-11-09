@@ -1,4 +1,4 @@
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useCallback } from 'react';
 import { useGetApiProjects } from '@/api';
 import { Layout } from '@/common/components/layout/Layout';
@@ -8,7 +8,8 @@ import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar
 
 export function ProjectsListPage() {
   const navigate = useNavigate({ from: '/projects/' });
-  const { projectSearch } = useSearch({ from: '/projects/' });
+  const projectSearch = useProjectUIStore((state) => state.search);
+  const setProjectSearch = useProjectUIStore((state) => state.setSearch);
   const groupBy = useProjectUIStore((state) => state.groupBy);
   const hasHydrated = useProjectUIStore((state) => state._hasHydrated);
 
@@ -17,7 +18,7 @@ export function ProjectsListPage() {
     isLoading,
     error
   } = useGetApiProjects(
-    { groupBy },
+    { groupBy, search: projectSearch || undefined },
     {
       query: {
         enabled: hasHydrated,
@@ -34,16 +35,16 @@ export function ProjectsListPage() {
 
   const handleSelectProject = useCallback(
     (projectId: string) => {
-      navigate({ to: '/projects/$projectName', params: { projectName: projectId }, search: { projectSearch } });
+      navigate({ to: '/projects/$projectName', params: { projectName: projectId } });
     },
-    [navigate, projectSearch]
+    [navigate]
   );
 
   const handleSearchChange = useCallback(
     (value: string) => {
-      navigate({ search: { projectSearch: value || undefined } });
+      setProjectSearch(value);
     },
-    [navigate]
+    [setProjectSearch]
   );
 
   return (

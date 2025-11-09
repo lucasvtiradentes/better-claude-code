@@ -1070,6 +1070,14 @@
             "required": false,
             "name": "groupBy",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "search",
+            "in": "query"
           }
         ],
         "responses": {

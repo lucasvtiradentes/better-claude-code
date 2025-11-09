@@ -12,17 +12,8 @@ import { useProjectSessionUIStore } from '@/common/stores/project-session-ui-sto
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
 
-type SessionsSearchParams = {
-  projectSearch?: string;
-  sessionSearch?: string;
-};
-
 export const Route = createFileRoute('/projects/$projectName/')({
   component: SessionsListComponent,
-  validateSearch: (search: Record<string, unknown>): SessionsSearchParams => ({
-    projectSearch: (search.projectSearch as string) || undefined,
-    sessionSearch: (search.sessionSearch as string) || undefined
-  }),
   beforeLoad: ({ params }) => {
     if (params.projectName.includes('/sessions/')) {
       throw redirect({
@@ -35,9 +26,10 @@ export const Route = createFileRoute('/projects/$projectName/')({
 
 function SessionsListComponent() {
   const { projectName } = Route.useParams();
-  const { projectSearch, sessionSearch } = Route.useSearch();
   const navigate = Route.useNavigate();
   const queryClient = useQueryClient();
+  const sessionSearch = useProjectSessionUIStore((state) => state.search);
+  const setSessionSearch = useProjectSessionUIStore((state) => state.setSearch);
   const groupBy = useProjectSessionUIStore((state) => state.groupBy);
   const hasHydrated = useProjectSessionUIStore((state) => state._hasHydrated);
 
@@ -79,18 +71,17 @@ function SessionsListComponent() {
   const selectedProjectData = projects?.find((p) => p.id === projectName);
 
   const handleSearchChange = (value: string) => {
-    navigate({ search: (prev) => ({ ...prev, sessionSearch: value || undefined }) });
+    setSessionSearch(value);
   };
 
   const handleBack = () => {
-    navigate({ to: '/projects', search: { projectSearch } });
+    navigate({ to: '/projects' });
   };
 
   const handleSelectSession = (sessionId: string) => {
     navigate({
       to: '/projects/$projectName/sessions/$sessionId',
-      params: { projectName, sessionId },
-      search: { projectSearch, sessionSearch }
+      params: { projectName, sessionId }
     });
   };
 

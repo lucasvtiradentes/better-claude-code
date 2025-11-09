@@ -16,7 +16,8 @@ import { ErrorSchema } from '../../../common/schemas.js';
 import { extractProjectName, getCurrentBranch, getGitHubUrl, getRealPathFromSession, readSettings } from '../utils.js';
 
 const querySchema = z.object({
-  groupBy: z.enum(['date', 'session-count', 'label']).optional()
+  groupBy: z.enum(['date', 'session-count', 'label']).optional(),
+  search: z.string().optional()
 });
 
 const ProjectSchema = z.object({
@@ -81,7 +82,7 @@ export const route = createRoute({
 
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
-    const { groupBy } = c.req.valid('query');
+    const { groupBy, search } = c.req.valid('query');
     const projectsPath = ClaudeHelper.getProjectsDir();
     const folders = await readdir(projectsPath);
 
@@ -151,9 +152,16 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     });
 
     const projectsResults = await Promise.all(projectPromises);
-    const projects = projectsResults.filter((p) => p !== null);
+    let projects = projectsResults.filter((p) => p !== null);
 
     projects.sort((a, b) => b.lastModified - a.lastModified);
+
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      projects = projects.filter(
+        (p) => p.name.toLowerCase().includes(lowerSearch) || p.path.toLowerCase().includes(lowerSearch)
+      );
+    }
 
     if (!groupBy) {
       return c.json(projects satisfies z.infer<typeof ungroupedResponseSchema>, 200);
