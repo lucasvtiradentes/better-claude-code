@@ -6,7 +6,11 @@ import { useProjectUIStore } from '@/common/stores/project-ui-store';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { ProjectsSidebar } from '@/features/projects/components/projects-sidebar/ProjectsSidebar';
 
-export function ProjectsListPage() {
+type ProjectsListPageProps = {
+  skipCache?: boolean;
+};
+
+export function ProjectsListPage({ skipCache }: ProjectsListPageProps) {
   const navigate = useNavigate({ from: '/projects/' });
   const projectSearch = useProjectUIStore((state) => state.search);
   const setProjectSearch = useProjectUIStore((state) => state.setSearch);
@@ -18,7 +22,7 @@ export function ProjectsListPage() {
     isLoading,
     error
   } = useGetApiProjects(
-    { groupBy, search: projectSearch || undefined },
+    { groupBy, search: projectSearch || undefined, skipCache: skipCache || undefined },
     {
       query: {
         enabled: hasHydrated,
@@ -33,9 +37,13 @@ export function ProjectsListPage() {
 
   const handleSelectProject = useCallback(
     (projectId: string) => {
-      navigate({ to: '/projects/$projectName', params: { projectName: projectId } });
+      navigate({
+        to: '/projects/$projectName',
+        params: { projectName: projectId },
+        search: skipCache ? { skipCache: true } : undefined
+      });
     },
-    [navigate]
+    [navigate, skipCache]
   );
 
   const handleSearchChange = useCallback(

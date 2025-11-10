@@ -16,9 +16,10 @@ import { EmptyState } from '@/features/projects/components/EmptyState';
 
 type SessionsListPageProps = {
   projectName: string;
+  skipCache?: boolean;
 };
 
-export function SessionsListPage({ projectName }: SessionsListPageProps) {
+export function SessionsListPage({ projectName, skipCache }: SessionsListPageProps) {
   const navigate = useNavigate({ from: '/projects/$projectName' });
   const sessionSearch = useProjectSessionUIStore((state) => state.search);
   const setSessionSearch = useProjectSessionUIStore((state) => state.setSearch);
@@ -56,7 +57,7 @@ export function SessionsListPage({ projectName }: SessionsListPageProps) {
     error
   } = useGetApiSessionsProjectName(
     projectName,
-    { groupBy: sessionGroupBy, search: sessionSearch || undefined, skipCache: true },
+    { groupBy: sessionGroupBy, search: sessionSearch || undefined, skipCache: skipCache || undefined },
     {
       query: {
         enabled: sessionHasHydrated,
@@ -88,11 +89,12 @@ export function SessionsListPage({ projectName }: SessionsListPageProps) {
       totalSessions,
       searchValue: sessionSearch,
       onSearchChange: setSessionSearch,
-      onBack: () => navigate({ to: '/projects' }),
+      onBack: () => navigate({ to: '/projects', search: skipCache ? { skipCache: true } : undefined }),
       onSelectSession: (sessionId: string) =>
         navigate({
           to: '/projects/$projectName/sessions/$sessionId',
-          params: { projectName, sessionId }
+          params: { projectName, sessionId },
+          search: skipCache ? { skipCache: true } : undefined
         }),
       onDeleteSession: () => {},
       onLabelToggle: handleLabelToggle,
@@ -109,7 +111,8 @@ export function SessionsListPage({ projectName }: SessionsListPageProps) {
       sessionSearch,
       setSessionSearch,
       navigate,
-      handleLabelToggle
+      handleLabelToggle,
+      skipCache
     ]
   );
 

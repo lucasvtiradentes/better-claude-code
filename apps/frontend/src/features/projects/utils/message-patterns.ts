@@ -129,7 +129,8 @@ export function formatImageTag(index: number, exists = true, imageData?: string)
 export function parseTitle(
   title: string
 ): Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' | 'flag' | 'image' }> {
-  const parts: Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' | 'flag' | 'image' }> = [];
+  const parts: Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' | 'flag' | 'image' }> =
+    [];
   const isCommand = MESSAGE_PATTERNS.COMMAND_WORDS.test(title) || MESSAGE_PATTERNS.SLASH_COMMAND.test(title);
 
   const allMatches: Array<{ index: number; text: string; type: 'file' | 'url' | 'ultrathink' | 'flag' | 'image' }> = [];

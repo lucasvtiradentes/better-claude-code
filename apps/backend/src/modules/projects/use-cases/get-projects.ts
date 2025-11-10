@@ -166,7 +166,9 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     const [folders, settings] = await Promise.all([readdir(projectsPath), readSettings()]);
 
-    const cachedData = skipCache ? {} : (await listProjectsCache.get<Record<string, ProjectCacheEntry>>('all-projects')) || {};
+    const cachedData = skipCache
+      ? {}
+      : (await listProjectsCache.get<Record<string, ProjectCacheEntry>>('all-projects')) || {};
 
     const folderMtimes = await Promise.all(
       folders.map(async (folder) => {

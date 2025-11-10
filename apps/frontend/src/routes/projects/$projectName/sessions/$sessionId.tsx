@@ -18,7 +18,7 @@ export const Route = createFileRoute('/projects/$projectName/sessions/$sessionId
 
 function SessionDetailComponent() {
   const { projectName, sessionId } = Route.useParams();
-  const { imageIndex, folderPath, filePath } = Route.useSearch();
+  const { imageIndex, folderPath, filePath, skipCache } = Route.useSearch();
 
   return (
     <SessionDetailPage
@@ -27,6 +27,7 @@ function SessionDetailComponent() {
       imageIndex={imageIndex}
       folderPath={folderPath}
       filePath={filePath}
+      skipCache={skipCache}
     />
   );
 }

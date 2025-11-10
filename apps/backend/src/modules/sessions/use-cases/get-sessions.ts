@@ -157,7 +157,7 @@ async function processSessionFileWithCache(
         if (typeof rawContent === 'string') {
           textContent = rawContent;
         } else if (Array.isArray(rawContent)) {
-          const textParts = rawContent.filter(item => item.type === 'text').map(item => item.text);
+          const textParts = rawContent.filter((item) => item.type === 'text').map((item) => item.text);
           textContent = textParts.join('\n');
         }
 
@@ -170,7 +170,10 @@ async function processSessionFileWithCache(
         messageCount++;
 
         if (isUser && !title && typeof textContent === 'string') {
-          const allLines = textContent.split('\n').map(line => line.replace(/\\/g, '').trim()).filter(line => line.length > 0);
+          const allLines = textContent
+            .split('\n')
+            .map((line) => line.replace(/\\/g, '').trim())
+            .filter((line) => line.length > 0);
 
           let firstLines = allLines.slice(0, 10).join(' ').replace(/\s+/g, ' ').trim();
 
@@ -195,7 +198,13 @@ async function processSessionFileWithCache(
           const isClearCommand = firstLines.includes('/clear');
           const isLocalCommand = firstLines.startsWith('<local-command-');
           const isIdeCommand = commandNameMatch && commandNameMatch[1] === '/ide';
-          const shouldSkip = !firstLines || firstLines === 'Warmup' || firstLines.includes('Caveat:') || isClearCommand || isLocalCommand || isIdeCommand;
+          const shouldSkip =
+            !firstLines ||
+            firstLines === 'Warmup' ||
+            firstLines.includes('Caveat:') ||
+            isClearCommand ||
+            isLocalCommand ||
+            isIdeCommand;
 
           if (!shouldSkip) {
             title = firstLines.length > 80 ? `${firstLines.substring(0, 80)}...` : firstLines;
@@ -270,7 +279,9 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     }
 
     const cacheKey = `project-${normalizedPath.replace(/\//g, '-')}`;
-    const cachedData = skipCache ? {} : (await listSessionsCache.get<Record<string, SessionCacheEntry>>(cacheKey)) || {};
+    const cachedData = skipCache
+      ? {}
+      : (await listSessionsCache.get<Record<string, SessionCacheEntry>>(cacheKey)) || {};
 
     const files = await readdir(sessionsPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));

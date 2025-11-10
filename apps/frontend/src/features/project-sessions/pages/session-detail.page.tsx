@@ -30,7 +30,8 @@ import { useFilterStore } from '@/features/projects/stores/filter-store';
 export const sessionDetailSearchSchema = z.object({
   imageIndex: z.number().optional(),
   folderPath: z.string().optional(),
-  filePath: z.string().optional()
+  filePath: z.string().optional(),
+  skipCache: z.boolean().optional()
 });
 
 type SessionDetailQueryParams = z.infer<typeof sessionDetailSearchSchema>;
@@ -45,7 +46,8 @@ export function SessionDetailPage({
   sessionId,
   imageIndex,
   folderPath: urlFolderPath,
-  filePath: urlFilePath
+  filePath: urlFilePath,
+  skipCache
 }: SessionDetailPageProps) {
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -56,7 +58,7 @@ export function SessionDetailPage({
   const projectGroupBy = useProjectUIStore((state) => state.groupBy);
   const projectHasHydrated = useProjectUIStore((state) => state._hasHydrated);
 
-  const { updateSearch, navigateToProject, navigateToSession } = useSessionNavigation(projectName);
+  const { updateSearch, navigateToProject, navigateToSession } = useSessionNavigation(projectName, skipCache);
 
   const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
     mutation: {
@@ -88,7 +90,7 @@ export function SessionDetailPage({
     error: errorGrouped
   } = useGetApiSessionsProjectName(
     projectName,
-    { groupBy: sessionGroupBy, search: sessionSearch || undefined, skipCache: true },
+    { groupBy: sessionGroupBy, search: sessionSearch || undefined, skipCache: skipCache || undefined },
     {
       query: {
         enabled: sessionHasHydrated,
@@ -123,7 +125,7 @@ export function SessionDetailPage({
     selectedProjectData?.name || 'placeholder',
     shouldEnableStream
   );
-
+  //
   const { imageModalIndex, setImageModalIndex, fileModalPath, setFileModalPath, folderModalPath, setFolderModalPath } =
     useSessionModals(imageIndex, urlFolderPath, urlFilePath, sessionData?.images);
 

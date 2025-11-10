@@ -5,7 +5,7 @@ import { sessionDetailSearchSchema } from '../pages/session-detail.page';
 
 type SessionDetailQueryParams = z.infer<typeof sessionDetailSearchSchema>;
 
-export function useSessionNavigation(projectName: string) {
+export function useSessionNavigation(projectName: string, skipCache?: boolean) {
   const navigate = useNavigate({ from: '/projects/$projectName/sessions/$sessionId' });
 
   const updateSearch = useCallback(
@@ -23,18 +23,20 @@ export function useSessionNavigation(projectName: string) {
   const navigateToProject = useCallback(() => {
     navigate({
       to: '/projects/$projectName',
-      params: { projectName }
+      params: { projectName },
+      search: skipCache ? { skipCache: true } : undefined
     });
-  }, [navigate, projectName]);
+  }, [navigate, projectName, skipCache]);
 
   const navigateToSession = useCallback(
     (newSessionId: string) => {
       navigate({
         to: '/projects/$projectName/sessions/$sessionId',
-        params: { projectName, sessionId: newSessionId }
+        params: { projectName, sessionId: newSessionId },
+        search: skipCache ? { skipCache: true } : undefined
       });
     },
-    [navigate, projectName]
+    [navigate, projectName, skipCache]
   );
 
   return {
