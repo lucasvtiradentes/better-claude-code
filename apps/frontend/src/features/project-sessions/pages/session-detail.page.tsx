@@ -21,6 +21,7 @@ import { useSessionDelete } from '@/features/project-sessions/hooks/useSessionDe
 import { useSessionModals } from '@/features/project-sessions/hooks/useSessionModals';
 import { useSessionNavigation } from '@/features/project-sessions/hooks/useSessionNavigation';
 import { useSessionPaths } from '@/features/project-sessions/hooks/useSessionPaths';
+import { useSessionSidebarProps } from '@/features/project-sessions/hooks/useSessionSidebarProps';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { useMessageFilter } from '@/features/projects/hooks/use-message-filter';
 import { useScrollPersistence } from '@/features/projects/hooks/use-scroll-persistence';
@@ -166,6 +167,22 @@ export function SessionDetailPage({
     toggleLabel({ projectName, sessionId, data: { labelId } });
   };
 
+  const sidebarProps = useSessionSidebarProps({
+    sessions,
+    isLoadingGrouped,
+    errorGrouped,
+    selectedProjectData,
+    projectName,
+    sessionId,
+    totalSessions,
+    sessionSearch,
+    setSessionSearch,
+    navigateToProject,
+    navigateToSession,
+    openDeleteModal,
+    handleLabelToggle
+  });
+
   let content: ReactNode;
   if (sessionError) {
     content = <EmptyState message="Failed to load session" isError />;
@@ -246,32 +263,7 @@ export function SessionDetailPage({
 
   return (
     <>
-      <Layout
-        sidebar={
-          <SessionsSidebar
-            sessions={sessions}
-            isLoading={isLoadingGrouped}
-            error={errorGrouped}
-            projectName={selectedProjectData?.name || projectName}
-            projectPath={selectedProjectData?.path || ''}
-            selectedSessionId={sessionId}
-            totalSessions={totalSessions}
-            searchValue={sessionSearch}
-            hasNextPage={false}
-            isFetchingNextPage={false}
-            onLoadMore={() => {}}
-            onSearchChange={setSessionSearch}
-            onBack={navigateToProject}
-            onSelectSession={navigateToSession}
-            onDeleteSession={openDeleteModal}
-            onLabelToggle={handleLabelToggle}
-            projectId={selectedProjectData?.id || projectName}
-            isGitRepo={selectedProjectData?.isGitRepo}
-          />
-        }
-      >
-        {content}
-      </Layout>
+      <Layout sidebar={<SessionsSidebar {...sidebarProps} />}>{content}</Layout>
       <SessionDeleteDialog
         open={deleteModalOpen}
         isLoading={isDeleting}

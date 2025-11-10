@@ -17,9 +17,6 @@ type SessionsSidebarProps = {
   selectedSessionId?: string;
   totalSessions: number;
   searchValue?: string;
-  hasNextPage?: boolean;
-  isFetchingNextPage: boolean;
-  onLoadMore: () => void;
   onSearchChange: (value: string) => void;
   onBack: () => void;
   onSelectSession: (sessionId: string) => void;

@@ -1,4 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
+import { useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import {
   getGetApiSessionsProjectNameQueryKey,
@@ -68,53 +69,52 @@ export function SessionsListPage({ projectName }: SessionsListPageProps) {
   const totalSessions = groupedData?.meta.totalItems || 0;
   const selectedProjectData = projects?.find((p) => p.id === projectName);
 
-  const handleSearchChange = (value: string) => {
-    setSessionSearch(value);
-  };
+  const handleLabelToggle = useCallback(
+    (sessionId: string, labelId: string) => {
+      if (!projectName) return;
+      toggleLabel({ projectName, sessionId, data: { labelId } });
+    },
+    [projectName, toggleLabel]
+  );
 
-  const handleBack = () => {
-    navigate({ to: '/projects' });
-  };
-
-  const handleSelectSession = (sessionId: string) => {
-    navigate({
-      to: '/projects/$projectName/sessions/$sessionId',
-      params: { projectName, sessionId }
-    });
-  };
-
-  const handleDeleteSession = () => {};
-
-  const handleLabelToggle = (sessionId: string, labelId: string) => {
-    if (!projectName) return;
-    toggleLabel({ projectName, sessionId, data: { labelId } });
-  };
+  const sidebarProps = useMemo(
+    () => ({
+      sessions,
+      isLoading,
+      error,
+      projectName: selectedProjectData?.name || projectName,
+      projectPath: selectedProjectData?.path || '',
+      selectedSessionId: undefined,
+      totalSessions,
+      searchValue: sessionSearch,
+      onSearchChange: setSessionSearch,
+      onBack: () => navigate({ to: '/projects' }),
+      onSelectSession: (sessionId: string) =>
+        navigate({
+          to: '/projects/$projectName/sessions/$sessionId',
+          params: { projectName, sessionId }
+        }),
+      onDeleteSession: () => {},
+      onLabelToggle: handleLabelToggle,
+      projectId: projectName,
+      isGitRepo: selectedProjectData?.isGitRepo
+    }),
+    [
+      sessions,
+      isLoading,
+      error,
+      selectedProjectData,
+      projectName,
+      totalSessions,
+      sessionSearch,
+      setSessionSearch,
+      navigate,
+      handleLabelToggle
+    ]
+  );
 
   return (
-    <Layout
-      sidebar={
-        <SessionsSidebar
-          sessions={sessions}
-          isLoading={isLoading}
-          error={error}
-          projectName={selectedProjectData?.name || projectName}
-          projectPath={selectedProjectData?.path || ''}
-          selectedSessionId={undefined}
-          totalSessions={totalSessions}
-          searchValue={sessionSearch}
-          hasNextPage={false}
-          isFetchingNextPage={false}
-          onLoadMore={() => {}}
-          onSearchChange={handleSearchChange}
-          onBack={handleBack}
-          onSelectSession={handleSelectSession}
-          onDeleteSession={handleDeleteSession}
-          onLabelToggle={handleLabelToggle}
-          projectId={projectName}
-          isGitRepo={selectedProjectData?.isGitRepo}
-        />
-      }
-    >
+    <Layout sidebar={<SessionsSidebar {...sidebarProps} />}>
       <EmptyState message="Select a session to view messages" />
     </Layout>
   );
