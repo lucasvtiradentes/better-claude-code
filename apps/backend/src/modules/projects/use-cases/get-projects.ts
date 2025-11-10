@@ -31,7 +31,8 @@ const ProjectSchema = z.object({
   githubUrl: z.string().optional(),
   currentBranch: z.string().optional(),
   labels: z.array(z.string()),
-  hidden: z.boolean()
+  hidden: z.boolean(),
+  cached: z.boolean()
 });
 
 const GroupSchema = z.object({
@@ -162,7 +163,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     );
 
     const foldersToProcess: string[] = [];
-    const cachedProjects: ProjectCacheEntry[] = [];
+    const cachedProjects: (ProjectCacheEntry & { isCached: boolean })[] = [];
 
     for (const { folder, mtime } of folderMtimes) {
       if (mtime === null) continue;
@@ -171,7 +172,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       if (!cached) {
         foldersToProcess.push(folder);
       } else {
-        cachedProjects.push(cached);
+        cachedProjects.push({ ...cached, isCached: true });
       }
     }
 
@@ -180,6 +181,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     );
 
     const newProjects = processedResults.filter((p) => p !== null) as ProjectCacheEntry[];
+    const newProjectsWithFlag = newProjects.map(p => ({ ...p, isCached: false }));
 
     const updatedCache: Record<string, ProjectCacheEntry> = { ...(cachedData || {}) };
     for (const project of newProjects) {
@@ -195,7 +197,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     projectsCache.set('all-projects', updatedCache, 30 * 24 * 60 * 60 * 1000).catch(() => {});
 
-    let projects = [...cachedProjects, ...newProjects].map(({ folderMtime, ...rest }) => rest);
+    let projects = [...cachedProjects, ...newProjectsWithFlag].map(({ folderMtime, isCached, ...rest }) => ({ ...rest, cached: isCached }));
 
     projects.sort((a, b) => b.lastModified - a.lastModified);
 

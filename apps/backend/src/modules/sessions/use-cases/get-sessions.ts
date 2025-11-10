@@ -39,7 +39,8 @@ const SessionSchema = z.object({
   filesOrFoldersCount: z.number().optional(),
   urlCount: z.number().optional(),
   labels: z.array(z.string()).optional(),
-  summary: z.string().optional()
+  summary: z.string().optional(),
+  cached: z.boolean()
 });
 
 const GroupSchema = z.object({
@@ -228,7 +229,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     );
 
     const filesToProcess: string[] = [];
-    const cachedSessions: SessionCacheEntry[] = [];
+    const cachedSessions: (SessionCacheEntry & { isCached: boolean })[] = [];
 
     for (const { file, mtime } of fileMtimes) {
       const sessionId = file.replace('.jsonl', '');
@@ -237,7 +238,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       if (!cached || cached.fileMtime !== mtime) {
         filesToProcess.push(file);
       } else {
-        cachedSessions.push(cached);
+        cachedSessions.push({ ...cached, isCached: true });
       }
     }
 
@@ -248,6 +249,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     );
 
     const newSessions = processedResults.filter((s) => s !== null) as SessionCacheEntry[];
+    const newSessionsWithFlag = newSessions.map(s => ({ ...s, isCached: false }));
 
     const updatedCache = { ...cachedData };
     for (const session of newSessions) {
@@ -263,7 +265,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     sessionsCache.set(cacheKey, updatedCache, 30 * 24 * 60 * 60 * 1000).catch(() => {});
 
-    const items = [...cachedSessions, ...newSessions].map(({ fileMtime, ...rest }) => rest);
+    const items = [...cachedSessions, ...newSessionsWithFlag].map(({ fileMtime, isCached, ...rest }) => ({ ...rest, cached: isCached }));
 
     const grouped: Record<string, typeof items> = {};
 
