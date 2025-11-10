@@ -22,7 +22,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   sessions: {
     display: {
       showTokenPercentage: true,
-      showAttachments: false
+      showAttachments: true
     },
     labels: [{ id: 'important', name: 'Important', color: '#f59e0b', sessions: {} }]
   }

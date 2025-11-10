@@ -25,7 +25,7 @@ export const SessionSettingsTab = () => {
     defaultValues: {
       groupBy,
       showTokenPercentage: settings?.display.showTokenPercentage ?? true,
-      showAttachments: settings?.display.showAttachments ?? false
+      showAttachments: settings?.display.showAttachments ?? true
     }
   });
 

@@ -44,7 +44,7 @@ export const SessionCard = ({
   isActive,
   displaySettings = {
     showTokenPercentage: true,
-    showAttachments: false
+    showAttachments: true
   },
   onDelete,
   onLabelToggle

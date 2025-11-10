@@ -100,7 +100,7 @@ export const SessionsSidebar = ({
                       projectName={projectName}
                       isActive={session.id === selectedSessionId}
                       onClick={() => onSelectSession(session.id)}
-                      displaySettings={settings?.display}
+                      {...(settings?.display && { displaySettings: settings.display })}
                       onDelete={onDeleteSession}
                       onLabelToggle={onLabelToggle}
                     />

@@ -1,28 +1,28 @@
-import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import z from 'zod';
 import {
-  type GetApiSessionsProjectName200,
   getGetApiSessionsProjectNameQueryKey,
-  useDeleteApiSessionsProjectNameSessionId,
   useGetApiProjects,
   useGetApiSessionsProjectName,
   useGetApiSessionsProjectNameSessionId,
   usePostApiSessionsProjectNameSessionIdLabels
 } from '@/api';
-import { ConfirmDialog } from '@/common/components/ConfirmDialog';
 import { Layout } from '@/common/components/layout/Layout';
 import { queryClient } from '@/common/lib/tanstack-query';
 import { useProjectSessionUIStore } from '@/common/stores/project-session-ui-store';
 import { useProjectUIStore } from '@/common/stores/project-ui-store';
 import { useClaudeStream } from '@/features/live-sessions/hooks/useClaudeStream';
+import { SessionDeleteDialog } from '@/features/project-sessions/components/session-detail/SessionDeleteDialog';
 import { SessionChat } from '@/features/project-sessions/components/sessions-chat/SessionChat';
 import { SessionsSidebar } from '@/features/project-sessions/components/sessions-sidebar/SessionsSidebar';
+import { useSessionDelete } from '@/features/project-sessions/hooks/useSessionDelete';
+import { useSessionModals } from '@/features/project-sessions/hooks/useSessionModals';
+import { useSessionNavigation } from '@/features/project-sessions/hooks/useSessionNavigation';
+import { useSessionPaths } from '@/features/project-sessions/hooks/useSessionPaths';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { useMessageFilter } from '@/features/projects/hooks/use-message-filter';
-import { useModalState } from '@/features/projects/hooks/use-modal-state';
 import { useScrollPersistence } from '@/features/projects/hooks/use-scroll-persistence';
 import { useFilterStore } from '@/features/projects/stores/filter-store';
 
@@ -46,11 +46,8 @@ export function SessionDetailPage({
   folderPath: urlFolderPath,
   filePath: urlFilePath
 }: SessionDetailPageProps) {
-  const navigate = useNavigate({ from: '/projects/$projectName/sessions/$sessionId' });
   const { showUserMessages, showAssistantMessages, showToolCalls } = useFilterStore();
   const contentRef = useRef<HTMLDivElement>(null);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const sessionSearch = useProjectSessionUIStore((state) => state.search);
   const setSessionSearch = useProjectSessionUIStore((state) => state.setSearch);
   const sessionGroupBy = useProjectSessionUIStore((state) => state.groupBy);
@@ -58,7 +55,8 @@ export function SessionDetailPage({
   const projectGroupBy = useProjectUIStore((state) => state.groupBy);
   const projectHasHydrated = useProjectUIStore((state) => state._hasHydrated);
 
-  const { mutate: deleteSessionMutation, isPending: isDeleting } = useDeleteApiSessionsProjectNameSessionId();
+  const { updateSearch, navigateToProject, navigateToSession } = useSessionNavigation(projectName);
+
   const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
     mutation: {
       onSuccess: (_data, variables) => {
@@ -126,32 +124,17 @@ export function SessionDetailPage({
   );
 
   const { imageModalIndex, setImageModalIndex, fileModalPath, setFileModalPath, folderModalPath, setFolderModalPath } =
-    useModalState(imageIndex, urlFolderPath, urlFilePath, sessionData?.images);
+    useSessionModals(imageIndex, urlFolderPath, urlFilePath, sessionData?.images);
 
-  const updateSearch = (updates: SessionDetailQueryParams) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        ...updates
-      })
-    });
-  };
+  const { handlePathClick } = useSessionPaths(updateSearch, setFileModalPath, setFolderModalPath);
 
-  const handlePathClick = (
-    path: string,
-    currentFolderPath: string | null,
-    setFile: (path: string | null) => void,
-    setFolder: (path: string | null) => void
-  ) => {
-    const isDirectory = !path.includes('.');
-    if (isDirectory) {
-      setFolder(path);
-      updateSearch({ folderPath: path, filePath: undefined });
-    } else {
-      setFile(path);
-      updateSearch({ filePath: path, folderPath: currentFolderPath || undefined });
-    }
-  };
+  const { deleteModalOpen, isDeleting, openDeleteModal, closeDeleteModal, confirmDelete } = useSessionDelete(
+    projectName,
+    sessionId,
+    sessionGroupBy,
+    sessionSearch,
+    navigateToProject
+  );
 
   useScrollPersistence(contentRef, projectName, sessionId);
 
@@ -178,101 +161,10 @@ export function SessionDetailPage({
     }
   }, [liveMessages]);
 
-  const handleDeleteSession = (sessionId: string) => {
-    setSessionToDelete(sessionId);
-    setTimeout(() => {
-      setDeleteModalOpen(true);
-    }, 0);
-  };
-
   const handleLabelToggle = (sessionId: string, labelId: string) => {
     if (!projectName) return;
     toggleLabel({ projectName, sessionId, data: { labelId } });
   };
-
-  const confirmDeleteSession = () => {
-    if (!sessionToDelete || !projectName) return;
-
-    deleteSessionMutation(
-      { projectName, sessionId: sessionToDelete },
-      {
-        onSuccess: async () => {
-          queryClient.setQueryData<GetApiSessionsProjectName200>(
-            getGetApiSessionsProjectNameQueryKey(projectName, {
-              groupBy: sessionGroupBy,
-              search: sessionSearch || undefined
-            }),
-            (oldData) => {
-              if (!oldData) return oldData;
-
-              return {
-                ...oldData,
-                groups: oldData.groups.map((group) => ({
-                  ...group,
-                  items: group.items.filter((item) => item.id !== sessionToDelete),
-                  totalItems: group.items.filter((item) => item.id !== sessionToDelete).length
-                })),
-                meta: {
-                  ...oldData.meta,
-                  totalItems: oldData.meta.totalItems - 1
-                }
-              };
-            }
-          );
-
-          if (sessionId === sessionToDelete) {
-            await navigate({
-              to: '/projects/$projectName',
-              params: { projectName }
-            });
-          }
-
-          setDeleteModalOpen(false);
-          setSessionToDelete(null);
-          toast.success('Session deleted successfully');
-        },
-        onError: (error) => {
-          console.error('Failed to delete session:', error);
-          toast.error('Failed to delete session');
-        }
-      }
-    );
-  };
-
-  const handleBack = () => {
-    navigate({
-      to: '/projects/$projectName',
-      params: { projectName }
-    });
-  };
-
-  const handleSelectSession = (newSessionId: string) => {
-    navigate({
-      to: '/projects/$projectName/sessions/$sessionId',
-      params: { projectName, sessionId: newSessionId }
-    });
-  };
-
-  const handleSearchChange = (value: string) => {
-    setSessionSearch(value);
-  };
-
-  const renderConfirmDialog = () => (
-    <ConfirmDialog
-      open={deleteModalOpen}
-      onClose={() => {
-        setDeleteModalOpen(false);
-        setSessionToDelete(null);
-      }}
-      onConfirm={confirmDeleteSession}
-      title="Delete Session"
-      description="Are you sure you want to delete this session? This action cannot be undone and all messages will be permanently removed."
-      confirmText="Delete"
-      cancelText="Cancel"
-      variant="destructive"
-      isLoading={isDeleting}
-    />
-  );
 
   let content: ReactNode;
   if (sessionError) {
@@ -315,7 +207,7 @@ export function SessionDetailPage({
           setImageModalIndex(arrayPosition);
           updateSearch({ imageIndex: arrayPosition });
         }}
-        onPathClick={(path: string) => handlePathClick(path, folderModalPath, setFileModalPath, setFolderModalPath)}
+        onPathClick={(path: string) => handlePathClick(path, folderModalPath)}
         onImageModalClose={() => {
           setImageModalIndex(null);
           updateSearch({});
@@ -344,10 +236,6 @@ export function SessionDetailPage({
           setFileModalPath(path);
           updateSearch({ filePath: path, folderPath: folderModalPath || undefined });
         }}
-        onFolderModalFolderClick={(path: string) => {
-          setFolderModalPath(path);
-          updateSearch({ folderPath: path });
-        }}
         onSendMessage={sendMessage}
         messageInputDisabled={streamStatus === 'streaming'}
         messageInputPlaceholder={streamStatus === 'streaming' ? 'Claude is responding...' : 'Type your message...'}
@@ -372,10 +260,10 @@ export function SessionDetailPage({
             hasNextPage={false}
             isFetchingNextPage={false}
             onLoadMore={() => {}}
-            onSearchChange={handleSearchChange}
-            onBack={handleBack}
-            onSelectSession={handleSelectSession}
-            onDeleteSession={handleDeleteSession}
+            onSearchChange={setSessionSearch}
+            onBack={navigateToProject}
+            onSelectSession={navigateToSession}
+            onDeleteSession={openDeleteModal}
             onLabelToggle={handleLabelToggle}
             projectId={selectedProjectData?.id || projectName}
             isGitRepo={selectedProjectData?.isGitRepo}
@@ -384,7 +272,12 @@ export function SessionDetailPage({
       >
         {content}
       </Layout>
-      {renderConfirmDialog()}
+      <SessionDeleteDialog
+        open={deleteModalOpen}
+        isLoading={isDeleting}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+      />
     </>
   );
 }
