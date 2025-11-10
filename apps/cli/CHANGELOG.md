@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.20
+
+### Patch Changes
+
+- 2b24545: rename prompt
+
 ## 0.0.19
 
 ### Patch Changes
