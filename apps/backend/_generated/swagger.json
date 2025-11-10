@@ -1124,6 +1124,9 @@
                           },
                           "hidden": {
                             "type": "boolean"
+                          },
+                          "cached": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
@@ -1134,7 +1137,8 @@
                           "lastModified",
                           "isGitRepo",
                           "labels",
-                          "hidden"
+                          "hidden",
+                          "cached"
                         ]
                       }
                     },
@@ -1195,6 +1199,9 @@
                                     },
                                     "hidden": {
                                       "type": "boolean"
+                                    },
+                                    "cached": {
+                                      "type": "boolean"
                                     }
                                   },
                                   "required": [
@@ -1205,7 +1212,8 @@
                                     "lastModified",
                                     "isGitRepo",
                                     "labels",
-                                    "hidden"
+                                    "hidden",
+                                    "cached"
                                   ]
                                 }
                               },
@@ -1618,13 +1626,17 @@
                                 },
                                 "summary": {
                                   "type": "string"
+                                },
+                                "cached": {
+                                  "type": "boolean"
                                 }
                               },
                               "required": [
                                 "id",
                                 "title",
                                 "messageCount",
-                                "createdAt"
+                                "createdAt",
+                                "cached"
                               ]
                             }
                           },

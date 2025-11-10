@@ -17,4 +17,5 @@ export type GetApiProjects200AnyOfTwoGroupsItemItemsItem = {
   currentBranch?: string;
   labels: string[];
   hidden: boolean;
+  cached: boolean;
 };

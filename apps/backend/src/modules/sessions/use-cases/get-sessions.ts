@@ -1,5 +1,6 @@
 import { existsSync, readFile } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
 import {
@@ -12,9 +13,26 @@ import {
 } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
+import { JsonFileCache } from '../../../common/cache.js';
 import { ErrorSchema } from '../../../common/schemas.js';
 import { readSettings } from '../../settings/utils.js';
-import { type SessionCacheEntry, sessionsCache } from '../cache.js';
+
+const CACHE_DIR = join(homedir(), '.config', 'bcc', 'cache');
+const listSessionsCache = new JsonFileCache(join(CACHE_DIR, 'sessions'));
+
+interface SessionCacheEntry {
+  id: string;
+  title: string;
+  messageCount: number;
+  createdAt: number;
+  tokenPercentage: number;
+  imageCount?: number;
+  filesOrFoldersCount?: number;
+  urlCount?: number;
+  labels?: string[];
+  summary?: string;
+  fileMtime: number;
+}
 
 const paramsSchema = z.object({
   projectName: z.string()
@@ -216,7 +234,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     }
 
     const cacheKey = `project-${normalizedPath.replace(/\//g, '-')}`;
-    const cachedData = (await sessionsCache.get<Record<string, SessionCacheEntry>>(cacheKey)) || {};
+    const cachedData = (await listSessionsCache.get<Record<string, SessionCacheEntry>>(cacheKey)) || {};
 
     const files = await readdir(sessionsPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
@@ -249,7 +267,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     );
 
     const newSessions = processedResults.filter((s) => s !== null) as SessionCacheEntry[];
-    const newSessionsWithFlag = newSessions.map(s => ({ ...s, isCached: false }));
+    const newSessionsWithFlag = newSessions.map((s) => ({ ...s, isCached: false }));
 
     const updatedCache = { ...cachedData };
     for (const session of newSessions) {
@@ -263,9 +281,12 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       }
     }
 
-    sessionsCache.set(cacheKey, updatedCache, 30 * 24 * 60 * 60 * 1000).catch(() => {});
+    listSessionsCache.set(cacheKey, updatedCache, 30 * 24 * 60 * 60 * 1000).catch(() => {});
 
-    const items = [...cachedSessions, ...newSessionsWithFlag].map(({ fileMtime, isCached, ...rest }) => ({ ...rest, cached: isCached }));
+    const items = [...cachedSessions, ...newSessionsWithFlag].map(({ fileMtime, isCached, ...rest }) => ({
+      ...rest,
+      cached: isCached
+    }));
 
     const grouped: Record<string, typeof items> = {};
 

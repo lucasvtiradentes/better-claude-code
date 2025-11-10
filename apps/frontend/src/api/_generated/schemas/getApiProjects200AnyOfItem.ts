@@ -17,4 +17,5 @@ export type GetApiProjects200AnyOfItem = {
   currentBranch?: string;
   labels: string[];
   hidden: boolean;
+  cached: boolean;
 };

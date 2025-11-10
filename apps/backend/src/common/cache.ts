@@ -1,5 +1,4 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 interface CacheEntry<T> {
@@ -72,22 +71,4 @@ export class JsonFileCache {
       await rm(this.cacheDir, { recursive: true, force: true });
     } catch {}
   }
-}
-
-const CACHE_DIR = join(homedir(), '.config', 'bcc', 'cache');
-
-export const projectsCache = new JsonFileCache(join(CACHE_DIR, 'projects'));
-
-export interface ProjectCacheEntry {
-  id: string;
-  name: string;
-  path: string;
-  sessionsCount: number;
-  lastModified: number;
-  isGitRepo: boolean;
-  githubUrl?: string;
-  currentBranch?: string;
-  labels: string[];
-  hidden: boolean;
-  folderMtime: number;
 }

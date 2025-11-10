@@ -12,9 +12,26 @@ import {
 } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
+import { JsonFileCache } from '../../../common/cache.js';
 import { ErrorSchema } from '../../../common/schemas.js';
-import { type ProjectCacheEntry, projectsCache } from '../cache.js';
 import { extractProjectName, getGitInfo, getRealPathFromSession, readSettings } from '../utils.js';
+
+const CACHE_DIR = join(homedir(), '.config', 'bcc', 'cache');
+const listProjectsCache = new JsonFileCache(join(CACHE_DIR, 'projects'));
+
+interface ProjectCacheEntry {
+  id: string;
+  name: string;
+  path: string;
+  sessionsCount: number;
+  lastModified: number;
+  isGitRepo: boolean;
+  githubUrl?: string;
+  currentBranch?: string;
+  labels: string[];
+  hidden: boolean;
+  folderMtime: number;
+}
 
 const querySchema = z.object({
   groupBy: z.enum(['date', 'session-count', 'label']).optional(),
@@ -148,7 +165,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     const [folders, settings] = await Promise.all([readdir(projectsPath), readSettings()]);
 
-    const cachedData = (await projectsCache.get<Record<string, ProjectCacheEntry>>('all-projects')) || {};
+    const cachedData = (await listProjectsCache.get<Record<string, ProjectCacheEntry>>('all-projects')) || {};
 
     const folderMtimes = await Promise.all(
       folders.map(async (folder) => {
@@ -181,7 +198,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     );
 
     const newProjects = processedResults.filter((p) => p !== null) as ProjectCacheEntry[];
-    const newProjectsWithFlag = newProjects.map(p => ({ ...p, isCached: false }));
+    const newProjectsWithFlag = newProjects.map((p) => ({ ...p, isCached: false }));
 
     const updatedCache: Record<string, ProjectCacheEntry> = { ...(cachedData || {}) };
     for (const project of newProjects) {
@@ -195,9 +212,12 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       }
     }
 
-    projectsCache.set('all-projects', updatedCache, 30 * 24 * 60 * 60 * 1000).catch(() => {});
+    listProjectsCache.set('all-projects', updatedCache, 30 * 24 * 60 * 60 * 1000).catch(() => {});
 
-    let projects = [...cachedProjects, ...newProjectsWithFlag].map(({ folderMtime, isCached, ...rest }) => ({ ...rest, cached: isCached }));
+    let projects = [...cachedProjects, ...newProjectsWithFlag].map(({ folderMtime, isCached, ...rest }) => ({
+      ...rest,
+      cached: isCached
+    }));
 
     projects.sort((a, b) => b.lastModified - a.lastModified);
 

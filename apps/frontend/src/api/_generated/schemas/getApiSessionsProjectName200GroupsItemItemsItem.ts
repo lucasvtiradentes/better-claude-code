@@ -19,4 +19,5 @@ export type GetApiSessionsProjectName200GroupsItemItemsItem = {
   urlCount?: number;
   labels?: string[];
   summary?: string;
+  cached: boolean;
 };
