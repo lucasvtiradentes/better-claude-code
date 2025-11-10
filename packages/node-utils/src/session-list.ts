@@ -520,16 +520,19 @@ export async function listSessions(options: SessionListOptions): Promise<Session
       };
     }
 
-    const filesToProcess = fileStats.slice(0, limit);
+    const validSessions: SessionListItem[] = [];
 
-    const sessionPromises = filesToProcess.map(({ file, filePath }) =>
-      processSessionFile(filePath, file, normalizedPath, processOptions)
-    );
+    for (const { file, filePath } of fileStats) {
+      if (validSessions.length >= limit) break;
 
-    const sessionsResults = await Promise.all(sessionPromises);
-    sessions = sessionsResults.filter((s) => s !== null) as SessionListItem[];
+      const session = await processSessionFile(filePath, file, normalizedPath, processOptions);
 
-    return { items: sessions };
+      if (session !== null) {
+        validSessions.push(session);
+      }
+    }
+
+    return { items: validSessions };
   }
 
   const sessionPromises = sessionFiles.map((file) => {

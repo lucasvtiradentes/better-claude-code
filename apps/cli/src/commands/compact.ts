@@ -145,19 +145,34 @@ async function compactInteractive(limit: number | undefined, repoRoot: string, u
   await performCompaction(selectedSession.id, selectedSession.file, repoRoot);
 }
 
+function formatDuration(ms: number): string {
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  if (minutes > 0) {
+    return `${minutes}min ${remainingSeconds}s`;
+  }
+  return `${seconds}s`;
+}
+
 async function performCompaction(sessionId: string, sessionFile: string, repoRoot: string) {
   const shortId = sessionId.slice(0, 12);
   const parsedFile = join(repoRoot, `cc-session-parsed-${shortId}.md`);
   const summaryFile = join(repoRoot, `cc-session-summary-${shortId}.md`);
 
   Logger.loading('Step 1/2: Parsing session to markdown...');
+  const parseStart = Date.now();
   await parseSessionToMarkdown(sessionFile, parsedFile);
-  Logger.success(`Parsed to: ${parsedFile}`);
+  const parseDuration = Date.now() - parseStart;
+  Logger.success(`Parsed to: ${parsedFile} (${formatDuration(parseDuration)})`);
 
   Logger.info('');
   Logger.loading('Step 2/2: Compacting via Claude Code...');
+  const compactStart = Date.now();
   await compactSession(parsedFile, summaryFile);
-  Logger.success(`Summary saved to: ${summaryFile}`);
+  const compactDuration = Date.now() - compactStart;
+  Logger.success(`Summary saved to: ${summaryFile} (${formatDuration(compactDuration)})`);
 
   Logger.info('');
   Logger.success('Compaction complete!');
