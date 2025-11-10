@@ -31,6 +31,10 @@ export function getFlagColor() {
   return MESSAGE_COLORS.FLAG;
 }
 
+export function getImageColor() {
+  return MESSAGE_COLORS.EXISTING_IMAGE_TAG;
+}
+
 function escapeHtml(text: string) {
   return text
     .replace(/&/g, '&amp;')
@@ -124,11 +128,11 @@ export function formatImageTag(index: number, exists = true, imageData?: string)
 
 export function parseTitle(
   title: string
-): Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' | 'flag' }> {
-  const parts: Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' | 'flag' }> = [];
+): Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' | 'flag' | 'image' }> {
+  const parts: Array<{ text: string; type: 'normal' | 'file' | 'command' | 'url' | 'ultrathink' | 'flag' | 'image' }> = [];
   const isCommand = MESSAGE_PATTERNS.COMMAND_WORDS.test(title) || MESSAGE_PATTERNS.SLASH_COMMAND.test(title);
 
-  const allMatches: Array<{ index: number; text: string; type: 'file' | 'url' | 'ultrathink' | 'flag' }> = [];
+  const allMatches: Array<{ index: number; text: string; type: 'file' | 'url' | 'ultrathink' | 'flag' | 'image' }> = [];
 
   const fileRegex = new RegExp(MESSAGE_PATTERNS.FILE_OR_FOLDER_AT.source, 'g');
   let fileMatch: RegExpExecArray | null = fileRegex.exec(title);
@@ -174,6 +178,17 @@ export function parseTitle(
       type: 'flag'
     });
     flagMatch = flagRegex.exec(title);
+  }
+
+  const imageRegex = new RegExp(MESSAGE_PATTERNS.IMAGE_TAG.source, 'g');
+  let imageMatch: RegExpExecArray | null = imageRegex.exec(title);
+  while (imageMatch !== null) {
+    allMatches.push({
+      index: imageMatch.index,
+      text: imageMatch[0],
+      type: 'image'
+    });
+    imageMatch = imageRegex.exec(title);
   }
 
   allMatches.sort((a, b) => a.index - b.index);

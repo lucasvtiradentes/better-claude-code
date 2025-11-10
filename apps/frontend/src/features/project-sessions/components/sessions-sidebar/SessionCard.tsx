@@ -17,6 +17,7 @@ import {
   getCommandInTitleColor,
   getFileInTitleColor,
   getFlagColor,
+  getImageColor,
   getLabelActiveColor,
   getTokenColor,
   getUltrathinkColor,
@@ -84,7 +85,9 @@ export const SessionCard = ({
                         ? getUltrathinkColor()
                         : part.type === 'flag'
                           ? getFlagColor()
-                          : ''
+                          : part.type === 'image'
+                            ? getImageColor()
+                            : ''
               }
             >
               {part.text}
