@@ -56,7 +56,7 @@ export function SessionsListPage({ projectName }: SessionsListPageProps) {
     error
   } = useGetApiSessionsProjectName(
     projectName,
-    { groupBy: sessionGroupBy, search: sessionSearch || undefined },
+    { groupBy: sessionGroupBy, search: sessionSearch || undefined, skipCache: true },
     {
       query: {
         enabled: sessionHasHydrated,

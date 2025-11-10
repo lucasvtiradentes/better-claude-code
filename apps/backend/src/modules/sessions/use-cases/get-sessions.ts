@@ -151,7 +151,16 @@ async function processSessionFileWithCache(
 
         if (!isUser && !isCC) continue;
 
-        const textContent = parsed.message?.content || parsed.content;
+        const rawContent = parsed.message?.content || parsed.content;
+
+        let textContent = '';
+        if (typeof rawContent === 'string') {
+          textContent = rawContent;
+        } else if (Array.isArray(rawContent)) {
+          const textParts = rawContent.filter(item => item.type === 'text').map(item => item.text);
+          textContent = textParts.join('\n');
+        }
+
         if (!textContent) continue;
 
         const messageKey = `${isUser ? 'user' : 'assistant'}-${parsed.timestamp || 0}`;
@@ -161,9 +170,35 @@ async function processSessionFileWithCache(
         messageCount++;
 
         if (isUser && !title && typeof textContent === 'string') {
-          const firstLine = textContent.split('\n')[0].replace(/\\/g, '').replace(/\s+/g, ' ').trim();
-          if (firstLine && firstLine !== 'Warmup' && !firstLine.includes('Caveat:')) {
-            title = firstLine.length > 80 ? `${firstLine.substring(0, 80)}...` : firstLine;
+          const allLines = textContent.split('\n').map(line => line.replace(/\\/g, '').trim()).filter(line => line.length > 0);
+
+          let firstLines = allLines.slice(0, 10).join(' ').replace(/\s+/g, ' ').trim();
+
+          if (firstLines.includes('---')) {
+            const beforeSeparator = firstLines.split('---')[0].trim();
+            if (beforeSeparator) {
+              firstLines = beforeSeparator;
+            }
+          }
+
+          firstLines = firstLines.replace(/<command-message>.*?<\/command-message>/g, '').trim();
+
+          const commandNameMatch = firstLines.match(/<command-name>(.*?)<\/command-name>/);
+          const commandArgsMatch = firstLines.match(/<command-args>(.*?)<\/command-args>/);
+
+          if (commandNameMatch) {
+            const commandName = commandNameMatch[1];
+            const commandArgs = commandArgsMatch ? ` ${commandArgsMatch[1]}` : '';
+            firstLines = `${commandName}${commandArgs}`;
+          }
+
+          const isClearCommand = firstLines.includes('/clear');
+          const isLocalCommand = firstLines.startsWith('<local-command-');
+          const isIdeCommand = commandNameMatch && commandNameMatch[1] === '/ide';
+          const shouldSkip = !firstLines || firstLines === 'Warmup' || firstLines.includes('Caveat:') || isClearCommand || isLocalCommand || isIdeCommand;
+
+          if (!shouldSkip) {
+            title = firstLines.length > 80 ? `${firstLines.substring(0, 80)}...` : firstLines;
           }
 
           const fileOrFolderMatches = textContent.match(/@[\w\-./]+/g);

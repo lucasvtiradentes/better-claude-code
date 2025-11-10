@@ -88,7 +88,7 @@ export function SessionDetailPage({
     error: errorGrouped
   } = useGetApiSessionsProjectName(
     projectName,
-    { groupBy: sessionGroupBy, search: sessionSearch || undefined },
+    { groupBy: sessionGroupBy, search: sessionSearch || undefined, skipCache: true },
     {
       query: {
         enabled: sessionHasHydrated,
