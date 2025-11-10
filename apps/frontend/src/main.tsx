@@ -4,10 +4,11 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Toaster } from 'sonner';
+import { useSettingsSync } from './common/hooks/use-settings-sync';
+import { queryClient } from './common/lib/tanstack-query';
 import { configs } from './configs';
-import './index.css';
-import { queryClient } from './lib/tanstack-query';
 import { routeTree } from './routeTree.gen';
+import './index.css';
 
 const router = createRouter({
   routeTree,
@@ -25,10 +26,15 @@ declare module '@tanstack/react-router' {
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Root element not found');
 
+const AppContent = () => {
+  useSettingsSync();
+  return <RouterProvider router={router} />;
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <AppContent />
       <Toaster position="top-right" richColors />
       {configs.enableTanstackQueryDev && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>

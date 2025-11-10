@@ -9,6 +9,12 @@ type Message = {
   timestamp: Date;
 };
 
+type ImageData = {
+  index: number;
+  data: string;
+  messageId: string;
+};
+
 type StreamStatus = 'idle' | 'streaming' | 'pending-permissions' | 'completed' | 'error';
 
 type ToolCall = {
@@ -19,6 +25,7 @@ type ToolCall = {
 export function useClaudeStream(sessionId: string, projectPath: string, projectName: string, enabled: boolean = true) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [images, setImages] = useState<ImageData[]>([]);
   const [status, setStatus] = useState<StreamStatus>('idle');
   const [error, setError] = useState<string | null>(null);
   const [pendingPermissions, setPendingPermissions] = useState<Permission[]>([]);
@@ -201,7 +208,7 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
   }, [sessionId, projectPath, cleanup, initializeSession]);
 
   const sendMessage = useCallback(
-    async (userMessage: string) => {
+    async (userMessage: string, imagePaths?: string[]) => {
       if (status === 'streaming') {
         console.warn('Cannot send message while streaming');
         return;
@@ -212,8 +219,9 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
         return;
       }
 
+      const messageId = crypto.randomUUID();
       const userMsg: Message = {
-        id: crypto.randomUUID(),
+        id: messageId,
         role: 'user',
         content: userMessage,
         timestamp: new Date()
@@ -224,11 +232,40 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
       setError(null);
       currentMessageRef.current = '';
 
+      if (imagePaths && imagePaths.length > 0) {
+        const imageRefMatches = userMessage.match(/\[Image #(\d+)\]/g) || [];
+        const imageIndexes = imageRefMatches.map((match) => {
+          const num = match.match(/\d+/);
+          return num ? parseInt(num[0], 10) : 0;
+        });
+
+        const newImages: ImageData[] = [];
+        for (let i = 0; i < imagePaths.length; i++) {
+          try {
+            const response = await fetch(`/api/files/image?path=${encodeURIComponent(imagePaths[i])}`);
+            if (response.ok) {
+              const result = await response.json();
+              const imageData = {
+                index: imageIndexes[i] || i + 1,
+                data: result.data,
+                messageId
+              };
+              newImages.push(imageData);
+            }
+          } catch (error) {
+            console.error('Failed to load image for preview:', error);
+          }
+        }
+        setImages((prev) => {
+          return [...prev, ...newImages];
+        });
+      }
+
       try {
         const response = await fetch(`/api/live-sessions/${sessionId}/messages`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: userMessage, projectPath })
+          body: JSON.stringify({ message: userMessage, imagePaths, projectPath })
         });
 
         if (!response.ok) {
@@ -399,6 +436,7 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
 
   return {
     messages,
+    images,
     status,
     error,
     pendingPermissions,

@@ -13,7 +13,10 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as LiveSessionIdRouteImport } from './routes/live/$sessionId'
+import { Route as ProjectsProjectNameIndexRouteImport } from './routes/projects/$projectName/index'
+import { Route as ProjectsProjectNameSessionsSessionIdRouteImport } from './routes/projects/$projectName/sessions/$sessionId'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -35,39 +38,79 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProjectsRoute,
+} as any)
 const LiveSessionIdRoute = LiveSessionIdRouteImport.update({
   id: '/live/$sessionId',
   path: '/live/$sessionId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsProjectNameIndexRoute =
+  ProjectsProjectNameIndexRouteImport.update({
+    id: '/$projectName/',
+    path: '/$projectName/',
+    getParentRoute: () => ProjectsRoute,
+  } as any)
+const ProjectsProjectNameSessionsSessionIdRoute =
+  ProjectsProjectNameSessionsSessionIdRouteImport.update({
+    id: '/$projectName/sessions/$sessionId',
+    path: '/$projectName/sessions/$sessionId',
+    getParentRoute: () => ProjectsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/files': typeof FilesRoute
-  '/projects': typeof ProjectsRoute
+  '/projects': typeof ProjectsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/live/$sessionId': typeof LiveSessionIdRoute
+  '/projects/': typeof ProjectsIndexRoute
+  '/projects/$projectName': typeof ProjectsProjectNameIndexRoute
+  '/projects/$projectName/sessions/$sessionId': typeof ProjectsProjectNameSessionsSessionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/files': typeof FilesRoute
-  '/projects': typeof ProjectsRoute
   '/settings': typeof SettingsRoute
   '/live/$sessionId': typeof LiveSessionIdRoute
+  '/projects': typeof ProjectsIndexRoute
+  '/projects/$projectName': typeof ProjectsProjectNameIndexRoute
+  '/projects/$projectName/sessions/$sessionId': typeof ProjectsProjectNameSessionsSessionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/files': typeof FilesRoute
-  '/projects': typeof ProjectsRoute
+  '/projects': typeof ProjectsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/live/$sessionId': typeof LiveSessionIdRoute
+  '/projects/': typeof ProjectsIndexRoute
+  '/projects/$projectName/': typeof ProjectsProjectNameIndexRoute
+  '/projects/$projectName/sessions/$sessionId': typeof ProjectsProjectNameSessionsSessionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/files' | '/projects' | '/settings' | '/live/$sessionId'
+  fullPaths:
+    | '/'
+    | '/files'
+    | '/projects'
+    | '/settings'
+    | '/live/$sessionId'
+    | '/projects/'
+    | '/projects/$projectName'
+    | '/projects/$projectName/sessions/$sessionId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/files' | '/projects' | '/settings' | '/live/$sessionId'
+  to:
+    | '/'
+    | '/files'
+    | '/settings'
+    | '/live/$sessionId'
+    | '/projects'
+    | '/projects/$projectName'
+    | '/projects/$projectName/sessions/$sessionId'
   id:
     | '__root__'
     | '/'
@@ -75,12 +118,15 @@ export interface FileRouteTypes {
     | '/projects'
     | '/settings'
     | '/live/$sessionId'
+    | '/projects/'
+    | '/projects/$projectName/'
+    | '/projects/$projectName/sessions/$sessionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FilesRoute: typeof FilesRoute
-  ProjectsRoute: typeof ProjectsRoute
+  ProjectsRoute: typeof ProjectsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   LiveSessionIdRoute: typeof LiveSessionIdRoute
 }
@@ -115,6 +161,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/': {
+      id: '/projects/'
+      path: '/'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof ProjectsRoute
+    }
     '/live/$sessionId': {
       id: '/live/$sessionId'
       path: '/live/$sessionId'
@@ -122,13 +175,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LiveSessionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/$projectName/': {
+      id: '/projects/$projectName/'
+      path: '/$projectName'
+      fullPath: '/projects/$projectName'
+      preLoaderRoute: typeof ProjectsProjectNameIndexRouteImport
+      parentRoute: typeof ProjectsRoute
+    }
+    '/projects/$projectName/sessions/$sessionId': {
+      id: '/projects/$projectName/sessions/$sessionId'
+      path: '/$projectName/sessions/$sessionId'
+      fullPath: '/projects/$projectName/sessions/$sessionId'
+      preLoaderRoute: typeof ProjectsProjectNameSessionsSessionIdRouteImport
+      parentRoute: typeof ProjectsRoute
+    }
   }
 }
+
+interface ProjectsRouteChildren {
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
+  ProjectsProjectNameIndexRoute: typeof ProjectsProjectNameIndexRoute
+  ProjectsProjectNameSessionsSessionIdRoute: typeof ProjectsProjectNameSessionsSessionIdRoute
+}
+
+const ProjectsRouteChildren: ProjectsRouteChildren = {
+  ProjectsIndexRoute: ProjectsIndexRoute,
+  ProjectsProjectNameIndexRoute: ProjectsProjectNameIndexRoute,
+  ProjectsProjectNameSessionsSessionIdRoute:
+    ProjectsProjectNameSessionsSessionIdRoute,
+}
+
+const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
+  ProjectsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FilesRoute: FilesRoute,
-  ProjectsRoute: ProjectsRoute,
+  ProjectsRoute: ProjectsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   LiveSessionIdRoute: LiveSessionIdRoute,
 }

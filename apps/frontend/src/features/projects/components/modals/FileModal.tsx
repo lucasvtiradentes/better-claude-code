@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { prism, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useGetApiSessionsProjectNameSessionIdFile } from '@/api';
-import { useTheme } from '@/hooks/use-theme';
+import { useTheme } from '@/common/hooks/use-theme';
 
 type FileModalProps = {
   projectId: string;

@@ -8,7 +8,5 @@
 
 export type GetApiSessionsProjectName200Meta = {
   totalItems: number;
-  totalPages: number;
-  page: number;
-  limit: number;
+  totalGroups: number;
 };

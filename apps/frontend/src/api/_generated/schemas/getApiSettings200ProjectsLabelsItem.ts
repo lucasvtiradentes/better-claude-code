@@ -10,4 +10,6 @@ export type GetApiSettings200ProjectsLabelsItem = {
   id: string;
   name: string;
   color: string;
+  usageCount?: number;
+  projects?: string[];
 };

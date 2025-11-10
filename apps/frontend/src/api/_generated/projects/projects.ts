@@ -25,12 +25,17 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  GetApiProjects200Item,
+  GetApiProjects200,
   GetApiProjects500,
+  GetApiProjectsParams,
   PostApiProjectsProjectIdActionAction200,
   PostApiProjectsProjectIdActionAction400,
   PostApiProjectsProjectIdActionAction404,
-  PostApiProjectsProjectIdActionAction500
+  PostApiProjectsProjectIdActionAction500,
+  PostApiProjectsProjectsProjectIdLabelsToggle200,
+  PostApiProjectsProjectsProjectIdLabelsToggle404,
+  PostApiProjectsProjectsProjectIdLabelsToggle500,
+  PostApiProjectsProjectsProjectIdLabelsToggleBody
 } from '.././schemas';
 
 import { customInstance } from '../../custom-instance';
@@ -40,13 +45,14 @@ import type { ErrorType } from '../../custom-instance';
 
 
 export const getApiProjects = (
-    
+    params?: GetApiProjectsParams,
  signal?: AbortSignal
 ) => {
       
       
-      return customInstance<GetApiProjects200Item[]>(
-      {url: `/api/projects`, method: 'GET', signal
+      return customInstance<GetApiProjects200>(
+      {url: `/api/projects`, method: 'GET',
+        params, signal
     },
       );
     }
@@ -54,23 +60,23 @@ export const getApiProjects = (
 
 
 
-export const getGetApiProjectsQueryKey = () => {
+export const getGetApiProjectsQueryKey = (params?: GetApiProjectsParams,) => {
     return [
-    `/api/projects`
+    `/api/projects`, ...(params ? [params]: [])
     ] as const;
     }
 
     
-export const getGetApiProjectsQueryOptions = <TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>>, }
+export const getGetApiProjectsQueryOptions = <TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>(params?: GetApiProjectsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiProjectsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetApiProjectsQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiProjects>>> = ({ signal }) => getApiProjects(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiProjects>>> = ({ signal }) => getApiProjects(params, signal);
 
       
 
@@ -84,7 +90,7 @@ export type GetApiProjectsQueryError = ErrorType<GetApiProjects500>
 
 
 export function useGetApiProjects<TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>> & Pick<
+ params: undefined |  GetApiProjectsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiProjects>>,
           TError,
@@ -94,7 +100,7 @@ export function useGetApiProjects<TData = Awaited<ReturnType<typeof getApiProjec
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiProjects<TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>> & Pick<
+ params?: GetApiProjectsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiProjects>>,
           TError,
@@ -104,16 +110,16 @@ export function useGetApiProjects<TData = Awaited<ReturnType<typeof getApiProjec
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiProjects<TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>>, }
+ params?: GetApiProjectsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetApiProjects<TData = Awaited<ReturnType<typeof getApiProjects>>, TError = ErrorType<GetApiProjects500>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>>, }
+ params?: GetApiProjectsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProjects>>, TError, TData>>, }
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiProjectsQueryOptions(options)
+  const queryOptions = getGetApiProjectsQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -179,6 +185,65 @@ const {mutation: mutationOptions} = options ?
       > => {
 
       const mutationOptions = getPostApiProjectsProjectIdActionActionMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const postApiProjectsProjectsProjectIdLabelsToggle = (
+    projectId: string,
+    postApiProjectsProjectsProjectIdLabelsToggleBody: PostApiProjectsProjectsProjectIdLabelsToggleBody,
+ signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PostApiProjectsProjectsProjectIdLabelsToggle200>(
+      {url: `/api/projects/projects/${projectId}/labels/toggle`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiProjectsProjectsProjectIdLabelsToggleBody, signal
+    },
+      );
+    }
+  
+
+
+export const getPostApiProjectsProjectsProjectIdLabelsToggleMutationOptions = <TError = ErrorType<PostApiProjectsProjectsProjectIdLabelsToggle404 | PostApiProjectsProjectsProjectIdLabelsToggle500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>, TError,{projectId: string;data: PostApiProjectsProjectsProjectIdLabelsToggleBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>, TError,{projectId: string;data: PostApiProjectsProjectsProjectIdLabelsToggleBody}, TContext> => {
+
+const mutationKey = ['postApiProjectsProjectsProjectIdLabelsToggle'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>, {projectId: string;data: PostApiProjectsProjectsProjectIdLabelsToggleBody}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  postApiProjectsProjectsProjectIdLabelsToggle(projectId,data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiProjectsProjectsProjectIdLabelsToggleMutationResult = NonNullable<Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>>
+    export type PostApiProjectsProjectsProjectIdLabelsToggleMutationBody = PostApiProjectsProjectsProjectIdLabelsToggleBody
+    export type PostApiProjectsProjectsProjectIdLabelsToggleMutationError = ErrorType<PostApiProjectsProjectsProjectIdLabelsToggle404 | PostApiProjectsProjectsProjectIdLabelsToggle500>
+
+    export const usePostApiProjectsProjectsProjectIdLabelsToggle = <TError = ErrorType<PostApiProjectsProjectsProjectIdLabelsToggle404 | PostApiProjectsProjectsProjectIdLabelsToggle500>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>, TError,{projectId: string;data: PostApiProjectsProjectsProjectIdLabelsToggleBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiProjectsProjectsProjectIdLabelsToggle>>,
+        TError,
+        {projectId: string;data: PostApiProjectsProjectsProjectIdLabelsToggleBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiProjectsProjectsProjectIdLabelsToggleMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

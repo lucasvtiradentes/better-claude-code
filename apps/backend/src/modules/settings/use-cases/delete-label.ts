@@ -45,12 +45,6 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     settings.projects.labels = settings.projects.labels.filter((l) => l.id !== labelId);
 
-    for (const projectId in settings.projects.projectSettings) {
-      settings.projects.projectSettings[projectId].labels = settings.projects.projectSettings[projectId].labels.filter(
-        (id) => id !== labelId
-      );
-    }
-
     await writeSettings(settings);
     return c.json({ success: true } satisfies z.infer<typeof responseSchema>, 200);
   } catch {

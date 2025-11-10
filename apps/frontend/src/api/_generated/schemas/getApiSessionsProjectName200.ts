@@ -5,10 +5,10 @@
  * CLI auxiliary tools for Claude Code
  * OpenAPI spec version: 1.0.0
  */
-import type { GetApiSessionsProjectName200ItemsItem } from './getApiSessionsProjectName200ItemsItem';
+import type { GetApiSessionsProjectName200GroupsItem } from './getApiSessionsProjectName200GroupsItem';
 import type { GetApiSessionsProjectName200Meta } from './getApiSessionsProjectName200Meta';
 
 export type GetApiSessionsProjectName200 = {
-  items: GetApiSessionsProjectName200ItemsItem[];
+  groups: GetApiSessionsProjectName200GroupsItem[];
   meta: GetApiSessionsProjectName200Meta;
 };

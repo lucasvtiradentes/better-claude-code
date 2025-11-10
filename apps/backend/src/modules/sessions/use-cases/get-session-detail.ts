@@ -1,11 +1,9 @@
 import { accessSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { ClaudeHelper } from '@better-claude-code/node-utils';
-import { MessageSource } from '@better-claude-code/shared';
+import { ClaudeHelper, extractTextContent, MessageSource, parseSessionMessages } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
-import { extractTextContent, parseSessionMessages } from '../services/session-parser.js';
 import { extractPathsFromText, getRealPathFromSession } from '../utils.js';
 
 const paramsSchema = z.object({

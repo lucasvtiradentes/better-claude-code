@@ -2,11 +2,17 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper.js';
+import {
+  CLAUDE_CODE_COMMANDS,
+  createMessageKey,
+  extractTextContent,
+  shouldSkipAssistantMessage,
+  shouldSkipUserMessage
+} from './session-helpers.js';
 
 const IGNORE_EMPTY_SESSIONS = true;
 const MAX_TITLE_LENGTH = 80;
 const TOKEN_LIMIT = 180000;
-const CLAUDE_CODE_COMMANDS = ['clear', 'ide', 'model', 'compact', 'init'];
 
 export enum MessageCountMode {
   TURN = 'turn',
@@ -37,6 +43,14 @@ export interface SessionListOptions {
   includeUrls?: boolean;
   includeLabels?: boolean;
   enablePagination?: boolean;
+  settings?: {
+    sessions: {
+      labels: Array<{
+        id: string;
+        sessions?: Record<string, string[]>;
+      }>;
+    };
+  };
 }
 
 export interface SessionListItem {
@@ -68,19 +82,6 @@ export interface SessionListResult {
   };
 }
 
-function extractTextContent(content: any): string {
-  if (typeof content === 'string') {
-    return content;
-  }
-  if (Array.isArray(content)) {
-    return content
-      .filter((item) => item.type === 'text')
-      .map((item) => item.text)
-      .join(' ');
-  }
-  return '';
-}
-
 function parseCommandFromContent(content: string): string | null {
   const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
   if (commandMatch) {
@@ -92,288 +93,285 @@ function parseCommandFromContent(content: string): string | null {
   return null;
 }
 
-function isValidUserMessage(content: string): boolean {
-  if (!content || content === 'Warmup') {
-    return false;
-  }
+async function findCheckpointedSessions(sessionFiles: string[], sessionsPath: string): Promise<Set<string>> {
+  const originalSessionsToHide = new Set<string>();
 
-  const firstLine = content.split('\n')[0].replace(/\\/g, '').replace(/\s+/g, ' ').trim();
+  const checkPromises = sessionFiles.map(async (file) => {
+    const filePath = join(sessionsPath, file);
+    const content = await readFile(filePath, 'utf-8');
+    const lines = content.split('\n').filter((l) => l.trim());
 
-  if (firstLine.includes('Caveat:')) {
-    return false;
-  }
+    let summary: string | undefined;
+    let internalSessionId: string | undefined;
 
-  const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
-  if (commandMatch) {
-    const commandName = commandMatch[1];
-    if (CLAUDE_CODE_COMMANDS.includes(commandName)) {
-      return false;
-    }
-  }
-
-  const isSystemMessage =
-    firstLine.startsWith('<local-command-') ||
-    firstLine.startsWith('[Tool:') ||
-    firstLine.startsWith('[Request interrupted');
-
-  return !isSystemMessage;
-}
-
-function countMessages(
-  lines: string[],
-  mode: MessageCountMode
-): { userCount: number; assistantCount: number; totalCount: number } {
-  if (mode === MessageCountMode.TURN) {
-    let userCount = 0;
-    let assistantCount = 0;
-    let prevType = '';
-
-    for (const line of lines) {
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i];
       try {
         const parsed = JSON.parse(line);
-        const currentType = parsed.type;
-
-        if (ClaudeHelper.isUserMessage(currentType) || ClaudeHelper.isCCMessage(currentType)) {
-          if (ClaudeHelper.isUserMessage(currentType)) {
-            const content = extractTextContent(parsed.message?.content);
-            if (!isValidUserMessage(content)) {
-              continue;
-            }
-          }
-
-          if (currentType !== prevType) {
-            if (ClaudeHelper.isUserMessage(currentType)) {
-              userCount++;
-            } else {
-              assistantCount++;
-            }
-            prevType = currentType;
-          }
+        if (!summary && parsed.type === 'summary' && parsed.summary) {
+          summary = parsed.summary;
         }
+        if (!internalSessionId && parsed.sessionId) {
+          internalSessionId = parsed.sessionId;
+        }
+        if (summary && internalSessionId) break;
       } catch {}
     }
 
-    return { userCount, assistantCount, totalCount: userCount + assistantCount };
-  } else {
-    const userCount = lines.filter((line) => {
-      try {
-        const parsed = JSON.parse(line);
-        if (!ClaudeHelper.isUserMessage(parsed.type)) {
-          return false;
-        }
-        const content = extractTextContent(parsed.message?.content);
-        return isValidUserMessage(content);
-      } catch {
-        return false;
-      }
-    }).length;
+    if (summary && internalSessionId && internalSessionId !== file.replace('.jsonl', '')) {
+      return internalSessionId;
+    }
 
-    const assistantCount = lines.filter((line) => {
-      try {
-        const parsed = JSON.parse(line);
-        return ClaudeHelper.isCCMessage(parsed.type);
-      } catch {
-        return false;
-      }
-    }).length;
+    return null;
+  });
 
-    return { userCount, assistantCount, totalCount: userCount + assistantCount };
-  }
+  const results = await Promise.all(checkPromises);
+  results.forEach((sessionId: string | null) => {
+    if (sessionId) {
+      originalSessionsToHide.add(sessionId);
+    }
+  });
+
+  return originalSessionsToHide;
 }
 
-function calculateTokenPercentage(lines: string[]): number | undefined {
-  for (let j = lines.length - 1; j >= 0; j--) {
+function getLabelsFromSettings(
+  settings: SessionListOptions['settings'],
+  projectName: string,
+  sessionId: string
+): string[] | undefined {
+  if (!settings) return undefined;
+
+  const labels = settings.sessions.labels
+    .filter((label) => label.sessions?.[projectName]?.includes(sessionId))
+    .map((label) => label.id);
+
+  return labels.length > 0 ? labels : undefined;
+}
+
+interface ParsedLine {
+  type: string;
+  message?: {
+    content?: unknown;
+    usage?: {
+      input_tokens?: number;
+      cache_read_input_tokens?: number;
+      output_tokens?: number;
+    };
+  };
+  content?: unknown;
+  timestamp?: number;
+  sessionId?: string;
+  summary?: string;
+}
+
+function singlePassParsing(
+  lines: string[],
+  options: {
+    search: string;
+    messageCountMode: MessageCountMode;
+    titleSource: TitleSource;
+    includeImages: boolean;
+    includeCustomCommands: boolean;
+    includeFilesOrFolders: boolean;
+    includeUrls: boolean;
+  }
+) {
+  const parsedLines: ParsedLine[] = [];
+  const seenMessages = new Set<string>();
+  let userCount = 0;
+  let assistantCount = 0;
+  let imageCount = 0;
+  let customCommandCount = 0;
+  let filesOrFoldersCount = 0;
+  let urlCount = 0;
+  let tokenPercentage: number | undefined;
+  let summary: string | undefined;
+  let internalSessionId: string | undefined;
+  let firstUserMessage: string | null = null;
+  let titleForFirstUserMessage: string | null = null;
+  let titleForLastCCMessage: string | null = null;
+  let searchMatchCount: number | undefined;
+  let contentMatches = 0;
+  const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\]]+/g;
+  let prevType = '';
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     try {
-      const parsed = JSON.parse(lines[j]);
-      const usage = parsed.message?.usage;
-      if (usage) {
-        const inputTokens = usage.input_tokens || 0;
-        const cacheReadTokens = usage.cache_read_input_tokens || 0;
-        const outputTokens = usage.output_tokens || 0;
-        const total = inputTokens + cacheReadTokens + outputTokens;
+      const parsed: ParsedLine = JSON.parse(line);
+      parsedLines.push(parsed);
 
-        if (total > 0) {
-          return Math.floor((total * 100) / TOKEN_LIMIT);
+      if (parsed.type === 'queue-operation') continue;
+      if (parsed.summary) summary = parsed.summary;
+      if (parsed.sessionId) internalSessionId = parsed.sessionId;
+
+      const isUser = ClaudeHelper.isUserMessage(parsed.type as any);
+      const isCC = ClaudeHelper.isCCMessage(parsed.type as any);
+
+      if (!isUser && !isCC) continue;
+
+      const textContent = extractTextContent(parsed.message?.content || parsed.content);
+      if (!textContent) continue;
+
+      const messageKey = createMessageKey(isUser ? 'user' : 'assistant', parsed.timestamp, textContent);
+      const isDuplicate = seenMessages.has(messageKey);
+      if (!isDuplicate) seenMessages.add(messageKey);
+
+      if (isUser) {
+        if (!firstUserMessage) firstUserMessage = textContent;
+
+        const shouldSkip = shouldSkipUserMessage(textContent);
+
+        if (!isDuplicate && !shouldSkip) {
+          if (options.messageCountMode === MessageCountMode.TURN) {
+            if (parsed.type !== prevType) {
+              userCount++;
+              prevType = parsed.type;
+            }
+          } else {
+            userCount++;
+          }
         }
-      }
-    } catch {}
-  }
-  return undefined;
-}
 
-function extractSummary(lines: string[]): string | undefined {
-  for (const line of lines) {
-    try {
-      const parsed = JSON.parse(line);
-      if (parsed.type === 'summary' && parsed.summary) {
-        return parsed.summary;
-      }
-    } catch {}
-  }
-  return undefined;
-}
+        if (options.search) {
+          const matches = textContent.toLowerCase().split(options.search.toLowerCase()).length - 1;
+          contentMatches += matches;
+        }
 
-function extractTitle(lines: string[], titleSource: TitleSource): string {
-  if (titleSource === TitleSource.LAST_CC_MESSAGE) {
-    for (let j = lines.length - 1; j >= 0; j--) {
-      try {
-        const parsed = JSON.parse(lines[j]);
-        if (ClaudeHelper.isCCMessage(parsed.type) && Array.isArray(parsed.message?.content)) {
+        if (!titleForFirstUserMessage && textContent !== 'Warmup') {
+          const firstLine = textContent.split('\n')[0].replace(/\\/g, '').replace(/\s+/g, ' ').trim();
+          if (!firstLine.includes('Caveat:')) {
+            const parsedCommand = parseCommandFromContent(textContent);
+            if (parsedCommand) {
+              const commandMatch = textContent.match(/<command-name>\/?([^<]+)<\/command-name>/);
+              const commandName = commandMatch?.[1];
+              if (commandName && !CLAUDE_CODE_COMMANDS.includes(commandName)) {
+                titleForFirstUserMessage = parsedCommand;
+              }
+            } else {
+              const isSystemMessage =
+                firstLine.startsWith('<local-command-') ||
+                firstLine.startsWith('[Tool:') ||
+                firstLine.startsWith('[Request interrupted');
+              if (!isSystemMessage) {
+                let title = textContent.replace(/\\/g, '').replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+                if (title.length > MAX_TITLE_LENGTH) {
+                  title = `${title.substring(0, MAX_TITLE_LENGTH)}...`;
+                }
+                titleForFirstUserMessage = title;
+              }
+            }
+          }
+        }
+
+        if (options.includeImages && !isDuplicate && !shouldSkip) {
+          const messageContent = parsed.message?.content;
+          if (Array.isArray(messageContent)) {
+            for (const item of messageContent) {
+              if (item.type === 'image') imageCount++;
+            }
+          }
+        }
+
+        if (options.includeCustomCommands) {
+          const commandMatch = textContent.match(/<command-name>\/?([^<]+)<\/command-name>/);
+          if (commandMatch) {
+            const commandName = commandMatch[1];
+            if (!CLAUDE_CODE_COMMANDS.includes(commandName)) {
+              customCommandCount++;
+            }
+          }
+        }
+
+        if (options.includeFilesOrFolders) {
+          const fileOrFolderMatches = textContent.match(/@[\w\-./]+/g);
+          if (fileOrFolderMatches) filesOrFoldersCount += fileOrFolderMatches.length;
+        }
+
+        if (options.includeUrls) {
+          const urlMatches = textContent.match(urlRegex);
+          if (urlMatches) urlCount += urlMatches.length;
+        }
+      } else if (isCC) {
+        const shouldSkip = shouldSkipAssistantMessage(textContent);
+
+        if (!isDuplicate && !shouldSkip) {
+          if (options.messageCountMode === MessageCountMode.TURN) {
+            if (parsed.type !== prevType) {
+              assistantCount++;
+              prevType = parsed.type;
+            }
+          } else {
+            assistantCount++;
+          }
+        }
+
+        if (options.search) {
+          const matches = textContent.toLowerCase().split(options.search.toLowerCase()).length - 1;
+          contentMatches += matches;
+        }
+
+        if (Array.isArray(parsed.message?.content)) {
           for (const item of parsed.message.content) {
             if (item.type === 'text' && item.text) {
               let title = item.text.replace(/\n/g, ' ').trim();
               if (title.length > MAX_TITLE_LENGTH) {
                 title = `${title.substring(0, MAX_TITLE_LENGTH)}...`;
               }
-              return title;
+              titleForLastCCMessage = title;
             }
           }
         }
-      } catch {}
+      }
+
+      const usage = parsed.message?.usage;
+      if (usage) {
+        const inputTokens = usage.input_tokens || 0;
+        const cacheReadTokens = usage.cache_read_input_tokens || 0;
+        const outputTokens = usage.output_tokens || 0;
+        const total = inputTokens + cacheReadTokens + outputTokens;
+        if (total > 0) {
+          tokenPercentage = Math.floor((total * 100) / TOKEN_LIMIT);
+        }
+      }
+    } catch {}
+  }
+
+  const title =
+    options.titleSource === TitleSource.LAST_CC_MESSAGE
+      ? titleForLastCCMessage || 'Empty session'
+      : titleForFirstUserMessage || '';
+
+  if (options.search) {
+    const titleMatch = title.toLowerCase().includes(options.search.toLowerCase());
+    if (!titleMatch && contentMatches === 0) {
+      return null;
     }
-    return 'Empty session';
+    searchMatchCount = contentMatches + (titleMatch ? 1 : 0);
   }
 
-  for (const line of lines) {
-    try {
-      const parsed = JSON.parse(line);
-      if (ClaudeHelper.isUserMessage(parsed.type)) {
-        const content = extractTextContent(parsed.message?.content);
-        if (content && content !== 'Warmup') {
-          const firstLine = content.split('\n')[0].replace(/\\/g, '').replace(/\s+/g, ' ').trim();
-
-          if (firstLine.includes('Caveat:')) {
-            continue;
-          }
-
-          const parsedCommand = parseCommandFromContent(content);
-
-          if (parsedCommand) {
-            const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
-            const commandName = commandMatch?.[1];
-            if (commandName && CLAUDE_CODE_COMMANDS.includes(commandName)) {
-              continue;
-            }
-          }
-
-          const isSystemMessage =
-            firstLine.startsWith('<local-command-') ||
-            firstLine.startsWith('[Tool:') ||
-            firstLine.startsWith('[Request interrupted');
-
-          if (isSystemMessage) {
-            continue;
-          }
-
-          let title = parsedCommand || content.replace(/\\/g, '').replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-
-          if (title.length > MAX_TITLE_LENGTH) {
-            title = `${title.substring(0, MAX_TITLE_LENGTH)}...`;
-          }
-          return title;
-        }
-      }
-    } catch {}
-  }
-
-  return '';
-}
-
-function countImages(lines: string[]): number {
-  let count = 0;
-  for (const line of lines) {
-    try {
-      const parsed = JSON.parse(line);
-      const messageContent = parsed.message?.content;
-
-      if (Array.isArray(messageContent)) {
-        for (const item of messageContent) {
-          if (item.type === 'image') {
-            count++;
-          }
-        }
-      }
-    } catch {}
-  }
-  return count;
-}
-
-function countCustomCommands(lines: string[]): number {
-  let count = 0;
-  for (const line of lines) {
-    try {
-      const parsed = JSON.parse(line);
-      if (ClaudeHelper.isUserMessage(parsed.type)) {
-        const content = extractTextContent(parsed.message?.content);
-        if (content) {
-          const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
-          if (commandMatch) {
-            const commandName = commandMatch[1];
-            if (!CLAUDE_CODE_COMMANDS.includes(commandName)) {
-              count++;
-            }
-          }
-        }
-      }
-    } catch {}
-  }
-  return count;
-}
-
-function countFilesOrFolders(lines: string[]): number {
-  let count = 0;
-  for (const line of lines) {
-    try {
-      const parsed = JSON.parse(line);
-      if (ClaudeHelper.isUserMessage(parsed.type)) {
-        const content = extractTextContent(parsed.message?.content);
-        if (content) {
-          const fileOrFolderMatches = content.match(/@[\w\-./]+/g);
-          if (fileOrFolderMatches) {
-            count += fileOrFolderMatches.length;
-          }
-        }
-      }
-    } catch {}
-  }
-  return count;
-}
-
-function countUrls(lines: string[]): number {
-  let count = 0;
-  const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\]]+/g;
-  for (const line of lines) {
-    try {
-      const parsed = JSON.parse(line);
-      if (ClaudeHelper.isUserMessage(parsed.type)) {
-        const content = extractTextContent(parsed.message?.content);
-        if (content) {
-          const urlMatches = content.match(urlRegex);
-          if (urlMatches) {
-            count += urlMatches.length;
-          }
-        }
-      }
-    } catch {}
-  }
-  return count;
-}
-
-async function readLabels(sessionsPath: string, sessionId: string): Promise<string[] | undefined> {
-  const metadataPath = join(sessionsPath, '.metadata', `${sessionId}.json`);
-  try {
-    const metadataContent = await readFile(metadataPath, 'utf-8');
-    const metadata = JSON.parse(metadataContent);
-    return metadata.labels?.length > 0 ? metadata.labels : undefined;
-  } catch {
-    return undefined;
-  }
+  return {
+    parsedLines,
+    title,
+    userCount,
+    assistantCount,
+    tokenPercentage,
+    summary,
+    internalSessionId,
+    firstUserMessage,
+    imageCount,
+    customCommandCount,
+    filesOrFoldersCount,
+    urlCount,
+    searchMatchCount
+  };
 }
 
 async function processSessionFile(
   filePath: string,
   file: string,
-  sessionsPath: string,
+  projectName: string,
   options: {
     search: string;
     messageCountMode: MessageCountMode;
@@ -383,6 +381,7 @@ async function processSessionFile(
     includeFilesOrFolders: boolean;
     includeUrls: boolean;
     includeLabels: boolean;
+    settings?: SessionListOptions['settings'];
   }
 ): Promise<SessionListItem | null> {
   const content = await readFile(filePath, 'utf-8');
@@ -390,99 +389,52 @@ async function processSessionFile(
 
   if (ClaudeHelper.isCompactionSession(lines)) return null;
 
-  const firstUserMessage = extractTextContent(
-    lines
-      .map((line) => {
-        try {
-          const parsed = JSON.parse(line);
-          if (ClaudeHelper.isUserMessage(parsed.type)) {
-            return parsed.message?.content;
-          }
-        } catch {}
-        return null;
-      })
-      .find((msg) => msg)
-  );
+  const result = singlePassParsing(lines, options);
+  if (!result) return null;
 
-  if (firstUserMessage.startsWith(CLAUDE_CODE_SESSION_COMPACTION_ID)) {
+  if (result.firstUserMessage?.startsWith(CLAUDE_CODE_SESSION_COMPACTION_ID)) {
     return null;
   }
 
-  const title = extractTitle(lines, options.titleSource);
-
-  if (!title && IGNORE_EMPTY_SESSIONS) {
+  if (!result.title && IGNORE_EMPTY_SESSIONS) {
     return null;
   }
 
-  let searchMatchCount: number | undefined;
-  if (options.search) {
-    const searchLower = options.search.toLowerCase();
-    const titleMatch = title.toLowerCase().includes(searchLower);
-
-    let contentMatches = 0;
-    for (const line of lines) {
-      try {
-        const parsed = JSON.parse(line);
-        if (ClaudeHelper.isUserMessage(parsed.type) || ClaudeHelper.isCCMessage(parsed.type)) {
-          const messageContent = extractTextContent(parsed.message?.content);
-          if (messageContent) {
-            const matches = messageContent.toLowerCase().split(searchLower).length - 1;
-            contentMatches += matches;
-          }
-        }
-      } catch {}
-    }
-
-    if (!titleMatch && contentMatches === 0) {
-      return null;
-    }
-
-    searchMatchCount = contentMatches + (titleMatch ? 1 : 0);
-  }
-
-  const tokenPercentage = calculateTokenPercentage(lines);
-  const messageCounts = countMessages(lines, options.messageCountMode);
   const stats = await stat(filePath);
   const sessionId = file.replace('.jsonl', '');
 
-  const summary = extractSummary(lines);
-
   const session: SessionListItem = {
     id: sessionId,
-    title: title || 'Empty session',
-    messageCount: messageCounts.totalCount,
+    title: result.title || 'Empty session',
+    messageCount: result.userCount + result.assistantCount,
     createdAt: stats.birthtimeMs,
-    tokenPercentage,
-    searchMatchCount,
+    tokenPercentage: result.tokenPercentage,
+    searchMatchCount: result.searchMatchCount,
     filePath,
     shortId: sessionId.slice(-12),
-    userMessageCount: messageCounts.userCount,
-    assistantMessageCount: messageCounts.assistantCount,
-    summary
+    userMessageCount: result.userCount,
+    assistantMessageCount: result.assistantCount,
+    summary: result.summary
   };
 
-  if (options.includeImages) {
-    const imageCount = countImages(lines);
-    if (imageCount > 0) session.imageCount = imageCount;
+  if (options.includeImages && result.imageCount > 0) {
+    session.imageCount = result.imageCount;
   }
 
-  if (options.includeCustomCommands) {
-    const customCommandCount = countCustomCommands(lines);
-    if (customCommandCount > 0) session.customCommandCount = customCommandCount;
+  if (options.includeCustomCommands && result.customCommandCount > 0) {
+    session.customCommandCount = result.customCommandCount;
   }
 
-  if (options.includeFilesOrFolders) {
-    const filesOrFoldersCount = countFilesOrFolders(lines);
-    if (filesOrFoldersCount > 0) session.filesOrFoldersCount = filesOrFoldersCount;
+  if (options.includeFilesOrFolders && result.filesOrFoldersCount > 0) {
+    session.filesOrFoldersCount = result.filesOrFoldersCount;
   }
 
-  if (options.includeUrls) {
-    const urlCount = countUrls(lines);
-    if (urlCount > 0) session.urlCount = urlCount;
+  if (options.includeUrls && result.urlCount > 0) {
+    session.urlCount = result.urlCount;
   }
 
-  if (options.includeLabels) {
-    const labels = await readLabels(sessionsPath, sessionId);
+  if (options.includeLabels && options.settings) {
+    const labels = getLabelsFromSettings(options.settings, projectName, sessionId);
     if (labels) session.labels = labels;
   }
 
@@ -514,8 +466,11 @@ export async function listSessions(options: SessionListOptions): Promise<Session
   }
 
   const files = await readdir(sessionsPath);
-  const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
+  let sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
+  const checkpointedOriginals =
+    sessionFiles.length <= 50 ? await findCheckpointedSessions(sessionFiles, sessionsPath) : new Set<string>();
+  sessionFiles = sessionFiles.filter((f) => !checkpointedOriginals.has(f.replace('.jsonl', '')));
   const processOptions = {
     search,
     messageCountMode,
@@ -524,7 +479,8 @@ export async function listSessions(options: SessionListOptions): Promise<Session
     includeCustomCommands,
     includeFilesOrFolders,
     includeUrls,
-    includeLabels
+    includeLabels,
+    settings: options.settings
   };
 
   let sessions: SessionListItem[];
@@ -541,7 +497,7 @@ export async function listSessions(options: SessionListOptions): Promise<Session
 
     if (enablePagination) {
       const sessionPromises = fileStats.map(({ file, filePath }) =>
-        processSessionFile(filePath, file, sessionsPath, processOptions)
+        processSessionFile(filePath, file, normalizedPath, processOptions)
       );
 
       const sessionsResults = await Promise.all(sessionPromises);
@@ -564,20 +520,24 @@ export async function listSessions(options: SessionListOptions): Promise<Session
       };
     }
 
-    const filesToProcess = fileStats.slice(0, limit);
-    const sessionPromises = filesToProcess.map(({ file, filePath }) =>
-      processSessionFile(filePath, file, sessionsPath, processOptions)
-    );
+    const validSessions: SessionListItem[] = [];
 
-    const sessionsResults = await Promise.all(sessionPromises);
-    sessions = sessionsResults.filter((s) => s !== null) as SessionListItem[];
+    for (const { file, filePath } of fileStats) {
+      if (validSessions.length >= limit) break;
 
-    return { items: sessions };
+      const session = await processSessionFile(filePath, file, normalizedPath, processOptions);
+
+      if (session !== null) {
+        validSessions.push(session);
+      }
+    }
+
+    return { items: validSessions };
   }
 
   const sessionPromises = sessionFiles.map((file) => {
     const filePath = join(sessionsPath, file);
-    return processSessionFile(filePath, file, sessionsPath, processOptions);
+    return processSessionFile(filePath, file, normalizedPath, processOptions);
   });
 
   const sessionsResults = await Promise.all(sessionPromises);

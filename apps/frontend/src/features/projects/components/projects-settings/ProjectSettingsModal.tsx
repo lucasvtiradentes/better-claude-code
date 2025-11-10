@@ -1,7 +1,7 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LabelsTab } from './LabelsTab';
-import { SettingsTab } from './SettingsTab';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/common/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/common/components/ui/tabs';
+import { ProjectSettingsLabelsTab } from './ProjectSettingsLabelsTab';
+import { ProjectSettingsTab } from './ProjectSettingsTab';
 
 type ProjectSettingsModalProps = {
   onClose: () => void;
@@ -22,11 +22,11 @@ export const ProjectSettingsModal = ({ onClose }: ProjectSettingsModalProps) => 
           </TabsList>
 
           <TabsContent value="settings" className="mt-4">
-            <SettingsTab />
+            <ProjectSettingsTab />
           </TabsContent>
 
           <TabsContent value="labels" className="mt-4">
-            <LabelsTab />
+            <ProjectSettingsLabelsTab />
           </TabsContent>
         </Tabs>
       </DialogContent>

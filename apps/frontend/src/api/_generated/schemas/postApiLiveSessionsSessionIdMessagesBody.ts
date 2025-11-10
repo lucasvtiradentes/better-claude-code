@@ -9,6 +9,7 @@
 export type PostApiLiveSessionsSessionIdMessagesBody = {
   /** @minLength 1 */
   message: string;
+  imagePaths?: string[];
   /** @minLength 1 */
   projectPath?: string;
 };

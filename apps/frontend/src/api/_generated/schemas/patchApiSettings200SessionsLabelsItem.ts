@@ -5,9 +5,12 @@
  * CLI auxiliary tools for Claude Code
  * OpenAPI spec version: 1.0.0
  */
+import type { PatchApiSettings200SessionsLabelsItemSessions } from './patchApiSettings200SessionsLabelsItemSessions';
 
 export type PatchApiSettings200SessionsLabelsItem = {
   id: string;
   name: string;
   color: string;
+  usageCount?: number;
+  sessions?: PatchApiSettings200SessionsLabelsItemSessions;
 };

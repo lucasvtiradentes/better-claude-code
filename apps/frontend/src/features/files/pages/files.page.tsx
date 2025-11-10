@@ -6,8 +6,8 @@ import CodeMirror from '@uiw/react-codemirror';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { useGetApiFiles, useGetApiFilesList, usePutApiFiles } from '@/api';
-import { Layout } from '@/components/layout/Layout';
-import { useTheme } from '../../../hooks/use-theme';
+import { Layout } from '@/common/components/layout/Layout';
+import { useTheme } from '../../../common/hooks/use-theme';
 
 export const FilesPage = () => {
   const { theme } = useTheme();

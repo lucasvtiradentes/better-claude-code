@@ -5,10 +5,11 @@
  * CLI auxiliary tools for Claude Code
  * OpenAPI spec version: 1.0.0
  */
+import type { GetApiSessionsProjectNameGroupBy } from './getApiSessionsProjectNameGroupBy';
 
 export type GetApiSessionsProjectNameParams = {
 page?: number | null;
 limit?: number | null;
 search?: string;
-sortBy?: string;
+groupBy?: GetApiSessionsProjectNameGroupBy;
 };

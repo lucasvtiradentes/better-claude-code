@@ -1,16 +1,23 @@
 import { Bot, User, Wrench } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/common/lib/utils';
 import { StreamingIndicator } from './StreamingIndicator';
 import type { Message, StreamStatus } from './types';
 
+type ImageData = {
+  index: number;
+  data: string;
+  messageId: string;
+};
+
 type LiveMessageListProps = {
   messages: Message[];
+  images?: ImageData[];
   toolCalls: { toolName: string; args: any }[];
   status: StreamStatus;
 };
 
-export const LiveMessageList = ({ messages, toolCalls, status }: LiveMessageListProps) => {
+export const LiveMessageList = ({ messages, images = [], toolCalls, status }: LiveMessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,7 +53,25 @@ export const LiveMessageList = ({ messages, toolCalls, status }: LiveMessageList
                 message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
               )}
             >
-              <div className="whitespace-pre-wrap break-words">{message.content}</div>
+              <div className="whitespace-pre-wrap wrap-break-word">{message.content}</div>
+              {message.role === 'user' && images.filter((img) => img.messageId === message.id).length > 0 && (
+                <div className="mt-2 flex gap-2 overflow-x-auto">
+                  {images
+                    .filter((img) => img.messageId === message.id)
+                    .map((image) => (
+                      <div key={`${message.id}-${image.index}`} className="relative shrink-0">
+                        <img
+                          src={`data:image/png;base64,${image.data}`}
+                          alt={`Img #${image.index}`}
+                          className="h-32 w-32 rounded border object-cover"
+                        />
+                        <div className="absolute bottom-0 left-0 bg-black/70 text-white text-xs font-semibold px-1.5 py-0.5 rounded-tr-md">
+                          #{image.index}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
               <div className="mt-1 text-xs opacity-70">
                 {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>

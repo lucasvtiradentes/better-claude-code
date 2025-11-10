@@ -10,4 +10,6 @@ export type PatchApiSettingsBodyProjectsLabelsItem = {
   id: string;
   name: string;
   color: string;
+  usageCount?: number;
+  projects?: string[];
 };

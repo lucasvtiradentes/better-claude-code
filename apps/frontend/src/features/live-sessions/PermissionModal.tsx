@@ -1,6 +1,6 @@
 import { AlertTriangle, Check, FileText, Terminal, X } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/common/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle
-} from '@/components/ui/dialog';
+} from '@/common/components/ui/dialog';
 import type { Permission } from './types';
 
 type PermissionModalProps = {

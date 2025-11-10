@@ -1,9 +1,9 @@
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/common/components/ui/button';
+import { SessionMessageInput } from '../project-sessions/components/sessions-chat/SessionMessageInput';
 import { useClaudeStream } from './hooks/useClaudeStream';
-import { LiveMessageInput } from './LiveMessageInput';
 import { LiveMessageList } from './LiveMessageList';
 import { PermissionModal } from './PermissionModal';
 
@@ -17,11 +17,11 @@ export const LiveSessionView = ({ sessionId, projectPath, projectName }: LiveSes
   const navigate = useNavigate();
   const [showPermissionModal, setShowPermissionModal] = useState(false);
 
-  const { messages, status, error, pendingPermissions, toolCalls, sendMessage, cancel, approvePermissions } =
+  const { messages, images, status, error, pendingPermissions, toolCalls, sendMessage, cancel, approvePermissions } =
     useClaudeStream(sessionId, projectPath, projectName, true);
 
-  const handleSendMessage = (message: string) => {
-    sendMessage(message);
+  const handleSendMessage = (message: string, imagePaths?: string[]) => {
+    sendMessage(message, imagePaths);
   };
 
   const handleCancel = async () => {
@@ -34,7 +34,7 @@ export const LiveSessionView = ({ sessionId, projectPath, projectName }: LiveSes
   };
 
   const handleBack = () => {
-    navigate({ to: '/projects', search: { project: projectName } });
+    navigate({ to: '/projects/$projectName', params: { projectName } });
   };
 
   const showPermissionButton = pendingPermissions.length > 0 && status === 'pending-permissions';
@@ -76,7 +76,7 @@ export const LiveSessionView = ({ sessionId, projectPath, projectName }: LiveSes
         </div>
       </div>
 
-      <LiveMessageList messages={messages} toolCalls={toolCalls} status={status} />
+      <LiveMessageList messages={messages} images={images} toolCalls={toolCalls} status={status} />
 
       {error && (
         <div className="border-t bg-destructive/10 p-3 text-sm text-destructive">
@@ -84,7 +84,7 @@ export const LiveSessionView = ({ sessionId, projectPath, projectName }: LiveSes
         </div>
       )}
 
-      <LiveMessageInput
+      <SessionMessageInput
         onSend={handleSendMessage}
         disabled={status === 'streaming' || status === 'pending-permissions'}
         placeholder={status === 'pending-permissions' ? 'Waiting for permission approval...' : 'Type your message...'}

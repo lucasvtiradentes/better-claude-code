@@ -1,9 +1,9 @@
-import { accessSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { accessSync } from 'node:fs';
 import { ClaudeHelper } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
+import { readSettings, writeSettings } from '../../settings/utils.js';
 
 const paramsSchema = z.object({
   projectName: z.string(),
@@ -88,32 +88,39 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       return c.json({ error: 'Session not found' } satisfies z.infer<typeof ErrorSchema>, 404);
     }
 
-    const metadataPath = ClaudeHelper.getSessionMetadataPath(projectName, sessionId);
+    const settings = await readSettings();
+    const label = settings.sessions.labels.find((l) => l.id === labelId);
 
-    mkdirSync(dirname(metadataPath), { recursive: true });
-
-    let metadata: { labels?: string[] } = {};
-    try {
-      const content = readFileSync(metadataPath, 'utf-8');
-      metadata = JSON.parse(content);
-    } catch {
-      metadata = { labels: [] };
+    if (!label) {
+      return c.json({ error: 'Label not found' } satisfies z.infer<typeof ErrorSchema>, 404);
     }
 
-    if (!metadata.labels) {
-      metadata.labels = [];
+    if (!label.sessions) {
+      label.sessions = {};
     }
 
-    const labelIndex = metadata.labels.indexOf(labelId);
-    if (labelIndex === -1) {
-      metadata.labels = [labelId];
+    if (!label.sessions[projectName]) {
+      label.sessions[projectName] = [];
+    }
+
+    const hadLabel = label.sessions[projectName].includes(sessionId);
+
+    if (hadLabel) {
+      label.sessions[projectName] = label.sessions[projectName].filter((id) => id !== sessionId);
+      if (label.sessions[projectName].length === 0) {
+        delete label.sessions[projectName];
+      }
     } else {
-      metadata.labels = [];
+      label.sessions[projectName].push(sessionId);
     }
 
-    writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+    await writeSettings(settings);
 
-    return c.json({ success: true, labels: metadata.labels } satisfies z.infer<typeof responseSchema>, 200);
+    const currentLabels = settings.sessions.labels
+      .filter((l) => l.sessions?.[projectName]?.includes(sessionId))
+      .map((l) => l.id);
+
+    return c.json({ success: true, labels: currentLabels } satisfies z.infer<typeof responseSchema>, 200);
   } catch (error) {
     return c.json(
       { error: 'Failed to toggle label', details: String(error) } satisfies z.infer<typeof ErrorSchema>,

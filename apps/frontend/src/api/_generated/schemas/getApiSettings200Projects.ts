@@ -5,17 +5,11 @@
  * CLI auxiliary tools for Claude Code
  * OpenAPI spec version: 1.0.0
  */
-import type { GetApiSettings200ProjectsGroupBy } from './getApiSettings200ProjectsGroupBy';
-import type { GetApiSettings200ProjectsFilters } from './getApiSettings200ProjectsFilters';
 import type { GetApiSettings200ProjectsDisplay } from './getApiSettings200ProjectsDisplay';
 import type { GetApiSettings200ProjectsLabelsItem } from './getApiSettings200ProjectsLabelsItem';
-import type { GetApiSettings200ProjectsProjectSettings } from './getApiSettings200ProjectsProjectSettings';
 
 export type GetApiSettings200Projects = {
-  groupBy: GetApiSettings200ProjectsGroupBy;
-  filters: GetApiSettings200ProjectsFilters;
   display: GetApiSettings200ProjectsDisplay;
-  search: string;
   labels: GetApiSettings200ProjectsLabelsItem[];
-  projectSettings: GetApiSettings200ProjectsProjectSettings;
+  hiddenProjects: string[];
 };

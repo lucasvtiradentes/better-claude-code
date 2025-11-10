@@ -10,4 +10,6 @@ export type PatchApiSettingsLabelsLabelIdBody = {
   id?: string;
   name?: string;
   color?: string;
+  usageCount?: number;
+  projects?: string[];
 };

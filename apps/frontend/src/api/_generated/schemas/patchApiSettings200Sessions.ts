@@ -5,14 +5,10 @@
  * CLI auxiliary tools for Claude Code
  * OpenAPI spec version: 1.0.0
  */
-import type { PatchApiSettings200SessionsGroupBy } from './patchApiSettings200SessionsGroupBy';
-import type { PatchApiSettings200SessionsFilters } from './patchApiSettings200SessionsFilters';
 import type { PatchApiSettings200SessionsDisplay } from './patchApiSettings200SessionsDisplay';
 import type { PatchApiSettings200SessionsLabelsItem } from './patchApiSettings200SessionsLabelsItem';
 
 export type PatchApiSettings200Sessions = {
-  groupBy: PatchApiSettings200SessionsGroupBy;
-  filters: PatchApiSettings200SessionsFilters;
   display: PatchApiSettings200SessionsDisplay;
   labels: PatchApiSettings200SessionsLabelsItem[];
 };

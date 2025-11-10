@@ -1,15 +1,15 @@
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
-import { SearchInput } from '@/components/SearchInput';
-import { useProjectsStore } from '@/features/projects/stores/projects-store';
+import { SearchInput } from '@/common/components/SearchInput';
 import { ProjectSettingsModal } from '../projects-settings/ProjectSettingsModal';
 
 type ProjectsHeaderProps = {
   projectCount: number;
+  searchValue?: string;
+  onSearchChange: (value: string) => void;
 };
 
-export const ProjectsHeader = ({ projectCount }: ProjectsHeaderProps) => {
-  const { search, setSearch } = useProjectsStore();
+export const ProjectsHeader = ({ projectCount, searchValue, onSearchChange }: ProjectsHeaderProps) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -19,7 +19,12 @@ export const ProjectsHeader = ({ projectCount }: ProjectsHeaderProps) => {
       </div>
 
       <div className="flex items-center justify-between">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search projects..." />
+        <SearchInput
+          value={searchValue || ''}
+          onChange={onSearchChange}
+          placeholder="Search projects..."
+          debounce={500}
+        />
         <button
           type="button"
           onClick={() => setShowModal(true)}

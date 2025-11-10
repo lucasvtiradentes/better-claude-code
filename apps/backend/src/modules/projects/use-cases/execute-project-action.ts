@@ -66,7 +66,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const { projectId, action } = c.req.valid('param');
     const projectPath = ClaudeHelper.getProjectDir(projectId);
-    const realPath = await getRealPathFromSession(projectPath);
+    const { path: realPath } = await getRealPathFromSession(projectPath);
 
     if (!realPath) {
       return c.json({ error: 'Project path not found' } satisfies z.infer<typeof ErrorSchema>, 404);

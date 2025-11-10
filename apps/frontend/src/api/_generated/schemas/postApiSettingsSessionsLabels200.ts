@@ -10,4 +10,6 @@ export type PostApiSettingsSessionsLabels200 = {
   id: string;
   name: string;
   color: string;
+  usageCount?: number;
+  projects?: string[];
 };

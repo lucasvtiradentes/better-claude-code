@@ -12,6 +12,7 @@ export const CreateSessionResponseSchema = z.object({
 
 export const SendMessageRequestSchema = z.object({
   message: z.string().min(1),
+  imagePaths: z.array(z.string()).optional(),
   projectPath: z.string().min(1).optional()
 });
 
