@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.21
+
+### Patch Changes
+
+- ef9b21f: fix title parsing
+
 ## 0.0.20
 
 ### Patch Changes
