@@ -12,4 +12,5 @@ page?: number | null;
 limit?: number | null;
 search?: string;
 groupBy?: GetApiSessionsProjectNameGroupBy;
+skipCache?: boolean | null;
 };

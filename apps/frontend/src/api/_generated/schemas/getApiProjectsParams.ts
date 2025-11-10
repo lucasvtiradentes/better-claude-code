@@ -10,4 +10,5 @@ import type { GetApiProjectsGroupBy } from './getApiProjectsGroupBy';
 export type GetApiProjectsParams = {
 groupBy?: GetApiProjectsGroupBy;
 search?: string;
+skipCache?: boolean | null;
 };

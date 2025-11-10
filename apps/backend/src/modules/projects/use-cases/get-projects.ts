@@ -35,7 +35,8 @@ interface ProjectCacheEntry {
 
 const querySchema = z.object({
   groupBy: z.enum(['date', 'session-count', 'label']).optional(),
-  search: z.string().optional()
+  search: z.string().optional(),
+  skipCache: z.coerce.boolean().optional().default(false)
 });
 
 const ProjectSchema = z.object({
@@ -160,12 +161,12 @@ async function processProject(folder: string, projectsPath: string, settings: an
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const _startTime = Date.now();
-    const { groupBy, search } = c.req.valid('query');
+    const { groupBy, search, skipCache } = c.req.valid('query');
     const projectsPath = ClaudeHelper.getProjectsDir();
 
     const [folders, settings] = await Promise.all([readdir(projectsPath), readSettings()]);
 
-    const cachedData = (await listProjectsCache.get<Record<string, ProjectCacheEntry>>('all-projects')) || {};
+    const cachedData = skipCache ? {} : (await listProjectsCache.get<Record<string, ProjectCacheEntry>>('all-projects')) || {};
 
     const folderMtimes = await Promise.all(
       folders.map(async (folder) => {

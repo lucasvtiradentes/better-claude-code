@@ -1078,6 +1078,18 @@
             "required": false,
             "name": "search",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "default": false
+            },
+            "required": false,
+            "name": "skipCache",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1555,6 +1567,18 @@
             },
             "required": false,
             "name": "groupBy",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "default": false
+            },
+            "required": false,
+            "name": "skipCache",
             "in": "query"
           }
         ],

@@ -42,7 +42,8 @@ const querySchema = z.object({
   page: z.coerce.number().optional().default(1),
   limit: z.coerce.number().optional().default(20),
   search: z.string().optional().default(''),
-  groupBy: z.enum(['date', 'token-percentage', 'label']).default('date')
+  groupBy: z.enum(['date', 'token-percentage', 'label']).default('date'),
+  skipCache: z.coerce.boolean().optional().default(false)
 });
 
 const SessionSchema = z.object({
@@ -223,7 +224,7 @@ async function processSessionFileWithCache(
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const { projectName } = c.req.valid('param');
-    const { groupBy } = c.req.valid('query');
+    const { groupBy, skipCache } = c.req.valid('query');
 
     const settings = await readSettings();
     const normalizedPath = ClaudeHelper.normalizePathForClaudeProjects(projectName);
@@ -234,7 +235,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     }
 
     const cacheKey = `project-${normalizedPath.replace(/\//g, '-')}`;
-    const cachedData = (await listSessionsCache.get<Record<string, SessionCacheEntry>>(cacheKey)) || {};
+    const cachedData = skipCache ? {} : (await listSessionsCache.get<Record<string, SessionCacheEntry>>(cacheKey)) || {};
 
     const files = await readdir(sessionsPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
