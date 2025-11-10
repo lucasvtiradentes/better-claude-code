@@ -15,7 +15,6 @@ export const Route = createFileRoute('/projects/$projectName/')({
 
 function SessionsListComponent() {
   const { projectName } = Route.useParams();
-  const navigate = Route.useNavigate();
 
-  return <SessionsListPage projectName={projectName} navigate={navigate} />;
+  return <SessionsListPage projectName={projectName} />;
 }

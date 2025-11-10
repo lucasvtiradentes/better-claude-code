@@ -1,4 +1,4 @@
-import { UseNavigateResult } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import {
   getGetApiSessionsProjectNameQueryKey,
@@ -13,12 +13,12 @@ import { useProjectUIStore } from '@/common/stores/project-ui-store';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
 
-interface SessionsListPageProps {
+type SessionsListPageProps = {
   projectName: string;
-  navigate: UseNavigateResult<string>;
-}
+};
 
-export function SessionsListPage({ projectName, navigate }: SessionsListPageProps) {
+export function SessionsListPage({ projectName }: SessionsListPageProps) {
+  const navigate = useNavigate({ from: '/projects/$projectName' });
   const sessionSearch = useProjectSessionUIStore((state) => state.search);
   const setSessionSearch = useProjectSessionUIStore((state) => state.setSearch);
   const sessionGroupBy = useProjectSessionUIStore((state) => state.groupBy);
