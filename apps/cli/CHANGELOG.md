@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.19
+
+### Patch Changes
+
+- add image support
+
 ## 0.0.18
 
 ### Patch Changes
