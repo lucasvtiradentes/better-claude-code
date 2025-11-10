@@ -9,6 +9,7 @@ import {
 import { Layout } from '@/common/components/layout/Layout';
 import { queryClient } from '@/common/lib/tanstack-query';
 import { useProjectSessionUIStore } from '@/common/stores/project-session-ui-store';
+import { useProjectUIStore } from '@/common/stores/project-ui-store';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
 
@@ -20,11 +21,20 @@ interface SessionsListPageProps {
 export function SessionsListPage({ projectName, navigate }: SessionsListPageProps) {
   const sessionSearch = useProjectSessionUIStore((state) => state.search);
   const setSessionSearch = useProjectSessionUIStore((state) => state.setSearch);
-  const groupBy = useProjectSessionUIStore((state) => state.groupBy);
-  const hasHydrated = useProjectSessionUIStore((state) => state._hasHydrated);
+  const sessionGroupBy = useProjectSessionUIStore((state) => state.groupBy);
+  const sessionHasHydrated = useProjectSessionUIStore((state) => state._hasHydrated);
+  const projectGroupBy = useProjectUIStore((state) => state.groupBy);
+  const projectHasHydrated = useProjectUIStore((state) => state._hasHydrated);
 
-  const { data: projectsData } = useGetApiProjects();
-  const projects = projectsData && !('groups' in projectsData) ? projectsData : undefined;
+  const { data: projectsData } = useGetApiProjects(
+    { groupBy: projectGroupBy, search: undefined },
+    {
+      query: {
+        enabled: projectHasHydrated
+      }
+    }
+  );
+  const projects = projectsData && 'groups' in projectsData ? projectsData.groups.flatMap((g) => g.items) : undefined;
   const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
     mutation: {
       onSuccess: (_data, variables) => {
@@ -45,12 +55,10 @@ export function SessionsListPage({ projectName, navigate }: SessionsListPageProp
     error
   } = useGetApiSessionsProjectName(
     projectName,
-    { groupBy, search: sessionSearch || undefined },
+    { groupBy: sessionGroupBy, search: sessionSearch || undefined },
     {
       query: {
-        enabled: hasHydrated,
-        staleTime: 2 * 60 * 1000,
-        gcTime: 5 * 60 * 1000,
+        enabled: sessionHasHydrated,
         placeholderData: (previousData) => previousData
       }
     }

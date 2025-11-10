@@ -22,8 +22,6 @@ export function ProjectsListPage() {
     {
       query: {
         enabled: hasHydrated,
-        staleTime: 2 * 60 * 1000,
-        gcTime: 5 * 60 * 1000,
         placeholderData: (previousData) => previousData
       }
     }

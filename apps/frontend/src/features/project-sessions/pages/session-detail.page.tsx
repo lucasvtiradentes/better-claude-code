@@ -2,7 +2,9 @@ import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import z from 'zod';
 import {
+  type GetApiSessionsProjectName200,
   getGetApiSessionsProjectNameQueryKey,
   useDeleteApiSessionsProjectNameSessionId,
   useGetApiProjects,
@@ -14,6 +16,7 @@ import { ConfirmDialog } from '@/common/components/ConfirmDialog';
 import { Layout } from '@/common/components/layout/Layout';
 import { queryClient } from '@/common/lib/tanstack-query';
 import { useProjectSessionUIStore } from '@/common/stores/project-session-ui-store';
+import { useProjectUIStore } from '@/common/stores/project-ui-store';
 import { useClaudeStream } from '@/features/live-sessions/hooks/useClaudeStream';
 import { EmptyState } from '@/features/projects/components/EmptyState';
 import { ProjectsContent } from '@/features/projects/components/ProjectsContent';
@@ -23,13 +26,18 @@ import { useModalState } from '@/features/projects/hooks/use-modal-state';
 import { useScrollPersistence } from '@/features/projects/hooks/use-scroll-persistence';
 import { useFilterStore } from '@/features/projects/stores/filter-store';
 
-interface SessionDetailPageProps {
+export const sessionDetailSearchSchema = z.object({
+  imageIndex: z.number().optional(),
+  folderPath: z.string().optional(),
+  filePath: z.string().optional()
+});
+
+type SessionDetailQueryParams = z.infer<typeof sessionDetailSearchSchema>;
+
+type SessionDetailPageProps = {
   projectName: string;
   sessionId: string;
-  imageIndex?: number;
-  folderPath?: string;
-  filePath?: string;
-}
+} & SessionDetailQueryParams;
 
 export function SessionDetailPage({
   projectName,
@@ -45,8 +53,10 @@ export function SessionDetailPage({
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const sessionSearch = useProjectSessionUIStore((state) => state.search);
   const setSessionSearch = useProjectSessionUIStore((state) => state.setSearch);
-  const groupBy = useProjectSessionUIStore((state) => state.groupBy);
-  const hasHydrated = useProjectSessionUIStore((state) => state._hasHydrated);
+  const sessionGroupBy = useProjectSessionUIStore((state) => state.groupBy);
+  const sessionHasHydrated = useProjectSessionUIStore((state) => state._hasHydrated);
+  const projectGroupBy = useProjectUIStore((state) => state.groupBy);
+  const projectHasHydrated = useProjectUIStore((state) => state._hasHydrated);
 
   const { mutate: deleteSessionMutation, isPending: isDeleting } = useDeleteApiSessionsProjectNameSessionId();
   const { mutate: toggleLabel } = usePostApiSessionsProjectNameSessionIdLabels({
@@ -63,8 +73,15 @@ export function SessionDetailPage({
     }
   });
 
-  const { data: projectsData } = useGetApiProjects();
-  const projects = projectsData && !('groups' in projectsData) ? projectsData : undefined;
+  const { data: projectsData } = useGetApiProjects(
+    { groupBy: projectGroupBy, search: undefined },
+    {
+      query: {
+        enabled: projectHasHydrated
+      }
+    }
+  );
+  const projects = projectsData && 'groups' in projectsData ? projectsData.groups.flatMap((g) => g.items) : undefined;
 
   const {
     data: groupedData,
@@ -72,12 +89,10 @@ export function SessionDetailPage({
     error: errorGrouped
   } = useGetApiSessionsProjectName(
     projectName,
-    { groupBy, search: sessionSearch || undefined },
+    { groupBy: sessionGroupBy, search: sessionSearch || undefined },
     {
       query: {
-        enabled: hasHydrated,
-        staleTime: 2 * 60 * 1000,
-        gcTime: 5 * 60 * 1000,
+        enabled: sessionHasHydrated,
         placeholderData: (previousData) => previousData
       }
     }
@@ -113,7 +128,7 @@ export function SessionDetailPage({
   const { imageModalIndex, setImageModalIndex, fileModalPath, setFileModalPath, folderModalPath, setFolderModalPath } =
     useModalState(imageIndex, urlFolderPath, urlFilePath, sessionData?.images);
 
-  const updateSearch = (updates: Partial<{ imageIndex?: number; folderPath?: string; filePath?: string }>) => {
+  const updateSearch = (updates: SessionDetailQueryParams) => {
     navigate({
       search: (prev) => ({
         ...prev,
@@ -182,21 +197,28 @@ export function SessionDetailPage({
       { projectName, sessionId: sessionToDelete },
       {
         onSuccess: async () => {
-          queryClient.setQueryData(['sessions-grouped', projectName, groupBy, sessionSearch || ''], (oldData: any) => {
-            if (!oldData) return oldData;
+          queryClient.setQueryData<GetApiSessionsProjectName200>(
+            getGetApiSessionsProjectNameQueryKey(projectName, {
+              groupBy: sessionGroupBy,
+              search: sessionSearch || undefined
+            }),
+            (oldData) => {
+              if (!oldData) return oldData;
 
-            return {
-              ...oldData,
-              pages: oldData.pages.map((page: any) => ({
-                ...page,
-                items: page.items.filter((item: any) => item.id !== sessionToDelete),
+              return {
+                ...oldData,
+                groups: oldData.groups.map((group) => ({
+                  ...group,
+                  items: group.items.filter((item) => item.id !== sessionToDelete),
+                  totalItems: group.items.filter((item) => item.id !== sessionToDelete).length
+                })),
                 meta: {
-                  ...page.meta,
-                  totalItems: page.meta.totalItems - 1
+                  ...oldData.meta,
+                  totalItems: oldData.meta.totalItems - 1
                 }
-              }))
-            };
-          });
+              };
+            }
+          );
 
           if (sessionId === sessionToDelete) {
             await navigate({
