@@ -5,7 +5,7 @@ import type {
   GetApiSessionsProjectNameSessionId200MessagesItem
 } from '@/api/_generated/schemas';
 import { MessageSource as FormatterSource, formatMessageContent } from '@/features/projects/utils/message-formatter';
-import { isUserMessage } from '../../utils/message-utils';
+import { isUserMessage } from '../../../projects/utils/message-utils';
 
 type SessionMessageProps = {
   messages: GetApiSessionsProjectNameSessionId200MessagesItem[];

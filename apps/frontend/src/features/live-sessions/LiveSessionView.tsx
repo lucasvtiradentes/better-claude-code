@@ -2,7 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/common/components/ui/button';
-import { SessionMessageInput } from '../projects/components/sessions-chat/SessionMessageInput';
+import { SessionMessageInput } from '../project-sessions/components/sessions-chat/SessionMessageInput';
 import { useClaudeStream } from './hooks/useClaudeStream';
 import { LiveMessageList } from './LiveMessageList';
 import { PermissionModal } from './PermissionModal';

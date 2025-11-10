@@ -18,9 +18,9 @@ import { queryClient } from '@/common/lib/tanstack-query';
 import { useProjectSessionUIStore } from '@/common/stores/project-session-ui-store';
 import { useProjectUIStore } from '@/common/stores/project-ui-store';
 import { useClaudeStream } from '@/features/live-sessions/hooks/useClaudeStream';
+import { SessionChat } from '@/features/project-sessions/components/sessions-chat/SessionChat';
+import { SessionsSidebar } from '@/features/project-sessions/components/sessions-sidebar/SessionsSidebar';
 import { EmptyState } from '@/features/projects/components/EmptyState';
-import { ProjectsContent } from '@/features/projects/components/ProjectsContent';
-import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
 import { useMessageFilter } from '@/features/projects/hooks/use-message-filter';
 import { useModalState } from '@/features/projects/hooks/use-modal-state';
 import { useScrollPersistence } from '@/features/projects/hooks/use-scroll-persistence';
@@ -293,7 +293,7 @@ export function SessionDetailPage({
     };
 
     content = (
-      <ProjectsContent
+      <SessionChat
         contentRef={contentRef}
         currentSession={currentSession}
         filteredMessages={filteredMessages}

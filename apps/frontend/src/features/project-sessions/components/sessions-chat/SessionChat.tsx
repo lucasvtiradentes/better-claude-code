@@ -4,14 +4,14 @@ import type {
   GetApiSessionsProjectNameSessionId200,
   GetApiSessionsProjectNameSessionId200MessagesItem
 } from '@/api/_generated/schemas';
-import { SessionMessageInput } from '@/features/projects/components/sessions-chat/SessionMessageInput';
-import { FilterButtons } from './FilterButtons';
-import { FileModal } from './modals/FileModal';
-import { FolderModal } from './modals/FolderModal';
-import { ImageModal } from './modals/ImageModal';
-import { SearchNavigation } from './sessions-chat/SearchNavigation';
-import { SessionMessage } from './sessions-chat/SessionMessage';
-import { SessionBadges } from './sessions-sidebar/SessionBadges';
+import { SessionMessageInput } from '@/features/project-sessions/components/sessions-chat/SessionMessageInput';
+import { FilterButtons } from '../../../projects/components/FilterButtons';
+import { FileModal } from '../../../projects/components/modals/FileModal';
+import { FolderModal } from '../../../projects/components/modals/FolderModal';
+import { ImageModal } from '../../../projects/components/modals/ImageModal';
+import { SessionBadges } from '../sessions-sidebar/SessionBadges';
+import { SearchNavigation } from './SearchNavigation';
+import { SessionMessage } from './SessionMessage';
 
 interface ProjectsContentProps {
   contentRef: RefObject<HTMLDivElement | null>;
@@ -45,7 +45,7 @@ interface ProjectsContentProps {
   isStreaming?: boolean;
 }
 
-export function ProjectsContent({
+export function SessionChat({
   contentRef,
   currentSession,
   filteredMessages,

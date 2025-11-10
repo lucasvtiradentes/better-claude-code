@@ -10,8 +10,8 @@ import { Layout } from '@/common/components/layout/Layout';
 import { queryClient } from '@/common/lib/tanstack-query';
 import { useProjectSessionUIStore } from '@/common/stores/project-session-ui-store';
 import { useProjectUIStore } from '@/common/stores/project-ui-store';
+import { SessionsSidebar } from '@/features/project-sessions/components/sessions-sidebar/SessionsSidebar';
 import { EmptyState } from '@/features/projects/components/EmptyState';
-import { SessionsSidebar } from '@/features/projects/components/sessions-sidebar/SessionsSidebar';
 
 type SessionsListPageProps = {
   projectName: string;
