@@ -1,4 +1,7 @@
-import { listSessions, SessionSortBy } from '@better-claude-code/node-utils';
+import { existsSync, readFile } from 'node:fs';
+import { readdir, stat } from 'node:fs/promises';
+import { join } from 'node:path';
+import { ClaudeHelper } from '@better-claude-code/node-utils';
 import {
   getTimeGroup,
   getTokenPercentageGroup,
@@ -11,6 +14,7 @@ import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
 import { readSettings } from '../../settings/utils.js';
+import { type SessionCacheEntry, sessionsCache } from '../cache.js';
 
 const paramsSchema = z.object({
   projectName: z.string()
@@ -84,44 +88,182 @@ export const route = createRoute({
   responses: ResponseSchemas
 });
 
+async function processSessionFileWithCache(
+  filePath: string,
+  file: string,
+  normalizedPath: string,
+  settings: Awaited<ReturnType<typeof readSettings>>
+): Promise<SessionCacheEntry | null> {
+  try {
+    const stats = await stat(filePath);
+    const content = await new Promise<string>((resolve, reject) => {
+      readFile(filePath, 'utf-8', (err, data) => {
+        if (err) reject(err);
+        else resolve(data);
+      });
+    });
+
+    const lines = content.trim().split('\n').filter(Boolean);
+
+    if (ClaudeHelper.isCompactionSession(lines)) return null;
+
+    let title = '';
+    let messageCount = 0;
+    let tokenPercentage = 0;
+    let summary: string | undefined;
+    let imageCount = 0;
+    let filesOrFoldersCount = 0;
+    let urlCount = 0;
+    const labels: string[] = [];
+    const sessionId = file.replace('.jsonl', '');
+
+    const seenMessages = new Set<string>();
+
+    for (const line of lines) {
+      try {
+        const parsed = JSON.parse(line);
+
+        if (parsed.type === 'queue-operation') continue;
+        if (parsed.summary) summary = parsed.summary;
+
+        const isUser = ClaudeHelper.isUserMessage(parsed.type);
+        const isCC = ClaudeHelper.isCCMessage(parsed.type);
+
+        if (!isUser && !isCC) continue;
+
+        const textContent = parsed.message?.content || parsed.content;
+        if (!textContent) continue;
+
+        const messageKey = `${isUser ? 'user' : 'assistant'}-${parsed.timestamp || 0}`;
+        if (seenMessages.has(messageKey)) continue;
+        seenMessages.add(messageKey);
+
+        messageCount++;
+
+        if (isUser && !title && typeof textContent === 'string') {
+          const firstLine = textContent.split('\n')[0].replace(/\\/g, '').replace(/\s+/g, ' ').trim();
+          if (firstLine && firstLine !== 'Warmup' && !firstLine.includes('Caveat:')) {
+            title = firstLine.length > 80 ? `${firstLine.substring(0, 80)}...` : firstLine;
+          }
+
+          const fileOrFolderMatches = textContent.match(/@[\w\-./]+/g);
+          if (fileOrFolderMatches) filesOrFoldersCount += fileOrFolderMatches.length;
+
+          const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\]]+/g;
+          const urlMatches = textContent.match(urlRegex);
+          if (urlMatches) urlCount += urlMatches.length;
+
+          if (Array.isArray(parsed.message?.content)) {
+            for (const item of parsed.message.content) {
+              if (item.type === 'image') imageCount++;
+            }
+          }
+        }
+
+        const usage = parsed.message?.usage;
+        if (usage) {
+          const inputTokens = usage.input_tokens || 0;
+          const cacheReadTokens = usage.cache_read_input_tokens || 0;
+          const outputTokens = usage.output_tokens || 0;
+          const total = inputTokens + cacheReadTokens + outputTokens;
+          if (total > 0) {
+            tokenPercentage = Math.floor((total * 100) / 180000);
+          }
+        }
+      } catch {}
+    }
+
+    if (settings?.sessions?.labels) {
+      for (const label of settings.sessions.labels) {
+        if (label.sessions?.[normalizedPath]?.includes(sessionId)) {
+          labels.push(label.id);
+        }
+      }
+    }
+
+    if (!title) return null;
+
+    return {
+      id: sessionId,
+      title,
+      messageCount,
+      createdAt: stats.birthtimeMs,
+      tokenPercentage,
+      imageCount: imageCount > 0 ? imageCount : undefined,
+      filesOrFoldersCount: filesOrFoldersCount > 0 ? filesOrFoldersCount : undefined,
+      urlCount: urlCount > 0 ? urlCount : undefined,
+      labels: labels.length > 0 ? labels : undefined,
+      summary,
+      fileMtime: stats.mtimeMs
+    };
+  } catch {
+    return null;
+  }
+}
+
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const { projectName } = c.req.valid('param');
-    const { search, groupBy } = c.req.valid('query');
-
-    const sortBy = groupBy === 'token-percentage' ? SessionSortBy.TOKEN_PERCENTAGE : SessionSortBy.DATE;
+    const { groupBy } = c.req.valid('query');
 
     const settings = await readSettings();
+    const normalizedPath = ClaudeHelper.normalizePathForClaudeProjects(projectName);
+    const sessionsPath = ClaudeHelper.getProjectDir(normalizedPath);
 
-    const result = await listSessions({
-      projectPath: projectName,
-      limit: 999999,
-      page: 1,
-      search,
-      sortBy,
-      includeImages: true,
-      includeCustomCommands: true,
-      includeFilesOrFolders: true,
-      includeUrls: true,
-      includeLabels: true,
-      enablePagination: false,
-      settings
-    });
+    if (!existsSync(sessionsPath)) {
+      return c.json({ error: 'Project directory not found' } satisfies z.infer<typeof ErrorSchema>, 500);
+    }
 
-    const items = result.items.map((item) => ({
-      id: item.id,
-      title: item.title,
-      messageCount: item.messageCount,
-      createdAt: item.createdAt,
-      tokenPercentage: item.tokenPercentage,
-      searchMatchCount: item.searchMatchCount,
-      imageCount: item.imageCount,
-      customCommandCount: item.customCommandCount,
-      filesOrFoldersCount: item.filesOrFoldersCount,
-      urlCount: item.urlCount,
-      labels: item.labels,
-      summary: item.summary
-    }));
+    const cacheKey = `project-${normalizedPath.replace(/\//g, '-')}`;
+    const cachedData = (await sessionsCache.get<Record<string, SessionCacheEntry>>(cacheKey)) || {};
+
+    const files = await readdir(sessionsPath);
+    const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
+
+    const fileMtimes = await Promise.all(
+      sessionFiles.map(async (file) => {
+        const stats = await stat(join(sessionsPath, file));
+        return { file, mtime: stats.mtimeMs };
+      })
+    );
+
+    const filesToProcess: string[] = [];
+    const cachedSessions: SessionCacheEntry[] = [];
+
+    for (const { file, mtime } of fileMtimes) {
+      const sessionId = file.replace('.jsonl', '');
+      const cached = cachedData[sessionId];
+
+      if (!cached || cached.fileMtime !== mtime) {
+        filesToProcess.push(file);
+      } else {
+        cachedSessions.push(cached);
+      }
+    }
+
+    const processedResults = await Promise.all(
+      filesToProcess.map((file) =>
+        processSessionFileWithCache(join(sessionsPath, file), file, normalizedPath, settings)
+      )
+    );
+
+    const newSessions = processedResults.filter((s) => s !== null) as SessionCacheEntry[];
+
+    const updatedCache = { ...cachedData };
+    for (const session of newSessions) {
+      updatedCache[session.id] = session;
+    }
+
+    const existingFileSet = new Set(sessionFiles.map((f) => f.replace('.jsonl', '')));
+    for (const cachedId of Object.keys(updatedCache)) {
+      if (!existingFileSet.has(cachedId)) {
+        delete updatedCache[cachedId];
+      }
+    }
+
+    sessionsCache.set(cacheKey, updatedCache, 30 * 24 * 60 * 60 * 1000).catch(() => {});
+
+    const items = [...cachedSessions, ...newSessions].map(({ fileMtime, ...rest }) => rest);
 
     const grouped: Record<string, typeof items> = {};
 
