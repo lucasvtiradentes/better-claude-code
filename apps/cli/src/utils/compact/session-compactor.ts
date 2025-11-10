@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, unlinkSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, generateUuid } from '@better-claude-code/node-utils';
+import { PromptFile } from '@better-claude-code/shared';
 
 import { getGitRepoRoot } from '../git.js';
 
@@ -11,7 +12,7 @@ const __dirname = dirname(__filename);
 export async function compactSession(parsedFile: string, outputFile: string) {
   const cleanupUuid = generateUuid();
 
-  const promptTemplatePath = join(__dirname, '../../prompts/session-compation.prompt.md');
+  const promptTemplatePath = join(__dirname, '../../prompts', PromptFile.SESSION_COMPACTION);
   let promptTemplate = readFileSync(promptTemplatePath, 'utf-8');
 
   promptTemplate = `${CLAUDE_CODE_SESSION_COMPACTION_ID}: ${cleanupUuid}\n\n${promptTemplate}`;

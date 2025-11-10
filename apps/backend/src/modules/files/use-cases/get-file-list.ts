@@ -1,5 +1,6 @@
 import { accessSync, constants } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { PromptFile } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { homedir } from 'os';
 import { fileURLToPath } from 'url';
@@ -46,8 +47,8 @@ export const route = createRoute({
 
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
-    const promptPathDev = join(__dirname, '../../../../../cli/src/prompts/session-compation.prompt.md');
-    const promptPathProd = join(__dirname, '../../../../cli/dist/cli/prompts/session-compation.prompt.md');
+    const promptPathDev = join(__dirname, '../../../../../cli/src/prompts', PromptFile.SESSION_COMPACTION);
+    const promptPathProd = join(__dirname, '../../../../cli/prompts', PromptFile.SESSION_COMPACTION);
 
     let promptPath: string;
     try {

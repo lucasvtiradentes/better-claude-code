@@ -13,3 +13,7 @@ export enum MessageSource {
   USER = 'user',
   CC = 'assistant'
 }
+
+export enum PromptFile {
+  SESSION_COMPACTION = 'session-compaction.prompt.md'
+}
