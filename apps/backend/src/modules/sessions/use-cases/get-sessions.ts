@@ -86,18 +86,13 @@ export const route = createRoute({
 
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
-    const startTotal = performance.now();
     const { projectName } = c.req.valid('param');
     const { search, groupBy } = c.req.valid('query');
 
     const sortBy = groupBy === 'token-percentage' ? SessionSortBy.TOKEN_PERCENTAGE : SessionSortBy.DATE;
 
-    const startSettings = performance.now();
     const settings = await readSettings();
-    const endSettings = performance.now();
-    console.log(`[PERF] readSettings: ${(endSettings - startSettings).toFixed(2)}ms`);
 
-    const startList = performance.now();
     const result = await listSessions({
       projectPath: projectName,
       limit: 999999,
@@ -112,10 +107,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       enablePagination: false,
       settings
     });
-    const endList = performance.now();
-    console.log(`[PERF] listSessions: ${(endList - startList).toFixed(2)}ms (${result.items.length} items)`);
 
-    const startMap = performance.now();
     const items = result.items.map((item) => ({
       id: item.id,
       title: item.title,
@@ -130,10 +122,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       labels: item.labels,
       summary: item.summary
     }));
-    const endMap = performance.now();
-    console.log(`[PERF] mapping items: ${(endMap - startMap).toFixed(2)}ms`);
 
-    const startGroup = performance.now();
     const grouped: Record<string, typeof items> = {};
 
     if (groupBy === 'date') {
@@ -150,11 +139,6 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         items: grouped[key] || [],
         totalItems: grouped[key]?.length || 0
       })).filter((g) => g.totalItems > 0);
-
-      const endGroup = performance.now();
-      const endTotal = performance.now();
-      console.log(`[PERF] grouping (date): ${(endGroup - startGroup).toFixed(2)}ms`);
-      console.log(`[PERF] TOTAL: ${(endTotal - startTotal).toFixed(2)}ms`);
 
       return c.json(
         {
@@ -182,11 +166,6 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         items: grouped[key] || [],
         totalItems: grouped[key]?.length || 0
       })).filter((g) => g.totalItems > 0);
-
-      const endGroup = performance.now();
-      const endTotal = performance.now();
-      console.log(`[PERF] grouping (token-percentage): ${(endGroup - startGroup).toFixed(2)}ms`);
-      console.log(`[PERF] TOTAL: ${(endTotal - startTotal).toFixed(2)}ms`);
 
       return c.json(
         {
@@ -227,11 +206,6 @@ export const handler: RouteHandler<typeof route> = async (c) => {
           };
         })
         .filter((g) => g.totalItems > 0);
-
-      const endGroup = performance.now();
-      const endTotal = performance.now();
-      console.log(`[PERF] grouping (label): ${(endGroup - startGroup).toFixed(2)}ms`);
-      console.log(`[PERF] TOTAL: ${(endTotal - startTotal).toFixed(2)}ms`);
 
       return c.json(
         {

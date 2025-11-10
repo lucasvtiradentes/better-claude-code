@@ -442,7 +442,6 @@ async function processSessionFile(
 }
 
 export async function listSessions(options: SessionListOptions): Promise<SessionListResult> {
-  const startTime = performance.now();
   const {
     projectPath,
     limit = 20,
@@ -466,19 +465,12 @@ export async function listSessions(options: SessionListOptions): Promise<Session
     throw new Error(`Project directory not found: ${sessionsPath}`);
   }
 
-  const startReaddir = performance.now();
   const files = await readdir(sessionsPath);
   let sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
-  const endReaddir = performance.now();
-  console.log(`[PERF listSessions] readdir + filter: ${(endReaddir - startReaddir).toFixed(2)}ms (${sessionFiles.length} files)`);
 
-  const startCheckpoint = performance.now();
-  const checkpointedOriginals = sessionFiles.length <= 50 ? await findCheckpointedSessions(sessionFiles, sessionsPath) : new Set<string>();
+  const checkpointedOriginals =
+    sessionFiles.length <= 50 ? await findCheckpointedSessions(sessionFiles, sessionsPath) : new Set<string>();
   sessionFiles = sessionFiles.filter((f) => !checkpointedOriginals.has(f.replace('.jsonl', '')));
-  const endCheckpoint = performance.now();
-  console.log(`[PERF listSessions] findCheckpointedSessions: ${(endCheckpoint - startCheckpoint).toFixed(2)}ms (removed ${checkpointedOriginals.size} files, skipped: ${sessionFiles.length > 50})`);
-  console.log(`[PERF listSessions] Final file count to process: ${sessionFiles.length}`);
-
   const processOptions = {
     search,
     messageCountMode,
@@ -494,7 +486,6 @@ export async function listSessions(options: SessionListOptions): Promise<Session
   let sessions: SessionListItem[];
 
   if (!search && sortBy === SessionSortBy.DATE) {
-    const startStat = performance.now();
     const fileStatsPromises = sessionFiles.map(async (file) => {
       const filePath = join(sessionsPath, file);
       const stats = await stat(filePath);
@@ -503,28 +494,20 @@ export async function listSessions(options: SessionListOptions): Promise<Session
 
     const fileStats = await Promise.all(fileStatsPromises);
     fileStats.sort((a, b) => b.birthtimeMs - a.birthtimeMs);
-    const endStat = performance.now();
-    console.log(`[PERF listSessions] stat all files: ${(endStat - startStat).toFixed(2)}ms`);
 
     if (enablePagination) {
-      const startProcess = performance.now();
       const sessionPromises = fileStats.map(({ file, filePath }) =>
         processSessionFile(filePath, file, normalizedPath, processOptions)
       );
 
       const sessionsResults = await Promise.all(sessionPromises);
       const allValidSessions = sessionsResults.filter((s) => s !== null) as SessionListItem[];
-      const endProcess = performance.now();
-      console.log(`[PERF listSessions] processSessionFile (all): ${(endProcess - startProcess).toFixed(2)}ms`);
 
       const totalItems = allValidSessions.length;
       const totalPages = Math.ceil(totalItems / limit);
       const startIndex = (page - 1) * limit;
       const endIndex = startIndex + limit;
       const paginatedSessions = allValidSessions.slice(startIndex, endIndex);
-
-      const endTime = performance.now();
-      console.log(`[PERF listSessions] TOTAL: ${(endTime - startTime).toFixed(2)}ms`);
 
       return {
         items: paginatedSessions,
@@ -538,25 +521,17 @@ export async function listSessions(options: SessionListOptions): Promise<Session
     }
 
     const filesToProcess = fileStats.slice(0, limit);
-    console.log(`[PERF listSessions] Processing ${filesToProcess.length} files (limit: ${limit})`);
 
-    const startProcess = performance.now();
     const sessionPromises = filesToProcess.map(({ file, filePath }) =>
       processSessionFile(filePath, file, normalizedPath, processOptions)
     );
 
     const sessionsResults = await Promise.all(sessionPromises);
     sessions = sessionsResults.filter((s) => s !== null) as SessionListItem[];
-    const endProcess = performance.now();
-    console.log(`[PERF listSessions] processSessionFile: ${(endProcess - startProcess).toFixed(2)}ms`);
-
-    const endTime = performance.now();
-    console.log(`[PERF listSessions] TOTAL: ${(endTime - startTime).toFixed(2)}ms`);
 
     return { items: sessions };
   }
 
-  const startProcess = performance.now();
   const sessionPromises = sessionFiles.map((file) => {
     const filePath = join(sessionsPath, file);
     return processSessionFile(filePath, file, normalizedPath, processOptions);
@@ -564,8 +539,6 @@ export async function listSessions(options: SessionListOptions): Promise<Session
 
   const sessionsResults = await Promise.all(sessionPromises);
   sessions = sessionsResults.filter((s) => s !== null) as SessionListItem[];
-  const endProcess = performance.now();
-  console.log(`[PERF listSessions] processSessionFile (all, with search/sort): ${(endProcess - startProcess).toFixed(2)}ms`);
 
   if (sortBy === SessionSortBy.TOKEN_PERCENTAGE) {
     sessions.sort((a, b) => {
@@ -584,9 +557,6 @@ export async function listSessions(options: SessionListOptions): Promise<Session
     const endIndex = startIndex + limit;
     const paginatedSessions = sessions.slice(startIndex, endIndex);
 
-    const endTime = performance.now();
-    console.log(`[PERF listSessions] TOTAL: ${(endTime - startTime).toFixed(2)}ms`);
-
     return {
       items: paginatedSessions,
       meta: {
@@ -599,7 +569,5 @@ export async function listSessions(options: SessionListOptions): Promise<Session
   }
 
   const limitedSessions = sessions.slice(0, limit);
-  const endTime = performance.now();
-  console.log(`[PERF listSessions] TOTAL: ${(endTime - startTime).toFixed(2)}ms`);
   return { items: limitedSessions };
 }

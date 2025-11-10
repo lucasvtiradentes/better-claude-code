@@ -233,17 +233,11 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
       currentMessageRef.current = '';
 
       if (imagePaths && imagePaths.length > 0) {
-        console.log('[useClaudeStream] Loading images for messageId:', messageId);
-        console.log('[useClaudeStream] Image paths:', imagePaths);
-        console.log('[useClaudeStream] User message:', userMessage);
-
         const imageRefMatches = userMessage.match(/\[Image #(\d+)\]/g) || [];
         const imageIndexes = imageRefMatches.map((match) => {
           const num = match.match(/\d+/);
           return num ? parseInt(num[0], 10) : 0;
         });
-
-        console.log('[useClaudeStream] Extracted image indexes:', imageIndexes);
 
         const newImages: ImageData[] = [];
         for (let i = 0; i < imagePaths.length; i++) {
@@ -256,20 +250,13 @@ export function useClaudeStream(sessionId: string, projectPath: string, projectN
                 data: result.data,
                 messageId
               };
-              console.log('[useClaudeStream] Loaded image:', {
-                index: imageData.index,
-                messageId: imageData.messageId,
-                dataLength: imageData.data.length
-              });
               newImages.push(imageData);
             }
           } catch (error) {
             console.error('Failed to load image for preview:', error);
           }
         }
-        console.log('[useClaudeStream] Setting new images:', newImages.length);
         setImages((prev) => {
-          console.log('[useClaudeStream] Previous images:', prev.length, 'New total:', prev.length + newImages.length);
           return [...prev, ...newImages];
         });
       }

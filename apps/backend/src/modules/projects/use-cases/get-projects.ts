@@ -13,7 +13,8 @@ import {
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
-import { extractProjectName, getCurrentBranch, getGitHubUrl, getRealPathFromSession, readSettings } from '../utils.js';
+import { type ProjectCacheEntry, projectsCache } from '../cache.js';
+import { extractProjectName, getGitInfo, getRealPathFromSession, readSettings } from '../utils.js';
 
 const querySchema = z.object({
   groupBy: z.enum(['date', 'session-count', 'label']).optional(),
@@ -80,79 +81,121 @@ export const route = createRoute({
   responses: ResponseSchemas
 });
 
+async function processProject(folder: string, projectsPath: string, settings: any) {
+  const folderPath = join(projectsPath, folder);
+  const stats = await stat(folderPath);
+
+  if (!stats.isDirectory()) return null;
+
+  const { path: realPath, sessionFiles } = await getRealPathFromSession(folderPath);
+
+  if (!realPath) return null;
+
+  const sessionsCount = sessionFiles.length;
+
+  const fileStatsPromises = sessionFiles.map((f) => stat(join(folderPath, f)).then((s) => s.mtimeMs));
+  const fileStats = await Promise.all(fileStatsPromises);
+  const lastModified = Math.max(...fileStats, stats.mtimeMs);
+
+  let isGitRepo = false;
+  let githubUrl: string | undefined;
+  let currentBranch: string | undefined;
+  try {
+    await access(join(realPath, '.git'));
+    isGitRepo = true;
+    const gitInfo = await getGitInfo(realPath);
+    githubUrl = gitInfo.githubUrl;
+    currentBranch = gitInfo.currentBranch;
+  } catch {
+    isGitRepo = false;
+  }
+
+  const name = extractProjectName(realPath);
+  const displayPath = realPath.replace(homedir(), '~');
+
+  const hidden = settings?.projects.hiddenProjects.includes(folder) || false;
+
+  const labels: string[] = [];
+  if (settings?.projects.labels) {
+    for (const label of settings.projects.labels) {
+      if (label.projects?.includes(folder)) {
+        labels.push(label.id);
+      }
+    }
+  }
+
+  return {
+    id: folder,
+    name,
+    path: displayPath,
+    sessionsCount,
+    lastModified,
+    isGitRepo,
+    githubUrl,
+    currentBranch,
+    labels,
+    hidden,
+    folderMtime: stats.mtimeMs
+  };
+}
+
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
+    const _startTime = Date.now();
     const { groupBy, search } = c.req.valid('query');
     const projectsPath = ClaudeHelper.getProjectsDir();
-    const folders = await readdir(projectsPath);
 
-    const settings = await readSettings();
+    const [folders, settings] = await Promise.all([readdir(projectsPath), readSettings()]);
 
-    const projectPromises = folders.map(async (folder) => {
-      const folderPath = join(projectsPath, folder);
-      const stats = await stat(folderPath);
+    const cachedData = (await projectsCache.get<Record<string, ProjectCacheEntry>>('all-projects')) || {};
 
-      if (!stats.isDirectory()) return null;
-
-      const realPath = await getRealPathFromSession(folderPath);
-
-      if (!realPath) return null;
-
-      let sessionFiles: string[] = [];
-      try {
-        const files = await readdir(folderPath);
-        sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
-      } catch {
-        sessionFiles = [];
-      }
-
-      const sessionsCount = sessionFiles.length;
-
-      const fileStatsPromises = sessionFiles.map((f) => stat(join(folderPath, f)).then((s) => s.mtimeMs));
-      const fileStats = await Promise.all(fileStatsPromises);
-      const lastModified = Math.max(...fileStats, stats.mtimeMs);
-
-      let isGitRepo = false;
-      let githubUrl: string | undefined;
-      let currentBranch: string | undefined;
-      try {
-        await access(join(realPath, '.git'));
-        isGitRepo = true;
-        [githubUrl, currentBranch] = await Promise.all([getGitHubUrl(realPath), getCurrentBranch(realPath)]);
-      } catch {
-        isGitRepo = false;
-      }
-
-      const name = extractProjectName(realPath);
-      const displayPath = realPath.replace(homedir(), '~');
-
-      const hidden = settings?.projects.hiddenProjects.includes(folder) || false;
-
-      const labels: string[] = [];
-      if (settings?.projects.labels) {
-        for (const label of settings.projects.labels) {
-          if (label.projects?.includes(folder)) {
-            labels.push(label.id);
-          }
+    const folderMtimes = await Promise.all(
+      folders.map(async (folder) => {
+        try {
+          const folderPath = join(projectsPath, folder);
+          const stats = await stat(folderPath);
+          return { folder, mtime: stats.isDirectory() ? stats.mtimeMs : null };
+        } catch {
+          return { folder, mtime: null };
         }
+      })
+    );
+
+    const foldersToProcess: string[] = [];
+    const cachedProjects: ProjectCacheEntry[] = [];
+
+    for (const { folder, mtime } of folderMtimes) {
+      if (mtime === null) continue;
+
+      const cached = cachedData?.[folder];
+      if (!cached) {
+        foldersToProcess.push(folder);
+      } else {
+        cachedProjects.push(cached);
       }
+    }
 
-      return {
-        id: folder,
-        name,
-        path: displayPath,
-        sessionsCount,
-        lastModified,
-        isGitRepo,
-        githubUrl,
-        currentBranch,
-        labels,
-        hidden
-      };
-    });
+    const processedResults = await Promise.all(
+      foldersToProcess.map((folder) => processProject(folder, projectsPath, settings))
+    );
 
-    const projectsResults = await Promise.all(projectPromises);
-    let projects = projectsResults.filter((p) => p !== null);
+    const newProjects = processedResults.filter((p) => p !== null) as ProjectCacheEntry[];
+
+    const updatedCache: Record<string, ProjectCacheEntry> = { ...(cachedData || {}) };
+    for (const project of newProjects) {
+      updatedCache[project.id] = project;
+    }
+
+    const existingFolderSet = new Set(folders);
+    for (const cachedId of Object.keys(updatedCache)) {
+      if (!existingFolderSet.has(cachedId)) {
+        delete updatedCache[cachedId];
+      }
+    }
+
+    projectsCache.set('all-projects', updatedCache, 30 * 24 * 60 * 60 * 1000).catch(() => {});
+
+    let projects = [...cachedProjects, ...newProjects].map(({ folderMtime, ...rest }) => rest);
 
     projects.sort((a, b) => b.lastModified - a.lastModified);
 

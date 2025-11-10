@@ -21,14 +21,6 @@ export const LiveMessageList = ({ messages, images = [], toolCalls, status }: Li
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log(
-      '[LiveMessageList] Messages:',
-      messages.map((m) => ({ id: m.id, content: m.content.substring(0, 50) }))
-    );
-    console.log('[LiveMessageList] Images:', images);
-  }, [messages, images]);
-
-  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }

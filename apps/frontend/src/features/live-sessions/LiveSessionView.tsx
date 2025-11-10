@@ -20,8 +20,6 @@ export const LiveSessionView = ({ sessionId, projectPath, projectName }: LiveSes
   const { messages, images, status, error, pendingPermissions, toolCalls, sendMessage, cancel, approvePermissions } =
     useClaudeStream(sessionId, projectPath, projectName, true);
 
-  console.log('[LiveSessionView] Images state:', images);
-
   const handleSendMessage = (message: string, imagePaths?: string[]) => {
     sendMessage(message, imagePaths);
   };
