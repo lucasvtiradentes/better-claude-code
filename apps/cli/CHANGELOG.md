@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.22
+
+### Patch Changes
+
+- 4c479bf: update session card
+
 ## 0.0.21
 
 ### Patch Changes
