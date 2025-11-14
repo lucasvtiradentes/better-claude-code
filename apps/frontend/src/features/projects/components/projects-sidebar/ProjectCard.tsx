@@ -71,7 +71,7 @@ export const ProjectCard = ({
         isActive ? 'bg-primary/20' : ''
       )}
     >
-      <button type="button" onClick={onClick} title={project.path} className="w-full text-left">
+      <div onClick={onClick} role="button" tabIndex={0} title={project.path} className="w-full text-left cursor-pointer">
         <div className="mb-1">
           <div className="text-sm font-semibold wrap-break-word line-clamp-1 pr-8">
             {project.name}
@@ -136,7 +136,7 @@ export const ProjectCard = ({
             </div>
           )}
         </div>
-      </button>
+      </div>
 
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <DropdownMenu>
