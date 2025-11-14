@@ -2,7 +2,13 @@ import { existsSync, readFile } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { ClaudeHelper, extractSessionTitle, extractTextContent, MessageSource, parseSessionLine } from '@better-claude-code/node-utils';
+import {
+  ClaudeHelper,
+  extractSessionTitle,
+  extractTextContent,
+  MessageSource,
+  parseSessionLine
+} from '@better-claude-code/node-utils';
 import {
   getTimeGroup,
   getTokenPercentageGroup,
@@ -50,7 +56,8 @@ const SessionSchema = z.object({
   id: z.string(),
   title: z.string(),
   messageCount: z.number(),
-  createdAt: z.number(),
+  createdAt: z.string(),
+  modifiedAt: z.string(),
   tokenPercentage: z.number().optional(),
   searchMatchCount: z.number().optional(),
   imageCount: z.number().optional(),
@@ -156,9 +163,9 @@ async function processSessionFileWithCache(
 
       if (!textContent) continue;
 
-        const messageKey = `${isUser ? 'user' : 'assistant'}-${parsed.timestamp || 0}`;
-        if (seenMessages.has(messageKey)) continue;
-        seenMessages.add(messageKey);
+      const messageKey = `${isUser ? 'user' : 'assistant'}-${parsed.timestamp || 0}`;
+      if (seenMessages.has(messageKey)) continue;
+      seenMessages.add(messageKey);
 
       messageCount++;
 
@@ -287,8 +294,10 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     listSessionsCache.set(cacheKey, updatedCache, 30 * 24 * 60 * 60 * 1000).catch(() => {});
 
-    const items = [...cachedSessions, ...newSessionsWithFlag].map(({ fileMtime, isCached, ...rest }) => ({
+    const items = [...cachedSessions, ...newSessionsWithFlag].map(({ fileMtime, isCached, createdAt, ...rest }) => ({
       ...rest,
+      createdAt: new Date(createdAt).toISOString(),
+      modifiedAt: new Date(fileMtime).toISOString(),
       cached: isCached
     }));
 
@@ -296,7 +305,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     if (groupBy === 'date') {
       items.forEach((session) => {
-        const groupKey = getTimeGroup(session.createdAt);
+        const groupKey = getTimeGroup(new Date(session.createdAt).getTime());
         if (!grouped[groupKey]) grouped[groupKey] = [];
         grouped[groupKey].push(session);
       });
@@ -305,7 +314,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         key,
         label: TIME_GROUP_LABELS[key as keyof typeof TIME_GROUP_LABELS],
         color: null,
-        items: grouped[key] || [],
+        items: (grouped[key] || []).sort((a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime()),
         totalItems: grouped[key]?.length || 0
       })).filter((g) => g.totalItems > 0);
 
@@ -332,7 +341,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         key,
         label: TOKEN_PERCENTAGE_GROUP_LABELS[key as keyof typeof TOKEN_PERCENTAGE_GROUP_LABELS],
         color: null,
-        items: grouped[key] || [],
+        items: (grouped[key] || []).sort((a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime()),
         totalItems: grouped[key]?.length || 0
       })).filter((g) => g.totalItems > 0);
 
@@ -370,7 +379,9 @@ export const handler: RouteHandler<typeof route> = async (c) => {
             key,
             label: key === 'no-label' ? 'No Label' : label?.name || key,
             color: label?.color || null,
-            items: grouped[key] || [],
+            items: (grouped[key] || []).sort(
+              (a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime()
+            ),
             totalItems: grouped[key]?.length || 0
           };
         })

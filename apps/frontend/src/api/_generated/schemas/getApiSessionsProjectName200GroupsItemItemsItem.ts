@@ -10,7 +10,8 @@ export type GetApiSessionsProjectName200GroupsItemItemsItem = {
   id: string;
   title: string;
   messageCount: number;
-  createdAt: number;
+  createdAt: string;
+  modifiedAt: string;
   tokenPercentage?: number;
   searchMatchCount?: number;
   imageCount?: number;

@@ -71,7 +71,14 @@ export const ProjectCard = ({
         isActive ? 'bg-primary/20' : ''
       )}
     >
-      <div onClick={onClick} role="button" tabIndex={0} title={project.path} className="w-full text-left cursor-pointer">
+      {/** biome-ignore lint/a11y/useSemanticElements: something here */}
+      <div
+        onClick={onClick}
+        role="button"
+        tabIndex={0}
+        title={project.path}
+        className="w-full text-left cursor-pointer"
+      >
         <div className="mb-1">
           <div className="text-sm font-semibold wrap-break-word line-clamp-1 pr-8">
             {project.name}

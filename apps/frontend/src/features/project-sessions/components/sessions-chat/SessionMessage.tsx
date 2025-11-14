@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: something */
 import { Bot } from 'lucide-react';
 import { useMemo } from 'react';
 import type {
@@ -28,7 +28,7 @@ type SessionMessageProps = {
 export const SessionMessage = ({
   messages,
   onImageClick,
-  onPathClick,
+  // onPathClick,
   pathValidation,
   searchTerm,
   isSearchMatch,
@@ -60,18 +60,18 @@ export const SessionMessage = ({
     return null;
   }
 
-  const handleClick = onPathClick
-    ? (e: React.MouseEvent<HTMLElement>) => {
-        const target = e.target as HTMLElement;
+  // const handleClick = onPathClick
+  //   ? (e: React.MouseEvent<HTMLElement>) => {
+  //       const target = e.target as HTMLElement;
 
-        if (target.dataset.path) {
-          const exists = target.dataset.exists === 'true';
-          if (exists) {
-            onPathClick(target.dataset.path);
-          }
-        }
-      }
-    : undefined;
+  //       if (target.dataset.path) {
+  //         const exists = target.dataset.exists === 'true';
+  //         if (exists) {
+  //           onPathClick(target.dataset.path);
+  //         }
+  //       }
+  //     }
+  //   : undefined;
 
   const isUser = isUserMessage(messages[0].type);
 
@@ -132,7 +132,9 @@ export const SessionMessage = ({
                   }
                   const cleanedPart = part.replace(/^(<br\s*\/?>)+|(<br\s*\/?>)+$/g, '');
                   if (!cleanedPart) return null;
-                  return <span key={`${messageKey}-text-${partIdx}`} dangerouslySetInnerHTML={{ __html: cleanedPart }} />;
+                  return (
+                    <span key={`${messageKey}-text-${partIdx}`} dangerouslySetInnerHTML={{ __html: cleanedPart }} />
+                  );
                 })}
               </div>
             </div>

@@ -1,6 +1,6 @@
 import type { RefObject } from 'react';
 import type {
-  GetApiSessionsProjectName200ItemsItem,
+  GetApiSessionsProjectName200GroupsItemItemsItem,
   GetApiSessionsProjectNameSessionId200,
   GetApiSessionsProjectNameSessionId200MessagesItem
 } from '@/api/_generated/schemas';
@@ -12,7 +12,7 @@ import { SessionMessageInput } from './SessionMessageInput';
 
 interface ProjectsContentProps {
   contentRef: RefObject<HTMLDivElement | null>;
-  currentSession?: GetApiSessionsProjectName200ItemsItem;
+  currentSession?: GetApiSessionsProjectName200GroupsItemItemsItem;
   filteredMessages: GetApiSessionsProjectNameSessionId200MessagesItem[];
   pathValidation?: Array<{ path: string; exists: boolean }>;
   searchQuery?: string;

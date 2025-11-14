@@ -1,9 +1,9 @@
 import { FileText, Image, Link, Search, Terminal } from 'lucide-react';
-import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
+import type { GetApiSessionsProjectName200GroupsItemItemsItem } from '@/api/_generated/schemas';
 import { IconWithBadge } from '@/common/components/IconWithBadge';
 
 type SessionBadgesProps = {
-  session: GetApiSessionsProjectName200ItemsItem;
+  session: GetApiSessionsProjectName200GroupsItemItemsItem;
   showSearch?: boolean;
 };
 

@@ -95,6 +95,7 @@ export const SessionsSidebar = ({
                       key={session.id}
                       session={session}
                       projectName={projectName}
+                      groupKey={group.key}
                       isActive={session.id === selectedSessionId}
                       onClick={() => onSelectSession(session.id)}
                       {...(settings?.display && { displaySettings: settings.display })}

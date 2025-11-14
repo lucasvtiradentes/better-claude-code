@@ -1622,7 +1622,10 @@
                                   "type": "number"
                                 },
                                 "createdAt": {
-                                  "type": "number"
+                                  "type": "string"
+                                },
+                                "modifiedAt": {
+                                  "type": "string"
                                 },
                                 "tokenPercentage": {
                                   "type": "number"
@@ -1660,6 +1663,7 @@
                                 "title",
                                 "messageCount",
                                 "createdAt",
+                                "modifiedAt",
                                 "cached"
                               ]
                             }

@@ -1,9 +1,9 @@
-import type { GetApiSessionsProjectName200ItemsItem } from '@/api';
+import type { GetApiSessionsProjectName200GroupsItemItemsItem } from '@/api';
 import { FilterButtons } from '@/features/projects/components/FilterButtons';
 import { SessionBadges } from '../sessions-sidebar/SessionBadges';
 
 interface SessionChatHeaderProps {
-  session?: GetApiSessionsProjectName200ItemsItem;
+  session?: GetApiSessionsProjectName200GroupsItemItemsItem;
 }
 
 export function SessionChatHeader({ session }: SessionChatHeaderProps) {

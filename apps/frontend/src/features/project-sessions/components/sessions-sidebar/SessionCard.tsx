@@ -1,6 +1,6 @@
 import { FolderEntry } from '@better-claude-code/shared';
 import { MoreHorizontal, Search, Tag, Trash2 } from 'lucide-react';
-import type { GetApiSessionsProjectName200ItemsItem } from '@/api/_generated/schemas';
+import type { GetApiSessionsProjectName200GroupsItemItemsItem } from '@/api/_generated/schemas';
 import { IconWithBadge } from '@/common/components/IconWithBadge';
 import {
   DropdownMenu,
@@ -27,10 +27,11 @@ import {
 import { SessionBadges } from './SessionBadges';
 
 type SessionCardProps = {
-  session: GetApiSessionsProjectName200ItemsItem;
+  session: GetApiSessionsProjectName200GroupsItemItemsItem;
   projectName: string;
   onClick: () => void;
   isActive?: boolean;
+  groupKey?: string;
   displaySettings?: {
     showTokenPercentage: boolean;
     showAttachments: boolean;
@@ -43,6 +44,7 @@ export const SessionCard = ({
   session,
   onClick,
   isActive,
+  groupKey,
   displaySettings = {
     showTokenPercentage: true,
     showAttachments: true
@@ -54,6 +56,20 @@ export const SessionCard = ({
   const settings = settingsData?.sessions;
 
   const titleParts = parseTitle(session.title);
+
+  const getRelativeTime = (isoDate: string) => {
+    const now = new Date();
+    const date = new Date(isoDate);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  };
 
   const handleMenuAction = (e: React.MouseEvent<HTMLDivElement>, action: () => void) => {
     e.stopPropagation();
@@ -108,9 +124,14 @@ export const SessionCard = ({
             {displaySettings.showAttachments && <SessionBadges session={session} />}
           </div>
 
-          {displaySettings.showTokenPercentage && session.tokenPercentage !== undefined && (
-            <span className={getTokenColor(session.tokenPercentage)}>{session.tokenPercentage}%</span>
-          )}
+          <div className="flex items-center gap-2">
+            {groupKey === 'today' && (
+              <span className="text-muted-foreground">{getRelativeTime(session.modifiedAt)}</span>
+            )}
+            {displaySettings.showTokenPercentage && session.tokenPercentage !== undefined && (
+              <span className={getTokenColor(session.tokenPercentage)}>{session.tokenPercentage}%</span>
+            )}
+          </div>
         </div>
       </button>
 
