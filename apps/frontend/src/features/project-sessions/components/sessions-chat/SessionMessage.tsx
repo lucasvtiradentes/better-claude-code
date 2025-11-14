@@ -1,11 +1,17 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
 import { Bot } from 'lucide-react';
 import { useMemo } from 'react';
 import type {
   GetApiSessionsProjectNameSessionId200ImagesItem,
   GetApiSessionsProjectNameSessionId200MessagesItem
 } from '@/api/_generated/schemas';
-import { MessageSource as FormatterSource, formatMessageContent } from '@/features/projects/utils/message-formatter';
+import {
+  type CodeBlock as CodeBlockType,
+  MessageSource as FormatterSource,
+  formatMessageContent
+} from '@/features/projects/utils/message-formatter';
 import { isUserMessage } from '../../../projects/utils/message-utils';
+import { CodeBlock } from './CodeBlock';
 
 type SessionMessageProps = {
   messages: GetApiSessionsProjectNameSessionId200MessagesItem[];
@@ -29,11 +35,13 @@ export const SessionMessage = ({
   availableImages = [],
   images = []
 }: SessionMessageProps) => {
-  const allImageRefs = useMemo(() => {
+  const { allImageRefs, allCodeBlocks } = useMemo(() => {
     const refs: Array<{ index: number; exists: boolean; data?: string }> = [];
+    const blocks: CodeBlockType[] = [];
+
     for (const message of messages) {
       if (typeof message.content === 'string') {
-        const { imageRefs } = formatMessageContent(message.content, {
+        const { imageRefs, codeBlocks } = formatMessageContent(message.content, {
           source: FormatterSource.SESSION_MESSAGE,
           pathValidation,
           searchTerm,
@@ -42,25 +50,28 @@ export const SessionMessage = ({
           messageId: message.id
         });
         refs.push(...imageRefs);
+        blocks.push(...codeBlocks);
       }
     }
-    return refs;
+    return { allImageRefs: refs, allCodeBlocks: blocks };
   }, [messages, pathValidation, searchTerm, availableImages, images]);
 
   if (messages.length === 0) {
     return null;
   }
 
-  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
-    const target = e.target as HTMLElement;
+  const handleClick = onPathClick
+    ? (e: React.MouseEvent<HTMLElement>) => {
+        const target = e.target as HTMLElement;
 
-    if (target.dataset.path && onPathClick) {
-      const exists = target.dataset.exists === 'true';
-      if (exists) {
-        onPathClick(target.dataset.path);
+        if (target.dataset.path) {
+          const exists = target.dataset.exists === 'true';
+          if (exists) {
+            onPathClick(target.dataset.path);
+          }
+        }
       }
-    }
-  };
+    : undefined;
 
   const isUser = isUserMessage(messages[0].type);
 
@@ -95,6 +106,8 @@ export const SessionMessage = ({
 
           const messageKey = message.id || `msg-${message.timestamp}-${idx}`;
 
+          const parts = html.split(/(<div data-code-block="[^"]+"><\/div>)/);
+
           return (
             <div key={messageKey}>
               {idx > 0 && (
@@ -102,18 +115,26 @@ export const SessionMessage = ({
                   <div className="w-1/2 border-t border-border" />
                 </div>
               )}
-              <button
-                type="button"
-                className="whitespace-pre-wrap text-left w-full"
-                onClick={handleClick}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    handleClick(e as any);
+              <div className="text-left w-full">
+                {parts.map((part, partIdx) => {
+                  const codeBlockMatch = part.match(/data-code-block="([^"]+)"/);
+                  if (codeBlockMatch) {
+                    const codeBlock = allCodeBlocks.find((block: CodeBlockType) => block.id === codeBlockMatch[1]);
+                    if (codeBlock) {
+                      return (
+                        <CodeBlock
+                          key={`${messageKey}-code-${partIdx}`}
+                          language={codeBlock.language}
+                          code={codeBlock.code}
+                        />
+                      );
+                    }
                   }
-                }}
-                tabIndex={0}
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
+                  const cleanedPart = part.replace(/^(<br\s*\/?>)+|(<br\s*\/?>)+$/g, '');
+                  if (!cleanedPart) return null;
+                  return <span key={`${messageKey}-text-${partIdx}`} dangerouslySetInnerHTML={{ __html: cleanedPart }} />;
+                })}
+              </div>
             </div>
           );
         })}

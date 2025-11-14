@@ -37,19 +37,27 @@ function escapeHtml(text: string) {
     .replace(/'/g, '&#39;');
 }
 
+export type CodeBlock = {
+  id: string;
+  language?: string;
+  code: string;
+};
+
 export function formatMessageContent(
   text: string,
   options: FormatOptions
-): { html: string; imageRefs: Array<{ index: number; exists: boolean; data?: string }> } {
+): { html: string; imageRefs: Array<{ index: number; exists: boolean; data?: string }>; codeBlocks: CodeBlock[] } {
   const { source, pathValidation, searchTerm, availableImages = [], images = [], messageId } = options;
 
   if (source === MessageSource.SESSION_CARD) {
-    return { html: text, imageRefs: [] };
+    return { html: text, imageRefs: [], codeBlocks: [] };
   }
+
+  const codeBlocks: CodeBlock[] = [];
 
   const parsedCommand = detectCommand(text);
   if (parsedCommand) {
-    return { html: formatCommand(parsedCommand), imageRefs: [] };
+    return { html: formatCommand(parsedCommand), imageRefs: [], codeBlocks: [] };
   }
 
   let formatted = escapeHtml(text).replace(/\\/g, '');
@@ -98,6 +106,16 @@ export function formatMessageContent(
 
   formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
+  formatted = formatted.replace(/```(\w+)?\n([\s\S]*?)```/g, (_match, lang, code) => {
+    const id = `code-block-${codeBlocks.length}`;
+    codeBlocks.push({
+      id,
+      language: lang,
+      code: code.trim()
+    });
+    return `<CODE_BLOCK_${id}>`;
+  });
+
   formatted = formatted.replace(
     /`([^`]+)`/g,
     '<code class="bg-muted/80 dark:bg-muted px-1.5 py-0.5 rounded text-sm border border-border dark:border-border/80 dark:text-foreground/95">$1</code>'
@@ -109,5 +127,7 @@ export function formatMessageContent(
 
   formatted = formatted.replace(/\n/g, '<br />');
 
-  return { html: formatted, imageRefs };
+  formatted = formatted.replace(/<CODE_BLOCK_(code-block-\d+)>/g, '<div data-code-block="$1"></div>');
+
+  return { html: formatted, imageRefs, codeBlocks };
 }
