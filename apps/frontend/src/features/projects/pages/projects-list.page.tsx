@@ -34,6 +34,7 @@ export function ProjectsListPage({ skipCache }: ProjectsListPageProps) {
   const isGroupedResponse = projectsData && 'groups' in projectsData;
   const projects = isGroupedResponse ? undefined : projectsData;
   const groupedProjects = isGroupedResponse ? projectsData.groups : undefined;
+  const totalCount = isGroupedResponse ? projectsData.meta?.totalItems : undefined;
 
   const handleSelectProject = useCallback(
     (projectId: string) => {
@@ -59,6 +60,7 @@ export function ProjectsListPage({ skipCache }: ProjectsListPageProps) {
         <ProjectsSidebar
           projects={projects}
           groupedProjects={groupedProjects}
+          totalCount={totalCount}
           isLoading={isLoading}
           error={error}
           searchValue={projectSearch}

@@ -12,6 +12,7 @@ import { ProjectsHeader } from './ProjectsHeader';
 type ProjectsSidebarProps = {
   projects?: GetApiProjects200AnyOfItem[];
   groupedProjects?: GetApiProjects200AnyOfTwoGroupsItem[];
+  totalCount?: number;
   isLoading: boolean;
   error: unknown;
   searchValue?: string;
@@ -22,6 +23,7 @@ type ProjectsSidebarProps = {
 export const ProjectsSidebar = ({
   projects,
   groupedProjects,
+  totalCount,
   isLoading,
   error,
   searchValue,
@@ -69,7 +71,7 @@ export const ProjectsSidebar = ({
   return (
     <MiddleSidebar>
       <ProjectsHeader
-        projectCount={filteredProjects?.length || 0}
+        projectCount={totalCount ?? filteredProjects?.length ?? 0}
         searchValue={searchValue}
         onSearchChange={onSearchChange}
       />
