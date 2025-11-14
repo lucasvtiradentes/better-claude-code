@@ -2,7 +2,7 @@ import { existsSync, readFile } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { ClaudeHelper } from '@better-claude-code/node-utils';
+import { ClaudeHelper, extractSessionTitle, extractTextContent, MessageSource, parseSessionLine } from '@better-claude-code/node-utils';
 import {
   getTimeGroup,
   getTokenPercentageGroup,
@@ -140,101 +140,58 @@ async function processSessionFileWithCache(
     const seenMessages = new Set<string>();
 
     for (const line of lines) {
-      try {
-        const parsed = JSON.parse(line);
+      const parsed = parseSessionLine(line);
+      if (!parsed || !parsed.type) continue;
 
-        if (parsed.type === 'queue-operation') continue;
-        if (parsed.summary) summary = parsed.summary;
+      if (parsed.type === 'queue-operation') continue;
+      if (parsed.summary) summary = parsed.summary;
 
-        const isUser = ClaudeHelper.isUserMessage(parsed.type);
-        const isCC = ClaudeHelper.isCCMessage(parsed.type);
+      const isUser = ClaudeHelper.isUserMessage(parsed.type as MessageSource);
+      const isCC = ClaudeHelper.isCCMessage(parsed.type as MessageSource);
 
-        if (!isUser && !isCC) continue;
+      if (!isUser && !isCC) continue;
 
-        const rawContent = parsed.message?.content || parsed.content;
+      const rawContent = parsed.message?.content || parsed.content;
+      const textContent = extractTextContent(rawContent);
 
-        let textContent = '';
-        if (typeof rawContent === 'string') {
-          textContent = rawContent;
-        } else if (Array.isArray(rawContent)) {
-          const textParts = rawContent.filter((item) => item.type === 'text').map((item) => item.text);
-          textContent = textParts.join('\n');
-        }
-
-        if (!textContent) continue;
+      if (!textContent) continue;
 
         const messageKey = `${isUser ? 'user' : 'assistant'}-${parsed.timestamp || 0}`;
         if (seenMessages.has(messageKey)) continue;
         seenMessages.add(messageKey);
 
-        messageCount++;
+      messageCount++;
 
-        if (isUser && !title && typeof textContent === 'string') {
-          const allLines = textContent
-            .split('\n')
-            .map((line) => line.replace(/\\/g, '').trim())
-            .filter((line) => line.length > 0);
-
-          let firstLines = allLines.slice(0, 10).join(' ').replace(/\s+/g, ' ').trim();
-
-          if (firstLines.includes('---')) {
-            const beforeSeparator = firstLines.split('---')[0].trim();
-            if (beforeSeparator) {
-              firstLines = beforeSeparator;
-            }
-          }
-
-          firstLines = firstLines.replace(/<command-message>.*?<\/command-message>/g, '').trim();
-
-          const commandNameMatch = firstLines.match(/<command-name>(.*?)<\/command-name>/);
-          const commandArgsMatch = firstLines.match(/<command-args>(.*?)<\/command-args>/);
-
-          if (commandNameMatch) {
-            const commandName = commandNameMatch[1];
-            const commandArgs = commandArgsMatch ? ` ${commandArgsMatch[1]}` : '';
-            firstLines = `${commandName}${commandArgs}`;
-          }
-
-          const isClearCommand = firstLines.includes('/clear');
-          const isLocalCommand = firstLines.startsWith('<local-command-');
-          const isIdeCommand = commandNameMatch && commandNameMatch[1] === '/ide';
-          const shouldSkip =
-            !firstLines ||
-            firstLines === 'Warmup' ||
-            firstLines.includes('Caveat:') ||
-            isClearCommand ||
-            isLocalCommand ||
-            isIdeCommand;
-
-          if (!shouldSkip) {
-            title = firstLines.length > 80 ? `${firstLines.substring(0, 80)}...` : firstLines;
-          }
-
-          const fileOrFolderMatches = textContent.match(/@[\w\-./]+/g);
-          if (fileOrFolderMatches) filesOrFoldersCount += fileOrFolderMatches.length;
-
-          const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\]]+/g;
-          const urlMatches = textContent.match(urlRegex);
-          if (urlMatches) urlCount += urlMatches.length;
-
-          if (Array.isArray(parsed.message?.content)) {
-            for (const item of parsed.message.content) {
-              if (item.type === 'image') imageCount++;
-            }
-          }
+      if (isUser && !title) {
+        const extractedTitle = extractSessionTitle(textContent);
+        if (extractedTitle) {
+          title = extractedTitle;
         }
 
-        const usage = parsed.message?.usage;
-        if (usage) {
-          const inputTokens = usage.input_tokens || 0;
-          const cacheReadTokens = usage.cache_read_input_tokens || 0;
-          const outputTokens = usage.output_tokens || 0;
-          const total = inputTokens + cacheReadTokens + outputTokens;
-          if (total > 0) {
-            tokenPercentage = Math.floor((total * 100) / 180000);
+        const fileOrFolderMatches = textContent.match(/@[\w\-./]+/g);
+        if (fileOrFolderMatches) filesOrFoldersCount += fileOrFolderMatches.length;
+
+        const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\]]+/g;
+        const urlMatches = textContent.match(urlRegex);
+        if (urlMatches) urlCount += urlMatches.length;
+
+        if (Array.isArray(parsed.message?.content)) {
+          for (const item of parsed.message.content) {
+            if (item.type === 'image') imageCount++;
           }
         }
-      } catch {}
+      }
+
+      const usage = parsed.message?.usage;
+      if (usage) {
+        const inputTokens = usage.input_tokens || 0;
+        const cacheReadTokens = usage.cache_read_input_tokens || 0;
+        const outputTokens = usage.output_tokens || 0;
+        const total = inputTokens + cacheReadTokens + outputTokens;
+        if (total > 0) {
+          tokenPercentage = Math.floor((total * 100) / 180000);
+        }
+      }
     }
 
     if (settings?.sessions?.labels) {

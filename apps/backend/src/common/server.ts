@@ -107,6 +107,14 @@ export const createServer = (port: number, staticPath?: string) => {
 
   app.use('*', cors());
 
+  app.use('*', async (c, next) => {
+    const url = new URL(c.req.url);
+    if (url.pathname.startsWith(API_PREFIX)) {
+      console.log(`[${c.req.method}] ${url.pathname}${url.search}`);
+    }
+    await next();
+  });
+
   setupHealthRoute(app);
 
   app.route(`${API_PREFIX}/files`, filesRouter);

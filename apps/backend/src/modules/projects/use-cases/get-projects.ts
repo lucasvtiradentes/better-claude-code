@@ -106,15 +106,16 @@ async function processProject(folder: string, projectsPath: string, settings: an
 
   if (!stats.isDirectory()) return null;
 
-  const { path: realPath, sessionFiles } = await getRealPathFromSession(folderPath);
+  const { path: realPath, sessionFiles, validSessionFiles } = await getRealPathFromSession(folderPath);
 
   if (!realPath) return null;
 
-  const sessionsCount = sessionFiles.length;
+  const sessionsCount = validSessionFiles.length;
 
   const fileStatsPromises = sessionFiles.map((f) => stat(join(folderPath, f)).then((s) => s.mtimeMs));
   const fileStats = await Promise.all(fileStatsPromises);
   const lastModified = Math.max(...fileStats, stats.mtimeMs);
+  const maxSessionMtime = fileStats.length > 0 ? Math.max(...fileStats) : stats.mtimeMs;
 
   let isGitRepo = false;
   let githubUrl: string | undefined;
@@ -154,13 +155,12 @@ async function processProject(folder: string, projectsPath: string, settings: an
     currentBranch,
     labels,
     hidden,
-    folderMtime: stats.mtimeMs
+    folderMtime: maxSessionMtime
   };
 }
 
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
-    const _startTime = Date.now();
     const { groupBy, search, skipCache } = c.req.valid('query');
     const projectsPath = ClaudeHelper.getProjectsDir();
 
@@ -175,9 +175,30 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         try {
           const folderPath = join(projectsPath, folder);
           const stats = await stat(folderPath);
-          return { folder, mtime: stats.isDirectory() ? stats.mtimeMs : null };
+          if (!stats.isDirectory()) return { folder, mtime: null, maxSessionMtime: null };
+
+          const sessionFiles = await readdir(folderPath);
+          const jsonlFiles = sessionFiles.filter((f) => f.endsWith('.jsonl'));
+
+          if (jsonlFiles.length === 0) {
+            return { folder, mtime: stats.mtimeMs, maxSessionMtime: stats.mtimeMs };
+          }
+
+          const sessionMtimes = await Promise.all(
+            jsonlFiles.map(async (f) => {
+              try {
+                const s = await stat(join(folderPath, f));
+                return s.mtimeMs;
+              } catch {
+                return 0;
+              }
+            })
+          );
+
+          const maxSessionMtime = Math.max(...sessionMtimes);
+          return { folder, mtime: stats.mtimeMs, maxSessionMtime };
         } catch {
-          return { folder, mtime: null };
+          return { folder, mtime: null, maxSessionMtime: null };
         }
       })
     );
@@ -185,11 +206,11 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const foldersToProcess: string[] = [];
     const cachedProjects: (ProjectCacheEntry & { isCached: boolean })[] = [];
 
-    for (const { folder, mtime } of folderMtimes) {
-      if (mtime === null) continue;
+    for (const { folder, mtime, maxSessionMtime } of folderMtimes) {
+      if (mtime === null || maxSessionMtime === null) continue;
 
       const cached = cachedData?.[folder];
-      if (!cached) {
+      if (!cached || cached.folderMtime !== maxSessionMtime) {
         foldersToProcess.push(folder);
       } else {
         cachedProjects.push({ ...cached, isCached: true });

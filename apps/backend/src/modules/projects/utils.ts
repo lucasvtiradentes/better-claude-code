@@ -2,7 +2,7 @@ import { createReadStream } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
-import { execAsync } from '@better-claude-code/node-utils';
+import { ClaudeHelper, execAsync, parseSessionLine, validateSessionFile } from '@better-claude-code/node-utils';
 import os from 'os';
 import { AppSettings } from '../../common/schemas.js';
 
@@ -28,46 +28,69 @@ export async function readSettings(): Promise<AppSettings | null> {
 
 export async function getRealPathFromSession(
   folderPath: string
-): Promise<{ path: string | null; sessionFiles: string[] }> {
+): Promise<{ path: string | null; sessionFiles: string[]; validSessionFiles: string[] }> {
   try {
     const files = await readdir(folderPath);
     const sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
-    if (sessionFiles.length === 0) return { path: null, sessionFiles: [] };
+    if (sessionFiles.length === 0) return { path: null, sessionFiles: [], validSessionFiles: [] };
 
-    const firstSession = join(folderPath, sessionFiles[0]);
+    const validSessionFiles: string[] = [];
+    const skippedCompaction: string[] = [];
 
-    const fileStream = createReadStream(firstSession, { encoding: 'utf-8' });
-    const rl = createInterface({
-      input: fileStream,
-      crlfDelay: Infinity
-    });
-
-    let lineCount = 0;
-    for await (const line of rl) {
-      if (lineCount >= 5) {
-        rl.close();
-        fileStream.close();
-        break;
-      }
-
-      if (!line.trim()) continue;
+    for (const sessionFile of sessionFiles) {
+      const sessionPath = join(folderPath, sessionFile);
+      const sessionId = sessionFile.replace('.jsonl', '');
 
       try {
-        const parsed = JSON.parse(line);
-        if (parsed.cwd) {
-          rl.close();
-          fileStream.close();
-          return { path: parsed.cwd, sessionFiles };
+        const content = await readFile(sessionPath, 'utf-8');
+        const lines = content.trim().split('\n').filter(Boolean);
+
+        if (ClaudeHelper.isCompactionSession(lines)) {
+          skippedCompaction.push(sessionId);
+          continue;
+        }
+
+        const validation = validateSessionFile(lines);
+        if (validation.isValid) {
+          validSessionFiles.push(sessionId);
         }
       } catch {}
-
-      lineCount++;
     }
 
-    return { path: null, sessionFiles };
+    for (const sessionFile of sessionFiles) {
+      const sessionPath = join(folderPath, sessionFile);
+
+      try {
+        const fileStream = createReadStream(sessionPath, { encoding: 'utf-8' });
+        const rl = createInterface({
+          input: fileStream,
+          crlfDelay: Infinity
+        });
+
+        let lineCount = 0;
+        for await (const line of rl) {
+          if (lineCount >= 50) {
+            rl.close();
+            fileStream.close();
+            break;
+          }
+
+          const parsed = parseSessionLine(line);
+          if (parsed?.cwd) {
+            rl.close();
+            fileStream.close();
+            return { path: parsed.cwd, sessionFiles, validSessionFiles };
+          }
+
+          lineCount++;
+        }
+      } catch {}
+    }
+
+    return { path: null, sessionFiles, validSessionFiles };
   } catch {
-    return { path: null, sessionFiles: [] };
+    return { path: null, sessionFiles: [], validSessionFiles: [] };
   }
 }
 
