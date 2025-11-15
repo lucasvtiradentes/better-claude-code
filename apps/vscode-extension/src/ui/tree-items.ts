@@ -18,8 +18,9 @@ export class SessionTreeItem extends vscode.TreeItem {
     public readonly session: SessionListItem,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState
   ) {
-    super(session.title, collapsibleState);
+    super('', collapsibleState);
 
+    this.label = this.buildLabel();
     this.description = this.buildDescription();
     this.tooltip = this.buildTooltip();
     this.iconPath = this.buildIcon();
@@ -48,11 +49,19 @@ export class SessionTreeItem extends vscode.TreeItem {
     return new vscode.ThemeIcon('file-text');
   }
 
+  private buildLabel(): string {
+    return `${this.session.tokenPercentage || 0}% • ${this.session.title}`;
+  }
+
   private buildDescription(): string {
     const parts: string[] = [];
 
-    if (this.session.tokenPercentage) {
-      parts.push(`${this.session.tokenPercentage}%`);
+    if (this.session.imageCount) {
+      parts.push(`${this.session.imageCount} img`);
+    }
+
+    if (this.session.filesOrFoldersCount) {
+      parts.push(`${this.session.filesOrFoldersCount} files`);
     }
 
     if (this.session.messageCount > 0) {
