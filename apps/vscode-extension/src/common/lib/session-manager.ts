@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import {
-  listSessions,
+  listSessionsCached,
   MessageCountMode,
   parseSessionMessages,
   SessionSortBy,
@@ -18,7 +18,7 @@ export class SessionManager {
     try {
       logger.info(`Loading sessions for project: ${projectPath}`);
 
-      const result = await listSessions({
+      const result = await listSessionsCached({
         projectPath,
         limit: 1000,
         messageCountMode: MessageCountMode.TURN,
@@ -31,7 +31,7 @@ export class SessionManager {
       });
 
       this.sessions = result.items;
-      logger.info(`Loaded ${this.sessions.length} sessions`);
+      logger.info(`Loaded ${this.sessions.length} sessions (cached)`);
     } catch (error) {
       logger.error('Failed to load sessions', error as Error);
       this.sessions = [];

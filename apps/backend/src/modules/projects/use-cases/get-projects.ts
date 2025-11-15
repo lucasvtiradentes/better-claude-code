@@ -1,7 +1,7 @@
 import { access, readdir, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { ClaudeHelper } from '@better-claude-code/node-utils';
+import { ClaudeHelper, JsonFileCache } from '@better-claude-code/node-utils';
 import {
   getSessionCountGroup,
   getTimeGroup,
@@ -12,12 +12,11 @@ import {
 } from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { JsonFileCache } from '../../../common/cache.js';
 import { ErrorSchema } from '../../../common/schemas.js';
 import { extractProjectName, getGitInfo, getRealPathFromSession, readSettings } from '../utils.js';
 
-const CACHE_DIR = join(homedir(), '.config', 'bcc', 'cache');
-const listProjectsCache = new JsonFileCache(join(CACHE_DIR, 'projects'));
+const CACHE_DIR = join(homedir(), '.config', 'bcc', 'cache', 'projects');
+const listProjectsCache = new JsonFileCache(CACHE_DIR);
 
 interface ProjectCacheEntry {
   id: string;
