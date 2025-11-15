@@ -18,9 +18,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const workspacePath = getCurrentWorkspacePath();
 
   if (!workspacePath) {
-    vscode.window.showWarningMessage(
-      'Better Claude Code: No workspace folder is open. Open a folder to view Claude Code sessions.'
-    );
+    logger.info('No workspace folder is open. Open a folder to view Claude Code sessions.');
     return;
   }
 

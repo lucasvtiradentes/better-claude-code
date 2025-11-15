@@ -1,24 +1,6 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
-@import '@better-claude-code/ui-components/styles';
 
 @custom-variant dark (&:is(.dark *));
-
-body {
-  font-family: system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
-}
-
-html {
-  scrollbar-gutter: stable;
-  overflow: hidden;
-}
-
-aside, div {
-  scrollbar-gutter: stable;
-}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -116,12 +98,7 @@ aside, div {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
 }
-
-/* ========================= scrol bar styles =============================== */
 
 ::-webkit-scrollbar {
   width: 6px;
@@ -140,8 +117,6 @@ aside, div {
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary) / 0.8);
 }
-
-/* =========================== rainbow text ================================= */
 
 @keyframes rainbow {
   0% {
@@ -173,7 +148,8 @@ aside, div {
   animation: rainbow 3s linear infinite;
 }
 
-
-.tsqd-open-btn-container {
-  bottom: 45px !important;
+.wrap-break-word {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }

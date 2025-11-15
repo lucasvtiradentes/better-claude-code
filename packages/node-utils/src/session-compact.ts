@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from './claude-helper.js';
 import { generateUuid } from './uuid.js';
@@ -8,11 +8,7 @@ interface MessageBlock {
   content: string;
 }
 
-export async function parseSessionToMarkdown(
-  sessionFile: string,
-  outputFile: string,
-  repoRoot: string
-): Promise<void> {
+export async function parseSessionToMarkdown(sessionFile: string, outputFile: string, repoRoot: string): Promise<void> {
   const content = readFileSync(sessionFile, 'utf-8');
   const lines = content.trim().split('\n');
 

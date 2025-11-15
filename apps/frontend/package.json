@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@better-claude-code/shared": "workspace:*",
+    "@better-claude-code/ui-components": "workspace:*",
     "@codemirror/lang-javascript": "^6.2.4",
     "@codemirror/lang-json": "^6.0.2",
     "@codemirror/lang-markdown": "^6.5.0",
