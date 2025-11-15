@@ -1,0 +1,101 @@
+import * as vscode from 'vscode';
+import type { DateGroup, SessionListItem } from '../types.js';
+
+export class DateGroupTreeItem extends vscode.TreeItem {
+  constructor(
+    public readonly dateGroup: DateGroup,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+  ) {
+    super(dateGroup.label, collapsibleState);
+    this.tooltip = `${dateGroup.sessions.length} sessions`;
+    this.iconPath = new vscode.ThemeIcon('calendar');
+    this.contextValue = 'dateGroup';
+  }
+}
+
+export class SessionTreeItem extends vscode.TreeItem {
+  constructor(
+    public readonly session: SessionListItem,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+  ) {
+    super(session.title, collapsibleState);
+
+    this.description = this.buildDescription();
+    this.tooltip = this.buildTooltip();
+    this.iconPath = new vscode.ThemeIcon('file-text');
+    this.contextValue = 'sessionItem';
+
+    this.command = {
+      command: 'bcc.viewSessionDetails',
+      title: 'View Session Details',
+      arguments: [session]
+    };
+  }
+
+  private buildDescription(): string {
+    const parts: string[] = [];
+
+    if (this.session.tokenPercentage) {
+      parts.push(`${this.session.tokenPercentage}%`);
+    }
+
+    if (this.session.messageCount > 0) {
+      parts.push(`${this.session.messageCount} msgs`);
+    }
+
+    return parts.join(' • ');
+  }
+
+  private buildTooltip(): string {
+    const lines: string[] = [];
+
+    lines.push(this.session.title);
+    lines.push('');
+
+    if (this.session.shortId) {
+      lines.push(`ID: ${this.session.shortId}`);
+    }
+
+    lines.push(`Messages: ${this.session.messageCount}`);
+
+    if (this.session.userMessageCount !== undefined) {
+      lines.push(`  User: ${this.session.userMessageCount}`);
+    }
+
+    if (this.session.assistantMessageCount !== undefined) {
+      lines.push(`  Assistant: ${this.session.assistantMessageCount}`);
+    }
+
+    if (this.session.tokenPercentage) {
+      lines.push(`Tokens: ${this.session.tokenPercentage}%`);
+    }
+
+    if (this.session.imageCount) {
+      lines.push(`Images: ${this.session.imageCount}`);
+    }
+
+    if (this.session.customCommandCount) {
+      lines.push(`Custom Commands: ${this.session.customCommandCount}`);
+    }
+
+    if (this.session.filesOrFoldersCount) {
+      lines.push(`Files/Folders Referenced: ${this.session.filesOrFoldersCount}`);
+    }
+
+    if (this.session.urlCount) {
+      lines.push(`URLs: ${this.session.urlCount}`);
+    }
+
+    const createdDate = new Date(this.session.createdAt);
+    lines.push('');
+    lines.push(`Created: ${createdDate.toLocaleString()}`);
+
+    if (this.session.summary) {
+      lines.push('');
+      lines.push('Summary:');
+      lines.push(this.session.summary);
+    }
+
+    return lines.join('\n');
+  }
+}
