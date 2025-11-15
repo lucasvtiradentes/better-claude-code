@@ -52,6 +52,46 @@ export class WebviewProvider {
                   conversation
                 }
               });
+            } else if (message.type === 'openImage') {
+              const imageData = message.imageData as string;
+              const imageIndex = message.imageIndex as number;
+
+              const panel = vscode.window.createWebviewPanel(
+                'imagePreview',
+                `Image #${imageIndex}`,
+                vscode.ViewColumn.Beside,
+                {
+                  enableScripts: false,
+                  retainContextWhenHidden: false
+                }
+              );
+
+              panel.webview.html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #1e1e1e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+  <img src="data:image/png;base64,${imageData}" alt="Image #${imageIndex}" />
+</body>
+</html>`;
             }
           },
           undefined,

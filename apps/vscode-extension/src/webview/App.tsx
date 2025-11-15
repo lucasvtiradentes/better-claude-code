@@ -116,7 +116,6 @@ const FilterButtons = ({
 
 export const App = () => {
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [showUserMessages, setShowUserMessages] = useState(true);
   const [showAssistantMessages, setShowAssistantMessages] = useState(true);
   const [showToolCalls, setShowToolCalls] = useState(true);
@@ -136,6 +135,15 @@ export const App = () => {
   useEffect(() => {
     vscode.postMessage({ type: 'ready' });
   }, []);
+
+  const handleImageClick = (imageIndex: number) => {
+    if (!sessionData?.conversation.images[imageIndex]) return;
+    vscode.postMessage({
+      type: 'openImage',
+      imageData: sessionData.conversation.images[imageIndex].data,
+      imageIndex: sessionData.conversation.images[imageIndex].index
+    });
+  };
 
   const filteredMessages = useMemo(() => {
     if (!sessionData) return [];
@@ -244,7 +252,7 @@ export const App = () => {
                   key={firstMessage.id}
                   messages={messages}
                   imageOffset={0}
-                  onImageClick={(imageIndex) => setSelectedImageIndex(imageIndex)}
+                  onImageClick={handleImageClick}
                   images={conversation.images}
                   availableImages={conversation.images.map((img) => img.index)}
                 />
@@ -253,22 +261,6 @@ export const App = () => {
           </div>
         </div>
       </div>
-
-      {selectedImageIndex !== null && conversation.images[selectedImageIndex] && (
-        <button
-          type="button"
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-          onClick={() => setSelectedImageIndex(null)}
-        >
-          <div className="max-w-4xl max-h-[90vh] overflow-auto">
-            <img
-              src={`data:image/png;base64,${conversation.images[selectedImageIndex].data}`}
-              alt={`#${conversation.images[selectedImageIndex].index}`}
-              className="w-full h-auto"
-            />
-          </div>
-        </button>
-      )}
     </div>
   );
 };
