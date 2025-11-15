@@ -4,6 +4,7 @@ import {
   listSessionsCached,
   MessageCountMode,
   parseSessionMessages,
+  readSettings,
   SessionSortBy,
   TitleSource
 } from '@better-claude-code/node-utils';
@@ -19,6 +20,8 @@ export class SessionManager {
     try {
       logger.info(`Loading sessions for project: ${projectPath}`);
 
+      const settings = readSettings();
+
       const result = await listSessionsCached({
         projectPath,
         limit: 1000,
@@ -28,11 +31,14 @@ export class SessionManager {
         includeCustomCommands: true,
         includeFilesOrFolders: true,
         includeUrls: true,
-        sortBy: SessionSortBy.DATE
+        includeLabels: true,
+        sortBy: SessionSortBy.DATE,
+        settings,
+        skipCache: true
       });
 
       this.sessions = result.items;
-      logger.info(`Loaded ${this.sessions.length} sessions (cached)`);
+      logger.info(`Loaded ${this.sessions.length} sessions (fresh - labels enabled)`);
     } catch (error) {
       logger.error('Failed to load sessions', error as Error);
       this.sessions = [];
@@ -49,6 +55,16 @@ export class SessionManager {
 
   getGroupBy(): 'date' | 'token-percentage' | 'label' {
     return this.groupByMode;
+  }
+
+  updateSessionLabels(sessionId: string, labels: string[]): void {
+    const session = this.sessions.find((s) => s.id === sessionId);
+    if (session) {
+      logger.info(`Updating session ${sessionId} labels to: ${labels.join(', ')}`);
+      session.labels = labels;
+    } else {
+      logger.warn(`Session ${sessionId} not found in loaded sessions`);
+    }
   }
 
   getFilteredSessions(): SessionListItem[] {
@@ -96,19 +112,37 @@ export class SessionManager {
   }
 
   groupByDate(sessions: SessionListItem[]): DateGroup[] {
-    const groups = groupSessions({
-      sessions,
-      groupBy: this.groupByMode,
-      getCreatedAt: (session) => new Date(session.createdAt),
-      getModifiedAt: (session) => new Date(session.createdAt),
-      getTokenPercentage: (session) => session.tokenPercentage,
-      getLabels: (session) => session.labels
-    });
+    logger.info(`Grouping ${sessions.length} sessions by: ${this.groupByMode}`);
 
-    return groups.map((group) => ({
-      label: `${group.label} (${group.totalItems})`,
-      sessions: group.items
-    }));
+    try {
+      const settings = this.groupByMode === 'label' ? readSettings() : undefined;
+
+      if (this.groupByMode === 'label') {
+        logger.info(
+          `Label grouping - Found ${settings?.sessions.labels.length || 0} labels: ${settings?.sessions.labels.map((l) => l.name).join(', ')}`
+        );
+      }
+
+      const groups = groupSessions({
+        sessions,
+        groupBy: this.groupByMode,
+        settings,
+        getCreatedAt: (session) => new Date(session.createdAt),
+        getModifiedAt: (session) => new Date(session.createdAt),
+        getTokenPercentage: (session) => session.tokenPercentage,
+        getLabels: (session) => session.labels
+      });
+
+      logger.info(`Grouping complete - Created ${groups.length} groups`);
+
+      return groups.map((group) => ({
+        label: `${group.label} (${group.totalItems})`,
+        sessions: group.items
+      }));
+    } catch (error) {
+      logger.error(`Failed to group sessions by ${this.groupByMode}`, error as Error);
+      throw error;
+    }
   }
 
   getStats(sessions: SessionListItem[]): SessionStats {

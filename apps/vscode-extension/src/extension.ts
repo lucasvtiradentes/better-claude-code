@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { registerAddLabelCommand } from './commands/add-label.js';
 import { registerCompactCommand } from './commands/compact.js';
 import { registerFileOperationsCommands } from './commands/file-operations.js';
 import { registerFilterCommand } from './commands/filter.js';
@@ -38,6 +39,7 @@ export async function activate(context: vscode.ExtensionContext) {
   registerViewDetailsCommand(context, sessionProvider);
   registerFilterCommand(context, sessionProvider);
   registerFileOperationsCommands(context);
+  registerAddLabelCommand(context, sessionProvider);
 
   context.subscriptions.push(createShowLogsCommand());
   context.subscriptions.push(treeView);

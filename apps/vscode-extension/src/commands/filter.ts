@@ -17,21 +17,27 @@ export function registerFilterCommand(context: vscode.ExtensionContext, sessionP
       });
 
       if (!selection) {
+        logger.info('Filter: User cancelled selection');
         return;
       }
 
+      logger.info(`Filter: Selected ${selection.value}`);
+
       switch (selection.value) {
         case 'group-date':
+          logger.info('Filter: Setting groupBy to date');
           sessionProvider.setGroupBy('date');
           vscode.window.showInformationMessage('Grouped by: Date');
           break;
 
         case 'group-tokens':
+          logger.info('Filter: Setting groupBy to token-percentage');
           sessionProvider.setGroupBy('token-percentage');
           vscode.window.showInformationMessage('Grouped by: Token Usage');
           break;
 
         case 'group-label':
+          logger.info('Filter: Setting groupBy to label');
           sessionProvider.setGroupBy('label');
           vscode.window.showInformationMessage('Grouped by: Label');
           break;

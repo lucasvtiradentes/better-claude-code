@@ -25,6 +25,10 @@ class Logger {
     this.log('DEBUG', message);
   }
 
+  warn(message: string): void {
+    this.log('WARN', message);
+  }
+
   private log(level: string, message: string): void {
     const now = new Date();
     const utcMinus3 = new Date(now.getTime() - 3 * 60 * 60 * 1000);

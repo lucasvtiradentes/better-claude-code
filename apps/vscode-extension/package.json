@@ -94,6 +94,12 @@
 				"title": "Show Logs",
 				"category": "BCC",
 				"icon": "$(output)"
+			},
+			{
+				"command": "bcc.addLabel",
+				"title": "Add Label",
+				"category": "BCC",
+				"icon": "$(tag)"
 			}
 		],
 		"menus": {
@@ -114,6 +120,11 @@
 					"command": "bcc.compactSession",
 					"when": "view == bccSessionExplorer && viewItem == sessionItem",
 					"group": "inline@1"
+				},
+				{
+					"command": "bcc.addLabel",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "inline@2"
 				},
 				{
 					"command": "bcc.openSessionFile",

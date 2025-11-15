@@ -49,6 +49,11 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     return this.sessionManager.getGroupBy();
   }
 
+  updateSessionLabels(sessionId: string, labels: string[]): void {
+    this.sessionManager.updateSessionLabels(sessionId, labels);
+    this._onDidChangeTreeData.fire();
+  }
+
   getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
     return element;
   }

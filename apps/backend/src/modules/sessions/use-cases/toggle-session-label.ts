@@ -1,9 +1,9 @@
 import { accessSync } from 'node:fs';
-import { ClaudeHelper } from '@better-claude-code/node-utils';
+import { ClaudeHelper, toggleSessionLabel } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
-import { readSettings, writeSettings } from '../../settings/utils.js';
+import { readSettings } from '../../settings/utils.js';
 
 const paramsSchema = z.object({
   projectName: z.string(),
@@ -95,30 +95,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       return c.json({ error: 'Label not found' } satisfies z.infer<typeof ErrorSchema>, 404);
     }
 
-    if (!label.sessions) {
-      label.sessions = {};
-    }
-
-    if (!label.sessions[projectName]) {
-      label.sessions[projectName] = [];
-    }
-
-    const hadLabel = label.sessions[projectName].includes(sessionId);
-
-    if (hadLabel) {
-      label.sessions[projectName] = label.sessions[projectName].filter((id) => id !== sessionId);
-      if (label.sessions[projectName].length === 0) {
-        delete label.sessions[projectName];
-      }
-    } else {
-      label.sessions[projectName].push(sessionId);
-    }
-
-    await writeSettings(settings);
-
-    const currentLabels = settings.sessions.labels
-      .filter((l) => l.sessions?.[projectName]?.includes(sessionId))
-      .map((l) => l.id);
+    const currentLabels = toggleSessionLabel(projectName, sessionId, labelId);
 
     return c.json({ success: true, labels: currentLabels } satisfies z.infer<typeof responseSchema>, 200);
   } catch (error) {
