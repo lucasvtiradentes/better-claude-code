@@ -5,8 +5,6 @@ import { logger } from '../utils/logger.js';
 import type { SessionProvider } from './session-provider.js';
 
 export class WebviewProvider {
-  private static currentPanel: vscode.WebviewPanel | undefined;
-
   static async showSessionConversation(
     context: vscode.ExtensionContext,
     session: SessionListItem,
@@ -15,58 +13,50 @@ export class WebviewProvider {
     try {
       const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
 
-      if (WebviewProvider.currentPanel) {
-        WebviewProvider.currentPanel.reveal(column);
-        WebviewProvider.currentPanel.title = `Session: ${session.shortId}`;
-      } else {
-        WebviewProvider.currentPanel = vscode.window.createWebviewPanel(
-          'bccSessionConversation',
-          `Session: ${session.shortId}`,
-          column || vscode.ViewColumn.One,
-          {
-            enableScripts: true,
-            retainContextWhenHidden: true,
-            localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'out', 'webview'))]
-          }
-        );
+      const panel = vscode.window.createWebviewPanel(
+        'bccSessionConversation',
+        `Session: ${session.shortId}`,
+        column || vscode.ViewColumn.One,
+        {
+          enableScripts: true,
+          retainContextWhenHidden: true,
+          localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'out', 'webview'))]
+        }
+      );
 
-        WebviewProvider.currentPanel.onDidDispose(() => {
-          WebviewProvider.currentPanel = undefined;
-        });
+      panel.webview.onDidReceiveMessage(
+        async (message) => {
+          if (message.type === 'ready') {
+            const conversation = await sessionProvider.getSessionConversation(session);
+            panel.webview.postMessage({
+              type: 'sessionData',
+              data: {
+                session: {
+                  id: session.id,
+                  title: session.title,
+                  shortId: session.shortId,
+                  createdAt: session.createdAt,
+                  messageCount: session.messageCount,
+                  tokenPercentage: session.tokenPercentage
+                },
+                conversation
+              }
+            });
+          } else if (message.type === 'openImage') {
+            const imageData = message.imageData as string;
+            const imageIndex = message.imageIndex as number;
 
-        WebviewProvider.currentPanel.webview.onDidReceiveMessage(
-          async (message) => {
-            if (message.type === 'ready') {
-              const conversation = await sessionProvider.getSessionConversation(session);
-              WebviewProvider.currentPanel?.webview.postMessage({
-                type: 'sessionData',
-                data: {
-                  session: {
-                    id: session.id,
-                    title: session.title,
-                    shortId: session.shortId,
-                    createdAt: session.createdAt,
-                    messageCount: session.messageCount,
-                    tokenPercentage: session.tokenPercentage
-                  },
-                  conversation
-                }
-              });
-            } else if (message.type === 'openImage') {
-              const imageData = message.imageData as string;
-              const imageIndex = message.imageIndex as number;
+            const imagePanel = vscode.window.createWebviewPanel(
+              'imagePreview',
+              `Image #${imageIndex}`,
+              vscode.ViewColumn.Beside,
+              {
+                enableScripts: false,
+                retainContextWhenHidden: false
+              }
+            );
 
-              const panel = vscode.window.createWebviewPanel(
-                'imagePreview',
-                `Image #${imageIndex}`,
-                vscode.ViewColumn.Beside,
-                {
-                  enableScripts: false,
-                  retainContextWhenHidden: false
-                }
-              );
-
-              panel.webview.html = `<!DOCTYPE html>
+            imagePanel.webview.html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -92,17 +82,13 @@ export class WebviewProvider {
   <img src="data:image/png;base64,${imageData}" alt="Image #${imageIndex}" />
 </body>
 </html>`;
-            }
-          },
-          undefined,
-          context.subscriptions
-        );
-      }
-
-      WebviewProvider.currentPanel.webview.html = WebviewProvider.getHtmlContent(
-        context,
-        WebviewProvider.currentPanel.webview
+          }
+        },
+        undefined,
+        context.subscriptions
       );
+
+      panel.webview.html = WebviewProvider.getHtmlContent(context, panel.webview);
     } catch (error) {
       logger.error('Failed to show session conversation', error as Error);
       vscode.window.showErrorMessage('Failed to display session conversation');
