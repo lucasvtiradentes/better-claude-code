@@ -1,4 +1,9 @@
-import { type SessionImage, SessionMessage, type SessionMessageType } from '@better-claude-code/ui-components';
+import {
+  SessionBadges,
+  type SessionImage,
+  SessionMessage,
+  type SessionMessageType
+} from '@better-claude-code/ui-components';
 import { useEffect, useMemo, useState } from 'react';
 
 declare const acquireVsCodeApi: () => {
@@ -145,6 +150,24 @@ export const App = () => {
     });
   };
 
+  const filesOrFoldersCount = useMemo(() => {
+    if (!sessionData) return 0;
+
+    const fileOrFolderRegex = /@[\w\-./]+/g;
+    let count = 0;
+
+    for (const message of sessionData.conversation.messages) {
+      if (typeof message.content === 'string' && message.type === 'user') {
+        const matches = message.content.match(fileOrFolderRegex);
+        if (matches) {
+          count += matches.length;
+        }
+      }
+    }
+
+    return count;
+  }, [sessionData]);
+
   const filteredMessages = useMemo(() => {
     if (!sessionData) return [];
 
@@ -196,7 +219,15 @@ export const App = () => {
   }
 
   const { session, conversation } = sessionData;
-  const createdDate = new Date(session.createdAt).toLocaleString();
+
+  const sessionForBadges = {
+    ...session,
+    modifiedAt: session.createdAt,
+    imageCount: conversation.images.length,
+    customCommandCount: 0,
+    filesOrFoldersCount,
+    urlCount: 0
+  };
 
   const groupedMessages: SessionMessageType[][] = [];
   let currentGroup: SessionMessageType[] = [];
@@ -220,26 +251,20 @@ export const App = () => {
       className="dark bg-background text-foreground"
       style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}
     >
-      <div className="bg-background border-b border-border" style={{ flexShrink: 0 }}>
-        <div className="max-w-4xl mx-auto p-5 pb-4">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-xl font-bold">{session.title}</h1>
-            <FilterButtons
-              showUserMessages={showUserMessages}
-              showAssistantMessages={showAssistantMessages}
-              showToolCalls={showToolCalls}
-              onToggleUser={() => setShowUserMessages(!showUserMessages)}
-              onToggleAssistant={() => setShowAssistantMessages(!showAssistantMessages)}
-              onToggleToolCalls={() => setShowToolCalls(!showToolCalls)}
-            />
-          </div>
-          <div className="text-sm text-muted-foreground flex gap-4">
-            <span>ID: {session.shortId}</span>
-            <span>{createdDate}</span>
-            <span>{session.messageCount} messages</span>
-            {session.tokenPercentage && <span>{session.tokenPercentage}% tokens</span>}
+      <div className="px-5 py-4 border-b border-border flex items-center justify-between" style={{ flexShrink: 0 }}>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <SessionBadges session={sessionForBadges} />
           </div>
         </div>
+        <FilterButtons
+          showUserMessages={showUserMessages}
+          showAssistantMessages={showAssistantMessages}
+          showToolCalls={showToolCalls}
+          onToggleUser={() => setShowUserMessages(!showUserMessages)}
+          onToggleAssistant={() => setShowAssistantMessages(!showAssistantMessages)}
+          onToggleToolCalls={() => setShowToolCalls(!showToolCalls)}
+        />
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
