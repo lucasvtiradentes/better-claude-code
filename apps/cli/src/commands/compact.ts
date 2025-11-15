@@ -1,16 +1,21 @@
+import { compactSession, parseSessionToMarkdown } from '@better-claude-code/node-utils';
+import { PromptFile } from '@better-claude-code/shared';
 import { Command } from 'commander';
-import { join } from 'path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 
 import { getCommand } from '../definitions/commands.js';
 import { CommandNames } from '../definitions/types.js';
 import { validateOS } from '../utils/compact/os-checker.js';
-import { compactSession } from '../utils/compact/session-compactor.js';
 import { findSessionById, findSessions } from '../utils/compact/session-finder.js';
-import { parseSessionToMarkdown } from '../utils/compact/session-parser.js';
 import { displaySessions, selectSession } from '../utils/compact/session-selector.js';
 import { handleCommandError } from '../utils/error-handler.js';
 import { getGitRepoRoot } from '../utils/git.js';
 import { Logger } from '../utils/logger.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 interface CompactOptions {
   all?: boolean;
@@ -163,14 +168,18 @@ async function performCompaction(sessionId: string, sessionFile: string, repoRoo
 
   Logger.loading('Step 1/2: Parsing session to markdown...');
   const parseStart = Date.now();
-  await parseSessionToMarkdown(sessionFile, parsedFile);
+  await parseSessionToMarkdown(sessionFile, parsedFile, repoRoot);
   const parseDuration = Date.now() - parseStart;
   Logger.success(`Parsed to: ${parsedFile} (${formatDuration(parseDuration)})`);
 
   Logger.info('');
   Logger.loading('Step 2/2: Compacting via Claude Code...');
   const compactStart = Date.now();
-  await compactSession(parsedFile, summaryFile);
+
+  const promptTemplatePath = join(__dirname, '../prompts', PromptFile.SESSION_COMPACTION);
+  const promptTemplate = readFileSync(promptTemplatePath, 'utf-8');
+
+  await compactSession(parsedFile, summaryFile, promptTemplate, repoRoot);
   const compactDuration = Date.now() - compactStart;
   Logger.success(`Summary saved to: ${summaryFile} (${formatDuration(compactDuration)})`);
 

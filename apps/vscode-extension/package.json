@@ -59,12 +59,6 @@
 				"icon": "$(archive)"
 			},
 			{
-				"command": "bcc.viewSessionDetails",
-				"title": "View Session Details",
-				"category": "BCC",
-				"icon": "$(eye)"
-			},
-			{
 				"command": "bcc.filterSessions",
 				"title": "Filter Sessions",
 				"category": "BCC",
@@ -79,6 +73,12 @@
 				"command": "bcc.copySessionPath",
 				"title": "Copy Session Path",
 				"category": "BCC"
+			},
+			{
+				"command": "bcc.showLogs",
+				"title": "Show Logs",
+				"category": "BCC",
+				"icon": "$(output)"
 			}
 		],
 		"menus": {
@@ -96,24 +96,19 @@
 			],
 			"view/item/context": [
 				{
-					"command": "bcc.viewSessionDetails",
+					"command": "bcc.compactSession",
 					"when": "view == bccSessionExplorer && viewItem == sessionItem",
 					"group": "inline@1"
 				},
 				{
-					"command": "bcc.compactSession",
-					"when": "view == bccSessionExplorer && viewItem == sessionItem",
-					"group": "1_actions@1"
-				},
-				{
 					"command": "bcc.openSessionFile",
 					"when": "view == bccSessionExplorer && viewItem == sessionItem",
-					"group": "2_navigation@1"
+					"group": "1_navigation@1"
 				},
 				{
 					"command": "bcc.copySessionPath",
 					"when": "view == bccSessionExplorer && viewItem == sessionItem",
-					"group": "2_navigation@2"
+					"group": "1_navigation@2"
 				}
 			]
 		},

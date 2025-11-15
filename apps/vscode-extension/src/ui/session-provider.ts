@@ -74,4 +74,8 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     const filteredSessions = this.sessionManager.getFilteredSessions();
     return filteredSessions.find((s) => s.id === sessionId);
   }
+
+  async getSessionConversation(session: SessionListItem) {
+    return this.sessionManager.getSessionConversation(session);
+  }
 }

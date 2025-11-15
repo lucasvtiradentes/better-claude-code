@@ -1,17 +1,12 @@
 import type { SessionListItem } from '@better-claude-code/node-utils';
+import type { TimeGroup } from '@better-claude-code/shared';
 
 export type { SessionListItem };
+export type { TimeGroup };
 
 export interface DateGroup {
   label: string;
   sessions: SessionListItem[];
-}
-
-export enum DateGroupType {
-  TODAY = 'today',
-  YESTERDAY = 'yesterday',
-  THIS_WEEK = 'this_week',
-  OLDER = 'older'
 }
 
 export interface FilterCriteria {

@@ -37,7 +37,7 @@ export function registerCompactCommand(
       await sessionProvider.refresh();
     } catch (error) {
       logger.error('Failed to compact session', error as Error);
-      vscode.window.showErrorMessage('Failed to compact session. Make sure Claude Code CLI is installed.');
+      vscode.window.showErrorMessage('Failed to compact session. Make sure BCC CLI is installed.');
     }
   });
 

@@ -1,4 +1,9 @@
+import { appendFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import * as vscode from 'vscode';
+
+export const LOG_FILE_PATH = join(tmpdir(), 'bcc_logs.txt');
 
 class Logger {
   private outputChannel: vscode.OutputChannel;
@@ -21,8 +26,18 @@ class Logger {
   }
 
   private log(level: string, message: string): void {
-    const timestamp = new Date().toISOString();
-    this.outputChannel.appendLine(`[${timestamp}] [${level}] ${message}`);
+    const now = new Date();
+    const utcMinus3 = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+    const timestamp = utcMinus3.toISOString().replace('Z', '-03:00');
+    const logMessage = `[${timestamp}] [${level}] ${message}`;
+
+    this.outputChannel.appendLine(logMessage);
+
+    try {
+      appendFileSync(LOG_FILE_PATH, `${logMessage}\n`);
+    } catch (error) {
+      console.error('Failed to write log:', error);
+    }
   }
 
   show(): void {

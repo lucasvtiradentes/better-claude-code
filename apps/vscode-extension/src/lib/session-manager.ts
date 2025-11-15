@@ -1,6 +1,13 @@
-import { listSessions, MessageCountMode, SessionSortBy, TitleSource } from '@better-claude-code/node-utils';
+import { readFile } from 'node:fs/promises';
+import {
+  listSessions,
+  MessageCountMode,
+  parseSessionMessages,
+  SessionSortBy,
+  TitleSource
+} from '@better-claude-code/node-utils';
+import { getTimeGroup, TIME_GROUP_LABELS, TIME_GROUP_ORDER, TimeGroup } from '@better-claude-code/shared';
 import type { DateGroup, FilterCriteria, SessionListItem, SessionStats } from '../types.js';
-import { DateGroupType } from '../types.js';
 import { logger } from '../utils/logger.js';
 
 export class SessionManager {
@@ -80,57 +87,24 @@ export class SessionManager {
   }
 
   groupByDate(sessions: SessionListItem[]): DateGroup[] {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const yesterdayStart = new Date(todayStart);
-    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-    const thisWeekStart = new Date(todayStart);
-    thisWeekStart.setDate(thisWeekStart.getDate() - 7);
-
-    const groups: Map<DateGroupType, SessionListItem[]> = new Map([
-      [DateGroupType.TODAY, []],
-      [DateGroupType.YESTERDAY, []],
-      [DateGroupType.THIS_WEEK, []],
-      [DateGroupType.OLDER, []]
-    ]);
+    const grouped: Map<TimeGroup, SessionListItem[]> = new Map(TIME_GROUP_ORDER.map((group) => [group, []]));
 
     for (const session of sessions) {
-      const createdAt = new Date(session.createdAt);
-
-      if (createdAt >= todayStart) {
-        groups.get(DateGroupType.TODAY)!.push(session);
-      } else if (createdAt >= yesterdayStart) {
-        groups.get(DateGroupType.YESTERDAY)!.push(session);
-      } else if (createdAt >= thisWeekStart) {
-        groups.get(DateGroupType.THIS_WEEK)!.push(session);
-      } else {
-        groups.get(DateGroupType.OLDER)!.push(session);
+      const timestamp = new Date(session.createdAt).getTime();
+      const group = getTimeGroup(timestamp);
+      const groupArray = grouped.get(group);
+      if (groupArray) {
+        groupArray.push(session);
       }
     }
 
-    const result: DateGroup[] = [];
-
-    const todaySessions = groups.get(DateGroupType.TODAY)!;
-    if (todaySessions.length > 0) {
-      result.push({ label: `Today (${todaySessions.length})`, sessions: todaySessions });
-    }
-
-    const yesterdaySessions = groups.get(DateGroupType.YESTERDAY)!;
-    if (yesterdaySessions.length > 0) {
-      result.push({ label: `Yesterday (${yesterdaySessions.length})`, sessions: yesterdaySessions });
-    }
-
-    const thisWeekSessions = groups.get(DateGroupType.THIS_WEEK)!;
-    if (thisWeekSessions.length > 0) {
-      result.push({ label: `This Week (${thisWeekSessions.length})`, sessions: thisWeekSessions });
-    }
-
-    const olderSessions = groups.get(DateGroupType.OLDER)!;
-    if (olderSessions.length > 0) {
-      result.push({ label: `Older (${olderSessions.length})`, sessions: olderSessions });
-    }
-
-    return result;
+    return TIME_GROUP_ORDER.map((group) => {
+      const groupSessions = grouped.get(group) || [];
+      return {
+        label: `${TIME_GROUP_LABELS[group]} (${groupSessions.length})`,
+        sessions: groupSessions
+      };
+    }).filter((group) => group.sessions.length > 0);
   }
 
   getStats(sessions: SessionListItem[]): SessionStats {
@@ -153,5 +127,33 @@ export class SessionManager {
       totalTokens,
       todayCount
     };
+  }
+
+  async getSessionConversation(session: SessionListItem) {
+    if (!session.filePath) {
+      throw new Error('Session file path not available');
+    }
+
+    try {
+      const content = await readFile(session.filePath, 'utf-8');
+      const lines = content.split('\n').filter((l) => l.trim());
+      const events = lines
+        .map((line) => {
+          try {
+            return JSON.parse(line);
+          } catch {
+            return null;
+          }
+        })
+        .filter((e) => e !== null);
+
+      return parseSessionMessages(events, {
+        groupMessages: true,
+        includeImages: true
+      });
+    } catch (error) {
+      logger.error('Failed to parse session conversation', error as Error);
+      throw error;
+    }
   }
 }

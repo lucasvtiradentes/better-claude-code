@@ -22,7 +22,7 @@ export class SessionTreeItem extends vscode.TreeItem {
 
     this.description = this.buildDescription();
     this.tooltip = this.buildTooltip();
-    this.iconPath = new vscode.ThemeIcon('file-text');
+    this.iconPath = this.buildIcon();
     this.contextValue = 'sessionItem';
 
     this.command = {
@@ -30,6 +30,22 @@ export class SessionTreeItem extends vscode.TreeItem {
       title: 'View Session Details',
       arguments: [session]
     };
+  }
+
+  private buildIcon(): vscode.ThemeIcon {
+    const tokenPercentage = this.session.tokenPercentage || 0;
+
+    if (tokenPercentage >= 90) {
+      return new vscode.ThemeIcon('file-text', new vscode.ThemeColor('errorForeground'));
+    }
+    if (tokenPercentage >= 75) {
+      return new vscode.ThemeIcon('file-text', new vscode.ThemeColor('editorWarning.foreground'));
+    }
+    if (tokenPercentage >= 50) {
+      return new vscode.ThemeIcon('file-text', new vscode.ThemeColor('editorInfo.foreground'));
+    }
+
+    return new vscode.ThemeIcon('file-text');
   }
 
   private buildDescription(): string {

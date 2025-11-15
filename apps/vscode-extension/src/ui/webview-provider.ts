@@ -1,208 +1,245 @@
 import * as vscode from 'vscode';
 import type { SessionListItem } from '../types.js';
+import type { SessionProvider } from './session-provider.js';
 import { logger } from '../utils/logger.js';
 
 export class WebviewProvider {
   private static currentPanel: vscode.WebviewPanel | undefined;
 
-  static showSessionDetails(context: vscode.ExtensionContext, session: SessionListItem): void {
+  static async showSessionConversation(
+    context: vscode.ExtensionContext,
+    session: SessionListItem,
+    sessionProvider: SessionProvider
+  ): Promise<void> {
     try {
       const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
 
       if (WebviewProvider.currentPanel) {
         WebviewProvider.currentPanel.reveal(column);
-        WebviewProvider.currentPanel.webview.html = WebviewProvider.getHtmlContent(session);
       } else {
         WebviewProvider.currentPanel = vscode.window.createWebviewPanel(
-          'bccSessionDetails',
+          'bccSessionConversation',
           `Session: ${session.shortId}`,
           column || vscode.ViewColumn.One,
           {
-            enableScripts: true
+            enableScripts: true,
+            retainContextWhenHidden: true
           }
         );
-
-        WebviewProvider.currentPanel.webview.html = WebviewProvider.getHtmlContent(session);
 
         WebviewProvider.currentPanel.onDidDispose(() => {
           WebviewProvider.currentPanel = undefined;
         });
       }
+
+      WebviewProvider.currentPanel.webview.html = '<html><body><h3>Loading conversation...</h3></body></html>';
+
+      const conversation = await sessionProvider.getSessionConversation(session);
+
+      WebviewProvider.currentPanel.webview.html = WebviewProvider.getHtmlContent(session, conversation);
     } catch (error) {
-      logger.error('Failed to show session details', error as Error);
-      vscode.window.showErrorMessage('Failed to display session details');
+      logger.error('Failed to show session conversation', error as Error);
+      vscode.window.showErrorMessage('Failed to display session conversation');
     }
   }
 
-  private static getHtmlContent(session: SessionListItem): string {
+  private static getHtmlContent(session: SessionListItem, conversation: any): string {
     const createdDate = new Date(session.createdAt).toLocaleString();
+
+    const messagesHtml = conversation.messages
+      .map((msg: any, idx: number) => {
+        const isUser = msg.type.includes('user');
+        const role = isUser ? 'User' : 'Assistant';
+        const cssClass = isUser ? 'user-message' : 'assistant-message';
+
+        const images = conversation.images
+          .filter((img: any) => img.messageId === msg.id)
+          .map(
+            (img: any) =>
+              `<div class="image-container">
+								<img src="data:image/png;base64,${img.data}" alt="Image ${img.index}" />
+								<span class="image-label">Image ${img.index}</span>
+							</div>`
+          )
+          .join('');
+
+        const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+        let formattedContent = msg.content;
+
+        formattedContent = formattedContent.replace(codeBlockRegex, (_: any, lang: string, code: string) => {
+          const language = lang || 'text';
+          const escapedCode = code
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+          return `<div class="code-block">
+						<div class="code-header">${language}</div>
+						<pre><code class="language-${language}">${escapedCode}</code></pre>
+					</div>`;
+        });
+
+        formattedContent = formattedContent
+          .split('\n')
+          .map((line: string) => {
+            if (line.trim().startsWith('- ')) {
+              return `<li>${line.substring(2)}</li>`;
+            }
+            if (line.trim().startsWith('* ')) {
+              return `<li>${line.substring(2)}</li>`;
+            }
+            if (line.trim() === '') {
+              return '<br>';
+            }
+            return `<p>${line}</p>`;
+          })
+          .join('');
+
+        return `<div class="message ${cssClass}">
+					<div class="message-header">${role}</div>
+					<div class="message-content">
+						${images}
+						${formattedContent}
+					</div>
+				</div>`;
+      })
+      .join('');
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Session Details</title>
+    <title>Session Conversation</title>
     <style>
         body {
             font-family: var(--vscode-font-family);
             padding: 20px;
             color: var(--vscode-foreground);
             background-color: var(--vscode-editor-background);
+            line-height: 1.6;
         }
-        h1 {
-            color: var(--vscode-foreground);
-            margin-top: 0;
+
+        .session-header {
+            border-bottom: 2px solid var(--vscode-panel-border);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
         }
-        .section {
-            margin-bottom: 20px;
-        }
-        .label {
+
+        .session-title {
+            font-size: 20px;
             font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .session-meta {
+            font-size: 12px;
             color: var(--vscode-descriptionForeground);
         }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+
+        .message {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
         }
-        .stat-card {
-            padding: 15px;
-            background-color: var(--vscode-editor-inactiveSelectionBackground);
-            border-radius: 4px;
-        }
-        .stat-value {
-            font-size: 24px;
+
+        .message-header {
+            padding: 8px 12px;
             font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-message .message-header {
+            background-color: rgba(0, 122, 204, 0.15);
             color: var(--vscode-textLink-foreground);
         }
-        .stat-label {
-            color: var(--vscode-descriptionForeground);
-            font-size: 12px;
+
+        .assistant-message .message-header {
+            background-color: rgba(106, 153, 85, 0.15);
+            color: #6a9955;
         }
-        .summary {
+
+        .message-content {
             padding: 15px;
-            background-color: var(--vscode-textBlockQuote-background);
-            border-left: 4px solid var(--vscode-textLink-foreground);
-            margin: 10px 0;
-            white-space: pre-wrap;
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
         }
-        .file-path {
-            font-family: var(--vscode-editor-font-family);
-            font-size: 12px;
+
+        .message-content p {
+            margin: 0 0 8px 0;
+        }
+
+        .message-content br {
+            display: block;
+            margin: 4px 0;
+        }
+
+        .message-content li {
+            margin-left: 20px;
+        }
+
+        .image-container {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 4px;
+            border: 1px solid var(--vscode-panel-border);
+        }
+
+        .image-label {
+            display: block;
+            margin-top: 5px;
+            font-size: 11px;
+            color: var(--vscode-descriptionForeground);
+        }
+
+        .code-block {
+            margin: 10px 0;
+            border-radius: 4px;
+            overflow: hidden;
             background-color: var(--vscode-textCodeBlock-background);
-            padding: 2px 6px;
-            border-radius: 3px;
+        }
+
+        .code-header {
+            padding: 6px 12px;
+            background-color: rgba(0, 0, 0, 0.2);
+            font-size: 11px;
+            color: var(--vscode-descriptionForeground);
+            border-bottom: 1px solid var(--vscode-panel-border);
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 12px;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            font-family: var(--vscode-editor-font-family);
+            font-size: 13px;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
-    <h1>${session.title}</h1>
-
-    <div class="section">
-        <span class="label">Session ID:</span> <span class="file-path">${session.id}</span>
-    </div>
-
-    <div class="section">
-        <span class="label">Created:</span> ${createdDate}
-    </div>
-
-    ${
-      session.filePath
-        ? `<div class="section">
-        <span class="label">File Path:</span> <span class="file-path">${session.filePath}</span>
-    </div>`
-        : ''
-    }
-
-    <div class="stats">
-        <div class="stat-card">
-            <div class="stat-value">${session.messageCount}</div>
-            <div class="stat-label">Total Messages</div>
+    <div class="session-header">
+        <div class="session-title">${session.title}</div>
+        <div class="session-meta">
+            <span>ID: ${session.shortId}</span> •
+            <span>${createdDate}</span> •
+            <span>${session.messageCount} messages</span>
+            ${session.tokenPercentage ? ` • <span>${session.tokenPercentage}% tokens</span>` : ''}
         </div>
-
-        ${
-          session.userMessageCount !== undefined
-            ? `<div class="stat-card">
-            <div class="stat-value">${session.userMessageCount}</div>
-            <div class="stat-label">User Messages</div>
-        </div>`
-            : ''
-        }
-
-        ${
-          session.assistantMessageCount !== undefined
-            ? `<div class="stat-card">
-            <div class="stat-value">${session.assistantMessageCount}</div>
-            <div class="stat-label">Assistant Messages</div>
-        </div>`
-            : ''
-        }
-
-        ${
-          session.tokenPercentage
-            ? `<div class="stat-card">
-            <div class="stat-value">${session.tokenPercentage}%</div>
-            <div class="stat-label">Token Usage</div>
-        </div>`
-            : ''
-        }
-
-        ${
-          session.imageCount
-            ? `<div class="stat-card">
-            <div class="stat-value">${session.imageCount}</div>
-            <div class="stat-label">Images</div>
-        </div>`
-            : ''
-        }
-
-        ${
-          session.customCommandCount
-            ? `<div class="stat-card">
-            <div class="stat-value">${session.customCommandCount}</div>
-            <div class="stat-label">Custom Commands</div>
-        </div>`
-            : ''
-        }
-
-        ${
-          session.filesOrFoldersCount
-            ? `<div class="stat-card">
-            <div class="stat-value">${session.filesOrFoldersCount}</div>
-            <div class="stat-label">Files/Folders Referenced</div>
-        </div>`
-            : ''
-        }
-
-        ${
-          session.urlCount
-            ? `<div class="stat-card">
-            <div class="stat-value">${session.urlCount}</div>
-            <div class="stat-label">URLs</div>
-        </div>`
-            : ''
-        }
     </div>
 
-    ${
-      session.summary
-        ? `<div class="section">
-        <div class="label">Summary:</div>
-        <div class="summary">${session.summary}</div>
-    </div>`
-        : ''
-    }
-
-    ${
-      session.labels && session.labels.length > 0
-        ? `<div class="section">
-        <div class="label">Labels:</div>
-        <div>${session.labels.join(', ')}</div>
-    </div>`
-        : ''
-    }
+    <div class="conversation">
+        ${messagesHtml}
+    </div>
 </body>
 </html>`;
   }

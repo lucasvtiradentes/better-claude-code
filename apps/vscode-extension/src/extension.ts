@@ -3,6 +3,7 @@ import { registerCompactCommand } from './commands/compact.js';
 import { registerFileOperationsCommands } from './commands/file-operations.js';
 import { registerFilterCommand } from './commands/filter.js';
 import { registerRefreshCommand } from './commands/refresh.js';
+import { createShowLogsCommand } from './commands/show-logs.js';
 import { registerViewDetailsCommand } from './commands/view-details.js';
 import { SessionProvider } from './ui/session-provider.js';
 import { logger } from './utils/logger.js';
@@ -36,10 +37,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
   registerRefreshCommand(context, sessionProvider);
   registerCompactCommand(context, sessionProvider, workspacePath);
-  registerViewDetailsCommand(context);
+  registerViewDetailsCommand(context, sessionProvider);
   registerFilterCommand(context, sessionProvider);
   registerFileOperationsCommands(context);
 
+  context.subscriptions.push(createShowLogsCommand());
   context.subscriptions.push(treeView);
 
   await sessionProvider.initialize(workspacePath);
