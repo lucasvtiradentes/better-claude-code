@@ -239,6 +239,9 @@ importers:
       '@better-claude-code/ui-components':
         specifier: workspace:*
         version: link:../../packages/ui-components
+      lucide-react:
+        specifier: ^0.552.0
+        version: 0.552.0(react@19.2.0)
       react:
         specifier: ^19.0.0
         version: 19.2.0

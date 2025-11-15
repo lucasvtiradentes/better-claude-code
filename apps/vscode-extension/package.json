@@ -24,6 +24,7 @@
 		"@better-claude-code/node-utils": "workspace:*",
 		"@better-claude-code/shared": "workspace:*",
 		"@better-claude-code/ui-components": "workspace:*",
+		"lucide-react": "^0.552.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0"
 	},
