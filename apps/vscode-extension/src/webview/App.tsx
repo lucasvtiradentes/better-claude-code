@@ -208,8 +208,11 @@ export const App = () => {
   }
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground">
-      <div className="sticky top-0 z-10 bg-background border-b border-border">
+    <div
+      className="dark bg-background text-foreground"
+      style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}
+    >
+      <div className="bg-background border-b border-border" style={{ flexShrink: 0 }}>
         <div className="max-w-4xl mx-auto p-5 pb-4">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-xl font-bold">{session.title}</h1>
@@ -231,21 +234,23 @@ export const App = () => {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-5">
-        <div className="space-y-2">
-          {groupedMessages.map((messages) => {
-            const firstMessage = messages[0];
-            return (
-              <SessionMessage
-                key={firstMessage.id}
-                messages={messages}
-                imageOffset={0}
-                onImageClick={(imageIndex) => setSelectedImageIndex(imageIndex)}
-                images={conversation.images}
-                availableImages={conversation.images.map((img) => img.index)}
-              />
-            );
-          })}
+      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+        <div className="max-w-4xl mx-auto p-5">
+          <div className="space-y-2">
+            {groupedMessages.map((messages) => {
+              const firstMessage = messages[0];
+              return (
+                <SessionMessage
+                  key={firstMessage.id}
+                  messages={messages}
+                  imageOffset={0}
+                  onImageClick={(imageIndex) => setSelectedImageIndex(imageIndex)}
+                  images={conversation.images}
+                  availableImages={conversation.images.map((img) => img.index)}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
 
