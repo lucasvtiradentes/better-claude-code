@@ -26,6 +26,7 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@better-claude-code/shared": "workspace:*",
     "zod": "^4.1.12"
   }
 }

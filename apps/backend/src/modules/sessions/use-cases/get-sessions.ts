@@ -1,19 +1,13 @@
 import { existsSync } from 'node:fs';
 import {
   ClaudeHelper,
+  type GroupBy,
+  groupSessions,
   listSessionsCached,
   MessageCountMode,
   SessionSortBy,
   TitleSource
 } from '@better-claude-code/node-utils';
-import {
-  getTimeGroup,
-  getTokenPercentageGroup,
-  TIME_GROUP_LABELS,
-  TIME_GROUP_ORDER,
-  TOKEN_PERCENTAGE_GROUP_LABELS,
-  TOKEN_PERCENTAGE_GROUP_ORDER
-} from '@better-claude-code/shared';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
@@ -138,110 +132,22 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       cached: false
     }));
 
-    const grouped: Record<string, typeof items> = {};
-
-    if (groupBy === 'date') {
-      items.forEach((session) => {
-        const groupKey = getTimeGroup(new Date(session.createdAt).getTime());
-        if (!grouped[groupKey]) grouped[groupKey] = [];
-        grouped[groupKey].push(session);
-      });
-
-      const groups = TIME_GROUP_ORDER.map((key) => ({
-        key,
-        label: TIME_GROUP_LABELS[key as keyof typeof TIME_GROUP_LABELS],
-        color: null,
-        items: (grouped[key] || []).sort((a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime()),
-        totalItems: grouped[key]?.length || 0
-      })).filter((g) => g.totalItems > 0);
-
-      return c.json(
-        {
-          groups,
-          meta: {
-            totalItems: items.length,
-            totalGroups: groups.length
-          }
-        } satisfies z.infer<typeof responseSchema>,
-        200
-      );
-    }
-
-    if (groupBy === 'token-percentage') {
-      items.forEach((session) => {
-        const groupKey = getTokenPercentageGroup(session.tokenPercentage);
-        if (!grouped[groupKey]) grouped[groupKey] = [];
-        grouped[groupKey].push(session);
-      });
-
-      const groups = TOKEN_PERCENTAGE_GROUP_ORDER.map((key) => ({
-        key,
-        label: TOKEN_PERCENTAGE_GROUP_LABELS[key as keyof typeof TOKEN_PERCENTAGE_GROUP_LABELS],
-        color: null,
-        items: (grouped[key] || []).sort((a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime()),
-        totalItems: grouped[key]?.length || 0
-      })).filter((g) => g.totalItems > 0);
-
-      return c.json(
-        {
-          groups,
-          meta: {
-            totalItems: items.length,
-            totalGroups: groups.length
-          }
-        } satisfies z.infer<typeof responseSchema>,
-        200
-      );
-    }
-
-    if (groupBy === 'label') {
-      grouped['no-label'] = [];
-
-      items.forEach((session) => {
-        if (!session.labels || session.labels.length === 0) {
-          grouped['no-label'].push(session);
-        } else {
-          session.labels.forEach((labelId) => {
-            if (!grouped[labelId]) grouped[labelId] = [];
-            grouped[labelId].push(session);
-          });
-        }
-      });
-
-      const labelIds = settings.sessions.labels.map((l) => l.id);
-      const groups = [...labelIds, 'no-label']
-        .map((key) => {
-          const label = settings.sessions.labels.find((l) => l.id === key);
-          return {
-            key,
-            label: key === 'no-label' ? 'No Label' : label?.name || key,
-            color: label?.color || null,
-            items: (grouped[key] || []).sort(
-              (a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime()
-            ),
-            totalItems: grouped[key]?.length || 0
-          };
-        })
-        .filter((g) => g.totalItems > 0);
-
-      return c.json(
-        {
-          groups,
-          meta: {
-            totalItems: items.length,
-            totalGroups: groups.length
-          }
-        } satisfies z.infer<typeof responseSchema>,
-        200
-      );
-    }
+    const groups = groupSessions({
+      sessions: items,
+      groupBy: groupBy as GroupBy,
+      settings,
+      getCreatedAt: (session) => new Date(session.createdAt),
+      getModifiedAt: (session) => new Date(session.modifiedAt),
+      getTokenPercentage: (session) => session.tokenPercentage,
+      getLabels: (session) => session.labels
+    });
 
     return c.json(
       {
-        groups: [],
+        groups,
         meta: {
-          totalItems: 0,
-          totalGroups: 0
+          totalItems: items.length,
+          totalGroups: groups.length
         }
       } satisfies z.infer<typeof responseSchema>,
       200

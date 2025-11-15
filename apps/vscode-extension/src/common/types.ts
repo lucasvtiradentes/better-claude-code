@@ -1,8 +1,9 @@
-import type { SessionListItem } from '@better-claude-code/node-utils';
+import type { GroupBy, SessionListItem } from '@better-claude-code/node-utils';
 import type { TimeGroup } from '@better-claude-code/shared';
 
 export type { SessionListItem };
 export type { TimeGroup };
+export type { GroupBy };
 
 export interface DateGroup {
   label: string;

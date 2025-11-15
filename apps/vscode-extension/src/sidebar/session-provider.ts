@@ -40,6 +40,15 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     this._onDidChangeTreeData.fire();
   }
 
+  setGroupBy(groupBy: 'date' | 'token-percentage' | 'label'): void {
+    this.sessionManager.setGroupBy(groupBy);
+    this._onDidChangeTreeData.fire();
+  }
+
+  getGroupBy(): 'date' | 'token-percentage' | 'label' {
+    return this.sessionManager.getGroupBy();
+  }
+
   getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
     return element;
   }

@@ -1,4 +1,4 @@
-enum TokenPercentageGroup {
+export enum TokenPercentageGroup {
   '0-25' = '0-25',
   '25-50' = '25-50',
   '50-75' = '50-75',

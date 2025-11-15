@@ -285,6 +285,9 @@ importers:
 
   packages/node-utils:
     dependencies:
+      '@better-claude-code/shared':
+        specifier: workspace:*
+        version: link:../shared
       zod:
         specifier: ^4.1.12
         version: 4.1.12

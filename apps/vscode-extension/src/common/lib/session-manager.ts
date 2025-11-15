@@ -1,18 +1,19 @@
 import { readFile } from 'node:fs/promises';
 import {
+  groupSessions,
   listSessionsCached,
   MessageCountMode,
   parseSessionMessages,
   SessionSortBy,
   TitleSource
 } from '@better-claude-code/node-utils';
-import { getTimeGroup, TIME_GROUP_LABELS, TIME_GROUP_ORDER, TimeGroup } from '@better-claude-code/shared';
 import type { DateGroup, FilterCriteria, SessionListItem, SessionStats } from '../types.js';
 import { logger } from '../utils/logger.js';
 
 export class SessionManager {
   private sessions: SessionListItem[] = [];
   private filter: FilterCriteria = {};
+  private groupByMode: 'date' | 'token-percentage' | 'label' = 'date';
 
   async loadSessions(projectPath: string): Promise<void> {
     try {
@@ -40,6 +41,14 @@ export class SessionManager {
 
   setFilter(filter: FilterCriteria): void {
     this.filter = filter;
+  }
+
+  setGroupBy(groupBy: 'date' | 'token-percentage' | 'label'): void {
+    this.groupByMode = groupBy;
+  }
+
+  getGroupBy(): 'date' | 'token-percentage' | 'label' {
+    return this.groupByMode;
   }
 
   getFilteredSessions(): SessionListItem[] {
@@ -87,24 +96,19 @@ export class SessionManager {
   }
 
   groupByDate(sessions: SessionListItem[]): DateGroup[] {
-    const grouped: Map<TimeGroup, SessionListItem[]> = new Map(TIME_GROUP_ORDER.map((group) => [group, []]));
+    const groups = groupSessions({
+      sessions,
+      groupBy: this.groupByMode,
+      getCreatedAt: (session) => new Date(session.createdAt),
+      getModifiedAt: (session) => new Date(session.createdAt),
+      getTokenPercentage: (session) => session.tokenPercentage,
+      getLabels: (session) => session.labels
+    });
 
-    for (const session of sessions) {
-      const timestamp = new Date(session.createdAt).getTime();
-      const group = getTimeGroup(timestamp);
-      const groupArray = grouped.get(group);
-      if (groupArray) {
-        groupArray.push(session);
-      }
-    }
-
-    return TIME_GROUP_ORDER.map((group) => {
-      const groupSessions = grouped.get(group) || [];
-      return {
-        label: `${TIME_GROUP_LABELS[group]} (${groupSessions.length})`,
-        sessions: groupSessions
-      };
-    }).filter((group) => group.sessions.length > 0);
+    return groups.map((group) => ({
+      label: `${group.label} (${group.totalItems})`,
+      sessions: group.items
+    }));
   }
 
   getStats(sessions: SessionListItem[]): SessionStats {
