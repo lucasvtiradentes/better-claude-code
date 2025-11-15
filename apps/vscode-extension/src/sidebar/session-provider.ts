@@ -71,8 +71,11 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     }
 
     if (element instanceof DateGroupTreeItem) {
+      const { WebviewProvider } = await import('../session-view-page/webview-provider.js');
+      const openSessionIds = new Set(WebviewProvider.getOpenSessionIds());
+
       return element.dateGroup.sessions.map(
-        (session) => new SessionTreeItem(session, vscode.TreeItemCollapsibleState.None)
+        (session) => new SessionTreeItem(session, vscode.TreeItemCollapsibleState.None, openSessionIds.has(session.id))
       );
     }
 

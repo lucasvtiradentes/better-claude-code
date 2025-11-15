@@ -16,7 +16,8 @@ export class DateGroupTreeItem extends vscode.TreeItem {
 export class SessionTreeItem extends vscode.TreeItem {
   constructor(
     public readonly session: SessionListItem,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly isOpen: boolean = false
   ) {
     super('', collapsibleState);
 
@@ -34,6 +35,10 @@ export class SessionTreeItem extends vscode.TreeItem {
   }
 
   private buildIcon(): vscode.ThemeIcon {
+    if (this.isOpen) {
+      return new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.orange'));
+    }
+
     const tokenPercentage = this.session.tokenPercentage || 0;
 
     if (tokenPercentage >= 90) {

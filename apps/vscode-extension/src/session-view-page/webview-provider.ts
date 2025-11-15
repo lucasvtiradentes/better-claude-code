@@ -5,12 +5,35 @@ import { logger } from '../common/utils/logger.js';
 import type { SessionProvider } from '../sidebar/session-provider.js';
 
 export class WebviewProvider {
+  private static panels = new Map<string, vscode.WebviewPanel>();
+  private static onPanelChangeCallbacks: Array<() => void> = [];
+
+  static onPanelChange(callback: () => void): void {
+    WebviewProvider.onPanelChangeCallbacks.push(callback);
+  }
+
+  static getOpenSessionIds(): string[] {
+    return Array.from(WebviewProvider.panels.keys());
+  }
+
+  private static notifyPanelChange(): void {
+    for (const callback of WebviewProvider.onPanelChangeCallbacks) {
+      callback();
+    }
+  }
+
   static async showSessionConversation(
     context: vscode.ExtensionContext,
     session: SessionListItem,
     sessionProvider: SessionProvider
   ): Promise<void> {
     try {
+      const existingPanel = WebviewProvider.panels.get(session.id);
+      if (existingPanel) {
+        existingPanel.reveal();
+        return;
+      }
+
       const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
 
       const panel = vscode.window.createWebviewPanel(
@@ -23,6 +46,14 @@ export class WebviewProvider {
           localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'out', 'webview'))]
         }
       );
+
+      WebviewProvider.panels.set(session.id, panel);
+      WebviewProvider.notifyPanelChange();
+
+      panel.onDidDispose(() => {
+        WebviewProvider.panels.delete(session.id);
+        WebviewProvider.notifyPanelChange();
+      });
 
       panel.webview.onDidReceiveMessage(
         async (message) => {

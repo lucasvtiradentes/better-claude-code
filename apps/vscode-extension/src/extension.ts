@@ -8,6 +8,7 @@ import { createShowLogsCommand } from './commands/show-logs.js';
 import { registerViewDetailsCommand } from './commands/view-details.js';
 import { logger } from './common/utils/logger.js';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
+import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
 import { StatusBarManager } from './status-bar/status-bar-manager.js';
 
@@ -25,6 +26,10 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   sessionProvider = new SessionProvider();
+
+  WebviewProvider.onPanelChange(() => {
+    sessionProvider.refresh();
+  });
 
   const treeView = vscode.window.createTreeView('bccSessionExplorer', {
     treeDataProvider: sessionProvider,
