@@ -5,11 +5,12 @@ import { registerFilterCommand } from './commands/filter.js';
 import { registerRefreshCommand } from './commands/refresh.js';
 import { createShowLogsCommand } from './commands/show-logs.js';
 import { registerViewDetailsCommand } from './commands/view-details.js';
-import { SessionProvider } from './ui/session-provider.js';
-import { logger } from './utils/logger.js';
-import { getCurrentWorkspacePath } from './utils/workspace-detector.js';
+import { logger } from './common/utils/logger.js';
+import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
+import { SessionProvider } from './sidebar/session-provider.js';
+import { StatusBarManager } from './status-bar/status-bar-manager.js';
 
-let statusBarItem: vscode.StatusBarItem;
+let statusBarManager: StatusBarManager;
 let sessionProvider: SessionProvider;
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -29,9 +30,8 @@ export async function activate(context: vscode.ExtensionContext) {
     showCollapseAll: true
   });
 
-  statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-  statusBarItem.command = 'bcc.refreshSessions';
-  context.subscriptions.push(statusBarItem);
+  statusBarManager = new StatusBarManager(sessionProvider);
+  context.subscriptions.push(statusBarManager.getDisposable());
 
   registerRefreshCommand(context, sessionProvider);
   registerCompactCommand(context, sessionProvider, workspacePath);
@@ -44,11 +44,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
   await sessionProvider.initialize(workspacePath);
 
-  updateStatusBar();
+  statusBarManager.update();
 
   treeView.onDidChangeVisibility(() => {
     if (treeView.visible) {
-      updateStatusBar();
+      statusBarManager.update();
     }
   });
 
@@ -57,19 +57,19 @@ export async function activate(context: vscode.ExtensionContext) {
   watcher.onDidCreate(async () => {
     logger.info('New session file detected, refreshing...');
     await sessionProvider.refresh();
-    updateStatusBar();
+    statusBarManager.update();
   });
 
   watcher.onDidChange(async () => {
     logger.info('Session file changed, refreshing...');
     await sessionProvider.refresh();
-    updateStatusBar();
+    statusBarManager.update();
   });
 
   watcher.onDidDelete(async () => {
     logger.info('Session file deleted, refreshing...');
     await sessionProvider.refresh();
-    updateStatusBar();
+    statusBarManager.update();
   });
 
   context.subscriptions.push(watcher);
@@ -78,26 +78,8 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-  if (statusBarItem) {
-    statusBarItem.dispose();
+  if (statusBarManager) {
+    statusBarManager.dispose();
   }
   logger.info('Better Claude Code extension deactivated');
-}
-
-function updateStatusBar() {
-  if (!sessionProvider) {
-    return;
-  }
-
-  const stats = sessionProvider.getStats();
-
-  statusBarItem.text = `$(file-text) BCC: ${stats.totalSessions} sessions`;
-
-  if (stats.todayCount > 0) {
-    statusBarItem.text += ` (${stats.todayCount} today)`;
-  }
-
-  statusBarItem.tooltip = `Total Sessions: ${stats.totalSessions}\nToday: ${stats.todayCount}\nTotal Token Usage: ${stats.totalTokens}%\n\nClick to refresh`;
-
-  statusBarItem.show();
 }

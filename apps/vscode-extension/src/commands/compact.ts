@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { CompactService } from '../lib/compact-service.js';
-import type { SessionProvider } from '../ui/session-provider.js';
-import { SessionTreeItem } from '../ui/tree-items.js';
-import { logger } from '../utils/logger.js';
+import { CompactService } from '../common/lib/compact-service.js';
+import { logger } from '../common/utils/logger.js';
+import type { SessionProvider } from '../sidebar/session-provider.js';
+import { SessionTreeItem } from '../sidebar/tree-items.js';
 
 export function registerCompactCommand(
   context: vscode.ExtensionContext,

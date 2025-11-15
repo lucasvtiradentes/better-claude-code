@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import type { SessionListItem } from '../types.js';
-import { logger } from '../utils/logger.js';
-import type { SessionProvider } from './session-provider.js';
+import type { SessionListItem } from '../common/types.js';
+import { logger } from '../common/utils/logger.js';
+import type { SessionProvider } from '../sidebar/session-provider.js';
 
 export class WebviewProvider {
   static async showSessionConversation(

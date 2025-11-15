@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { DateGroup, SessionListItem } from '../types.js';
+import type { DateGroup, SessionListItem } from '../common/types.js';
 
 export class DateGroupTreeItem extends vscode.TreeItem {
   constructor(

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { SessionManager } from '../lib/session-manager.js';
-import type { FilterCriteria, SessionListItem } from '../types.js';
-import { logger } from '../utils/logger.js';
+import { SessionManager } from '../common/lib/session-manager.js';
+import type { FilterCriteria, SessionListItem } from '../common/types.js';
+import { logger } from '../common/utils/logger.js';
 import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
 
 export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem> {

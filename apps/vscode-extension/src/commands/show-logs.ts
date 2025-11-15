@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { LOG_FILE_PATH } from '../utils/logger.js';
+import { LOG_FILE_PATH } from '../common/utils/logger.js';
 
 export function createShowLogsCommand(): vscode.Disposable {
   return vscode.commands.registerCommand('bcc.showLogs', async () => {

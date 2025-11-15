@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { SessionTreeItem } from '../ui/tree-items.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../common/utils/logger.js';
+import { SessionTreeItem } from '../sidebar/tree-items.js';
 
 export function registerFileOperationsCommands(context: vscode.ExtensionContext): void {
   const openSessionFileCommand = vscode.commands.registerCommand(

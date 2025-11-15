@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import type { SessionListItem } from '../types.js';
-import type { SessionProvider } from '../ui/session-provider.js';
-import { SessionTreeItem } from '../ui/tree-items.js';
-import { WebviewProvider } from '../ui/webview-provider.js';
-import { logger } from '../utils/logger.js';
+import type { SessionListItem } from '../common/types.js';
+import { logger } from '../common/utils/logger.js';
+import { WebviewProvider } from '../session-view-page/webview-provider.js';
+import type { SessionProvider } from '../sidebar/session-provider.js';
+import { SessionTreeItem } from '../sidebar/tree-items.js';
 
 export function registerViewDetailsCommand(context: vscode.ExtensionContext, sessionProvider: SessionProvider): void {
   const command = vscode.commands.registerCommand(

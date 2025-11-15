@@ -39,7 +39,7 @@ const postcssPlugin = {
 };
 
 const webviewBuildOptions = {
-	entryPoints: ['src/webview/index.tsx'],
+	entryPoints: ['src/session-view-page/webview/index.tsx'],
 	bundle: true,
 	outfile: 'out/webview/index.js',
 	format: 'iife',

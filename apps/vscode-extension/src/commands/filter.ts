@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import type { FilterCriteria } from '../types.js';
-import type { SessionProvider } from '../ui/session-provider.js';
-import { logger } from '../utils/logger.js';
+import type { FilterCriteria } from '../common/types.js';
+import { logger } from '../common/utils/logger.js';
+import type { SessionProvider } from '../sidebar/session-provider.js';
 
 export function registerFilterCommand(context: vscode.ExtensionContext, sessionProvider: SessionProvider): void {
   const command = vscode.commands.registerCommand('bcc.filterSessions', async () => {
