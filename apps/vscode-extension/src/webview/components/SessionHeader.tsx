@@ -35,7 +35,7 @@ export const SessionHeader = ({
   };
 
   return (
-    <div className="px-5 py-4 border-b border-border flex items-center justify-between" style={{ flexShrink: 0 }}>
+    <div className="px-4 py-4 border-b border-border flex items-center justify-between" style={{ flexShrink: 0 }}>
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-2 text-muted-foreground">
           <SessionBadges session={sessionForBadges} />

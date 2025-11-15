@@ -9,7 +9,7 @@ type SessionContentProps = {
 export const SessionContent = ({ groupedMessages, images, onImageClick }: SessionContentProps) => {
   return (
     <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-      <div className="max-w-4xl mx-auto p-5">
+      <div className="max-w-4xl mx-auto p-4">
         <div className="space-y-2">
           {groupedMessages.map((messages) => {
             const firstMessage = messages[0];
