@@ -48,7 +48,7 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const promptPathDev = join(__dirname, '../../../../../cli/src/prompts', PromptFile.SESSION_COMPACTION);
-    const promptPathProd = join(__dirname, '../../../../cli/prompts', PromptFile.SESSION_COMPACTION);
+    const promptPathProd = join(__dirname, '../../../../../cli/prompts', PromptFile.SESSION_COMPACTION);
 
     let promptPath: string;
     try {

@@ -68,7 +68,7 @@ class PostBuild {
     console.log('Step 1: Copying backend and frontend to apps/...');
 
     this.copyIfExists(
-      join(this.repoRoot, 'apps/backend/dist'),
+      join(this.repoRoot, 'apps/backend/dist/apps/backend'),
       join(this.cliDistRoot, 'apps/backend'),
       'Backend copied to apps/backend'
     );

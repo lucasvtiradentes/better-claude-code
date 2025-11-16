@@ -18,7 +18,7 @@ function getServerInfo() {
   };
 
   return {
-    backendPath: getDistPath(import.meta.url, 'backend', 'main.js'),
+    backendPath: getDistPath(import.meta.url, 'backend', 'src', 'main.js'),
     frontendPath,
     backendEnv: backendEnv as unknown as Record<keyof BackendEnvSchema, string>
   };
