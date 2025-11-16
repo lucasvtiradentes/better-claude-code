@@ -88,5 +88,5 @@ export function deactivate() {
   if (statusBarManager) {
     statusBarManager.dispose();
   }
-  logger.info('Better Claude Code extension deactivated');
+  logger.info('Better Claude Code extension deactivated\n\n');
 }

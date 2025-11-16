@@ -5,10 +5,16 @@
 		"moduleResolution": "Node",
 		"target": "ES2022",
 		"outDir": "./out",
-		"rootDir": ".",
 		"lib": ["ES2022", "DOM"],
 		"types": ["node", "vscode"],
-		"jsx": "react-jsx"
+		"jsx": "react-jsx",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"],
+			"@better-claude-code/ui-components": ["../../packages/ui-components/src/index.ts"],
+			"@better-claude-code/shared": ["../../packages/shared/src/index.ts"],
+			"@better-claude-code/node-utils": ["../../packages/node-utils/src/index.ts"]
+		}
 	},
 	"exclude": ["node_modules", "out"]
 }

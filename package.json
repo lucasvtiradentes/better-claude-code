@@ -2,7 +2,7 @@
   "name": "better-claude-code-root",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.22.0",
   "type": "module",
   "scripts": {
     "prepare": "turbo build --filter='./packages/*'",

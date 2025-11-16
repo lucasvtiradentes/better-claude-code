@@ -126,9 +126,7 @@ export const createServer = (port: number, staticPath?: string) => {
   if (ENV.NODE_ENV === NodeEnv.DEVELOPMENT) {
     setupSwagger(app, port);
     proxyToFrontendDevServer(app);
-  }
-
-  if (staticPath) {
+  } else if (staticPath) {
     serveStaticFrontend(app, staticPath);
   }
 
