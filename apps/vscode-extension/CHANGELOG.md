@@ -1,5 +1,11 @@
 # better-claude-code-vscode
 
+## 0.1.3
+
+### Patch Changes
+
+- b1e8444: fix vscode release
+
 ## 0.1.2
 
 ### Patch Changes
