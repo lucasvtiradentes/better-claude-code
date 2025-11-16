@@ -8,7 +8,7 @@ echo "============================================"
 echo "📦 Building packages..."
 turbo build
 
-# Step 2: Check VS Code extension version BEFORE changeset publish
+# Step 2: Check if VS Code extension was bumped in the last commit
 VSCODE_PKG="apps/vscode-extension/package.json"
 echo ""
 echo "🔍 Checking VS Code extension state..."
@@ -19,8 +19,21 @@ if [ ! -f "$VSCODE_PKG" ]; then
   exit 1
 fi
 
-VERSION_BEFORE=$(node -p "require('./$VSCODE_PKG').version")
-echo "📌 Version BEFORE changeset publish: $VERSION_BEFORE"
+CURRENT_VERSION=$(node -p "require('./$VSCODE_PKG').version")
+echo "📌 Current version: $CURRENT_VERSION"
+
+# Try to get previous version from git (if available)
+PREVIOUS_VERSION=""
+if git rev-parse HEAD^ >/dev/null 2>&1; then
+  PREVIOUS_VERSION=$(git show HEAD^:./$VSCODE_PKG 2>/dev/null | node -p "try { JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8')).version } catch(e) { '' }" || echo "")
+  if [ -n "$PREVIOUS_VERSION" ]; then
+    echo "📌 Previous version: $PREVIOUS_VERSION"
+  else
+    echo "⚠️  Could not read previous version from git"
+  fi
+else
+  echo "⚠️  No previous commit available (shallow clone or first commit)"
+fi
 
 # Check if there are any changesets
 echo ""
@@ -40,20 +53,22 @@ echo "============================================"
 changeset publish
 echo "============================================"
 
-# Step 4: Check if version changed
+# Step 4: Determine if we should publish
 echo ""
-echo "🔍 Checking VS Code extension version AFTER changeset publish..."
-VERSION_AFTER=$(node -p "require('./$VSCODE_PKG').version")
-echo "📌 Version AFTER changeset publish: $VERSION_AFTER"
+echo "🔄 Determining if VS Code extension should be published..."
 
-# Step 5: Compare versions
-echo ""
-echo "🔄 Comparing versions..."
-echo "   Before: $VERSION_BEFORE"
-echo "   After:  $VERSION_AFTER"
+SHOULD_PUBLISH=false
 
-if [ "$VERSION_BEFORE" != "$VERSION_AFTER" ]; then
-  echo "✅ Version changed! Publishing to VS Code Marketplace..."
+# Check if version was bumped in this commit (comparing with previous commit)
+if [ -n "$PREVIOUS_VERSION" ] && [ "$PREVIOUS_VERSION" != "$CURRENT_VERSION" ]; then
+  echo "✅ Version bumped in this commit: $PREVIOUS_VERSION → $CURRENT_VERSION"
+  SHOULD_PUBLISH=true
+else
+  echo "ℹ️  Version not changed in this commit"
+fi
+
+if [ "$SHOULD_PUBLISH" = true ]; then
+  echo "✅ Publishing to VS Code Marketplace..."
 
   # Check if vsce is installed
   if ! command -v vsce &> /dev/null; then
@@ -82,17 +97,18 @@ if [ "$VERSION_BEFORE" != "$VERSION_AFTER" ]; then
   cd ../..
 
   echo ""
-  echo "✅ VS Code extension v$VERSION_AFTER published to Marketplace!"
+  echo "✅ VS Code extension v$CURRENT_VERSION published to Marketplace!"
 else
-  echo "⚠️  Version NOT changed ($VERSION_BEFORE)"
-  echo "ℹ️  Skipping Marketplace publish"
+  echo "⚠️  Skipping Marketplace publish"
 
   # Additional debugging
   echo ""
   echo "🐛 Debug info:"
+  echo "   - Current version: $CURRENT_VERSION"
+  echo "   - Previous version: ${PREVIOUS_VERSION:-unknown}"
   echo "   - Changesets found: $CHANGESET_COUNT"
   echo "   - Package private: $(node -p "require('./$VSCODE_PKG').private")"
-  echo "   - Git tags:"
+  echo "   - Recent git tags:"
   git tag --list "better-claude-code-vscode@*" | tail -3 || echo "     (none)"
 fi
 
