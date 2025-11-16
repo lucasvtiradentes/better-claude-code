@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.23
+
+### Patch Changes
+
+- d4ab862: add vscode extension
+
 ## 0.0.22
 
 ### Patch Changes
