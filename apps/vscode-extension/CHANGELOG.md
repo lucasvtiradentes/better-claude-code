@@ -1,5 +1,11 @@
 # better-claude-code-vscode
 
+## 0.1.4
+
+### Patch Changes
+
+- fd7a305: fix ci error
+
 ## 0.1.3
 
 ### Patch Changes
