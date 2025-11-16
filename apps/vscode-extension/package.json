@@ -2,7 +2,7 @@
 	"name": "better-claude-code-vscode",
 	"displayName": "Better Claude Code",
 	"description": "Manage and analyze Claude Code sessions directly in VS Code",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"private": true,
 	"publisher": "lucasvtiradentes",
 	"icon": "resources/icon.png",
