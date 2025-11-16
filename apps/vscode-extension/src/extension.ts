@@ -6,6 +6,7 @@ import { registerFileOperationsCommands } from './commands/file-operations.js';
 import { registerFilterCommand } from './commands/filter.js';
 import { registerRefreshCommand } from './commands/refresh.js';
 import { createShowLogsCommand } from './commands/show-logs.js';
+import { registerToggleCollapseCommand } from './commands/toggle-collapse.js';
 import { registerViewDetailsCommand } from './commands/view-details.js';
 import { logger } from './common/utils/logger.js';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
@@ -33,8 +34,7 @@ export async function activate(context: vscode.ExtensionContext) {
   });
 
   const treeView = vscode.window.createTreeView('bccSessionExplorer', {
-    treeDataProvider: sessionProvider,
-    showCollapseAll: true
+    treeDataProvider: sessionProvider
   });
 
   statusBarManager = new StatusBarManager(sessionProvider);
@@ -46,6 +46,7 @@ export async function activate(context: vscode.ExtensionContext) {
   registerFilterCommand(context, sessionProvider);
   registerFileOperationsCommands(context);
   registerAddLabelCommand(context, sessionProvider);
+  registerToggleCollapseCommand(context, sessionProvider);
 
   context.subscriptions.push(createShowLogsCommand());
   context.subscriptions.push(treeView);

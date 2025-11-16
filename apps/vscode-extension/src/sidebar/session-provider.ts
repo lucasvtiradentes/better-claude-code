@@ -10,6 +10,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
   private sessionManager: SessionManager;
   private currentWorkspacePath: string | null = null;
+  private isExpanded: boolean = true;
 
   constructor() {
     this.sessionManager = new SessionManager();
@@ -67,7 +68,11 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
       const filteredSessions = this.sessionManager.getFilteredSessions();
       const dateGroups = this.sessionManager.groupByDate(filteredSessions);
 
-      return dateGroups.map((group) => new DateGroupTreeItem(group, vscode.TreeItemCollapsibleState.Expanded));
+      const collapsibleState = this.isExpanded
+        ? vscode.TreeItemCollapsibleState.Expanded
+        : vscode.TreeItemCollapsibleState.Collapsed;
+
+      return dateGroups.map((group) => new DateGroupTreeItem(group, collapsibleState));
     }
 
     if (element instanceof DateGroupTreeItem) {
@@ -94,5 +99,14 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
   async getSessionConversation(session: SessionListItem) {
     return this.sessionManager.getSessionConversation(session);
+  }
+
+  toggleCollapseExpand(): void {
+    this.isExpanded = !this.isExpanded;
+    this._onDidChangeTreeData.fire();
+  }
+
+  getIsExpanded(): boolean {
+    return this.isExpanded;
   }
 }

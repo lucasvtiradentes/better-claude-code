@@ -121,6 +121,12 @@
 				"title": "Add Label",
 				"category": "BCC",
 				"icon": "$(tag)"
+			},
+			{
+				"command": "bcc.toggleCollapseExpand",
+				"title": "Toggle Collapse/Expand",
+				"category": "BCC",
+				"icon": "$(unfold)"
 			}
 		],
 		"menus": {
@@ -134,6 +140,11 @@
 					"command": "bcc.filterSessions",
 					"when": "view == bccSessionExplorer",
 					"group": "navigation@2"
+				},
+				{
+					"command": "bcc.toggleCollapseExpand",
+					"when": "view == bccSessionExplorer",
+					"group": "navigation@3"
 				}
 			],
 			"view/item/context": [
