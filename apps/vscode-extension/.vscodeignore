@@ -1,5 +1,12 @@
-src/**
+# FOLDERS ======================================================================
+
+.turbo/**
+extension-scripts/**
 node_modules/**
+src/**
+
+# FILES ========================================================================
+
 .gitignore
 tsconfig.json
 esbuild.config.js
