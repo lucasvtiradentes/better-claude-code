@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 0.0.25
+
+### Patch Changes
+
+- 8a27423: fix build error
+
 ## 0.0.24
 
 ### Patch Changes
