@@ -1,5 +1,5 @@
+import { EventEmitter } from 'node:events';
 import { generateUuid } from '@better-claude-code/node-utils';
-import { EventEmitter } from 'events';
 import type { LiveSessionProcess, Permission, SessionStatus } from './types';
 
 class SessionManager extends EventEmitter {

@@ -1,6 +1,6 @@
 import { lstatSync, realpathSync, writeFileSync } from 'node:fs';
+import { isAbsolute } from 'node:path';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { isAbsolute } from 'path';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
 

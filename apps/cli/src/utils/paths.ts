@@ -1,5 +1,5 @@
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 export function getPackageRoot(importMetaUrl: string) {
   const __filename = fileURLToPath(importMetaUrl);

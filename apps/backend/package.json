@@ -5,7 +5,7 @@
   "type": "module",
   "main": "./dist/main.js",
   "scripts": {
-    "dev": "CLAUDE_CLI_PATH=/home/lucas/.claude/local/node_modules/@anthropic-ai/claude-code/cli.js tsx watch src/main.ts",
+    "dev": "tsx watch src/main.ts",
     "build": "rimraf ./dist && tsc",
     "postbuild": "tsx scripts/postbuild.ts",
     "generate:swagger": "tsx scripts/generate-swagger.ts",

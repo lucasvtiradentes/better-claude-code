@@ -1,4 +1,4 @@
-import * as path from 'path';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 import type { SessionListItem } from '../common/types.js';
 import { logger } from '../common/utils/logger.js';

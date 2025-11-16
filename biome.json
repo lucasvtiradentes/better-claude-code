@@ -31,7 +31,14 @@
         "noNonNullAssertion": "warn",
         "useBlockStatements": "off",
         "noUnusedTemplateLiteral": "off",
-        "useNodejsImportProtocol": "off"
+        "useNodejsImportProtocol": "error",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "requireAscii": false,
+            "filenameCases": ["kebab-case", "camelCase", "PascalCase"]
+          }
+        }
       },
       "nursery": {},
       "complexity": {
@@ -55,7 +62,13 @@
     }
   },
   "files": {
-    "includes": ["**/*.ts", "**/*.tsx", "!apps/frontend/src/api/_generated", "!apps/frontend/src/routeTree.gen.ts"]
+    "includes": [
+      "**/*.ts",
+      "**/*.tsx",
+      "!apps/frontend/src/api/_generated",
+      "!apps/frontend/src/routeTree.gen.ts",
+      "!apps/frontend/src/routes/**/$*.tsx"
+    ]
   },
   "vcs": {
     "enabled": true,

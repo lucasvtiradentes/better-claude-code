@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
+import * as os from 'node:os';
 import { join } from 'node:path';
 import { APP_CLI_NAME } from '@better-claude-code/shared';
-import * as os from 'os';
 import { getPackageJsonPath } from '../utils/paths.js';
 
 const packageJsonPath = getPackageJsonPath(import.meta.url);

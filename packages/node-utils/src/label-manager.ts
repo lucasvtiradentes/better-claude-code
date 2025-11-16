@@ -1,6 +1,6 @@
 import { accessSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
 import { dirname, join } from 'node:path';
-import os from 'os';
 
 const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
 

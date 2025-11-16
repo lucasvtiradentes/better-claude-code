@@ -7,9 +7,6 @@
   "tasks": {
     "typecheck": {
       "outputLogs": "new-only",
-      "dependsOn": [
-        "^build"
-      ],
       "inputs": [
         "./src/**",
         "./*.config.*",

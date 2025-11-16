@@ -2,6 +2,7 @@ export * from './cache.js';
 export * from './claude-helper.js';
 export * from './exec.js';
 export * from './label-manager.js';
+export * from './monorepo-path-utils.js';
 export * from './schemas.js';
 export * from './session-compact.js';
 export * from './session-grouping.js';

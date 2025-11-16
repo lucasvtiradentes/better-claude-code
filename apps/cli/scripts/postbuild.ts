@@ -10,6 +10,7 @@ import {
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PROMPTS_FOLDER_FOR_CLI, REPO_ROOT_FROM_CLI } from '@better-claude-code/node-utils';
 
 class PostBuild {
   private readonly cliRoot: string;
@@ -20,7 +21,7 @@ class PostBuild {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     this.cliRoot = resolve(__dirname, '..');
-    this.repoRoot = resolve(this.cliRoot, '../..');
+    this.repoRoot = REPO_ROOT_FROM_CLI;
     this.cliDistRoot = join(this.cliRoot, 'dist');
   }
 
@@ -210,11 +211,7 @@ class PostBuild {
 
     const cliDistDest = join(this.cliDistRoot, 'apps/cli');
 
-    this.copyIfExists(
-      join(this.cliRoot, 'src/prompts'),
-      join(cliDistDest, 'prompts'),
-      'Prompts copied to apps/cli/prompts'
-    );
+    this.copyIfExists(PROMPTS_FOLDER_FOR_CLI, join(this.cliDistRoot, 'prompts'), 'Prompts copied to dist/prompts');
 
     this.copyIfExists(
       join(this.cliRoot, 'package.json'),

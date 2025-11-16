@@ -18,7 +18,7 @@
 	"main": "./out/extension.js",
 	"scripts": {
 		"build": "node esbuild.config.js",
-		"postbuild": "tsx extension-scripts/install-local.ts",
+		"postbuild": "tsx scripts/postbuild.ts && tsx scripts/install-local.ts",
 		"dev": "node esbuild.config.js --watch",
 		"typecheck": "tsc --noEmit",
 		"vscode:prepublish": "pnpm run build",

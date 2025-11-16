@@ -1,4 +1,4 @@
-import * as readline from 'readline';
+import * as readline from 'node:readline';
 
 import { colors } from '../colors.js';
 import type { SessionInfo } from './session-finder.js';

@@ -1,7 +1,7 @@
+import { spawn } from 'node:child_process';
 import { existsSync, openSync } from 'node:fs';
 import { BackendEnvSchema, NodeEnv } from '@better-claude-code/node-utils';
 import { BACKEND_PORT, createLocalHostLink } from '@better-claude-code/shared';
-import { spawn } from 'child_process';
 import { ENV } from '../../env.js';
 import { Logger } from '../../utils/logger.js';
 import { getDistPath } from '../../utils/paths.js';

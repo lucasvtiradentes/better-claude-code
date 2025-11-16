@@ -1,8 +1,11 @@
 import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { compactSession, parseSessionToMarkdown } from '@better-claude-code/node-utils';
-import { PromptFile } from '@better-claude-code/shared';
+import { join } from 'node:path';
+import {
+  compactSession,
+  getPromptPathForCli,
+  PromptFile,
+  parseSessionToMarkdown
+} from '@better-claude-code/node-utils';
 import { Command } from 'commander';
 
 import { getCommand } from '../definitions/commands.js';
@@ -13,9 +16,6 @@ import { displaySessions, selectSession } from '../utils/compact/session-selecto
 import { handleCommandError } from '../utils/error-handler.js';
 import { getGitRepoRoot } from '../utils/git.js';
 import { Logger } from '../utils/logger.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 interface CompactOptions {
   all?: boolean;
@@ -176,7 +176,7 @@ async function performCompaction(sessionId: string, sessionFile: string, repoRoo
   Logger.loading('Step 2/2: Compacting via Claude Code...');
   const compactStart = Date.now();
 
-  const promptTemplatePath = join(__dirname, '../prompts', PromptFile.SESSION_COMPACTION);
+  const promptTemplatePath = getPromptPathForCli(PromptFile.SESSION_COMPACTION);
   const promptTemplate = readFileSync(promptTemplatePath, 'utf-8');
 
   await compactSession(parsedFile, summaryFile, promptTemplate, repoRoot);

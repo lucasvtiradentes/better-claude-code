@@ -1,6 +1,6 @@
+import { readFile, writeFile } from 'node:fs/promises';
 import tailwindcss from '@tailwindcss/postcss';
 import autoprefixer from 'autoprefixer';
-import { readFile, writeFile } from 'fs/promises';
 import postcss from 'postcss';
 import { defineConfig } from 'tsup';
 

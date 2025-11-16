@@ -1,4 +1,4 @@
-import { platform } from 'os';
+import { platform } from 'node:os';
 
 export function isSupportedOS() {
   const currentPlatform = platform();

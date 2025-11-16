@@ -1,14 +1,9 @@
-import { accessSync, constants } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { PromptFile } from '@better-claude-code/shared';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { getPromptPathForBackend, PromptFile } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
-import { homedir } from 'os';
-import { fileURLToPath } from 'url';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const FileInfoSchema = z.object({
   path: z.string(),
@@ -47,16 +42,7 @@ export const route = createRoute({
 
 export const handler: RouteHandler<typeof route> = async (c) => {
   try {
-    const promptPathDev = join(__dirname, '../../../../../cli/src/prompts', PromptFile.SESSION_COMPACTION);
-    const promptPathProd = join(__dirname, '../../../../../cli/prompts', PromptFile.SESSION_COMPACTION);
-
-    let promptPath: string;
-    try {
-      accessSync(promptPathDev, constants.F_OK);
-      promptPath = promptPathDev;
-    } catch {
-      promptPath = promptPathProd;
-    }
+    const promptPath = getPromptPathForBackend(PromptFile.SESSION_COMPACTION);
 
     const files = [
       {

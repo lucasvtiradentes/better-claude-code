@@ -1,9 +1,9 @@
+import { spawn } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { generateUuid, parseSessionMessages } from '@better-claude-code/node-utils';
-import { spawn } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
 import type { SSEStreamingApi } from 'hono/streaming';
-import { homedir } from 'os';
-import { join } from 'path';
 import { sessionManager } from '../session-manager.js';
 import { type LiveSessionEvent, SessionStatus } from '../types.js';
 
@@ -98,8 +98,7 @@ export async function startStream(
     return;
   }
 
-  const claudeCliPath =
-    process.env.CLAUDE_CLI_PATH || '/home/lucas/.claude/local/node_modules/@anthropic-ai/claude-code/cli.js';
+  const claudeCliPath = join(homedir(), '.claude/local/node_modules/@anthropic-ai/claude-code/cli.js');
 
   if (!existsSync(claudeCliPath)) {
     await stream.writeSSE({
