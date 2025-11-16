@@ -1,4 +1,5 @@
 export enum TimeGroup {
+  LastHour = 'last-hour',
   Today = 'today',
   Yesterday = 'yesterday',
   ThisWeek = 'this-week',
@@ -8,6 +9,7 @@ export enum TimeGroup {
 }
 
 export const TIME_GROUP_ORDER: TimeGroup[] = [
+  TimeGroup.LastHour,
   TimeGroup.Today,
   TimeGroup.Yesterday,
   TimeGroup.ThisWeek,
@@ -17,6 +19,7 @@ export const TIME_GROUP_ORDER: TimeGroup[] = [
 ];
 
 export const TIME_GROUP_LABELS: Record<TimeGroup, string> = {
+  [TimeGroup.LastHour]: 'Last Hour',
   [TimeGroup.Today]: 'Today',
   [TimeGroup.Yesterday]: 'Yesterday',
   [TimeGroup.ThisWeek]: 'This Week',
@@ -26,6 +29,10 @@ export const TIME_GROUP_LABELS: Record<TimeGroup, string> = {
 };
 
 export const getTimeGroup = (timestamp: number): TimeGroup => {
+  const now = Date.now();
+  const oneHour = 60 * 60 * 1000;
+  const lastHourStart = now - oneHour;
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayStart = today.getTime();
@@ -44,6 +51,7 @@ export const getTimeGroup = (timestamp: number): TimeGroup => {
   const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
   const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999);
 
+  if (timestamp >= lastHourStart) return TimeGroup.LastHour;
   if (timestamp >= todayStart) return TimeGroup.Today;
   if (timestamp >= yesterdayStart) return TimeGroup.Yesterday;
   if (timestamp >= thisWeekStart) return TimeGroup.ThisWeek;
@@ -59,7 +67,9 @@ export function getGroupDate(groupName: TimeGroup) {
   const oneDay = 24 * 60 * 60 * 1000;
 
   let date: Date;
-  if (groupName === TimeGroup.Today) {
+  if (groupName === TimeGroup.LastHour) {
+    date = now;
+  } else if (groupName === TimeGroup.Today) {
     date = now;
   } else if (groupName === TimeGroup.Yesterday) {
     date = new Date(now.getTime() - oneDay);

@@ -3,10 +3,10 @@
   "version": "0.0.22",
   "description": "CLI auxiliary tools for Claude Code",
   "type": "module",
-  "main": "./dist/cli//main.js",
+  "main": "./dist/apps/cli/src/main.js",
   "bin": {
-    "bcc": "./dist/cli//main.js",
-    "better-cloude-code": "./dist/cli//main.js"
+    "bcc": "./dist/apps/cli/src/main.js",
+    "better-cloude-code": "./dist/apps/cli/src/main.js"
   },
   "files": [
     "dist"
@@ -23,6 +23,7 @@
     "access": "public"
   },
   "scripts": {
+    "start": "node dist/apps/cli/src/main.js",
     "dev": "tsx src//main.ts",
     "typecheck": "tsc --noEmit",
     "build": "rimraf ./dist && tsc",

@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import "tw-animate-css";
+@import '@better-claude-code/ui-components/styles';
 
 @custom-variant dark (&:is(.dark *));
 

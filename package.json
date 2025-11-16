@@ -2,7 +2,7 @@
   "name": "better-claude-code-root",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.22.0",
   "type": "module",
   "scripts": {
     "prepare": "turbo build --filter='./packages/*'",
@@ -10,7 +10,9 @@
     "dev": "npm run dev:app",
     "dev:cli": "pnpm --filter=better-claude-code dev",
     "dev:app": "turbo dev --filter='@better-claude-code/backend' --filter='@better-claude-code/frontend' --parallel",
+    "dev:vscode": "pnpm --filter=better-claude-code-vscode dev",
     "build": "turbo build",
+    "build:vscode": "turbo build --filter=better-claude-code-vscode",
     "typecheck": "turbo typecheck",
     "format": "biome format --write .",
     "lint": "biome check --write .",

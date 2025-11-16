@@ -1,0 +1,149 @@
+{
+	"name": "better-claude-code-vscode",
+	"displayName": "Better Claude Code",
+	"description": "Manage and analyze Claude Code sessions directly in VS Code",
+	"version": "0.1.0",
+	"publisher": "lucasvtiradentes",
+	"engines": {
+		"vscode": "^1.100.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"main": "./out/extension.js",
+	"scripts": {
+		"build": "node esbuild.config.js",
+		"postbuild": "tsx extension-scripts/install-local.ts",
+		"dev": "node esbuild.config.js --watch",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@better-claude-code/node-utils": "workspace:*",
+		"@better-claude-code/shared": "workspace:*",
+		"@better-claude-code/ui-components": "workspace:*",
+		"lucide-react": "^0.552.0",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
+	},
+	"devDependencies": {
+		"@tailwindcss/postcss": "^4.1.17",
+		"@types/node": "^22.10.5",
+		"@types/react": "^19.0.6",
+		"@types/react-dom": "^19.0.3",
+		"@types/vscode": "^1.100.0",
+		"autoprefixer": "^10.4.22",
+		"esbuild": "^0.24.2",
+		"postcss": "^8.5.6",
+		"tailwindcss": "^4.1.17",
+		"tsx": "^4.20.6",
+		"typescript": "^5.7.3"
+	},
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "bccExplorer",
+					"title": "Claude Code Sessions",
+					"icon": "resources/icon.svg"
+				}
+			]
+		},
+		"views": {
+			"bccExplorer": [
+				{
+					"id": "bccSessionExplorer",
+					"name": "Sessions",
+					"contextualTitle": "Claude Code Sessions"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "bcc.refreshSessions",
+				"title": "Refresh Sessions",
+				"category": "BCC",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.compactSession",
+				"title": "Compact Session",
+				"category": "BCC",
+				"icon": "$(archive)"
+			},
+			{
+				"command": "bcc.filterSessions",
+				"title": "Filter Sessions",
+				"category": "BCC",
+				"icon": "$(filter)"
+			},
+			{
+				"command": "bcc.openSessionFile",
+				"title": "Open Session File",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.copySessionPath",
+				"title": "Copy Session Path",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.showLogs",
+				"title": "Show Logs",
+				"category": "BCC",
+				"icon": "$(output)"
+			},
+			{
+				"command": "bcc.addLabel",
+				"title": "Add Label",
+				"category": "BCC",
+				"icon": "$(tag)"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "bcc.refreshSessions",
+					"when": "view == bccSessionExplorer",
+					"group": "navigation@1"
+				},
+				{
+					"command": "bcc.filterSessions",
+					"when": "view == bccSessionExplorer",
+					"group": "navigation@2"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "bcc.compactSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "inline@1"
+				},
+				{
+					"command": "bcc.addLabel",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "inline@2"
+				},
+				{
+					"command": "bcc.openSessionFile",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "1_navigation@1"
+				},
+				{
+					"command": "bcc.copySessionPath",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "1_navigation@2"
+				}
+			]
+		},
+		"keybindings": [
+			{
+				"command": "bcc.refreshSessions",
+				"key": "f5",
+				"when": "view == bccSessionExplorer"
+			}
+		]
+	}
+}

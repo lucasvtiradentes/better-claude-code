@@ -94,6 +94,22 @@
         "./package.json"
       ]
     },
+    "better-claude-code-vscode#build": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "out/**"
+      ],
+      "inputs": [
+        "./src/**",
+        "./resources/**",
+        "./esbuild.config.js",
+        "./tsconfig.json",
+        "./package.json"
+      ]
+    },
     "dev": {
       "outputLogs": "full",
       "cache": false,

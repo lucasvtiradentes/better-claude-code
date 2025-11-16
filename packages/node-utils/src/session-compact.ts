@@ -1,20 +1,14 @@
-import { readFileSync, writeFileSync } from 'node:fs';
-import { ClaudeHelper, MessageSource } from '@better-claude-code/node-utils';
-import { getGitRepoRoot } from '../git.js';
+import { existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from './claude-helper.js';
+import { generateUuid } from './uuid.js';
 
 interface MessageBlock {
   type: MessageSource;
   content: string;
 }
 
-export async function parseSessionToMarkdown(sessionFile: string, outputFile: string) {
-  let repoRoot: string;
-  try {
-    repoRoot = await getGitRepoRoot();
-  } catch {
-    repoRoot = process.cwd();
-  }
-
+export async function parseSessionToMarkdown(sessionFile: string, outputFile: string, repoRoot: string): Promise<void> {
   const content = readFileSync(sessionFile, 'utf-8');
   const lines = content.trim().split('\n');
 
@@ -162,4 +156,46 @@ export async function parseSessionToMarkdown(sessionFile: string, outputFile: st
   }
 
   writeFileSync(outputFile, markdown, 'utf-8');
+}
+
+export async function compactSession(
+  parsedFile: string,
+  outputFile: string,
+  promptTemplate: string,
+  currentDir: string
+): Promise<void> {
+  const cleanupUuid = generateUuid();
+
+  let prompt = `${CLAUDE_CODE_SESSION_COMPACTION_ID}: ${cleanupUuid}\n\n${promptTemplate}`;
+  prompt = prompt.replace('___FILE_TO_COMPACT___', `@${parsedFile}`);
+  prompt = prompt.replaceAll('___OUTPUT_FILE_PATH___', outputFile);
+
+  await ClaudeHelper.executePromptNonInteractively(prompt);
+
+  if (!existsSync(outputFile)) {
+    throw new Error(`Summary file was not created at ${outputFile}`);
+  }
+
+  const normalized = ClaudeHelper.normalizePathForClaudeProjects(currentDir);
+  const projectDir = join(ClaudeHelper.getProjectsDir(), normalized);
+
+  if (!existsSync(projectDir)) {
+    return;
+  }
+
+  const compactionSessions = readdirSync(projectDir)
+    .filter((file) => file.endsWith('.jsonl'))
+    .map((file) => join(projectDir, file))
+    .filter((file) => {
+      try {
+        const content = readFileSync(file, 'utf-8');
+        return content.includes(`${CLAUDE_CODE_SESSION_COMPACTION_ID}: ${cleanupUuid}`);
+      } catch {
+        return false;
+      }
+    });
+
+  for (const session of compactionSessions) {
+    unlinkSync(session);
+  }
 }
