@@ -4,6 +4,13 @@ import type { FilterCriteria, SessionListItem } from '../common/types.js';
 import { logger } from '../common/utils/logger.js';
 import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
 
+interface SessionProviderState {
+  groupBy: 'date' | 'token-percentage' | 'label';
+  isExpanded: boolean;
+  useSmartExpansion: boolean;
+  expandedGroups: string[];
+}
+
 export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -11,15 +18,53 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   private sessionManager: SessionManager;
   private currentWorkspacePath: string | null = null;
   private isExpanded: boolean = true;
+  private useSmartExpansion: boolean = true;
+  private expandedGroups: Set<string> = new Set();
   private itemIdCounter: number = 0;
+  private context: vscode.ExtensionContext | null = null;
 
   constructor() {
     this.sessionManager = new SessionManager();
   }
 
-  async initialize(workspacePath: string): Promise<void> {
+  async initialize(workspacePath: string, context: vscode.ExtensionContext): Promise<void> {
     this.currentWorkspacePath = workspacePath;
+    this.context = context;
+    this.loadState();
     await this.refresh();
+  }
+
+  private loadState(): void {
+    if (!this.context) return;
+
+    const state = this.context.workspaceState.get<SessionProviderState>('sessionProviderState');
+    if (state) {
+      logger.info(
+        `Loading saved state: groupBy=${state.groupBy}, isExpanded=${state.isExpanded}, useSmartExpansion=${state.useSmartExpansion}, expandedGroups=${state.expandedGroups?.join(', ') || 'none'}`
+      );
+      this.sessionManager.setGroupBy(state.groupBy);
+      this.isExpanded = state.isExpanded;
+      this.useSmartExpansion = state.useSmartExpansion ?? true;
+      this.expandedGroups = new Set(state.expandedGroups || []);
+    } else {
+      logger.info('No saved state found, using defaults: groupBy=date, isExpanded=true, useSmartExpansion=true');
+    }
+  }
+
+  private saveState(): void {
+    if (!this.context) return;
+
+    const state: SessionProviderState = {
+      groupBy: this.sessionManager.getGroupBy(),
+      isExpanded: this.isExpanded,
+      useSmartExpansion: this.useSmartExpansion,
+      expandedGroups: Array.from(this.expandedGroups)
+    };
+
+    this.context.workspaceState.update('sessionProviderState', state);
+    logger.info(
+      `Saved state: groupBy=${state.groupBy}, isExpanded=${state.isExpanded}, useSmartExpansion=${state.useSmartExpansion}, expandedGroups=${state.expandedGroups.join(', ') || 'none'}`
+    );
   }
 
   async refresh(): Promise<void> {
@@ -44,6 +89,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
   setGroupBy(groupBy: 'date' | 'token-percentage' | 'label'): void {
     this.sessionManager.setGroupBy(groupBy);
+    this.saveState();
     this._onDidChangeTreeData.fire();
   }
 
@@ -70,20 +116,27 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
       const dateGroups = this.sessionManager.groupByDate(filteredSessions);
 
       this.itemIdCounter++;
-      const items = dateGroups.map((group, index) => {
-        let collapsibleState: vscode.TreeItemCollapsibleState;
 
-        if (this.sessionManager.getGroupBy() === 'date') {
+      if (this.useSmartExpansion && this.expandedGroups.size === 0 && this.sessionManager.getGroupBy() === 'date') {
+        logger.info('Initializing expandedGroups from smart expansion');
+        dateGroups.forEach((group) => {
+          const groupLabel = group.label;
           const isRecentGroup =
-            group.label.toLowerCase().includes('last hour') || group.label.toLowerCase().includes('today');
-          collapsibleState = isRecentGroup
-            ? vscode.TreeItemCollapsibleState.Expanded
-            : vscode.TreeItemCollapsibleState.Collapsed;
-        } else {
-          collapsibleState = this.isExpanded
-            ? vscode.TreeItemCollapsibleState.Expanded
-            : vscode.TreeItemCollapsibleState.Collapsed;
-        }
+            groupLabel.toLowerCase().includes('last hour') || groupLabel.toLowerCase().includes('today');
+          if (isRecentGroup) {
+            this.expandedGroups.add(groupLabel);
+            logger.info(`  - Adding "${groupLabel}" to expandedGroups (smart init)`);
+          }
+        });
+      }
+
+      const items = dateGroups.map((group, index) => {
+        const groupLabel = group.label;
+        const isExpanded = this.expandedGroups.has(groupLabel);
+
+        const collapsibleState: vscode.TreeItemCollapsibleState = isExpanded
+          ? vscode.TreeItemCollapsibleState.Expanded
+          : vscode.TreeItemCollapsibleState.Collapsed;
 
         const item = new DateGroupTreeItem(group, collapsibleState);
         item.id = `date-group-${this.itemIdCounter}-${index}`;
@@ -91,7 +144,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
       });
 
       logger.info(
-        `getChildren: created ${items.length} groups with state ${this.isExpanded ? 'EXPANDED' : 'COLLAPSED'}, counter=${this.itemIdCounter}`
+        `getChildren: created ${items.length} groups, mode=${this.useSmartExpansion ? 'SMART' : 'MANUAL'}, expandedGroups=[${Array.from(this.expandedGroups).join(', ')}], counter=${this.itemIdCounter}`
       );
       return items;
     }
@@ -124,11 +177,39 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
   toggleCollapseExpand(): void {
     this.isExpanded = !this.isExpanded;
-    logger.info(`Toggle collapse/expand - new state: ${this.isExpanded ? 'EXPANDED' : 'COLLAPSED'}`);
+    this.useSmartExpansion = false;
+    logger.info(
+      `Toggle collapse/expand - new state: ${this.isExpanded ? 'EXPANDED' : 'COLLAPSED'}, disabled smart expansion`
+    );
+    this.saveState();
     this._onDidChangeTreeData.fire();
   }
 
   getIsExpanded(): boolean {
     return this.isExpanded;
+  }
+
+  onGroupExpanded(element: DateGroupTreeItem): void {
+    const groupLabel = element.dateGroup.label;
+    const wasInSet = this.expandedGroups.has(groupLabel);
+    this.expandedGroups.add(groupLabel);
+    this.useSmartExpansion = false;
+    logger.info(
+      `Group expanded by user: "${groupLabel}" (was in set: ${wasInSet}, total: ${this.expandedGroups.size})`
+    );
+    logger.info(`  Current expandedGroups: [${Array.from(this.expandedGroups).join(', ')}]`);
+    this.saveState();
+  }
+
+  onGroupCollapsed(element: DateGroupTreeItem): void {
+    const groupLabel = element.dateGroup.label;
+    const wasInSet = this.expandedGroups.has(groupLabel);
+    this.expandedGroups.delete(groupLabel);
+    this.useSmartExpansion = false;
+    logger.info(
+      `Group collapsed by user: "${groupLabel}" (was in set: ${wasInSet}, total: ${this.expandedGroups.size})`
+    );
+    logger.info(`  Current expandedGroups: [${Array.from(this.expandedGroups).join(', ')}]`);
+    this.saveState();
   }
 }

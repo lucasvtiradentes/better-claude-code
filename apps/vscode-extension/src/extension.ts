@@ -13,10 +13,45 @@ import { logger } from './common/utils/logger.js';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
 import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
+import { DateGroupTreeItem } from './sidebar/tree-items.js';
 import { StatusBarManager } from './status-bar/status-bar-manager.js';
 
 let sessionProvider: SessionProvider;
 let statusBarManager: StatusBarManager;
+
+class SessionDecorationProvider implements vscode.FileDecorationProvider {
+  private _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri | vscode.Uri[]>();
+  readonly onDidChangeFileDecorations = this._onDidChangeFileDecorations.event;
+
+  constructor(private provider: SessionProvider) {}
+
+  provideFileDecoration(uri: vscode.Uri): vscode.FileDecoration | undefined {
+    if (uri.scheme !== 'claude-session') {
+      return undefined;
+    }
+
+    const sessionId = uri.path;
+    const session = this.provider.getSession(sessionId);
+
+    if (!session) {
+      return undefined;
+    }
+
+    if (session.hasCompaction) {
+      return {
+        badge: '✓',
+        color: new vscode.ThemeColor('charts.green'),
+        tooltip: 'Compacted Session'
+      };
+    }
+
+    return undefined;
+  }
+
+  refresh(): void {
+    this._onDidChangeFileDecorations.fire(undefined as any);
+  }
+}
 
 export async function activate(context: vscode.ExtensionContext) {
   logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
@@ -30,8 +65,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
   sessionProvider = new SessionProvider();
 
+  const decorationProvider = new SessionDecorationProvider(sessionProvider);
+  context.subscriptions.push(vscode.window.registerFileDecorationProvider(decorationProvider));
+
   WebviewProvider.onPanelChange(() => {
     sessionProvider.refresh();
+    decorationProvider.refresh();
   });
 
   const packageJson = context.extension.packageJSON;
@@ -59,7 +98,7 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(createShowLogsCommand());
   context.subscriptions.push(treeView);
 
-  await sessionProvider.initialize(workspacePath);
+  await sessionProvider.initialize(workspacePath, context);
 
   statusBarManager.update();
 
@@ -70,23 +109,38 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   });
 
+  treeView.onDidExpandElement((e) => {
+    if (e.element instanceof DateGroupTreeItem) {
+      sessionProvider.onGroupExpanded(e.element);
+    }
+  });
+
+  treeView.onDidCollapseElement((e) => {
+    if (e.element instanceof DateGroupTreeItem) {
+      sessionProvider.onGroupCollapsed(e.element);
+    }
+  });
+
   const watcher = vscode.workspace.createFileSystemWatcher('**/*.jsonl');
 
   watcher.onDidCreate(async () => {
     logger.info('New session file detected, refreshing...');
     await sessionProvider.refresh();
+    decorationProvider.refresh();
     statusBarManager.update();
   });
 
   watcher.onDidChange(async () => {
     logger.info('Session file changed, refreshing...');
     await sessionProvider.refresh();
+    decorationProvider.refresh();
     statusBarManager.update();
   });
 
   watcher.onDidDelete(async () => {
     logger.info('Session file deleted, refreshing...');
     await sessionProvider.refresh();
+    decorationProvider.refresh();
     statusBarManager.update();
   });
 

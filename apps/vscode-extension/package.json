@@ -132,7 +132,7 @@
 				"command": "bcc.viewCompaction",
 				"title": "View Compaction",
 				"category": "BCC",
-				"icon": "$(notebook)"
+				"icon": "$(eye)"
 			}
 		],
 		"menus": {
@@ -160,14 +160,9 @@
 					"group": "inline@1"
 				},
 				{
-					"command": "bcc.compactSession",
-					"when": "view == bccSessionExplorer && viewItem == sessionItemWithCompaction",
-					"group": "inline@2"
-				},
-				{
 					"command": "bcc.addLabel",
 					"when": "view == bccSessionExplorer && viewItem == sessionItemWithCompaction",
-					"group": "inline@3"
+					"group": "inline@2"
 				},
 				{
 					"command": "bcc.compactSession",

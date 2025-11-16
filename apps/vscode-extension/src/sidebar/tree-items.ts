@@ -27,6 +27,8 @@ export class SessionTreeItem extends vscode.TreeItem {
     this.iconPath = this.buildIcon();
     this.contextValue = session.hasCompaction ? 'sessionItemWithCompaction' : 'sessionItem';
 
+    this.resourceUri = vscode.Uri.parse(`claude-session:${session.id}`);
+
     this.command = {
       command: 'bcc.viewSessionDetails',
       title: 'View Session Details',
@@ -37,10 +39,6 @@ export class SessionTreeItem extends vscode.TreeItem {
   private buildIcon(): vscode.ThemeIcon {
     if (this.isOpen) {
       return new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.orange'));
-    }
-
-    if (this.session.hasCompaction) {
-      return new vscode.ThemeIcon('notebook', new vscode.ThemeColor('charts.green'));
     }
 
     const tokenPercentage = this.session.tokenPercentage || 0;
