@@ -1,7 +1,7 @@
-import { platform } from 'node:os';
+import { USER_PLATFORM } from '@better-claude-code/node-utils';
 
 export function isSupportedOS() {
-  const currentPlatform = platform();
+  const currentPlatform = USER_PLATFORM;
   return currentPlatform === 'darwin' || currentPlatform === 'linux';
 }
 
@@ -12,7 +12,7 @@ export function validateOS() {
 }
 
 export function getOSName() {
-  const currentPlatform = platform();
+  const currentPlatform = USER_PLATFORM;
   switch (currentPlatform) {
     case 'darwin':
       return 'macOS';

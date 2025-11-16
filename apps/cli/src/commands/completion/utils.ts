@@ -1,6 +1,6 @@
 import { existsSync, unlinkSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { USER_HOME_DIR } from '@better-claude-code/node-utils';
 import { ConfigManager } from '../../config/config-manager.js';
 import { ENV } from '../../env.js';
 import { installBashCompletionSilent, installZshCompletionSilent } from './install.js';
@@ -44,8 +44,7 @@ export async function reinstallCompletionSilently() {
 }
 
 async function clearZshCompletionCache() {
-  const homeDir = homedir();
-  const zshCacheFile = join(homeDir, '.zcompdump');
+  const zshCacheFile = join(USER_HOME_DIR, '.zcompdump');
 
   try {
     if (existsSync(zshCacheFile)) {

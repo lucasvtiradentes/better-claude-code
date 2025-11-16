@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 interface CacheEntry<T> {
@@ -59,7 +59,6 @@ export class JsonFileCache {
   async delete(key: string): Promise<void> {
     this.memoryCache.delete(key);
     try {
-      const { unlink } = await import('node:fs/promises');
       await unlink(this.getCachePath(key));
     } catch {}
   }
@@ -67,7 +66,6 @@ export class JsonFileCache {
   async clear(): Promise<void> {
     this.memoryCache.clear();
     try {
-      const { rm } = await import('node:fs/promises');
       await rm(this.cacheDir, { recursive: true, force: true });
     } catch {}
   }

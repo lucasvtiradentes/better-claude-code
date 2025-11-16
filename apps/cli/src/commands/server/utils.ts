@@ -1,9 +1,8 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
-import os from 'node:os';
-import { join } from 'node:path';
+import { BCC_SERVER_LOG_FILE, BCC_SERVER_PID_FILE } from '@better-claude-code/node-utils';
 
-export const LOG_FILE = join(os.tmpdir(), 'bcc-server.log');
-export const PID_FILE = join(os.tmpdir(), 'bcc-server.pid');
+export const LOG_FILE = BCC_SERVER_LOG_FILE;
+export const PID_FILE = BCC_SERVER_PID_FILE;
 
 export function savePid(pid: number, port: number) {
   const pidData = JSON.stringify({ pid, port });

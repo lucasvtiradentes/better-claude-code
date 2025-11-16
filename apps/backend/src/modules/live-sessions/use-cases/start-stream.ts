@@ -1,18 +1,23 @@
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { generateUuid, parseSessionMessages } from '@better-claude-code/node-utils';
+import {
+  CLAUDE_CODE_CLI_PATH,
+  CLAUDE_CODE_PROJECTS_DIR,
+  generateUuid,
+  parseSessionMessages,
+  USER_HOME_DIR
+} from '@better-claude-code/node-utils';
 import type { SSEStreamingApi } from 'hono/streaming';
 import { sessionManager } from '../session-manager.js';
 import { type LiveSessionEvent, SessionStatus } from '../types.js';
 
 function expandPath(path: string): string {
   if (path.startsWith('~/')) {
-    return path.replace('~', homedir());
+    return path.replace('~', USER_HOME_DIR);
   }
   if (path === '~') {
-    return homedir();
+    return USER_HOME_DIR;
   }
   return path;
 }
@@ -98,7 +103,7 @@ export async function startStream(
     return;
   }
 
-  const claudeCliPath = join(homedir(), '.claude/local/node_modules/@anthropic-ai/claude-code/cli.js');
+  const claudeCliPath = CLAUDE_CODE_CLI_PATH;
 
   if (!existsSync(claudeCliPath)) {
     await stream.writeSSE({
@@ -115,7 +120,7 @@ export async function startStream(
   const args = ['--print', '--input-format', 'stream-json', '--output-format', 'stream-json', '--verbose'];
 
   const projectPathNormalized = expandedProjectPath.replace(/\//g, '-').replace(/_/g, '-');
-  const claudeSessionPath = join(homedir(), '.claude', 'projects', projectPathNormalized, `${sessionId}.jsonl`);
+  const claudeSessionPath = join(CLAUDE_CODE_PROJECTS_DIR, projectPathNormalized, `${sessionId}.jsonl`);
   const sessionFileExists = existsSync(claudeSessionPath);
 
   const shouldResume = sessionId !== 'new' && session && sessionFileExists;

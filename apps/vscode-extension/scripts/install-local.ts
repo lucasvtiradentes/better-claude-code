@@ -1,6 +1,6 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { VSCODE_EXTENSIONS_DIR } from '@better-claude-code/node-utils';
 
 interface PackageJson {
   publisher: string;
@@ -10,8 +10,7 @@ interface PackageJson {
 
 const packageJson: PackageJson = JSON.parse(readFileSync('package.json', 'utf8'));
 const extensionName = `${packageJson.publisher}.${packageJson.name}-${packageJson.version}`;
-const homeDir = homedir();
-const targetDir = join(homeDir, '.vscode', 'extensions', extensionName);
+const targetDir = join(VSCODE_EXTENSIONS_DIR, extensionName);
 
 if (existsSync(targetDir)) {
   rmSync(targetDir, { recursive: true });

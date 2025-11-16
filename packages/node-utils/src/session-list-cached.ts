@@ -1,8 +1,8 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { JsonFileCache } from './cache.js';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper.js';
+import { BCC_SESSIONS_CACHE_DIR } from './monorepo-path-utils.js';
 import {
   CLAUDE_CODE_COMMANDS,
   createMessageKey,
@@ -16,7 +16,7 @@ import { MessageCountMode, SessionSortBy, TitleSource } from './session-list.js'
 const IGNORE_EMPTY_SESSIONS = true;
 const MAX_TITLE_LENGTH = 80;
 const TOKEN_LIMIT = 180000;
-const CACHE_DIR = join(homedir(), '.config', 'bcc', 'cache', 'sessions');
+const CACHE_DIR = BCC_SESSIONS_CACHE_DIR;
 const DEFAULT_CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
 
 const sessionCache = new JsonFileCache(CACHE_DIR);

@@ -1,6 +1,4 @@
-import { homedir } from 'node:os';
-import { join } from 'node:path';
-import { getPromptPathForBackend, PromptFile } from '@better-claude-code/node-utils';
+import { CLAUDE_CODE_GLOBAL_CONFIG, getPromptPathForBackend, PromptFile } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
@@ -46,7 +44,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
 
     const files = [
       {
-        path: join(homedir(), '.claude', 'CLAUDE.md'),
+        path: CLAUDE_CODE_GLOBAL_CONFIG,
         label: 'Global CLAUDE.md'
       },
       {

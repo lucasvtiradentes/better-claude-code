@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { platform } from 'node:os';
-import { execAsync } from '@better-claude-code/node-utils';
+import { execAsync, USER_PLATFORM } from '@better-claude-code/node-utils';
 import { APP_CLI_NAME, APP_NPM_PACKAGE_NAME } from '@better-claude-code/shared';
 import { Command } from 'commander';
 import { createCommandFromSchema } from '../definitions/command-builder.js';
@@ -105,7 +104,7 @@ async function detectPackageManager(): Promise<string | null> {
 }
 
 async function getGlobalNpmPath(): Promise<string | null> {
-  const isWindows = platform() === 'win32';
+  const isWindows = USER_PLATFORM === 'win32';
 
   try {
     const whereCommand = isWindows ? 'where' : 'which';

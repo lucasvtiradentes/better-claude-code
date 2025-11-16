@@ -1,9 +1,8 @@
 import { appendFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { BCC_EXTENSION_LOG_FILE } from '@better-claude-code/node-utils';
 import * as vscode from 'vscode';
 
-export const LOG_FILE_PATH = join(tmpdir(), 'bcc_logs.txt');
+export const LOG_FILE_PATH = BCC_EXTENSION_LOG_FILE;
 
 class Logger {
   private outputChannel: vscode.OutputChannel;

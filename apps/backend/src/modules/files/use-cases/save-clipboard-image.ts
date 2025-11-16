@@ -1,6 +1,6 @@
-import { writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { USER_TMP_DIR } from '@better-claude-code/node-utils';
 import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
@@ -77,10 +77,9 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(7);
     const filename = `screenshot-${timestamp}-${random}${extension}`;
-    const tmpDir = tmpdir();
+    const tmpDir = USER_TMP_DIR;
     const imgDir = join(tmpDir, 'img');
 
-    const { mkdirSync } = await import('node:fs');
     mkdirSync(imgDir, { recursive: true });
 
     const filePath = join(imgDir, filename);

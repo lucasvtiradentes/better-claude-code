@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
+import { CLAUDE_CODE_DIR, USER_HOME_DIR, USER_PLATFORM } from './monorepo-path-utils.js';
 
 export const CLAUDE_CODE_SESSION_COMPACTION_ID = 'CLAUDE_CODE_SESSION_COMPACTION_ID';
 
@@ -12,11 +12,11 @@ export enum MessageSource {
 
 export class ClaudeHelper {
   static getClaudeDir() {
-    return join(homedir(), '.claude');
+    return CLAUDE_CODE_DIR;
   }
 
   static getProjectsDir() {
-    return join(ClaudeHelper.getClaudeDir(), 'projects');
+    return join(CLAUDE_CODE_DIR, 'projects');
   }
 
   static getProjectDir(projectName: string) {
@@ -36,15 +36,14 @@ export class ClaudeHelper {
   }
 
   static getClaudeBinaryPath() {
-    const currentPlatform = platform();
-    const homeDir = homedir();
+    const currentPlatform = USER_PLATFORM;
 
     switch (currentPlatform) {
       case 'darwin':
       case 'linux':
-        return join(homeDir, '.claude', 'local', 'claude');
+        return join(USER_HOME_DIR, '.claude', 'local', 'claude');
       case 'win32':
-        return join(homeDir, '.claude', 'local', 'claude.exe');
+        return join(USER_HOME_DIR, '.claude', 'local', 'claude.exe');
       default:
         throw new Error(`Unsupported platform: ${currentPlatform}`);
     }

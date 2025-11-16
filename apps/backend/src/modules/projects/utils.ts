@@ -1,12 +1,17 @@
 import { createReadStream } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
-import os from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
-import { ClaudeHelper, execAsync, parseSessionLine, validateSessionFile } from '@better-claude-code/node-utils';
+import {
+  BCC_SETTINGS_PATH,
+  ClaudeHelper,
+  execAsync,
+  parseSessionLine,
+  validateSessionFile
+} from '@better-claude-code/node-utils';
 import { AppSettings } from '../../common/schemas.js';
 
-const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
+const SETTINGS_PATH = BCC_SETTINGS_PATH;
 
 interface GitCacheEntry {
   githubUrl?: string;

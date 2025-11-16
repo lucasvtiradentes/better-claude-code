@@ -1,7 +1,6 @@
 import { access, readdir, stat } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { ClaudeHelper, JsonFileCache } from '@better-claude-code/node-utils';
+import { BCC_PROJECTS_CACHE_DIR, ClaudeHelper, JsonFileCache, USER_HOME_DIR } from '@better-claude-code/node-utils';
 import {
   getSessionCountGroup,
   getTimeGroup,
@@ -15,7 +14,7 @@ import { z } from 'zod';
 import { ErrorSchema } from '../../../common/schemas.js';
 import { extractProjectName, getGitInfo, getRealPathFromSession, readSettings } from '../utils.js';
 
-const CACHE_DIR = join(homedir(), '.config', 'bcc', 'cache', 'projects');
+const CACHE_DIR = BCC_PROJECTS_CACHE_DIR;
 const listProjectsCache = new JsonFileCache(CACHE_DIR);
 
 interface ProjectCacheEntry {
@@ -130,7 +129,7 @@ async function processProject(folder: string, projectsPath: string, settings: an
   }
 
   const name = extractProjectName(realPath);
-  const displayPath = realPath.replace(homedir(), '~');
+  const displayPath = realPath.replace(USER_HOME_DIR, '~');
 
   const hidden = settings?.projects.hiddenProjects.includes(folder) || false;
 

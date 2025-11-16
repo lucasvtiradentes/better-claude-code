@@ -1,8 +1,8 @@
 import { accessSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import os from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
+import { BCC_SETTINGS_PATH } from './monorepo-path-utils.js';
 
-const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
+const SETTINGS_PATH = BCC_SETTINGS_PATH;
 
 export type SessionLabelSettings = {
   id: string;

@@ -1,6 +1,6 @@
 import { accessSync, constants, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { USER_HOME_DIR } from '@better-claude-code/node-utils';
 import { Command } from 'commander';
 
 import { ConfigManager } from '../../config/config-manager.js';
@@ -46,13 +46,11 @@ export function createInstallCommand(): Command {
 }
 
 async function installZshCompletion() {
-  const homeDir = homedir();
-
   const possibleDirs = [
-    join(homeDir, '.oh-my-zsh', 'completions'),
-    join(homeDir, '.zsh', 'completions'),
-    join(homeDir, '.config', 'zsh', 'completions'),
-    join(homeDir, '.local', 'share', 'zsh', 'site-functions'),
+    join(USER_HOME_DIR, '.oh-my-zsh', 'completions'),
+    join(USER_HOME_DIR, '.zsh', 'completions'),
+    join(USER_HOME_DIR, '.config', 'zsh', 'completions'),
+    join(USER_HOME_DIR, '.local', 'share', 'zsh', 'site-functions'),
     '/usr/local/share/zsh/site-functions'
   ];
 
@@ -69,7 +67,7 @@ async function installZshCompletion() {
   }
 
   if (!targetDir) {
-    targetDir = join(homeDir, '.zsh', 'completions');
+    targetDir = join(USER_HOME_DIR, '.zsh', 'completions');
     mkdirSync(targetDir, { recursive: true });
   }
 
@@ -86,7 +84,7 @@ async function installZshCompletion() {
   Logger.info(colors.cyan('  source ~/.zshrc'));
 
   try {
-    const zshrc = join(homeDir, '.zshrc');
+    const zshrc = join(USER_HOME_DIR, '.zshrc');
     if (existsSync(zshrc)) {
       const zshrcContent = readFileSync(zshrc, 'utf8');
       if (!zshrcContent.includes(targetDir)) {
@@ -98,11 +96,9 @@ async function installZshCompletion() {
 }
 
 async function installBashCompletion() {
-  const homeDir = homedir();
-
   const possibleDirs = [
-    join(homeDir, '.bash_completion.d'),
-    join(homeDir, '.local', 'share', 'bash-completion', 'completions'),
+    join(USER_HOME_DIR, '.bash_completion.d'),
+    join(USER_HOME_DIR, '.local', 'share', 'bash-completion', 'completions'),
     '/usr/local/etc/bash_completion.d',
     '/etc/bash_completion.d'
   ];
@@ -120,7 +116,7 @@ async function installBashCompletion() {
   }
 
   if (!targetDir) {
-    targetDir = join(homeDir, '.bash_completion.d');
+    targetDir = join(USER_HOME_DIR, '.bash_completion.d');
     mkdirSync(targetDir, { recursive: true });
   }
 
@@ -137,13 +133,11 @@ async function installBashCompletion() {
 }
 
 export async function installZshCompletionSilent() {
-  const homeDir = homedir();
-
   const possibleDirs = [
-    join(homeDir, '.oh-my-zsh', 'completions'),
-    join(homeDir, '.zsh', 'completions'),
-    join(homeDir, '.config', 'zsh', 'completions'),
-    join(homeDir, '.local', 'share', 'zsh', 'site-functions'),
+    join(USER_HOME_DIR, '.oh-my-zsh', 'completions'),
+    join(USER_HOME_DIR, '.zsh', 'completions'),
+    join(USER_HOME_DIR, '.config', 'zsh', 'completions'),
+    join(USER_HOME_DIR, '.local', 'share', 'zsh', 'site-functions'),
     '/usr/local/share/zsh/site-functions'
   ];
 
@@ -160,7 +154,7 @@ export async function installZshCompletionSilent() {
   }
 
   if (!targetDir) {
-    targetDir = join(homeDir, '.zsh', 'completions');
+    targetDir = join(USER_HOME_DIR, '.zsh', 'completions');
     mkdirSync(targetDir, { recursive: true });
   }
 
@@ -169,11 +163,9 @@ export async function installZshCompletionSilent() {
 }
 
 export async function installBashCompletionSilent() {
-  const homeDir = homedir();
-
   const possibleDirs = [
-    join(homeDir, '.bash_completion.d'),
-    join(homeDir, '.local', 'share', 'bash-completion', 'completions'),
+    join(USER_HOME_DIR, '.bash_completion.d'),
+    join(USER_HOME_DIR, '.local', 'share', 'bash-completion', 'completions'),
     '/usr/local/etc/bash_completion.d',
     '/etc/bash_completion.d'
   ];
@@ -191,7 +183,7 @@ export async function installBashCompletionSilent() {
   }
 
   if (!targetDir) {
-    targetDir = join(homeDir, '.bash_completion.d');
+    targetDir = join(USER_HOME_DIR, '.bash_completion.d');
     mkdirSync(targetDir, { recursive: true });
   }
 

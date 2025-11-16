@@ -1,9 +1,9 @@
 import { accessSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import os from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
+import { BCC_SETTINGS_PATH } from '@better-claude-code/node-utils';
 import { AppSettings } from '../../common/schemas';
 
-const SETTINGS_PATH = join(os.homedir(), '.config', 'bcc', 'settings.json');
+const SETTINGS_PATH = BCC_SETTINGS_PATH;
 
 const DEFAULT_SETTINGS: AppSettings = {
   projects: {

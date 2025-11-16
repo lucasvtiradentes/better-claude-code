@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
-import * as os from 'node:os';
 import { join } from 'node:path';
+import { USER_HOME_DIR, USER_PLATFORM, USER_PLATFORM_RELEASE } from '@better-claude-code/node-utils';
 import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { getPackageJsonPath } from '../utils/paths.js';
 
@@ -14,11 +14,11 @@ export const APP_INFO = {
 type SupportedOS = 'linux' | 'mac' | 'windows' | 'wsl';
 
 export function getUserOS(): SupportedOS {
-  const platform = os.platform();
+  const platformOs = USER_PLATFORM;
 
-  if (platform === 'linux') {
+  if (platformOs === 'linux') {
     try {
-      const release = os.release().toLowerCase();
+      const release = USER_PLATFORM_RELEASE.toLowerCase();
       if (release.includes('microsoft') || release.includes('wsl')) {
         return 'wsl';
       }
@@ -26,24 +26,23 @@ export function getUserOS(): SupportedOS {
     return 'linux';
   }
 
-  if (platform === 'darwin') return 'mac';
-  if (platform === 'win32') return 'windows';
+  if (platformOs === 'darwin') return 'mac';
+  if (platformOs === 'win32') return 'windows';
 
-  throw new Error(`Unsupported OS: ${platform}`);
+  throw new Error(`Unsupported OS: ${USER_PLATFORM}`);
 }
 
 export function getConfigDirectory() {
   const userOS = getUserOS();
-  const homeDir = os.homedir();
 
   switch (userOS) {
     case 'linux':
     case 'wsl':
-      return join(homeDir, '.config', APP_CLI_NAME);
+      return join(USER_HOME_DIR, '.config', APP_CLI_NAME);
     case 'mac':
-      return join(homeDir, 'Library', 'Preferences', APP_CLI_NAME);
+      return join(USER_HOME_DIR, 'Library', 'Preferences', APP_CLI_NAME);
     case 'windows':
-      return join(homeDir, 'AppData', 'Roaming', APP_CLI_NAME);
+      return join(USER_HOME_DIR, 'AppData', 'Roaming', APP_CLI_NAME);
     default:
       throw new Error(`Unsupported OS: ${userOS}`);
   }
