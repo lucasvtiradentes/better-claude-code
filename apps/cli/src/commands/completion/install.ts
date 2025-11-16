@@ -1,8 +1,8 @@
 import { accessSync, constants, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { USER_HOME_DIR } from '@better-claude-code/node-utils';
+import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { Command } from 'commander';
-
 import { ConfigManager } from '../../config/config-manager.js';
 import { createSubCommandFromSchema } from '../../definitions/command-builder.js';
 import { generateBashCompletion, generateZshCompletion } from '../../definitions/generators/completion-generator.js';
@@ -120,7 +120,7 @@ async function installBashCompletion() {
     mkdirSync(targetDir, { recursive: true });
   }
 
-  const completionFile = join(targetDir, 'bcc');
+  const completionFile = join(targetDir, APP_CLI_NAME);
   writeFileSync(completionFile, BASH_COMPLETION_SCRIPT);
 
   Logger.success(`Bash completion installed to ${completionFile}`);
@@ -187,6 +187,6 @@ export async function installBashCompletionSilent() {
     mkdirSync(targetDir, { recursive: true });
   }
 
-  const completionFile = join(targetDir, 'bcc');
+  const completionFile = join(targetDir, APP_CLI_NAME);
   writeFileSync(completionFile, BASH_COMPLETION_SCRIPT);
 }

@@ -1,5 +1,6 @@
 import { appendFileSync } from 'node:fs';
 import { BCC_EXTENSION_LOG_FILE } from '@better-claude-code/node-utils';
+import { APP_NAME } from '@better-claude-code/shared';
 import * as vscode from 'vscode';
 
 export const LOG_FILE_PATH = BCC_EXTENSION_LOG_FILE;
@@ -8,7 +9,7 @@ class Logger {
   private outputChannel: vscode.OutputChannel;
 
   constructor() {
-    this.outputChannel = vscode.window.createOutputChannel('Better Claude Code');
+    this.outputChannel = vscode.window.createOutputChannel(APP_NAME);
   }
 
   info(message: string): void {

@@ -1,3 +1,4 @@
+import { APP_NAME } from '@better-claude-code/shared';
 import * as vscode from 'vscode';
 import { registerAddLabelCommand } from './commands/add-label.js';
 import { registerCompactCommand } from './commands/compact.js';
@@ -16,7 +17,7 @@ let statusBarManager: StatusBarManager;
 let sessionProvider: SessionProvider;
 
 export async function activate(context: vscode.ExtensionContext) {
-  logger.info('Better Claude Code extension is now active');
+  logger.info(`${APP_NAME} extension is now active`);
 
   const workspacePath = getCurrentWorkspacePath();
 
@@ -81,12 +82,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(watcher);
 
-  logger.info('Better Claude Code extension activation complete');
+  logger.info(`${APP_NAME} extension activation complete`);
 }
 
 export function deactivate() {
   if (statusBarManager) {
     statusBarManager.dispose();
   }
-  logger.info('Better Claude Code extension deactivated\n\n');
+  logger.info(`${APP_NAME} extension deactivated\n\n`);
 }
