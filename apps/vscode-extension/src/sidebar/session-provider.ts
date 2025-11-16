@@ -11,6 +11,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   private sessionManager: SessionManager;
   private currentWorkspacePath: string | null = null;
   private isExpanded: boolean = true;
+  private itemIdCounter: number = 0;
 
   constructor() {
     this.sessionManager = new SessionManager();
@@ -72,7 +73,17 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
         ? vscode.TreeItemCollapsibleState.Expanded
         : vscode.TreeItemCollapsibleState.Collapsed;
 
-      return dateGroups.map((group) => new DateGroupTreeItem(group, collapsibleState));
+      this.itemIdCounter++;
+      const items = dateGroups.map((group, index) => {
+        const item = new DateGroupTreeItem(group, collapsibleState);
+        item.id = `date-group-${this.itemIdCounter}-${index}`;
+        return item;
+      });
+
+      logger.info(
+        `getChildren: created ${items.length} groups with state ${this.isExpanded ? 'EXPANDED' : 'COLLAPSED'}, counter=${this.itemIdCounter}`
+      );
+      return items;
     }
 
     if (element instanceof DateGroupTreeItem) {
@@ -103,6 +114,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
   toggleCollapseExpand(): void {
     this.isExpanded = !this.isExpanded;
+    logger.info(`Toggle collapse/expand - new state: ${this.isExpanded ? 'EXPANDED' : 'COLLAPSED'}`);
     this._onDidChangeTreeData.fire();
   }
 

@@ -14,8 +14,8 @@ import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
 import { StatusBarManager } from './status-bar/status-bar-manager.js';
 
-let statusBarManager: StatusBarManager;
 let sessionProvider: SessionProvider;
+let statusBarManager: StatusBarManager;
 
 export async function activate(context: vscode.ExtensionContext) {
   logger.info(`${APP_NAME} extension is now active`);
@@ -33,7 +33,13 @@ export async function activate(context: vscode.ExtensionContext) {
     sessionProvider.refresh();
   });
 
-  const treeView = vscode.window.createTreeView('bccSessionExplorer', {
+  const packageJson = context.extension.packageJSON;
+  const viewId =
+    packageJson.contributes?.views?.bccExplorer?.[0]?.id ||
+    packageJson.contributes?.views?.bccExplorerDev?.[0]?.id ||
+    'bccSessionExplorer';
+
+  const treeView = vscode.window.createTreeView(viewId, {
     treeDataProvider: sessionProvider
   });
 

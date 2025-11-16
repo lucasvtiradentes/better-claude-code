@@ -22,3 +22,17 @@ Manage and analyze Claude Code sessions directly in VS Code.
 
 - Claude Code CLI installed
 - Node.js 18+
+
+## Development
+
+To build and install the extension locally:
+
+```bash
+pnpm build
+```
+
+This installs the extension as `lucasvtiradentes.better-claude-code-vscode-dev`, keeping your official marketplace version intact.
+
+**Extension locations:**
+- Official (marketplace): `~/.vscode/extensions/lucasvtiradentes.better-claude-code-vscode-0.1.6`
+- Development (local): `~/.vscode/extensions/lucasvtiradentes.better-claude-code-vscode-dev`
