@@ -3,6 +3,7 @@
 	"displayName": "Better Claude Code",
 	"description": "Manage and analyze Claude Code sessions directly in VS Code",
 	"version": "0.1.0",
+	"private": true,
 	"publisher": "lucasvtiradentes",
 	"engines": {
 		"vscode": "^1.100.0"
