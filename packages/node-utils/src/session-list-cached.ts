@@ -1,8 +1,8 @@
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { access, readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { JsonFileCache } from './cache.js';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper.js';
-import { BCC_SESSIONS_CACHE_DIR } from './monorepo-path-utils.js';
+import { BCC_SESSIONS_CACHE_DIR, getCompactionSummaryPath } from './monorepo-path-utils.js';
 import {
   CLAUDE_CODE_COMMANDS,
   createMessageKey,
@@ -36,6 +36,7 @@ export interface SessionCacheEntry {
   userMessageCount?: number;
   assistantMessageCount?: number;
   fileMtime: number;
+  hasCompaction?: boolean;
 }
 
 interface ParsedLine {
@@ -320,6 +321,14 @@ async function processSessionFileWithCache(
     if (labels) entry.labels = labels;
   }
 
+  const summaryPath = getCompactionSummaryPath(projectName, sessionId);
+  try {
+    await access(summaryPath);
+    entry.hasCompaction = true;
+  } catch {
+    entry.hasCompaction = false;
+  }
+
   return entry;
 }
 
@@ -435,7 +444,8 @@ export async function listSessionsCached(
     assistantMessageCount: session.assistantMessageCount,
     summary: session.summary,
     filePath: join(sessionsPath, `${session.id}.jsonl`),
-    cached: session.wasCached
+    cached: session.wasCached,
+    hasCompaction: session.hasCompaction
   }));
 
   return { items };

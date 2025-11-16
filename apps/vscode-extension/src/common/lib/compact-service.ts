@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import {
   ClaudeHelper,
   compactSession,
+  ensureCompactionDirExists,
+  getCompactionParsedPath,
+  getCompactionSummaryPath,
   getPromptPathForExtension,
   PromptFile,
   parseSessionToMarkdown
@@ -14,15 +16,17 @@ export class CompactService {
     try {
       logger.info(`Compacting session ${sessionId} for workspace ${workspacePath}`);
 
-      const shortId = sessionId.slice(0, 12);
       const normalizedPath = ClaudeHelper.normalizePathForClaudeProjects(workspacePath);
       const sessionFile = ClaudeHelper.getSessionPath(normalizedPath, sessionId);
-      const parsedFile = join(workspacePath, `cc-session-parsed-${shortId}.md`);
-      const summaryFile = join(workspacePath, `cc-session-summary-${shortId}.md`);
+
+      ensureCompactionDirExists(normalizedPath, sessionId);
+
+      const parsedFile = getCompactionParsedPath(normalizedPath, sessionId);
+      const summaryFile = getCompactionSummaryPath(normalizedPath, sessionId);
 
       logger.info('Step 1/2: Parsing session to markdown...');
       await parseSessionToMarkdown(sessionFile, parsedFile, workspacePath);
-      logger.info(`Parsed to: ${parsedFile}`);
+      logger.info('Parsed session to markdown');
 
       logger.info('Step 2/2: Compacting via Claude Code...');
       const promptTemplatePath = getPromptPathForExtension(PromptFile.SESSION_COMPACTION);

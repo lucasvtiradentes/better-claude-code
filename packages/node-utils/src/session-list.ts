@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper.js';
+import { getCompactionSummaryPath } from './monorepo-path-utils.js';
 import {
   CLAUDE_CODE_COMMANDS,
   createMessageKey,
@@ -71,6 +72,7 @@ export interface SessionListItem {
   assistantMessageCount?: number;
   summary?: string;
   cached?: boolean;
+  hasCompaction?: boolean;
 }
 
 export interface SessionListResult {
@@ -437,6 +439,11 @@ async function processSessionFile(
   if (options.includeLabels && options.settings) {
     const labels = getLabelsFromSettings(options.settings, projectName, sessionId);
     if (labels) session.labels = labels;
+  }
+
+  const compactionSummaryPath = getCompactionSummaryPath(projectName, sessionId);
+  if (existsSync(compactionSummaryPath)) {
+    session.hasCompaction = true;
   }
 
   return session;

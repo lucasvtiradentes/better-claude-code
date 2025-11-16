@@ -1,3 +1,4 @@
+import { mkdirSync } from 'node:fs';
 import { homedir, platform, release, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
@@ -15,6 +16,7 @@ export const BCC_SETTINGS_PATH = join(BCC_CONFIG_DIR, 'settings.json');
 export const BCC_CACHE_DIR = join(BCC_CONFIG_DIR, 'cache');
 export const BCC_SESSIONS_CACHE_DIR = join(BCC_CACHE_DIR, 'sessions');
 export const BCC_PROJECTS_CACHE_DIR = join(BCC_CACHE_DIR, 'projects');
+export const BCC_SESSIONS_COMPACTED_DIR = join(BCC_CONFIG_DIR, 'compacted');
 export const BCC_SERVER_LOG_FILE = join(USER_TMP_DIR, 'bcc-server.log');
 export const BCC_SERVER_PID_FILE = join(USER_TMP_DIR, 'bcc-server.pid');
 export const BCC_EXTENSION_LOG_FILE = join(USER_TMP_DIR, 'bcc_logs.txt');
@@ -30,6 +32,16 @@ export const VSCODE_EXTENSIONS_DIR = join(USER_HOME_DIR, '.vscode', 'extensions'
 function getCallerLocation(): string {
   const error = new Error();
   const stack = error.stack?.split('\n') || [];
+
+  for (const line of stack) {
+    if (line.includes('.vscode/extensions') && line.includes('better-claude-code-vscode')) {
+      const match = line.match(/\(([^)]+\.vscode\/extensions\/[^)]+)\)/);
+      if (match) {
+        const fullPath = match[1].split(':')[0];
+        return dirname(fullPath);
+      }
+    }
+  }
 
   for (const line of stack) {
     if (line.includes('file://') && !line.includes('monorepo-path-utils')) {
@@ -67,6 +79,14 @@ const getCallerInfo = (): {
   }
 
   if (callerLocation.includes('/apps/vscode-extension/out')) {
+    return {
+      callerDir: callerLocation,
+      isDevMode: false,
+      appType: 'extension'
+    };
+  }
+
+  if (callerLocation.includes('.vscode/extensions') && callerLocation.includes('better-claude-code-vscode')) {
     return {
       callerDir: callerLocation,
       isDevMode: false,
@@ -137,6 +157,13 @@ function getRepoRoot(baseDir: string, type: 'cli' | 'backend' | 'extension', dev
       const parts = baseDir.split('/apps/vscode-extension/out');
       return join(parts[0], 'apps/vscode-extension/out');
     }
+
+    if (baseDir.includes('.vscode/extensions') && baseDir.includes('better-claude-code-vscode')) {
+      const match = baseDir.match(/(.*\.vscode\/extensions\/[^/]*better-claude-code-vscode[^/]*)/);
+      if (match) {
+        return join(match[1], 'out');
+      }
+    }
   }
 
   if (baseDir.includes(`apps/${type}`)) {
@@ -175,4 +202,22 @@ export function getPromptPathForBackend(promptFile: PromptFile): string {
 
 export function getPromptPathForExtension(promptFile: PromptFile): string {
   return join(PROMPTS_FOLDER_FOR_EXTENSION, promptFile);
+}
+
+export function getCompactionDir(normalizedProjectPath: string, sessionId: string): string {
+  return join(BCC_SESSIONS_COMPACTED_DIR, normalizedProjectPath, sessionId);
+}
+
+export function getCompactionParsedPath(normalizedProjectPath: string, sessionId: string): string {
+  return join(getCompactionDir(normalizedProjectPath, sessionId), 'parsed.md');
+}
+
+export function getCompactionSummaryPath(normalizedProjectPath: string, sessionId: string): string {
+  return join(getCompactionDir(normalizedProjectPath, sessionId), 'summary.md');
+}
+
+export function ensureCompactionDirExists(normalizedProjectPath: string, sessionId: string): string {
+  const compactionDir = getCompactionDir(normalizedProjectPath, sessionId);
+  mkdirSync(compactionDir, { recursive: true });
+  return compactionDir;
 }

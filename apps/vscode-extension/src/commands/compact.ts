@@ -1,3 +1,4 @@
+import { sessionCache } from '@better-claude-code/node-utils';
 import * as vscode from 'vscode';
 import { CompactService } from '../common/lib/compact-service.js';
 import { logger } from '../common/utils/logger.js';
@@ -33,6 +34,11 @@ export function registerCompactCommand(
 
       vscode.window.showInformationMessage(`Session compacted successfully: ${item.session.shortId}`);
       logger.info(`Compact result: ${result}`);
+
+      await sessionCache.clear();
+
+      const doc = await vscode.workspace.openTextDocument(result);
+      await vscode.window.showTextDocument(doc, { preview: false });
 
       await sessionProvider.refresh();
     } catch (error) {

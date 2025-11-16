@@ -7,6 +7,7 @@ import { registerFilterCommand } from './commands/filter.js';
 import { registerRefreshCommand } from './commands/refresh.js';
 import { createShowLogsCommand } from './commands/show-logs.js';
 import { registerToggleCollapseCommand } from './commands/toggle-collapse.js';
+import { registerViewCompactionCommand } from './commands/view-compaction.js';
 import { registerViewDetailsCommand } from './commands/view-details.js';
 import { logger } from './common/utils/logger.js';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
@@ -18,7 +19,7 @@ let sessionProvider: SessionProvider;
 let statusBarManager: StatusBarManager;
 
 export async function activate(context: vscode.ExtensionContext) {
-  logger.info(`${APP_NAME} extension is now active`);
+  logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
 
   const workspacePath = getCurrentWorkspacePath();
 
@@ -48,6 +49,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   registerRefreshCommand(context, sessionProvider);
   registerCompactCommand(context, sessionProvider, workspacePath);
+  registerViewCompactionCommand(context, workspacePath);
   registerViewDetailsCommand(context, sessionProvider);
   registerFilterCommand(context, sessionProvider);
   registerFileOperationsCommands(context);

@@ -1,7 +1,10 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import {
+  ClaudeHelper,
   compactSession,
+  ensureCompactionDirExists,
+  getCompactionParsedPath,
+  getCompactionSummaryPath,
   getPromptPathForCli,
   PromptFile,
   parseSessionToMarkdown
@@ -162,15 +165,18 @@ function formatDuration(ms: number): string {
 }
 
 async function performCompaction(sessionId: string, sessionFile: string, repoRoot: string) {
-  const shortId = sessionId.slice(0, 12);
-  const parsedFile = join(repoRoot, `cc-session-parsed-${shortId}.md`);
-  const summaryFile = join(repoRoot, `cc-session-summary-${shortId}.md`);
+  const normalizedPath = ClaudeHelper.normalizePathForClaudeProjects(repoRoot);
+
+  ensureCompactionDirExists(normalizedPath, sessionId);
+
+  const parsedFile = getCompactionParsedPath(normalizedPath, sessionId);
+  const summaryFile = getCompactionSummaryPath(normalizedPath, sessionId);
 
   Logger.loading('Step 1/2: Parsing session to markdown...');
   const parseStart = Date.now();
   await parseSessionToMarkdown(sessionFile, parsedFile, repoRoot);
   const parseDuration = Date.now() - parseStart;
-  Logger.success(`Parsed to: ${parsedFile} (${formatDuration(parseDuration)})`);
+  Logger.success(`Parsed (${formatDuration(parseDuration)})`);
 
   Logger.info('');
   Logger.loading('Step 2/2: Compacting via Claude Code...');
@@ -181,8 +187,9 @@ async function performCompaction(sessionId: string, sessionFile: string, repoRoo
 
   await compactSession(parsedFile, summaryFile, promptTemplate, repoRoot);
   const compactDuration = Date.now() - compactStart;
-  Logger.success(`Summary saved to: ${summaryFile} (${formatDuration(compactDuration)})`);
+  Logger.success(`Compacted (${formatDuration(compactDuration)})`);
 
   Logger.info('');
   Logger.success('Compaction complete!');
+  Logger.info(`Summary: ${summaryFile}`);
 }

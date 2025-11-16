@@ -25,7 +25,7 @@ export class SessionTreeItem extends vscode.TreeItem {
     this.description = this.buildDescription();
     this.tooltip = this.buildTooltip();
     this.iconPath = this.buildIcon();
-    this.contextValue = 'sessionItem';
+    this.contextValue = session.hasCompaction ? 'sessionItemWithCompaction' : 'sessionItem';
 
     this.command = {
       command: 'bcc.viewSessionDetails',
@@ -37,6 +37,10 @@ export class SessionTreeItem extends vscode.TreeItem {
   private buildIcon(): vscode.ThemeIcon {
     if (this.isOpen) {
       return new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.orange'));
+    }
+
+    if (this.session.hasCompaction) {
+      return new vscode.ThemeIcon('notebook', new vscode.ThemeColor('charts.green'));
     }
 
     const tokenPercentage = this.session.tokenPercentage || 0;
@@ -124,6 +128,11 @@ export class SessionTreeItem extends vscode.TreeItem {
       lines.push('');
       lines.push('Summary:');
       lines.push(this.session.summary);
+    }
+
+    if (this.session.hasCompaction) {
+      lines.push('');
+      lines.push('✓ Compaction available');
     }
 
     return lines.join('\n');
