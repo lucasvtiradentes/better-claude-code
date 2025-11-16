@@ -61,8 +61,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
   statusBarManager.update();
 
-  treeView.onDidChangeVisibility(() => {
+  treeView.onDidChangeVisibility(async () => {
     if (treeView.visible) {
+      await sessionProvider.refresh();
       statusBarManager.update();
     }
   });

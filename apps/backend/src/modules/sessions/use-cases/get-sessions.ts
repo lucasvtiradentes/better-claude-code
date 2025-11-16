@@ -129,7 +129,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       urlCount: session.urlCount,
       labels: session.labels,
       summary: session.summary,
-      cached: false
+      cached: session.cached ?? false
     }));
 
     const groups = groupSessions({

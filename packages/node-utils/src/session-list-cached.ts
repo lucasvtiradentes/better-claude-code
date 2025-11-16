@@ -358,7 +358,7 @@ export async function listSessionsCached(
   );
 
   const filesToProcess: string[] = [];
-  const cachedSessions: SessionCacheEntry[] = [];
+  const cachedSessions: Array<SessionCacheEntry & { wasCached: boolean }> = [];
 
   for (const { file, mtime } of fileMtimes) {
     const sessionId = file.replace('.jsonl', '');
@@ -367,7 +367,7 @@ export async function listSessionsCached(
     if (!cached || cached.fileMtime !== mtime) {
       filesToProcess.push(file);
     } else {
-      cachedSessions.push(cached);
+      cachedSessions.push({ ...cached, wasCached: true });
     }
   }
 
@@ -388,7 +388,10 @@ export async function listSessionsCached(
     )
   );
 
-  const newSessions = processedResults.filter((s) => s !== null) as SessionCacheEntry[];
+  const newSessions = (processedResults.filter((s) => s !== null) as SessionCacheEntry[]).map((s) => ({
+    ...s,
+    wasCached: false
+  }));
 
   const updatedCache = { ...cachedData };
   for (const session of newSessions) {
@@ -431,7 +434,8 @@ export async function listSessionsCached(
     userMessageCount: session.userMessageCount,
     assistantMessageCount: session.assistantMessageCount,
     summary: session.summary,
-    filePath: join(sessionsPath, `${session.id}.jsonl`)
+    filePath: join(sessionsPath, `${session.id}.jsonl`),
+    cached: session.wasCached
   }));
 
   return { items };

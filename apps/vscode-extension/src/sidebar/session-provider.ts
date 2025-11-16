@@ -69,12 +69,22 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
       const filteredSessions = this.sessionManager.getFilteredSessions();
       const dateGroups = this.sessionManager.groupByDate(filteredSessions);
 
-      const collapsibleState = this.isExpanded
-        ? vscode.TreeItemCollapsibleState.Expanded
-        : vscode.TreeItemCollapsibleState.Collapsed;
-
       this.itemIdCounter++;
       const items = dateGroups.map((group, index) => {
+        let collapsibleState: vscode.TreeItemCollapsibleState;
+
+        if (this.sessionManager.getGroupBy() === 'date') {
+          const isRecentGroup =
+            group.label.toLowerCase().includes('last hour') || group.label.toLowerCase().includes('today');
+          collapsibleState = isRecentGroup
+            ? vscode.TreeItemCollapsibleState.Expanded
+            : vscode.TreeItemCollapsibleState.Collapsed;
+        } else {
+          collapsibleState = this.isExpanded
+            ? vscode.TreeItemCollapsibleState.Expanded
+            : vscode.TreeItemCollapsibleState.Collapsed;
+        }
+
         const item = new DateGroupTreeItem(group, collapsibleState);
         item.id = `date-group-${this.itemIdCounter}-${index}`;
         return item;

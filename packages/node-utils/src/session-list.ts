@@ -70,6 +70,7 @@ export interface SessionListItem {
   userMessageCount?: number;
   assistantMessageCount?: number;
   summary?: string;
+  cached?: boolean;
 }
 
 export interface SessionListResult {

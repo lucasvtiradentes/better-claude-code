@@ -34,7 +34,7 @@ export class SessionManager {
         includeLabels: true,
         sortBy: SessionSortBy.DATE,
         settings,
-        skipCache: true
+        skipCache: false
       });
 
       this.sessions = result.items;
