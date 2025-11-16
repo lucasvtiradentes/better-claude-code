@@ -1,5 +1,11 @@
 # better-claude-code-vscode
 
+## 0.1.6
+
+### Patch Changes
+
+- 38c7047: fix ci error
+
 ## 0.1.5
 
 ### Patch Changes
