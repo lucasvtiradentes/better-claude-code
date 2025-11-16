@@ -7,20 +7,20 @@ echo "🚀 Starting release process..."
 echo "📦 Building packages..."
 turbo build
 
-# Step 2: Store VS Code extension version BEFORE changeset publish
-VSCODE_PKG="apps/vscode-extension/package.json"
-VERSION_BEFORE=$(node -p "require('./$VSCODE_PKG').version")
-
-# Step 3: Publish to npm via Changesets
+# Step 2: Publish to npm via Changesets
 echo "📢 Publishing to npm..."
 changeset publish
 
-# Step 4: Check if VS Code extension version was bumped by changeset
-VERSION_AFTER=$(node -p "require('./$VSCODE_PKG').version")
+# Step 3: Check if VS Code extension should be published
+# Look for git tag matching the extension version (created by changesets)
+VSCODE_PKG="apps/vscode-extension/package.json"
+CURRENT_VERSION=$(node -p "require('./$VSCODE_PKG').version")
+TAG_NAME="better-claude-code-vscode@${CURRENT_VERSION}"
 
-if [ "$VERSION_BEFORE" != "$VERSION_AFTER" ]; then
-  echo "✅ VS Code extension version bumped: $VERSION_BEFORE → $VERSION_AFTER"
-  echo "📤 Publishing to VS Code Marketplace..."
+# Check if this tag was just created (exists locally but not on remote yet)
+if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+  echo "✅ Found new VS Code extension tag: $TAG_NAME"
+  echo "📤 Publishing version $CURRENT_VERSION to VS Code Marketplace..."
 
   # Check if vsce is installed
   if ! command -v vsce &> /dev/null; then
@@ -45,7 +45,7 @@ if [ "$VERSION_BEFORE" != "$VERSION_AFTER" ]; then
 
   echo "✅ VS Code extension published to Marketplace!"
 else
-  echo "ℹ️  VS Code extension version not changed ($VERSION_BEFORE), skipping Marketplace publish"
+  echo "ℹ️  No new VS Code extension version to publish (current: $CURRENT_VERSION)"
 fi
 
 echo "🎉 Release process completed!"
