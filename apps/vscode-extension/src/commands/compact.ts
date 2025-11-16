@@ -5,9 +5,14 @@ import { logger } from '../common/utils/logger.js';
 import type { SessionProvider } from '../sidebar/session-provider.js';
 import { SessionTreeItem } from '../sidebar/tree-items.js';
 
+interface DecorationProvider {
+  refresh(): void;
+}
+
 export function registerCompactCommand(
   context: vscode.ExtensionContext,
   sessionProvider: SessionProvider,
+  decorationProvider: DecorationProvider,
   workspacePath: string
 ): void {
   const compactService = new CompactService();
@@ -41,6 +46,7 @@ export function registerCompactCommand(
       await vscode.window.showTextDocument(doc, { preview: false });
 
       await sessionProvider.refresh();
+      decorationProvider.refresh();
     } catch (error) {
       logger.error('Failed to compact session', error as Error);
       vscode.window.showErrorMessage('Failed to compact session. Make sure BCC CLI is installed.');

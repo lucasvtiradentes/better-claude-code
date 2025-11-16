@@ -18,6 +18,7 @@ import { StatusBarManager } from './status-bar/status-bar-manager.js';
 
 let sessionProvider: SessionProvider;
 let statusBarManager: StatusBarManager;
+let decorationProvider: SessionDecorationProvider;
 
 class SessionDecorationProvider implements vscode.FileDecorationProvider {
   private _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri | vscode.Uri[]>();
@@ -65,7 +66,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   sessionProvider = new SessionProvider();
 
-  const decorationProvider = new SessionDecorationProvider(sessionProvider);
+  decorationProvider = new SessionDecorationProvider(sessionProvider);
   context.subscriptions.push(vscode.window.registerFileDecorationProvider(decorationProvider));
 
   WebviewProvider.onPanelChange(() => {
@@ -86,8 +87,8 @@ export async function activate(context: vscode.ExtensionContext) {
   statusBarManager = new StatusBarManager(sessionProvider);
   context.subscriptions.push(statusBarManager.getDisposable());
 
-  registerRefreshCommand(context, sessionProvider);
-  registerCompactCommand(context, sessionProvider, workspacePath);
+  registerRefreshCommand(context, sessionProvider, decorationProvider);
+  registerCompactCommand(context, sessionProvider, decorationProvider, workspacePath);
   registerViewCompactionCommand(context, workspacePath);
   registerViewDetailsCommand(context, sessionProvider);
   registerFilterCommand(context, sessionProvider);
