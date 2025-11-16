@@ -1,6 +1,7 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M12 2L4 7V17L12 22L20 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M12 12L4 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M12 12V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M12 12L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <text x="44" y="90" font-family="'Segoe UI', Arial, sans-serif" font-size="56" font-weight="700" stroke="currentColor" stroke-width="2" fill="none" text-anchor="middle" opacity="0.5">C</text>
+
+  <text x="84" y="90" font-family="'Segoe UI', Arial, sans-serif" font-size="56" font-weight="700" stroke="currentColor" stroke-width="2" fill="none" text-anchor="middle" opacity="0.5">C</text>
+
+  <text x="64" y="52" font-family="'Segoe UI', Arial, sans-serif" font-size="64" font-weight="700" stroke="currentColor" stroke-width="2" fill="none" text-anchor="middle">B</text>
 </svg>
