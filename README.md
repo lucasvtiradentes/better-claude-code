@@ -53,7 +53,7 @@ Command-line interface for session management and web server control.
 
 Native VS Code extension for editor integration.
 
-- **Package**: [`better-claude-code-vscode`](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.better-claude-code-vscode)
+- **Vscode extension**: [`better-claude-code-vscode`](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.better-claude-code-vscode)
 - **Installation**: Search "Better Claude Code" in VS Code Extensions
 - **Documentation**: [Extension README](./apps/vscode-extension/README.md)
 
