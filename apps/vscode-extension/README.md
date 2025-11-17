@@ -1,38 +1,155 @@
-# Better Claude Code - VS Code Extension
+<div align="center">
+<img width="64" src="https://raw.githubusercontent.com/lucasvtiradentes/linear-cmd/refs/heads/main/.github/image/hero-image.png" alt="BCC Extension logo">
+<h2>Better Claude Code - VS Code Extension</h2>
+<p>Manage and analyze Claude Code sessions directly in VS Code</p>
+<p>
+  <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.better-claude-code-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/lucasvtiradentes.better-claude-code-vscode.svg" alt="vscode version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.better-claude-code-vscode"><img src="https://img.shields.io/visual-studio-marketplace/i/lucasvtiradentes.better-claude-code-vscode.svg" alt="installs"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <br>
+  <a href="#star-features">Features</a> • <a href="#rocket-installation">Installation</a> • <a href="#bulb-usage">Usage</a> • <a href="#wrench-development">Development</a>
+</p>
 
-Manage and analyze Claude Code sessions directly in VS Code.
+</div>
 
-## Features
+## :star: Features
 
-- Browse all Claude Code sessions for the current workspace
-- Group sessions by time period (Today, Yesterday, This Week, Older)
-- View detailed session information including token usage and conversation flow
-- Compact sessions to markdown with AI-generated summaries
-- Filter sessions by date, tokens, and content type
-- Status bar showing session count and token usage
+- **Session Browser** - Tree view with grouping and filtering
+- **Real-time Updates** - File system watching detects new sessions instantly
+- **Session Compaction** - One-click AI summarization via Claude Code CLI
+- **Rich Viewing** - Full conversation display with images and metadata
+- **Custom Labels** - Tag sessions for organization
+- **Status Bar** - Quick session stats at a glance
+- **Advanced Filtering** - Filter by date, tokens, labels, and content type
+- **Smart Grouping** - Group by date, token percentage, or custom labels
 
-## Usage
+## :rocket: Installation
+
+**From VS Code Marketplace:**
+
+1. Open VS Code
+2. Go to Extensions (Ctrl/Cmd + Shift + X)
+3. Search for "Better Claude Code"
+4. Click Install
+
+**From Command Line:**
+
+```bash
+code --install-extension lucasvtiradentes.better-claude-code-vscode
+```
+
+## :bulb: Usage
+
+### Getting Started
 
 1. Open a folder/workspace in VS Code
-2. Click the Claude Code icon in the activity bar
+2. Click the BCC icon in the activity bar
 3. Browse sessions for the current project
-4. Right-click on a session for actions (compact, view details, etc.)
+4. Right-click on a session for actions
 
-## Requirements
+### Session Browser
 
+Browse all Claude Code sessions from the activity bar:
+
+- **Tree View**: Hierarchical display grouped by your preference
+- **Auto-Discovery**: Automatically detects sessions from `~/.claude/sessions/`
+- **Smart Expansion**: Auto-opens "Today" and "Last Hour" groups
+
+Each session displays:
+- Token usage percentage (color-coded)
+- Message count (user + assistant)
+- Image count, file references
+- Custom commands, URLs
+- Compaction status (✓ badge)
+- Custom labels
+
+### Session Grouping
+
+Organize sessions using multiple grouping modes:
+
+- **By Date**: Last Hour, Today, Yesterday, This Week, This Month, Older
+- **By Token Usage**: 0-25%, 25-50%, 50-75%, 75-90%, 90-100%
+- **By Custom Labels**: User-defined project labels
+
+Change grouping via "Filter Sessions" command.
+
+### Session Actions
+
+Right-click context menu provides:
+
+- **View Conversation**: Open full session in webview panel
+- **Compact Session**: Generate AI summary
+- **Add Label**: Tag with custom labels
+- **Open Session File**: View raw JSONL in editor
+- **Copy Session Path**: Copy file path to clipboard
+- **Delete Session**: Remove session with confirmation
+
+### Conversation Viewer
+
+Full-screen webview panel with:
+
+- **Message Filtering**: Toggle user messages, assistant messages, tool calls
+- **Image Preview**: Click to open images in modal
+- **Metadata Display**: Session stats, badges, properties
+- **Actions Menu**: Quick access to operations
+
+### Session Compaction
+
+One-click AI summarization:
+
+1. Right-click session → "Compact Session"
+2. BCC parses JSONL to markdown
+3. Claude Code CLI generates summary
+4. Output saved to `.bcc-compaction/{sessionId}/`
+5. Summary opens automatically
+
+Output files:
+- `parsed.md` - Full conversation markdown
+- `summary.md` - AI-generated summary
+- `metadata.json` - Compaction metadata
+
+### Commands
+
+Access via Command Palette (Ctrl/Cmd + Shift + P):
+
+- `BCC: Refresh Sessions` - Reload all sessions (F5)
+- `BCC: Filter Sessions` - Change grouping mode
+- `BCC: Compact Session` - Summarize session
+- `BCC: Add Label` - Toggle session labels
+- `BCC: Show Logs` - Open extension logs
+- `BCC: Toggle Collapse/Expand` - Toggle all groups
+- `BCC: View Compaction` - Open summary file
+
+## :wrench: Development
+
+**Build and install locally:**
+
+```bash
+cd apps/vscode-extension
+pnpm install                     # Install dependencies
+pnpm run dev                     # Watch mode with hot reload
+pnpm run build                   # Build for production
+pnpm run typecheck               # Type checking
+pnpm run vscode:package          # Package as .vsix
+```
+
+**Local Installation:**
+
+```bash
+pnpm run build
+```
+
+This installs a development version with "-dev" suffix, keeping your marketplace version intact.
+
+**Extension locations:**
+- Official: `~/.vscode/extensions/lucasvtiradentes.better-claude-code-vscode-0.1.6`
+- Development: `~/.vscode/extensions/lucasvtiradentes.better-claude-code-vscode-dev`
+
+**Requirements:**
+- VS Code 1.100.0+
 - Claude Code CLI installed
 - Node.js 18+
 
-## Development
+## :scroll: License
 
-To build and install the extension locally:
-
-```bash
-pnpm build
-```
-
-This installs the extension as `lucasvtiradentes.better-claude-code-vscode-dev`, keeping your official marketplace version intact.
-
-**Extension locations:**
-- Official (marketplace): `~/.vscode/extensions/lucasvtiradentes.better-claude-code-vscode-0.1.6`
-- Development (local): `~/.vscode/extensions/lucasvtiradentes.better-claude-code-vscode-dev`
+MIT License - see [LICENSE](../../LICENSE) file for details.
