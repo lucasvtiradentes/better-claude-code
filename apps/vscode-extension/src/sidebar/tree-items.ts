@@ -17,7 +17,9 @@ export class SessionTreeItem extends vscode.TreeItem {
   constructor(
     public readonly session: SessionListItem,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public readonly isOpen: boolean = false
+    public readonly isOpen: boolean = false,
+    public readonly isPinned: boolean = false,
+    public readonly isChecked: boolean = false
   ) {
     super('', collapsibleState);
 
@@ -25,18 +27,21 @@ export class SessionTreeItem extends vscode.TreeItem {
     this.description = this.buildDescription();
     this.tooltip = this.buildTooltip();
     this.iconPath = this.buildIcon();
-    this.contextValue = session.hasCompaction ? 'sessionItemWithCompaction' : 'sessionItem';
+
+    if (this.isChecked) {
+      this.contextValue = 'sessionItemChecked';
+    } else {
+      this.contextValue = session.hasCompaction ? 'sessionItemWithCompaction' : 'sessionItem';
+    }
 
     this.resourceUri = vscode.Uri.parse(`claude-session:${session.id}`);
-
-    this.command = {
-      command: 'bcc.viewSessionDetails',
-      title: 'View Session Details',
-      arguments: [session]
-    };
   }
 
   private buildIcon(): vscode.ThemeIcon {
+    if (this.isChecked) {
+      return new vscode.ThemeIcon('check', new vscode.ThemeColor('charts.green'));
+    }
+
     if (this.isOpen) {
       return new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.orange'));
     }
@@ -57,7 +62,8 @@ export class SessionTreeItem extends vscode.TreeItem {
   }
 
   private buildLabel(): string {
-    return `${this.session.tokenPercentage || 0}% • ${this.session.title}`;
+    const prefix = this.isPinned ? '📌 ' : '';
+    return `${prefix}${this.session.tokenPercentage || 0}% • ${this.session.title}`;
   }
 
   private buildDescription(): string {

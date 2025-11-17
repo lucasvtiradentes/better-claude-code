@@ -2,9 +2,12 @@ import { ConfigManager } from '@better-claude-code/node-utils';
 import { APP_NAME } from '@better-claude-code/shared';
 import * as vscode from 'vscode';
 import { registerAddLabelCommand } from './commands/add-label.js';
+import { registerBatchOperationsCommands } from './commands/batch-operations.js';
+import { registerCheckSessionCommands } from './commands/check-session.js';
 import { registerCompactCommand } from './commands/compact.js';
 import { registerFileOperationsCommands } from './commands/file-operations.js';
 import { registerFilterCommand } from './commands/filter.js';
+import { registerPinSessionCommand } from './commands/pin-session.js';
 import { registerRefreshCommand } from './commands/refresh.js';
 import { createShowLogsCommand } from './commands/show-logs.js';
 import { registerToggleCollapseCommand } from './commands/toggle-collapse.js';
@@ -14,7 +17,7 @@ import { logger } from './common/utils/logger.js';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
 import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
-import { DateGroupTreeItem } from './sidebar/tree-items.js';
+import { DateGroupTreeItem, SessionTreeItem } from './sidebar/tree-items.js';
 import { StatusBarManager } from './status-bar/status-bar-manager.js';
 import { WorkspaceState } from './storage/workspace-state.js';
 
@@ -102,6 +105,9 @@ export async function activate(context: vscode.ExtensionContext) {
   registerFileOperationsCommands(context);
   registerAddLabelCommand(context, sessionProvider);
   registerToggleCollapseCommand(context, sessionProvider);
+  registerPinSessionCommand(context, sessionProvider);
+  registerCheckSessionCommands(context, sessionProvider);
+  registerBatchOperationsCommands(context, sessionProvider, decorationProvider, workspacePath);
 
   context.subscriptions.push(createShowLogsCommand());
   context.subscriptions.push(treeView);
@@ -114,6 +120,18 @@ export async function activate(context: vscode.ExtensionContext) {
     if (treeView.visible) {
       await sessionProvider.refresh();
       statusBarManager.update();
+    }
+  });
+
+  treeView.onDidChangeSelection(async (e) => {
+    if (e.selection.length === 1) {
+      const item = e.selection[0];
+      if (item instanceof SessionTreeItem) {
+        logger.info(`[TreeView] Single selection detected: ${item.session.shortId}, opening details`);
+        await vscode.commands.executeCommand('bcc.viewSessionDetails', item.session);
+      }
+    } else if (e.selection.length > 1) {
+      logger.info(`[TreeView] Multi-selection detected: ${e.selection.length} items selected`);
     }
   });
 

@@ -6,6 +6,7 @@ interface SessionProviderState {
   isExpanded: boolean;
   useSmartExpansion: boolean;
   expandedGroups: string[];
+  pinnedSessions?: string[];
 }
 
 interface MessageFiltersState {
@@ -58,5 +59,33 @@ export class WorkspaceState {
   setMessageFiltersState(state: MessageFiltersState): void {
     this.context.workspaceState.update(KEYS.MESSAGE_FILTERS, state);
     logger.info(`[WorkspaceState] Save messageFilters: ${JSON.stringify(state)}`);
+  }
+
+  getPinnedSessions(): string[] {
+    const state = this.getSessionProviderState();
+    return state?.pinnedSessions || [];
+  }
+
+  setPinnedSessions(sessionIds: string[]): void {
+    const state = this.getSessionProviderState() || {
+      groupBy: 'date' as const,
+      isExpanded: true,
+      useSmartExpansion: true,
+      expandedGroups: []
+    };
+    this.setSessionProviderState({ ...state, pinnedSessions: sessionIds });
+  }
+
+  togglePinSession(sessionId: string): boolean {
+    const pinned = this.getPinnedSessions();
+    const isPinned = pinned.includes(sessionId);
+
+    if (isPinned) {
+      this.setPinnedSessions(pinned.filter((id) => id !== sessionId));
+    } else {
+      this.setPinnedSessions([...pinned, sessionId]);
+    }
+
+    return !isPinned;
   }
 }

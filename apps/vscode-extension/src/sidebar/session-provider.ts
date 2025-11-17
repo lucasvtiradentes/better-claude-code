@@ -20,6 +20,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   private expandedGroups: Set<string> = new Set();
   private itemIdCounter: number = 0;
   private workspaceState: WorkspaceState | null = null;
+  private checkedSessions: Set<string> = new Set();
 
   constructor() {
     this.sessionManager = new SessionManager();
@@ -29,6 +30,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     this.currentWorkspacePath = workspacePath;
     this.workspaceState = new WorkspaceState(context);
     this.loadState();
+    this.updateContextKeys();
     await this.refresh();
   }
 
@@ -142,10 +144,35 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     if (element instanceof DateGroupTreeItem) {
       const { WebviewProvider } = await import('../session-view-page/webview-provider.js');
       const openSessionIds = new Set(WebviewProvider.getOpenSessionIds());
+      const pinnedIds = this.workspaceState?.getPinnedSessions() || [];
 
-      return element.dateGroup.sessions.map(
-        (session) => new SessionTreeItem(session, vscode.TreeItemCollapsibleState.None, openSessionIds.has(session.id))
-      );
+      const pinnedSessions = element.dateGroup.sessions
+        .filter((s) => pinnedIds.includes(s.id))
+        .map(
+          (session) =>
+            new SessionTreeItem(
+              session,
+              vscode.TreeItemCollapsibleState.None,
+              openSessionIds.has(session.id),
+              true,
+              this.checkedSessions.has(session.id)
+            )
+        );
+
+      const unpinnedSessions = element.dateGroup.sessions
+        .filter((s) => !pinnedIds.includes(s.id))
+        .map(
+          (session) =>
+            new SessionTreeItem(
+              session,
+              vscode.TreeItemCollapsibleState.None,
+              openSessionIds.has(session.id),
+              false,
+              this.checkedSessions.has(session.id)
+            )
+        );
+
+      return [...pinnedSessions, ...unpinnedSessions];
     }
 
     return [];
@@ -166,12 +193,37 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   }
 
   toggleCollapseExpand(): void {
-    this.isExpanded = !this.isExpanded;
+    const filteredSessions = this.sessionManager.getFilteredSessions();
+    const dateGroups = this.sessionManager.groupByDate(filteredSessions);
+
+    const totalGroups = dateGroups.length;
+    const expandedCount = this.expandedGroups.size;
+    const currentlyMostlyExpanded = expandedCount > totalGroups / 2;
+
     this.useSmartExpansion = false;
+
     logger.info(
-      `Toggle collapse/expand - new state: ${this.isExpanded ? 'EXPANDED' : 'COLLAPSED'}, disabled smart expansion`
+      `Toggle collapse/expand - BEFORE: totalGroups=${totalGroups}, expandedCount=${expandedCount}, currentlyMostlyExpanded=${currentlyMostlyExpanded}, isExpanded=${this.isExpanded}`
+    );
+
+    if (currentlyMostlyExpanded) {
+      this.expandedGroups.clear();
+      this.isExpanded = false;
+      logger.info('  Action: COLLAPSING all groups');
+    } else {
+      dateGroups.forEach((group) => {
+        const normalizedLabel = normalizeGroupLabel(group.label);
+        this.expandedGroups.add(normalizedLabel);
+      });
+      this.isExpanded = true;
+      logger.info('  Action: EXPANDING all groups');
+    }
+
+    logger.info(
+      `Toggle collapse/expand - AFTER: isExpanded=${this.isExpanded}, expandedGroups=[${Array.from(this.expandedGroups).join(', ')}]`
     );
     this.saveState();
+    this.updateContextKeys();
     this._onDidChangeTreeData.fire();
   }
 
@@ -229,5 +281,53 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
   async getSummaryPath(sessionId: string): Promise<string | null> {
     return await this.sessionManager.getSummaryPath(sessionId);
+  }
+
+  togglePinSession(sessionId: string): boolean {
+    if (!this.workspaceState) {
+      throw new Error('WorkspaceState not initialized');
+    }
+    const isPinned = this.workspaceState.togglePinSession(sessionId);
+    this._onDidChangeTreeData.fire();
+    return isPinned;
+  }
+
+  isPinned(sessionId: string): boolean {
+    const pinnedIds = this.workspaceState?.getPinnedSessions() || [];
+    return pinnedIds.includes(sessionId);
+  }
+
+  toggleCheckSession(sessionId: string): boolean {
+    const isChecked = this.checkedSessions.has(sessionId);
+    if (isChecked) {
+      this.checkedSessions.delete(sessionId);
+    } else {
+      this.checkedSessions.add(sessionId);
+    }
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire();
+    return !isChecked;
+  }
+
+  isChecked(sessionId: string): boolean {
+    return this.checkedSessions.has(sessionId);
+  }
+
+  getCheckedSessions(): string[] {
+    return Array.from(this.checkedSessions);
+  }
+
+  clearAllChecks(): void {
+    this.checkedSessions.clear();
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire();
+  }
+
+  hasCheckedSessions(): boolean {
+    return this.checkedSessions.size > 0;
+  }
+
+  private updateContextKeys(): void {
+    vscode.commands.executeCommand('setContext', 'bcc.hasCheckedSessions', this.hasCheckedSessions());
   }
 }

@@ -96,9 +96,9 @@
 			},
 			{
 				"command": "bcc.filterSessions",
-				"title": "Filter Sessions",
+				"title": "Group Sessions",
 				"category": "BCC",
-				"icon": "$(filter)"
+				"icon": "$(group-by-ref-type)"
 			},
 			{
 				"command": "bcc.openSessionFile",
@@ -124,33 +124,80 @@
 			},
 			{
 				"command": "bcc.toggleCollapseExpand",
-				"title": "Toggle Collapse/Expand",
+				"title": "Toggle Collapse/Expand All Groups",
 				"category": "BCC",
-				"icon": "$(unfold)"
+				"icon": "$(fold)"
 			},
 			{
 				"command": "bcc.viewCompaction",
 				"title": "View Compaction",
 				"category": "BCC",
 				"icon": "$(eye)"
+			},
+			{
+				"command": "bcc.togglePinSession",
+				"title": "Pin/Unpin Session",
+				"category": "BCC",
+				"icon": "$(pin)"
+			},
+			{
+				"command": "bcc.batchCompact",
+				"title": "Compact Selected Sessions",
+				"category": "BCC",
+				"icon": "$(archive)"
+			},
+			{
+				"command": "bcc.batchDelete",
+				"title": "Delete Selected Sessions",
+				"category": "BCC",
+				"icon": "$(trash)"
+			},
+			{
+				"command": "bcc.batchAddLabel",
+				"title": "Add Label to Selected Sessions",
+				"category": "BCC",
+				"icon": "$(tag)"
+			},
+			{
+				"command": "bcc.toggleCheckSession",
+				"title": "Check/Uncheck Session",
+				"category": "BCC",
+				"icon": "$(check)"
+			},
+			{
+				"command": "bcc.clearAllChecks",
+				"title": "Clear All Checks",
+				"category": "BCC",
+				"icon": "$(clear-all)"
+			},
+			{
+				"command": "bcc.batchOperationsMenu",
+				"title": "Batch Operations",
+				"category": "BCC",
+				"icon": "$(checklist)"
 			}
 		],
 		"menus": {
 			"view/title": [
 				{
-					"command": "bcc.refreshSessions",
-					"when": "view == bccSessionExplorer",
+					"command": "bcc.batchOperationsMenu",
+					"when": "view == bccSessionExplorer && bcc.hasCheckedSessions",
 					"group": "navigation@1"
 				},
 				{
-					"command": "bcc.filterSessions",
+					"command": "bcc.refreshSessions",
 					"when": "view == bccSessionExplorer",
 					"group": "navigation@2"
 				},
 				{
-					"command": "bcc.toggleCollapseExpand",
+					"command": "bcc.filterSessions",
 					"when": "view == bccSessionExplorer",
 					"group": "navigation@3"
+				},
+				{
+					"command": "bcc.toggleCollapseExpand",
+					"when": "view == bccSessionExplorer",
+					"group": "navigation@4"
 				}
 			],
 			"view/item/context": [
@@ -165,6 +212,16 @@
 					"group": "inline@2"
 				},
 				{
+					"command": "bcc.togglePinSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItemWithCompaction",
+					"group": "inline@3"
+				},
+				{
+					"command": "bcc.toggleCheckSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItemWithCompaction",
+					"group": "inline@4"
+				},
+				{
 					"command": "bcc.compactSession",
 					"when": "view == bccSessionExplorer && viewItem == sessionItem",
 					"group": "inline@1"
@@ -175,23 +232,47 @@
 					"group": "inline@2"
 				},
 				{
+					"command": "bcc.togglePinSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "inline@3"
+				},
+				{
+					"command": "bcc.toggleCheckSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "inline@4"
+				},
+				{
+					"command": "bcc.toggleCheckSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItemChecked",
+					"group": "inline@1"
+				},
+				{
+					"command": "bcc.batchCompact",
+					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
+					"group": "2_batch@1"
+				},
+				{
+					"command": "bcc.batchDelete",
+					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
+					"group": "2_batch@2"
+				},
+				{
+					"command": "bcc.batchAddLabel",
+					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
+					"group": "2_batch@3"
+				},
+				{
 					"command": "bcc.openSessionFile",
 					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
-					"group": "1_navigation@1"
+					"group": "3_navigation@1"
 				},
 				{
 					"command": "bcc.copySessionPath",
 					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
-					"group": "1_navigation@2"
+					"group": "3_navigation@2"
 				}
 			]
 		},
-		"keybindings": [
-			{
-				"command": "bcc.refreshSessions",
-				"key": "f5",
-				"when": "view == bccSessionExplorer"
-			}
-		]
+		"keybindings": []
 	}
 }
