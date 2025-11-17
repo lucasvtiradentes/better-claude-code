@@ -127,6 +127,13 @@ export function formatMessageContent(
 
   formatted = formatted.replace(/\n/g, '<br />');
 
+  formatted = formatted.replace(/(<br \/>)*######\s+([^<]+)(<br \/>)*/g, '<h6 class="text-base font-semibold">$2</h6>');
+  formatted = formatted.replace(/(<br \/>)*#####\s+([^<]+)(<br \/>)*/g, '<h5 class="text-lg font-semibold">$2</h5>');
+  formatted = formatted.replace(/(<br \/>)*####\s+([^<]+)(<br \/>)*/g, '<h4 class="text-xl font-semibold">$2</h4>');
+  formatted = formatted.replace(/(<br \/>)*###\s+([^<]+)(<br \/>)*/g, '<h3 class="text-2xl font-semibold">$2</h3>');
+  formatted = formatted.replace(/(<br \/>)*##\s+([^<]+)(<br \/>)*/g, '<h2 class="text-3xl font-semibold">$2</h2>');
+  formatted = formatted.replace(/(<br \/>)*#\s+([^<]+)(<br \/>)*/g, '<h1 class="text-4xl font-bold">$2</h1>');
+
   formatted = formatted.replace(/<CODE_BLOCK_(code-block-\d+)>/g, '<div data-code-block="$1"></div>');
 
   return { html: formatted, imageRefs, codeBlocks };
