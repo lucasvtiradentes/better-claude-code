@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 1.0.2
+
+### Patch Changes
+
+- 1d268fa: add batch operations
+
 ## 1.0.1
 
 ### Patch Changes
