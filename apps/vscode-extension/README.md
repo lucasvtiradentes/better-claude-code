@@ -1,18 +1,25 @@
 <div align="center">
-<img width="64" src="https://raw.githubusercontent.com/lucasvtiradentes/linear-cmd/refs/heads/main/.github/image/hero-image.png" alt="BCC Extension logo">
-<h2>Better Claude Code - VS Code Extension</h2>
-<p>Manage and analyze Claude Code sessions directly in VS Code</p>
+<img width="128" src="../../.github/image/logo.svg" alt="BCC Extension logo">
+<h4>Better Claude Code - VS Code Extension</h4>
 <p>
   <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.better-claude-code-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/lucasvtiradentes.better-claude-code-vscode.svg" alt="vscode version"></a>
   <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.better-claude-code-vscode"><img src="https://img.shields.io/visual-studio-marketplace/i/lucasvtiradentes.better-claude-code-vscode.svg" alt="installs"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <br>
-  <a href="#star-features">Features</a> • <a href="#rocket-installation">Installation</a> • <a href="#bulb-usage">Usage</a> • <a href="#wrench-development">Development</a>
+  <a href="#trumpet-overview">Overview</a> • <a href="#star-features">Features</a> • <a href="#rocket-installation">Installation</a> • <a href="#bulb-usage">Usage</a> • <a href="#wrench-development">Development</a>
 </p>
 
 </div>
 
-## :star: Features
+<a href="#"><img src="../../.github/image/divider.png" /></a>
+
+## :trumpet: Overview
+
+VS Code extension to browse and compact Claude Code sessions directly in your editor with real-time updates.
+
+<a name="TOC"></a>
+
+## :star: Features<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
 
 - **Session Browser** - Tree view with grouping and filtering
 - **Real-time Updates** - File system watching detects new sessions instantly
@@ -20,10 +27,10 @@
 - **Rich Viewing** - Full conversation display with images and metadata
 - **Custom Labels** - Tag sessions for organization
 - **Status Bar** - Quick session stats at a glance
-- **Advanced Filtering** - Filter by date, tokens, labels, and content type
-- **Smart Grouping** - Group by date, token percentage, or custom labels
+- **Filtering** - Filter by date, tokens, labels, and content type
+- **Grouping** - Group by date, token percentage, or custom labels
 
-## :rocket: Installation
+## :rocket: Installation<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
 
 **From VS Code Marketplace:**
 
@@ -38,7 +45,7 @@
 code --install-extension lucasvtiradentes.better-claude-code-vscode
 ```
 
-## :bulb: Usage
+## :bulb: Usage<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
 
 ### Getting Started
 
@@ -53,7 +60,7 @@ Browse all Claude Code sessions from the activity bar:
 
 - **Tree View**: Hierarchical display grouped by your preference
 - **Auto-Discovery**: Automatically detects sessions from `~/.claude/sessions/`
-- **Smart Expansion**: Auto-opens "Today" and "Last Hour" groups
+- **Auto Expansion**: Opens "Today" and "Last Hour" groups by default
 
 Each session displays:
 - Token usage percentage (color-coded)
@@ -120,7 +127,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 - `BCC: Toggle Collapse/Expand` - Toggle all groups
 - `BCC: View Compaction` - Open summary file
 
-## :wrench: Development
+## :wrench: Development<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
 
 **Build and install locally:**
 
@@ -150,6 +157,6 @@ This installs a development version with "-dev" suffix, keeping your marketplace
 - Claude Code CLI installed
 - Node.js 18+
 
-## :scroll: License
+## :scroll: License<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
 
 MIT License - see [LICENSE](../../LICENSE) file for details.

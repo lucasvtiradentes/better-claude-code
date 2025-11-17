@@ -1,27 +1,34 @@
 <div align="center">
-<img width="64" src="https://raw.githubusercontent.com/lucasvtiradentes/linear-cmd/refs/heads/main/.github/image/hero-image.png" alt="BCC CLI logo">
-<h2>Better Claude Code - CLI</h2>
-<p>Command-line interface for managing and analyzing Claude Code sessions</p>
+<img width="128" src="../../.github/image/logo.svg" alt="BCC CLI logo">
+<h4>Better Claude Code - CLI</h4>
 <p>
   <a href="https://www.npmjs.com/package/better-claude-code"><img src="https://img.shields.io/npm/v/better-claude-code.svg" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/better-claude-code"><img src="https://img.shields.io/npm/dm/better-claude-code.svg" alt="downloads"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <br>
-  <a href="#star-features">Features</a> • <a href="#rocket-installation">Installation</a> • <a href="#bulb-usage">Usage</a> • <a href="#wrench-development">Development</a>
+  <a href="#trumpet-overview">Overview</a> • <a href="#star-features">Features</a> • <a href="#rocket-installation">Installation</a> • <a href="#bulb-usage">Usage</a> • <a href="#wrench-development">Development</a>
 </p>
 
 </div>
 
-## :star: Features
+<a href="#"><img src="../../.github/image/divider.png" /></a>
+
+## :trumpet: Overview
+
+CLI to manage Claude Code sessions with built-in web dashboard and AI-powered compaction.
+
+<a name="TOC"></a>
+
+## :star: Features<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
 
 - **Session Compaction** - Parse and summarize Claude Code sessions with AI
-- **Web Dashboard** - Built-in server for comprehensive session analysis
+- **Web Dashboard** - Built-in server for session analysis
 - **Shell Completion** - Tab completion for bash and zsh
 - **Auto-updates** - Built-in update mechanism
 - **Detached Mode** - Run web server in background
 - **Interactive Selection** - User-friendly session picker
 
-## :rocket: Installation
+## :rocket: Installation<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
 
 ```bash
 npm install -g better-claude-code
@@ -29,7 +36,7 @@ npm install -g better-claude-code
 
 After installation, the `bcc` command will be available globally.
 
-## :bulb: Usage
+## :bulb: Usage<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
 
 ### Commands Overview
 
@@ -59,7 +66,7 @@ The server runs the full BCC web dashboard at `http://localhost:5000` by default
 
 **Web Dashboard Features:**
 - Session browser with filtering and grouping
-- Advanced search by date, tokens, labels
+- Search by date, tokens, labels
 - Project discovery with git integration
 - Live Claude Code sessions
 - Settings management
@@ -116,7 +123,7 @@ source ~/.bashrc   # for bash
 
 </details>
 
-## :wrench: Development
+## :wrench: Development<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
 
 ```bash
 pnpm install                     # Install dependencies
@@ -137,6 +144,6 @@ The CLI bundles the entire backend and frontend as static assets:
 
 This makes the CLI a self-contained executable.
 
-## :scroll: License
+## :scroll: License<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
 
 MIT License - see [LICENSE](../../LICENSE) file for details.
