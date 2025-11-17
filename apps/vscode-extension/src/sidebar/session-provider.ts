@@ -5,6 +5,10 @@ import { logger } from '../common/utils/logger.js';
 import { WorkspaceState } from '../storage/workspace-state.js';
 import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
 
+function normalizeGroupLabel(label: string): string {
+  return label.replace(/\s*\(\d+\)$/, '');
+}
+
 export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -105,18 +109,20 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
         logger.info('Initializing expandedGroups from smart expansion');
         dateGroups.forEach((group) => {
           const groupLabel = group.label;
+          const normalizedLabel = normalizeGroupLabel(groupLabel);
           const isRecentGroup =
-            groupLabel.toLowerCase().includes('last hour') || groupLabel.toLowerCase().includes('today');
+            normalizedLabel.toLowerCase().includes('last hour') || normalizedLabel.toLowerCase().includes('today');
           if (isRecentGroup) {
-            this.expandedGroups.add(groupLabel);
-            logger.info(`  - Adding "${groupLabel}" to expandedGroups (smart init)`);
+            this.expandedGroups.add(normalizedLabel);
+            logger.info(`  - Adding "${normalizedLabel}" to expandedGroups (smart init)`);
           }
         });
       }
 
       const items = dateGroups.map((group, index) => {
         const groupLabel = group.label;
-        const isExpanded = this.expandedGroups.has(groupLabel);
+        const normalizedLabel = normalizeGroupLabel(groupLabel);
+        const isExpanded = this.expandedGroups.has(normalizedLabel);
 
         const collapsibleState: vscode.TreeItemCollapsibleState = isExpanded
           ? vscode.TreeItemCollapsibleState.Expanded
@@ -175,11 +181,12 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
   onGroupExpanded(element: DateGroupTreeItem): void {
     const groupLabel = element.dateGroup.label;
-    const wasInSet = this.expandedGroups.has(groupLabel);
-    this.expandedGroups.add(groupLabel);
+    const normalizedLabel = normalizeGroupLabel(groupLabel);
+    const wasInSet = this.expandedGroups.has(normalizedLabel);
+    this.expandedGroups.add(normalizedLabel);
     this.useSmartExpansion = false;
     logger.info(
-      `Group expanded by user: "${groupLabel}" (was in set: ${wasInSet}, total: ${this.expandedGroups.size})`
+      `Group expanded by user: "${groupLabel}" -> normalized: "${normalizedLabel}" (was in set: ${wasInSet}, total: ${this.expandedGroups.size})`
     );
     logger.info(`  Current expandedGroups: [${Array.from(this.expandedGroups).join(', ')}]`);
     this.saveState();
@@ -187,11 +194,12 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
   onGroupCollapsed(element: DateGroupTreeItem): void {
     const groupLabel = element.dateGroup.label;
-    const wasInSet = this.expandedGroups.has(groupLabel);
-    this.expandedGroups.delete(groupLabel);
+    const normalizedLabel = normalizeGroupLabel(groupLabel);
+    const wasInSet = this.expandedGroups.has(normalizedLabel);
+    this.expandedGroups.delete(normalizedLabel);
     this.useSmartExpansion = false;
     logger.info(
-      `Group collapsed by user: "${groupLabel}" (was in set: ${wasInSet}, total: ${this.expandedGroups.size})`
+      `Group collapsed by user: "${groupLabel}" -> normalized: "${normalizedLabel}" (was in set: ${wasInSet}, total: ${this.expandedGroups.size})`
     );
     logger.info(`  Current expandedGroups: [${Array.from(this.expandedGroups).join(', ')}]`);
     this.saveState();

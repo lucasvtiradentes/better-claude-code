@@ -32,9 +32,9 @@ export const App = () => {
   };
 
   const handleDeleteSession = () => {
-    if (confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
-      vscode.postMessage({ type: 'deleteSession' });
-    }
+    console.log('[App] Delete session button clicked');
+    vscode.postMessage({ type: 'deleteSession' });
+    console.log('[App] Delete session message posted');
   };
 
   const handleCompactSession = () => {

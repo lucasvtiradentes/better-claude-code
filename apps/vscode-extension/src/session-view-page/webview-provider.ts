@@ -73,6 +73,7 @@ export class WebviewProvider {
 
       panel.webview.onDidReceiveMessage(
         async (message) => {
+          logger.info(`[WebviewProvider] Message received - type: ${message.type}, sessionId: ${session.id}`);
           if (message.type === 'ready') {
             logger.info(`[WebviewProvider] Received 'ready' for session ${session.shortId}`);
             const conversation = await sessionProvider.getSessionConversation(session);
@@ -151,15 +152,28 @@ export class WebviewProvider {
               await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
             }
           } else if (message.type === 'deleteSession') {
-            const confirmed = await vscode.window.showWarningMessage(
-              `Delete session ${session.shortId}?`,
-              { modal: true },
-              'Delete'
-            );
-            if (confirmed === 'Delete') {
-              await sessionProvider.deleteSession(session.id);
-              panel.dispose();
-              vscode.window.showInformationMessage(`Session ${session.shortId} deleted`);
+            logger.info(`[WebviewProvider] Delete requested for session ${session.shortId} (${session.id})`);
+            try {
+              const confirmed = await vscode.window.showWarningMessage(
+                `Delete session ${session.shortId}? This will also delete any compaction files.`,
+                { modal: true },
+                'Delete'
+              );
+              logger.info(`[WebviewProvider] User confirmation: ${confirmed}`);
+
+              if (confirmed === 'Delete') {
+                logger.info(`[WebviewProvider] Starting deletion of session ${session.id}`);
+                await sessionProvider.deleteSession(session.id);
+                logger.info(`[WebviewProvider] Session deleted, disposing panel`);
+                panel.dispose();
+                logger.info(`[WebviewProvider] Panel disposed, refreshing sidebar`);
+                await sessionProvider.refresh();
+                logger.info(`[WebviewProvider] Sidebar refreshed`);
+                vscode.window.showInformationMessage(`Session ${session.shortId} deleted successfully`);
+              }
+            } catch (error) {
+              logger.error(`[WebviewProvider] Delete session error: ${(error as Error).message}`, error as Error);
+              vscode.window.showErrorMessage(`Failed to delete session: ${(error as Error).message}`);
             }
           } else if (message.type === 'compactSession') {
             try {

@@ -1,7 +1,9 @@
-import { access, readFile, unlink } from 'node:fs/promises';
-import * as os from 'node:os';
-import * as path from 'node:path';
+import { access, readFile, rm, unlink } from 'node:fs/promises';
 import {
+  ClaudeHelper,
+  getCompactionDir,
+  getCompactionParsedPath,
+  getCompactionSummaryPath,
   groupSessions,
   listSessionsCached,
   MessageCountMode,
@@ -17,9 +19,11 @@ export class SessionManager {
   private sessions: SessionListItem[] = [];
   private filter: FilterCriteria = {};
   private groupByMode: 'date' | 'token-percentage' | 'label' = 'date';
+  private currentWorkspacePath: string | null = null;
 
   async loadSessions(projectPath: string): Promise<void> {
     try {
+      this.currentWorkspacePath = projectPath;
       logger.info(`Loading sessions for project: ${projectPath}`);
 
       const settings = readSettings();
@@ -211,6 +215,21 @@ export class SessionManager {
     try {
       await unlink(sessionPath);
       logger.info(`Deleted session file: ${sessionPath}`);
+
+      if (this.currentWorkspacePath) {
+        const normalizedPath = ClaudeHelper.normalizePathForClaudeProjects(this.currentWorkspacePath);
+        const compactionDir = getCompactionDir(normalizedPath, sessionId);
+
+        try {
+          await rm(compactionDir, { recursive: true, force: true });
+          logger.info(`Deleted compaction directory: ${compactionDir}`);
+        } catch (error) {
+          logger.warn(
+            `Failed to delete compaction directory (might not exist): ${compactionDir} - ${(error as Error).message}`
+          );
+        }
+      }
+
       this.sessions = this.sessions.filter((s) => s.id !== sessionId);
     } catch (error) {
       logger.error('Failed to delete session file', error as Error);
@@ -244,11 +263,10 @@ export class SessionManager {
   }
 
   async getParsedSessionPath(sessionId: string): Promise<string | null> {
-    const sessionPath = this.getSessionPath(sessionId);
-    if (!sessionPath) return null;
+    if (!this.currentWorkspacePath) return null;
 
-    const dir = path.dirname(sessionPath);
-    const parsedPath = path.join(dir, `${sessionId}.md`);
+    const normalizedPath = ClaudeHelper.normalizePathForClaudeProjects(this.currentWorkspacePath);
+    const parsedPath = getCompactionParsedPath(normalizedPath, sessionId);
 
     try {
       await access(parsedPath);
@@ -259,8 +277,10 @@ export class SessionManager {
   }
 
   async getSummaryPath(sessionId: string): Promise<string | null> {
-    const homeDir = os.homedir();
-    const summaryPath = path.join(homeDir, '.claude', 'summaries', `${sessionId}-summary.md`);
+    if (!this.currentWorkspacePath) return null;
+
+    const normalizedPath = ClaudeHelper.normalizePathForClaudeProjects(this.currentWorkspacePath);
+    const summaryPath = getCompactionSummaryPath(normalizedPath, sessionId);
 
     try {
       await access(summaryPath);
