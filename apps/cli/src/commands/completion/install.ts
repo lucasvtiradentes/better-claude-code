@@ -1,9 +1,8 @@
 import { accessSync, constants, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { USER_HOME_DIR } from '@better-claude-code/node-utils';
+import { ConfigManager, USER_HOME_DIR } from '@better-claude-code/node-utils';
 import { APP_CLI_NAME } from '@better-claude-code/shared';
 import { Command } from 'commander';
-import { ConfigManager } from '../../config/config-manager.js';
 import { createSubCommandFromSchema } from '../../definitions/command-builder.js';
 import { generateBashCompletion, generateZshCompletion } from '../../definitions/generators/completion-generator.js';
 import { CommandNames, SubCommandNames } from '../../definitions/types.js';

@@ -1,7 +1,6 @@
 import { existsSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { USER_HOME_DIR } from '@better-claude-code/node-utils';
-import { ConfigManager } from '../../config/config-manager.js';
+import { ConfigManager, USER_HOME_DIR } from '@better-claude-code/node-utils';
 import { ENV } from '../../env.js';
 import { installBashCompletionSilent, installZshCompletionSilent } from './install.js';
 

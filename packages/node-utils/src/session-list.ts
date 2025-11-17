@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper.js';
+import { MessageCountMode } from './config-manager.js';
 import { getCompactionSummaryPath } from './monorepo-path-utils.js';
 import {
   CLAUDE_CODE_COMMANDS,
@@ -14,11 +15,6 @@ import {
 const IGNORE_EMPTY_SESSIONS = true;
 const MAX_TITLE_LENGTH = 80;
 const TOKEN_LIMIT = 180000;
-
-export enum MessageCountMode {
-  TURN = 'turn',
-  EVENT = 'event'
-}
 
 export enum TitleSource {
   FIRST_USER_MESSAGE = 'first_user_message',

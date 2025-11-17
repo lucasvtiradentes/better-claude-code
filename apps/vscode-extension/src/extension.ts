@@ -1,3 +1,4 @@
+import { ConfigManager } from '@better-claude-code/node-utils';
 import { APP_NAME } from '@better-claude-code/shared';
 import * as vscode from 'vscode';
 import { registerAddLabelCommand } from './commands/add-label.js';
@@ -57,6 +58,8 @@ class SessionDecorationProvider implements vscode.FileDecorationProvider {
 
 export async function activate(context: vscode.ExtensionContext) {
   logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
+
+  new ConfigManager();
 
   const workspacePath = getCurrentWorkspacePath();
 

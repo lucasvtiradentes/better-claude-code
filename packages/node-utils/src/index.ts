@@ -1,5 +1,6 @@
 export * from './cache.js';
 export * from './claude-helper.js';
+export * from './config-manager.js';
 export * from './exec.js';
 export * from './label-manager.js';
 export * from './logger.js';

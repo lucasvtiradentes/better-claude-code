@@ -1,9 +1,62 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { homedir, platform, release } from 'node:os';
+import { join } from 'node:path';
 
-import { CONFIG_PATHS } from './constants.js';
-import { type BccConfig, MessageCountMode } from './types.js';
+export enum MessageCountMode {
+  TURN = 'turn',
+  EVENT = 'event'
+}
+
+export interface BccConfig {
+  completion_installed?: boolean;
+  messages_count_mode?: MessageCountMode;
+}
+
+type SupportedOS = 'linux' | 'mac' | 'windows' | 'wsl';
 
 const DEFAULT_MESSAGE_COUNT_MODE = MessageCountMode.EVENT;
+const APP_CLI_NAME = 'bcc';
+
+function getUserOS(): SupportedOS {
+  const platformOs = platform();
+
+  if (platformOs === 'linux') {
+    try {
+      const releaseInfo = release().toLowerCase();
+      if (releaseInfo.includes('microsoft') || releaseInfo.includes('wsl')) {
+        return 'wsl';
+      }
+    } catch {}
+    return 'linux';
+  }
+
+  if (platformOs === 'darwin') return 'mac';
+  if (platformOs === 'win32') return 'windows';
+
+  throw new Error(`Unsupported OS: ${platformOs}`);
+}
+
+function getConfigDirectory(): string {
+  const userOS = getUserOS();
+  const homeDir = homedir();
+
+  switch (userOS) {
+    case 'linux':
+    case 'wsl':
+      return join(homeDir, '.config', APP_CLI_NAME);
+    case 'mac':
+      return join(homeDir, 'Library', 'Preferences', APP_CLI_NAME);
+    case 'windows':
+      return join(homeDir, 'AppData', 'Roaming', APP_CLI_NAME);
+    default:
+      throw new Error(`Unsupported OS: ${userOS}`);
+  }
+}
+
+const CONFIG_PATHS = {
+  configDir: getConfigDirectory(),
+  defaultConfigFile: join(getConfigDirectory(), 'config.json')
+};
 
 export class ConfigManager {
   private config: BccConfig | null = null;

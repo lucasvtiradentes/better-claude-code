@@ -1,6 +1,11 @@
 import { join } from 'node:path';
-import { ClaudeHelper, listSessions, MessageCountMode, TitleSource } from '@better-claude-code/node-utils';
-import { ConfigManager } from '../../config/config-manager.js';
+import {
+  ClaudeHelper,
+  ConfigManager,
+  listSessions,
+  MessageCountMode,
+  TitleSource
+} from '@better-claude-code/node-utils';
 import { getGitRepoRoot } from '../git.js';
 
 export interface SessionInfo {

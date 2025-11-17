@@ -2,6 +2,7 @@ import { access, readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { JsonFileCache } from './cache.js';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper.js';
+import { MessageCountMode } from './config-manager.js';
 import { BCC_SESSIONS_CACHE_DIR, getCompactionSummaryPath } from './monorepo-path-utils.js';
 import {
   CLAUDE_CODE_COMMANDS,
@@ -11,7 +12,7 @@ import {
   shouldSkipUserMessage
 } from './session-helpers.js';
 import type { SessionListItem, SessionListOptions, SessionListResult } from './session-list.js';
-import { MessageCountMode, SessionSortBy, TitleSource } from './session-list.js';
+import { SessionSortBy, TitleSource } from './session-list.js';
 
 const IGNORE_EMPTY_SESSIONS = true;
 const MAX_TITLE_LENGTH = 80;

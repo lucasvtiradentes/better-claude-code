@@ -7,11 +7,11 @@ import { createCompletionCommand } from './commands/completion/index.js';
 import { displayHelpText } from './commands/help-text.js';
 import { createServerCommand } from './commands/server/index.js';
 import { createUpdateCommand } from './commands/update.js';
-import { APP_INFO } from './config/constants.js';
+import { APP_VERSION } from './utils/version.js';
 
 const program = new Command();
 
-program.name(APP_CLI_NAME).description(APP_DESCRIPTION).version(APP_INFO.version);
+program.name(APP_CLI_NAME).description(APP_DESCRIPTION).version(APP_VERSION);
 
 program.addCommand(createUpdateCommand());
 program.addCommand(createCompletionCommand());
