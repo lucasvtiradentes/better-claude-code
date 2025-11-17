@@ -1,5 +1,5 @@
 <div align="center">
-<img width="128" src="../../.github/image/logo.svg" alt="BCC Extension logo">
+<img width="128" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/logo.png" alt="BCC Extension logo">
 <h4>Better Claude Code - VS Code Extension</h4>
 <p>
   <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.better-claude-code-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/lucasvtiradentes.better-claude-code-vscode.svg" alt="vscode version"></a>
