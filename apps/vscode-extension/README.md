@@ -17,6 +17,8 @@
 
 VS Code extension to browse and compact Claude Code sessions directly in your editor with real-time updates.
 
+<img src="../../.github/image/vscode-extension.png" alt="VS Code Extension Screenshot" width="100%">
+
 <a name="TOC"></a>
 
 ## :star: Features<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>

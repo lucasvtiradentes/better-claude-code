@@ -17,6 +17,17 @@
 
 CLI to manage Claude Code sessions with built-in web dashboard and AI-powered compaction.
 
+<table>
+<tr>
+<th>CLI - Session Compaction</th>
+<th>Web Dashboard - Session Browser</th>
+</tr>
+<tr>
+<td width="50%"><img src="../../.github/image/cli.png" alt="CLI Screenshot"><br><sub>Interactive session selector with AI-powered summarization</sub></td>
+<td width="50%"><img src="../../.github/image/app.png" alt="Web Dashboard Screenshot"><br><sub>Browse all sessions with rich rendering, images, and filtering</sub></td>
+</tr>
+</table>
+
 <a name="TOC"></a>
 
 ## :star: Features<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
@@ -42,6 +53,8 @@ After installation, the `bcc` command will be available globally.
 
 ```bash
 bcc --help                       # Show help
+bcc compact                      # Interactively select a session to compact
+bcc server --start               # Start the server
 bcc update                       # Update to latest version
 ```
 

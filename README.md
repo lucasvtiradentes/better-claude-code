@@ -17,6 +17,8 @@
 
 Toolkit to view, analyze and compact Claude Code sessions across projects. Available as CLI tool and VS Code extension.
 
+<img src="./.github/image/vscode-extension.png" alt="VS Code Extension Screenshot" width="100%">
+
 <a name="TOC"></a>
 
 ## :question: Motivation<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
