@@ -1,5 +1,11 @@
 # better-claude-code-vscode
 
+## 1.0.1
+
+### Patch Changes
+
+- 7d627b6: fix svg image
+
 ## 1.0.0
 
 ### Major Changes
