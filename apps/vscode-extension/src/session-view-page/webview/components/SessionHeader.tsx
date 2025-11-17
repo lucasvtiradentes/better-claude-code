@@ -1,6 +1,7 @@
 import { SessionBadges } from '@better-claude-code/ui-components';
 import type { SessionData } from '../types';
 import { FilterButtons } from './FilterButtons';
+import { SessionActionsMenu } from './SessionActionsMenu';
 
 type SessionHeaderProps = {
   session: SessionData['session'];
@@ -9,9 +10,15 @@ type SessionHeaderProps = {
   showUserMessages: boolean;
   showAssistantMessages: boolean;
   showToolCalls: boolean;
+  hasCompacted: boolean;
   onToggleUser: () => void;
   onToggleAssistant: () => void;
   onToggleToolCalls: () => void;
+  onOpenRaw: () => void;
+  onDeleteSession: () => void;
+  onCompactSession: () => void;
+  onOpenParsed?: () => void;
+  onOpenSummary?: () => void;
 };
 
 export const SessionHeader = ({
@@ -21,9 +28,15 @@ export const SessionHeader = ({
   showUserMessages,
   showAssistantMessages,
   showToolCalls,
+  hasCompacted,
   onToggleUser,
   onToggleAssistant,
-  onToggleToolCalls
+  onToggleToolCalls,
+  onOpenRaw,
+  onDeleteSession,
+  onCompactSession,
+  onOpenParsed,
+  onOpenSummary
 }: SessionHeaderProps) => {
   const sessionForBadges = {
     ...session,
@@ -41,14 +54,24 @@ export const SessionHeader = ({
           <SessionBadges session={sessionForBadges} />
         </div>
       </div>
-      <FilterButtons
-        showUserMessages={showUserMessages}
-        showAssistantMessages={showAssistantMessages}
-        showToolCalls={showToolCalls}
-        onToggleUser={onToggleUser}
-        onToggleAssistant={onToggleAssistant}
-        onToggleToolCalls={onToggleToolCalls}
-      />
+      <div className="flex items-center gap-2">
+        <FilterButtons
+          showUserMessages={showUserMessages}
+          showAssistantMessages={showAssistantMessages}
+          showToolCalls={showToolCalls}
+          onToggleUser={onToggleUser}
+          onToggleAssistant={onToggleAssistant}
+          onToggleToolCalls={onToggleToolCalls}
+        />
+        <SessionActionsMenu
+          hasCompacted={hasCompacted}
+          onOpenRaw={onOpenRaw}
+          onDeleteSession={onDeleteSession}
+          onCompactSession={onCompactSession}
+          onOpenParsed={onOpenParsed}
+          onOpenSummary={onOpenSummary}
+        />
+      </div>
     </div>
   );
 };

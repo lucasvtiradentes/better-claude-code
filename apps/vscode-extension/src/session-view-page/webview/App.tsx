@@ -27,6 +27,28 @@ export const App = () => {
     });
   };
 
+  const handleOpenRaw = () => {
+    vscode.postMessage({ type: 'openRawSession' });
+  };
+
+  const handleDeleteSession = () => {
+    if (confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
+      vscode.postMessage({ type: 'deleteSession' });
+    }
+  };
+
+  const handleCompactSession = () => {
+    vscode.postMessage({ type: 'compactSession' });
+  };
+
+  const handleOpenParsed = () => {
+    vscode.postMessage({ type: 'openParsed' });
+  };
+
+  const handleOpenSummary = () => {
+    vscode.postMessage({ type: 'openSummary' });
+  };
+
   if (!sessionData || isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -49,9 +71,15 @@ export const App = () => {
         showUserMessages={showUserMessages}
         showAssistantMessages={showAssistantMessages}
         showToolCalls={showToolCalls}
+        hasCompacted={session.compacted || false}
         onToggleUser={() => setShowUserMessages(!showUserMessages)}
         onToggleAssistant={() => setShowAssistantMessages(!showAssistantMessages)}
         onToggleToolCalls={() => setShowToolCalls(!showToolCalls)}
+        onOpenRaw={handleOpenRaw}
+        onDeleteSession={handleDeleteSession}
+        onCompactSession={handleCompactSession}
+        onOpenParsed={handleOpenParsed}
+        onOpenSummary={handleOpenSummary}
       />
 
       <SessionContent groupedMessages={groupedMessages} images={conversation.images} onImageClick={handleImageClick} />

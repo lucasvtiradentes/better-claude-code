@@ -8,6 +8,7 @@ export type SessionData = {
     createdAt: string;
     messageCount: number;
     tokenPercentage?: number;
+    compacted?: boolean;
   };
   conversation: {
     messages: SessionMessageType[];

@@ -196,4 +196,30 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     logger.info(`  Current expandedGroups: [${Array.from(this.expandedGroups).join(', ')}]`);
     this.saveState();
   }
+
+  getSessionPath(sessionId: string): string | null {
+    return this.sessionManager.getSessionPath(sessionId);
+  }
+
+  async deleteSession(sessionId: string): Promise<void> {
+    await this.sessionManager.deleteSession(sessionId);
+    await this.refresh();
+  }
+
+  async compactSession(sessionId: string): Promise<string> {
+    if (!this.currentWorkspacePath) {
+      throw new Error('No workspace path set');
+    }
+    const summaryPath = await this.sessionManager.compactSession(sessionId, this.currentWorkspacePath);
+    await this.refresh();
+    return summaryPath;
+  }
+
+  async getParsedSessionPath(sessionId: string): Promise<string | null> {
+    return await this.sessionManager.getParsedSessionPath(sessionId);
+  }
+
+  async getSummaryPath(sessionId: string): Promise<string | null> {
+    return await this.sessionManager.getSummaryPath(sessionId);
+  }
 }

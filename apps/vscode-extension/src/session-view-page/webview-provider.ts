@@ -91,7 +91,8 @@ export class WebviewProvider {
                   shortId: session.shortId,
                   createdAt: session.createdAt,
                   messageCount: session.messageCount,
-                  tokenPercentage: session.tokenPercentage
+                  tokenPercentage: session.tokenPercentage,
+                  compacted: session.hasCompaction
                 },
                 conversation,
                 filters
@@ -143,6 +144,62 @@ export class WebviewProvider {
   <img src="data:image/png;base64,${imageData}" alt="Image #${imageIndex}" />
 </body>
 </html>`;
+          } else if (message.type === 'openRawSession') {
+            const sessionPath = sessionProvider.getSessionPath(session.id);
+            if (sessionPath) {
+              const doc = await vscode.workspace.openTextDocument(sessionPath);
+              await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+            }
+          } else if (message.type === 'deleteSession') {
+            const confirmed = await vscode.window.showWarningMessage(
+              `Delete session ${session.shortId}?`,
+              { modal: true },
+              'Delete'
+            );
+            if (confirmed === 'Delete') {
+              await sessionProvider.deleteSession(session.id);
+              panel.dispose();
+              vscode.window.showInformationMessage(`Session ${session.shortId} deleted`);
+            }
+          } else if (message.type === 'compactSession') {
+            try {
+              const summaryPath = await vscode.window.withProgress(
+                {
+                  location: vscode.ProgressLocation.Notification,
+                  title: `Compacting session ${session.shortId}...`,
+                  cancellable: false
+                },
+                async () => {
+                  return await sessionProvider.compactSession(session.id);
+                }
+              );
+
+              vscode.window.showInformationMessage(`Session ${session.shortId} compacted successfully`);
+
+              const doc = await vscode.workspace.openTextDocument(summaryPath);
+              await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+
+              await sessionProvider.refresh();
+            } catch (error) {
+              logger.error('Failed to compact session', error as Error);
+              vscode.window.showErrorMessage(`Failed to compact session: ${(error as Error).message}`);
+            }
+          } else if (message.type === 'openParsed') {
+            const parsedPath = await sessionProvider.getParsedSessionPath(session.id);
+            if (parsedPath) {
+              const doc = await vscode.workspace.openTextDocument(parsedPath);
+              await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+            } else {
+              vscode.window.showWarningMessage('Parsed session file not found');
+            }
+          } else if (message.type === 'openSummary') {
+            const summaryPath = await sessionProvider.getSummaryPath(session.id);
+            if (summaryPath) {
+              const doc = await vscode.workspace.openTextDocument(summaryPath);
+              await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+            } else {
+              vscode.window.showWarningMessage('Summary file not found');
+            }
           }
         },
         undefined,

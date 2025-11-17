@@ -123,16 +123,23 @@ export function formatMessageContent(
 
   formatted = formatted.replace(/\n---\n/g, '<div class="h-px bg-border my-3 w-[40%] mx-auto"></div>');
 
+  formatted = formatted.replace(/\n######\s+([^\n]+)\n?/g, '<br /><HEADER6>$1</HEADER6>');
+  formatted = formatted.replace(/\n#####\s+([^\n]+)\n?/g, '<br /><HEADER5>$1</HEADER5>');
+  formatted = formatted.replace(/\n####\s+([^\n]+)\n?/g, '<br /><HEADER4>$1</HEADER4>');
+  formatted = formatted.replace(/\n###\s+([^\n]+)\n?/g, '<br /><HEADER3>$1</HEADER3>');
+  formatted = formatted.replace(/\n##\s+([^\n]+)\n?/g, '<br /><HEADER2>$1</HEADER2>');
+  formatted = formatted.replace(/\n#\s+([^\n]+)\n?/g, '<br /><HEADER1>$1</HEADER1>');
+
   formatted = formatted.replace(/\n(\d+)\.\s/g, '<br />$1. ');
 
   formatted = formatted.replace(/\n/g, '<br />');
 
-  formatted = formatted.replace(/(<br \/>)*######\s+([^<]+)(<br \/>)*/g, '<h6 class="text-base font-semibold">$2</h6>');
-  formatted = formatted.replace(/(<br \/>)*#####\s+([^<]+)(<br \/>)*/g, '<h5 class="text-lg font-semibold">$2</h5>');
-  formatted = formatted.replace(/(<br \/>)*####\s+([^<]+)(<br \/>)*/g, '<h4 class="text-xl font-semibold">$2</h4>');
-  formatted = formatted.replace(/(<br \/>)*###\s+([^<]+)(<br \/>)*/g, '<h3 class="text-2xl font-semibold">$2</h3>');
-  formatted = formatted.replace(/(<br \/>)*##\s+([^<]+)(<br \/>)*/g, '<h2 class="text-3xl font-semibold">$2</h2>');
-  formatted = formatted.replace(/(<br \/>)*#\s+([^<]+)(<br \/>)*/g, '<h1 class="text-4xl font-bold">$2</h1>');
+  formatted = formatted.replace(/<HEADER6>([^<]+)<\/HEADER6>/g, '<div class="text-base font-semibold">$1</div>');
+  formatted = formatted.replace(/<HEADER5>([^<]+)<\/HEADER5>/g, '<div class="text-lg font-semibold">$1</div>');
+  formatted = formatted.replace(/<HEADER4>([^<]+)<\/HEADER4>/g, '<div class="text-xl font-semibold">$1</div>');
+  formatted = formatted.replace(/<HEADER3>([^<]+)<\/HEADER3>/g, '<div class="text-2xl font-semibold">$1</div>');
+  formatted = formatted.replace(/<HEADER2>([^<]+)<\/HEADER2>/g, '<div class="text-3xl font-semibold">$1</div>');
+  formatted = formatted.replace(/<HEADER1>([^<]+)<\/HEADER1>/g, '<div class="text-4xl font-bold">$1</div>');
 
   formatted = formatted.replace(/<CODE_BLOCK_(code-block-\d+)>/g, '<div data-code-block="$1"></div>');
 

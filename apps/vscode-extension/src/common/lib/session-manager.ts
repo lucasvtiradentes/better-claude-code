@@ -1,4 +1,6 @@
-import { readFile } from 'node:fs/promises';
+import { access, readFile, unlink } from 'node:fs/promises';
+import * as os from 'node:os';
+import * as path from 'node:path';
 import {
   groupSessions,
   listSessionsCached,
@@ -192,6 +194,79 @@ export class SessionManager {
     } catch (error) {
       logger.error('Failed to parse session conversation', error as Error);
       throw error;
+    }
+  }
+
+  getSessionPath(sessionId: string): string | null {
+    const session = this.sessions.find((s) => s.id === sessionId);
+    return session?.filePath || null;
+  }
+
+  async deleteSession(sessionId: string): Promise<void> {
+    const sessionPath = this.getSessionPath(sessionId);
+    if (!sessionPath) {
+      throw new Error(`Session ${sessionId} not found`);
+    }
+
+    try {
+      await unlink(sessionPath);
+      logger.info(`Deleted session file: ${sessionPath}`);
+      this.sessions = this.sessions.filter((s) => s.id !== sessionId);
+    } catch (error) {
+      logger.error('Failed to delete session file', error as Error);
+      throw error;
+    }
+  }
+
+  async compactSession(sessionId: string, workspacePath: string): Promise<string> {
+    const sessionPath = this.getSessionPath(sessionId);
+    if (!sessionPath) {
+      throw new Error(`Session ${sessionId} not found`);
+    }
+
+    const { CompactService } = await import('./compact-service.js');
+    const compactService = new CompactService();
+
+    try {
+      logger.info(`Compacting session ${sessionId} at ${sessionPath}`);
+      const summaryPath = await compactService.compactSession(sessionId, workspacePath);
+
+      const session = this.sessions.find((s) => s.id === sessionId);
+      if (session) {
+        session.hasCompaction = true;
+      }
+
+      return summaryPath;
+    } catch (error) {
+      logger.error('Failed to compact session', error as Error);
+      throw error;
+    }
+  }
+
+  async getParsedSessionPath(sessionId: string): Promise<string | null> {
+    const sessionPath = this.getSessionPath(sessionId);
+    if (!sessionPath) return null;
+
+    const dir = path.dirname(sessionPath);
+    const parsedPath = path.join(dir, `${sessionId}.md`);
+
+    try {
+      await access(parsedPath);
+      return parsedPath;
+    } catch {
+      return null;
+    }
+  }
+
+  async getSummaryPath(sessionId: string): Promise<string | null> {
+    const homeDir = os.homedir();
+    const summaryPath = path.join(homeDir, '.claude', 'summaries', `${sessionId}-summary.md`);
+
+    try {
+      await access(summaryPath);
+      return summaryPath;
+    } catch {
+      return null;
     }
   }
 }
