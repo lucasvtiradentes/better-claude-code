@@ -7,6 +7,11 @@ import type { SessionProvider } from '../sidebar/session-provider.js';
 export class WebviewProvider {
   private static panels = new Map<string, vscode.WebviewPanel>();
   private static onPanelChangeCallbacks: Array<() => void> = [];
+  private static workspaceState: any = null;
+
+  static setWorkspaceState(workspaceState: any): void {
+    WebviewProvider.workspaceState = workspaceState;
+  }
 
   static onPanelChange(callback: () => void): void {
     WebviewProvider.onPanelChangeCallbacks.push(callback);
@@ -19,6 +24,17 @@ export class WebviewProvider {
   private static notifyPanelChange(): void {
     for (const callback of WebviewProvider.onPanelChangeCallbacks) {
       callback();
+    }
+  }
+
+  private static broadcastFiltersUpdate(filters: any): void {
+    logger.info(`[WebviewProvider] Broadcasting filters to ${WebviewProvider.panels.size} open panels`);
+    for (const [sessionId, panel] of WebviewProvider.panels) {
+      logger.info(`[WebviewProvider] Sending filters update to session ${sessionId}`);
+      panel.webview.postMessage({
+        type: 'filtersUpdated',
+        filters
+      });
     }
   }
 
@@ -58,7 +74,14 @@ export class WebviewProvider {
       panel.webview.onDidReceiveMessage(
         async (message) => {
           if (message.type === 'ready') {
+            logger.info(`[WebviewProvider] Received 'ready' for session ${session.shortId}`);
             const conversation = await sessionProvider.getSessionConversation(session);
+            const filters = WebviewProvider.workspaceState?.getMessageFiltersState() || {
+              showUserMessages: true,
+              showAssistantMessages: true,
+              showToolCalls: true
+            };
+            logger.info(`[WebviewProvider] Sending filters to webview: ${JSON.stringify(filters)}`);
             panel.webview.postMessage({
               type: 'sessionData',
               data: {
@@ -70,9 +93,16 @@ export class WebviewProvider {
                   messageCount: session.messageCount,
                   tokenPercentage: session.tokenPercentage
                 },
-                conversation
+                conversation,
+                filters
               }
             });
+          } else if (message.type === 'saveFilters') {
+            logger.info(`[WebviewProvider] Received 'saveFilters': ${JSON.stringify(message.filters)}`);
+            if (WebviewProvider.workspaceState) {
+              WebviewProvider.workspaceState.setMessageFiltersState(message.filters);
+              WebviewProvider.broadcastFiltersUpdate(message.filters);
+            }
           } else if (message.type === 'openImage') {
             const imageData = message.imageData as string;
             const imageIndex = message.imageIndex as number;

@@ -2,14 +2,8 @@ import * as vscode from 'vscode';
 import { SessionManager } from '../common/lib/session-manager.js';
 import type { FilterCriteria, SessionListItem } from '../common/types.js';
 import { logger } from '../common/utils/logger.js';
+import { WorkspaceState } from '../storage/workspace-state.js';
 import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
-
-interface SessionProviderState {
-  groupBy: 'date' | 'token-percentage' | 'label';
-  isExpanded: boolean;
-  useSmartExpansion: boolean;
-  expandedGroups: string[];
-}
 
 export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
@@ -21,7 +15,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   private useSmartExpansion: boolean = true;
   private expandedGroups: Set<string> = new Set();
   private itemIdCounter: number = 0;
-  private context: vscode.ExtensionContext | null = null;
+  private workspaceState: WorkspaceState | null = null;
 
   constructor() {
     this.sessionManager = new SessionManager();
@@ -29,42 +23,32 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
   async initialize(workspacePath: string, context: vscode.ExtensionContext): Promise<void> {
     this.currentWorkspacePath = workspacePath;
-    this.context = context;
+    this.workspaceState = new WorkspaceState(context);
     this.loadState();
     await this.refresh();
   }
 
   private loadState(): void {
-    if (!this.context) return;
+    if (!this.workspaceState) return;
 
-    const state = this.context.workspaceState.get<SessionProviderState>('sessionProviderState');
+    const state = this.workspaceState.getSessionProviderState();
     if (state) {
-      logger.info(
-        `Loading saved state: groupBy=${state.groupBy}, isExpanded=${state.isExpanded}, useSmartExpansion=${state.useSmartExpansion}, expandedGroups=${state.expandedGroups?.join(', ') || 'none'}`
-      );
       this.sessionManager.setGroupBy(state.groupBy);
       this.isExpanded = state.isExpanded;
       this.useSmartExpansion = state.useSmartExpansion ?? true;
       this.expandedGroups = new Set(state.expandedGroups || []);
-    } else {
-      logger.info('No saved state found, using defaults: groupBy=date, isExpanded=true, useSmartExpansion=true');
     }
   }
 
   private saveState(): void {
-    if (!this.context) return;
+    if (!this.workspaceState) return;
 
-    const state: SessionProviderState = {
+    this.workspaceState.setSessionProviderState({
       groupBy: this.sessionManager.getGroupBy(),
       isExpanded: this.isExpanded,
       useSmartExpansion: this.useSmartExpansion,
       expandedGroups: Array.from(this.expandedGroups)
-    };
-
-    this.context.workspaceState.update('sessionProviderState', state);
-    logger.info(
-      `Saved state: groupBy=${state.groupBy}, isExpanded=${state.isExpanded}, useSmartExpansion=${state.useSmartExpansion}, expandedGroups=${state.expandedGroups.join(', ') || 'none'}`
-    );
+    });
   }
 
   async refresh(): Promise<void> {

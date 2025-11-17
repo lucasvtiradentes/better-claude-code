@@ -15,6 +15,7 @@ import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
 import { DateGroupTreeItem } from './sidebar/tree-items.js';
 import { StatusBarManager } from './status-bar/status-bar-manager.js';
+import { WorkspaceState } from './storage/workspace-state.js';
 
 let sessionProvider: SessionProvider;
 let statusBarManager: StatusBarManager;
@@ -64,11 +65,14 @@ export async function activate(context: vscode.ExtensionContext) {
     return;
   }
 
+  const workspaceState = new WorkspaceState(context);
+
   sessionProvider = new SessionProvider();
 
   decorationProvider = new SessionDecorationProvider(sessionProvider);
   context.subscriptions.push(vscode.window.registerFileDecorationProvider(decorationProvider));
 
+  WebviewProvider.setWorkspaceState(workspaceState);
   WebviewProvider.onPanelChange(() => {
     sessionProvider.refresh();
     decorationProvider.refresh();

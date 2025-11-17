@@ -14,7 +14,8 @@ export const App = () => {
     setShowAssistantMessages,
     setShowToolCalls,
     filesOrFoldersCount,
-    groupedMessages
+    groupedMessages,
+    isLoading
   } = useMessageFilters(sessionData);
 
   const handleImageClick = (imageIndex: number) => {
@@ -26,7 +27,7 @@ export const App = () => {
     });
   };
 
-  if (!sessionData) {
+  if (!sessionData || isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <p className="text-muted-foreground">Loading session...</p>

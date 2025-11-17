@@ -13,6 +13,11 @@ export type SessionData = {
     messages: SessionMessageType[];
     images: SessionImage[];
   };
+  filters?: {
+    showUserMessages: boolean;
+    showAssistantMessages: boolean;
+    showToolCalls: boolean;
+  };
 };
 
 export type VSCodeAPI = {
