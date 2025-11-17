@@ -2,7 +2,7 @@
 	"name": "better-claude-code-vscode",
 	"displayName": "Better Claude Code",
 	"description": "Manage and analyze Claude Code sessions directly in VS Code",
-	"version": "0.1.6",
+	"version": "1.0.0",
 	"private": true,
 	"publisher": "lucasvtiradentes",
 	"icon": "resources/icon.png",
@@ -51,7 +51,7 @@
 	},
 	"devDependencies": {
 		"@tailwindcss/postcss": "^4.1.17",
-    "@types/node": "^22.18.8",
+		"@types/node": "^22.18.8",
 		"@types/react": "^19.0.6",
 		"@types/react-dom": "^19.0.3",
 		"@types/vscode": "^1.100.0",

@@ -1,5 +1,11 @@
 # better-claude-code-vscode
 
+## 1.0.0
+
+### Major Changes
+
+- 87cf813: update session compaction prompt
+
 ## 0.1.6
 
 ### Patch Changes
