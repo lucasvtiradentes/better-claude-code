@@ -1,5 +1,11 @@
 # better-claude-code-vscode
 
+## 1.0.3
+
+### Patch Changes
+
+- f85acf5: update readme
+
 ## 1.0.2
 
 ### Patch Changes
