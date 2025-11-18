@@ -1,6 +1,6 @@
 {
   "name": "better-claude-code",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "CLI auxiliary tools for Claude Code",
   "type": "module",
   "main": "./dist/apps/cli/src/main.js",
