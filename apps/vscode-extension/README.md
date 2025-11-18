@@ -1,3 +1,5 @@
+<a name="TOC"></a>
+
 <div align="center">
 <img width="128" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/logo.png" alt="BCC Extension logo">
 <h4>Better Claude Code - VS Code Extension</h4>
@@ -6,22 +8,22 @@
   <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.better-claude-code-vscode"><img src="https://img.shields.io/visual-studio-marketplace/i/lucasvtiradentes.better-claude-code-vscode.svg" alt="installs"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <br>
-  <a href="#trumpet-overview">Overview</a> • <a href="#star-features">Features</a> • <a href="#rocket-installation">Installation</a> • <a href="#bulb-usage">Usage</a> • <a href="#wrench-development">Development</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-development">Development</a>
 </p>
 
 </div>
 
-<a href="#"><img src="../../.github/image/divider.png" /></a>
+<a href="#"><img src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/divider.png" /></a>
 
-## :trumpet: Overview
+## 🎺 Overview
 
 VS Code extension to browse and compact Claude Code sessions directly in your editor with real-time updates.
 
-<img src="../../.github/image/vscode-extension.png" alt="VS Code Extension Screenshot" width="100%">
+<img src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/vscode-extension.png" alt="VS Code Extension Screenshot" width="100%">
 
 <a name="TOC"></a>
 
-## :star: Features<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
+## ⭐ Features<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/up_arrow.png" width="22"></a>
 
 - **Session Browser** - Tree view with grouping and filtering
 - **Real-time Updates** - File system watching detects new sessions instantly
@@ -32,7 +34,7 @@ VS Code extension to browse and compact Claude Code sessions directly in your ed
 - **Filtering** - Filter by date, tokens, labels, and content type
 - **Grouping** - Group by date, token percentage, or custom labels
 
-## :rocket: Installation<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
+## 🚀 Installation<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/up_arrow.png" width="22"></a>
 
 **From VS Code Marketplace:**
 
@@ -47,7 +49,7 @@ VS Code extension to browse and compact Claude Code sessions directly in your ed
 code --install-extension lucasvtiradentes.better-claude-code-vscode
 ```
 
-## :bulb: Usage<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
+## 💡 Usage<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/up_arrow.png" width="22"></a>
 
 ### Getting Started
 
@@ -129,7 +131,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 - `BCC: Toggle Collapse/Expand` - Toggle all groups
 - `BCC: View Compaction` - Open summary file
 
-## :wrench: Development<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
+## 🔧 Development<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/up_arrow.png" width="22"></a>
 
 **Build and install locally:**
 
@@ -159,6 +161,6 @@ This installs a development version with "-dev" suffix, keeping your marketplace
 - Claude Code CLI installed
 - Node.js 18+
 
-## :scroll: License<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
+## 📜 License<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/up_arrow.png" width="22"></a>
 
 MIT License - see [LICENSE](../../LICENSE) file for details.

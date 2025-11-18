@@ -1,19 +1,21 @@
+<a name="TOC"></a>
+
 <div align="center">
-<img width="128" src="../../.github/image/logo.svg" alt="BCC CLI logo">
+<img width="128" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/logo.svg" alt="BCC CLI logo">
 <h4>Better Claude Code - CLI</h4>
 <p>
   <a href="https://www.npmjs.com/package/better-claude-code"><img src="https://img.shields.io/npm/v/better-claude-code.svg" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/better-claude-code"><img src="https://img.shields.io/npm/dm/better-claude-code.svg" alt="downloads"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <br>
-  <a href="#trumpet-overview">Overview</a> • <a href="#star-features">Features</a> • <a href="#rocket-installation">Installation</a> • <a href="#bulb-usage">Usage</a> • <a href="#wrench-development">Development</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-development">Development</a>
 </p>
 
 </div>
 
-<a href="#"><img src="../../.github/image/divider.png" /></a>
+<a href="#"><img src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/divider.png" /></a>
 
-## :trumpet: Overview
+## 🎺 Overview
 
 CLI to manage Claude Code sessions with built-in web dashboard and AI-powered compaction.
 
@@ -23,14 +25,14 @@ CLI to manage Claude Code sessions with built-in web dashboard and AI-powered co
 <th>Web Dashboard - Session Browser</th>
 </tr>
 <tr>
-<td width="50%"><img src="../../.github/image/cli.png" alt="CLI Screenshot"><br><sub>Interactive session selector with AI-powered summarization</sub></td>
-<td width="50%"><img src="../../.github/image/app.png" alt="Web Dashboard Screenshot"><br><sub>Browse all sessions with rich rendering, images, and filtering</sub></td>
+<td width="50%"><img src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/cli.png" alt="CLI Screenshot"><br><sub>Interactive session selector with AI-powered summarization</sub></td>
+<td width="50%"><img src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/app.png" alt="Web Dashboard Screenshot"><br><sub>Browse all sessions with rich rendering, images, and filtering</sub></td>
 </tr>
 </table>
 
 <a name="TOC"></a>
 
-## :star: Features<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
+## ⭐ Features<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/up_arrow.png" width="22"></a>
 
 - **Session Compaction** - Parse and summarize Claude Code sessions with AI
 - **Web Dashboard** - Built-in server for session analysis
@@ -39,7 +41,7 @@ CLI to manage Claude Code sessions with built-in web dashboard and AI-powered co
 - **Detached Mode** - Run web server in background
 - **Interactive Selection** - User-friendly session picker
 
-## :rocket: Installation<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
+## 🚀 Installation<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/up_arrow.png" width="22"></a>
 
 ```bash
 npm install -g better-claude-code
@@ -47,7 +49,7 @@ npm install -g better-claude-code
 
 After installation, the `bcc` command will be available globally.
 
-## :bulb: Usage<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
+## 💡 Usage<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/up_arrow.png" width="22"></a>
 
 ### Commands Overview
 
@@ -136,7 +138,7 @@ source ~/.bashrc   # for bash
 
 </details>
 
-## :wrench: Development<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
+## 🔧 Development<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/up_arrow.png" width="22"></a>
 
 ```bash
 pnpm install                     # Install dependencies
@@ -157,6 +159,6 @@ The CLI bundles the entire backend and frontend as static assets:
 
 This makes the CLI a self-contained executable.
 
-## :scroll: License<a href="#TOC"><img align="right" src="../../.github/image/up_arrow.png" width="22"></a>
+## 📜 License<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/better-claude-code/main/.github/image/up_arrow.png" width="22"></a>
 
 MIT License - see [LICENSE](../../LICENSE) file for details.
