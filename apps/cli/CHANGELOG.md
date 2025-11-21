@@ -1,5 +1,11 @@
 # better-claude-code
 
+## 1.0.4
+
+### Patch Changes
+
+- ea3fb84: update list sessions logic
+
 ## 1.0.3
 
 ### Patch Changes
