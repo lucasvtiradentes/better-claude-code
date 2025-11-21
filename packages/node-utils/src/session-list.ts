@@ -100,35 +100,26 @@ async function findCheckpointedSessions(sessionFiles: string[], sessionsPath: st
     const content = await readFile(filePath, 'utf-8');
     const lines = content.split('\n').filter((l) => l.trim());
 
-    let summary: string | undefined;
-    let internalSessionId: string | undefined;
+    const currentSessionId = file.replace('.jsonl', '');
+    const referencedSessions = new Set<string>();
 
-    for (let i = lines.length - 1; i >= 0; i--) {
-      const line = lines[i];
+    for (const line of lines) {
       try {
         const parsed = JSON.parse(line);
-        if (!summary && parsed.type === 'summary' && parsed.summary) {
-          summary = parsed.summary;
+        if (parsed.sessionId && parsed.sessionId !== currentSessionId) {
+          referencedSessions.add(parsed.sessionId);
         }
-        if (!internalSessionId && parsed.sessionId) {
-          internalSessionId = parsed.sessionId;
-        }
-        if (summary && internalSessionId) break;
       } catch {}
     }
 
-    if (summary && internalSessionId && internalSessionId !== file.replace('.jsonl', '')) {
-      return internalSessionId;
-    }
-
-    return null;
+    return Array.from(referencedSessions);
   });
 
   const results = await Promise.all(checkPromises);
-  results.forEach((sessionId: string | null) => {
-    if (sessionId) {
+  results.forEach((sessionIds: string[]) => {
+    sessionIds.forEach((sessionId) => {
       originalSessionsToHide.add(sessionId);
-    }
+    });
   });
 
   return originalSessionsToHide;
@@ -472,8 +463,7 @@ export async function listSessions(options: SessionListOptions): Promise<Session
   const files = await readdir(sessionsPath);
   let sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
-  const checkpointedOriginals =
-    sessionFiles.length <= 50 ? await findCheckpointedSessions(sessionFiles, sessionsPath) : new Set<string>();
+  const checkpointedOriginals = await findCheckpointedSessions(sessionFiles, sessionsPath);
   sessionFiles = sessionFiles.filter((f) => !checkpointedOriginals.has(f.replace('.jsonl', '')));
   const processOptions = {
     search,
