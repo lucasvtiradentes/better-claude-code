@@ -4,6 +4,7 @@ import { JsonFileCache } from './cache.js';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper.js';
 import { MessageCountMode } from './config-manager.js';
 import { BCC_SESSIONS_CACHE_DIR, getCompactionSummaryPath } from './monorepo-path-utils.js';
+import { findCheckpointedSessions } from './session-checkpoint-utils.js';
 import {
   CLAUDE_CODE_COMMANDS,
   createMessageKey,
@@ -54,39 +55,6 @@ interface ParsedLine {
   timestamp?: number;
   sessionId?: string;
   summary?: string;
-}
-
-async function findCheckpointedSessions(sessionFiles: string[], sessionsPath: string): Promise<Set<string>> {
-  const originalSessionsToHide = new Set<string>();
-
-  const checkPromises = sessionFiles.map(async (file) => {
-    const filePath = join(sessionsPath, file);
-    const content = await readFile(filePath, 'utf-8');
-    const lines = content.split('\n').filter((l) => l.trim());
-
-    const currentSessionId = file.replace('.jsonl', '');
-    const referencedSessions = new Set<string>();
-
-    for (const line of lines) {
-      try {
-        const parsed = JSON.parse(line);
-        if (parsed.sessionId && parsed.sessionId !== currentSessionId) {
-          referencedSessions.add(parsed.sessionId);
-        }
-      } catch {}
-    }
-
-    return Array.from(referencedSessions);
-  });
-
-  const results = await Promise.all(checkPromises);
-  results.forEach((sessionIds: string[]) => {
-    sessionIds.forEach((sessionId) => {
-      originalSessionsToHide.add(sessionId);
-    });
-  });
-
-  return originalSessionsToHide;
 }
 
 function parseCommandFromContent(content: string): string | null {

@@ -15,7 +15,7 @@ export const useFilterStore = create<FilterState>()(
     (set) => ({
       showUserMessages: true,
       showAssistantMessages: true,
-      showToolCalls: true,
+      showToolCalls: false,
       toggleUserMessages: () => set((state) => ({ showUserMessages: !state.showUserMessages })),
       toggleAssistantMessages: () => set((state) => ({ showAssistantMessages: !state.showAssistantMessages })),
       toggleToolCalls: () => set((state) => ({ showToolCalls: !state.showToolCalls }))
