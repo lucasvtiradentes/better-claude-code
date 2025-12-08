@@ -15,8 +15,8 @@ importers:
         specifier: ^2.29.7
         version: 2.29.7(@types/node@24.10.1)
       tscanner:
-        specifier: ^0.0.27
-        version: 0.0.27
+        specifier: ^0.0.29
+        version: 0.0.29
       turbo:
         specifier: ^2.5.4
         version: 2.6.0
@@ -2177,28 +2177,28 @@ packages:
     resolution: {integrity: sha512-IKwZENsK7owmW1Lm5FhuHegY/SyQ8KqtL/7mTSnzoKJgfzhrrf9qwKB1rmkKkt+svUuy/Zw3uVEpZtUzQruWtA==}
     engines: {node: '>=12'}
 
-  '@tscanner/cli-darwin-arm64@0.0.27':
-    resolution: {integrity: sha512-pnj+z2kWeidN4NYOiZApeRAHttsIUYNLBwB1gjlN7EzVRSpAT4WpJc+/JjIEphlLK+QQ5Chay4V6XTG8b7v3MQ==}
+  '@tscanner/cli-darwin-arm64@0.0.29':
+    resolution: {integrity: sha512-ZkuowI+2Z6OiIt1pQ0gV5rsnX1/ENmytX8b6MCBdRVD4meJxgiSPzeLwaZZlKZq27TYCuD4VlkE5pdmbUcbHjA==}
     cpu: [arm64]
     os: [darwin]
 
-  '@tscanner/cli-darwin-x64@0.0.27':
-    resolution: {integrity: sha512-rBuiuKIgw/iZnzR2BIT/P9sMgCiUdYxkbP3AqjBwB22Gw/j8FSGKCQrPuxCkfVX9lTaLnaCvEpQh7khQ68Edfg==}
+  '@tscanner/cli-darwin-x64@0.0.29':
+    resolution: {integrity: sha512-IUczg2KnJMhfPX3bn1E7ZcrlnjCVPpB7vcAH8W4oskpxmF2VxCwsO1YJnsr2RhPjPakhKa6cvWtU/9ExF6Ws9g==}
     cpu: [x64]
     os: [darwin]
 
-  '@tscanner/cli-linux-arm64@0.0.27':
-    resolution: {integrity: sha512-rHK1XyT7d8wyKZcaz9S3csWGaAI+cIrSDYbFTUlbmdpaYj0QpMQeq7+1UAOTdLSsREudhr7FHeIVNGmkbe5iIw==}
+  '@tscanner/cli-linux-arm64@0.0.29':
+    resolution: {integrity: sha512-hiZjvtUbz7Cl4kxnExqmFnRBD793xPvVbRko5CM7q3uQGHq8bJIxFrFG62RKwo20QXVjXh3UmQ/LF6ipMHKZHQ==}
     cpu: [arm64]
     os: [linux]
 
-  '@tscanner/cli-linux-x64@0.0.27':
-    resolution: {integrity: sha512-Kq9Lrz+riLO3nhMONWPnyHTSqaJufpPHnHcYQtk40jWAg5T2HlHWi4zLXK6F0NuC6S9851ddE3wffbM56+I7ow==}
+  '@tscanner/cli-linux-x64@0.0.29':
+    resolution: {integrity: sha512-G4Jytl3GiVhbpfxfsI23gcrAq+ylP7PEXhTVfosr2AAW+AMpr1tcLJn3kdmfeNxQY+mmIceOaMOsiKlLJoWl0A==}
     cpu: [x64]
     os: [linux]
 
-  '@tscanner/cli-win32-x64@0.0.27':
-    resolution: {integrity: sha512-iEcvDjKJySDhODu9S1Gz5yiw2HXLVO1BYXByXEWCLCLm/5PhshFnzlDiYY3nv6Ah278hq1EuE4GVm82Rr/UfKA==}
+  '@tscanner/cli-win32-x64@0.0.29':
+    resolution: {integrity: sha512-0+mH8Bw1ieEd5sMnBnkIeZQmaq9mr3talZiLMSDBluw0cTJwsF3+r4sdr+5sGSjjRrMeYH4YazBv7ogDTVtsiQ==}
     cpu: [x64]
     os: [win32]
 
@@ -3978,8 +3978,8 @@ packages:
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  tscanner@0.0.27:
-    resolution: {integrity: sha512-tYcmpsaTaCyxW+yIJDcTsnq0HUC6uOI0hQWCWXp0OKwq27tbhV5jvvQ/KzI+dabRlzy0Ep2bdjiUdLXg7RYNRA==}
+  tscanner@0.0.29:
+    resolution: {integrity: sha512-i/UfShgk6hCT7KN16rwzi3nGFoop1WeB583wrNlNXoLG3Mbo3CFVWmB7cWog8Az7em1kVQhYxnpifXFf78hSPQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -4330,6 +4330,9 @@ packages:
 
   zod@4.1.12:
     resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
+
+  zod@4.1.13:
+    resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
 
   zustand@5.0.8:
     resolution: {integrity: sha512-gyPKpIaxY9XcO2vSMrLbiER7QMAMGOQZVRdJ6Zi782jkbzZygq5GI9nG8g+sMgitRtndwaBSl7uiqC49o1SSiw==}
@@ -6288,19 +6291,19 @@ snapshots:
 
   '@tanstack/virtual-file-routes@1.133.19': {}
 
-  '@tscanner/cli-darwin-arm64@0.0.27':
+  '@tscanner/cli-darwin-arm64@0.0.29':
     optional: true
 
-  '@tscanner/cli-darwin-x64@0.0.27':
+  '@tscanner/cli-darwin-x64@0.0.29':
     optional: true
 
-  '@tscanner/cli-linux-arm64@0.0.27':
+  '@tscanner/cli-linux-arm64@0.0.29':
     optional: true
 
-  '@tscanner/cli-linux-x64@0.0.27':
+  '@tscanner/cli-linux-x64@0.0.29':
     optional: true
 
-  '@tscanner/cli-win32-x64@0.0.27':
+  '@tscanner/cli-win32-x64@0.0.29':
     optional: true
 
   '@types/babel__core@7.20.5':
@@ -8226,15 +8229,15 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  tscanner@0.0.27:
+  tscanner@0.0.29:
     dependencies:
-      zod: 4.1.12
+      zod: 4.1.13
     optionalDependencies:
-      '@tscanner/cli-darwin-arm64': 0.0.27
-      '@tscanner/cli-darwin-x64': 0.0.27
-      '@tscanner/cli-linux-arm64': 0.0.27
-      '@tscanner/cli-linux-x64': 0.0.27
-      '@tscanner/cli-win32-x64': 0.0.27
+      '@tscanner/cli-darwin-arm64': 0.0.29
+      '@tscanner/cli-darwin-x64': 0.0.29
+      '@tscanner/cli-linux-arm64': 0.0.29
+      '@tscanner/cli-linux-x64': 0.0.29
+      '@tscanner/cli-win32-x64': 0.0.29
 
   tsconfck@2.1.2(typescript@5.9.3):
     optionalDependencies:
@@ -8551,6 +8554,8 @@ snapshots:
   zod@3.25.76: {}
 
   zod@4.1.12: {}
+
+  zod@4.1.13: {}
 
   zustand@5.0.8(@types/react@19.2.2)(immer@9.0.21)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0)):
     optionalDependencies:
