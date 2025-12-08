@@ -37,7 +37,7 @@ async function main() {
         issues.push({
           file: file.path,
           line: i + 1,
-          message: `Debug comment found: "${line.trim().substring(0, 50)}"`,
+          message: `Debug comment found: "${line.trim().substring(0, 50)}"`
         });
       }
     }
