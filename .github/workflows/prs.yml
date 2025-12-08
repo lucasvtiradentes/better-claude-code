@@ -45,7 +45,7 @@ jobs:
           mkdir -p ~/.claude
           echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
 
-      - uses: lucasvtiradentes/tscanner@v0.0.26
+      - uses: lucasvtiradentes/tscanner-action@v0.0.26
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           target-branch: 'origin/main'
