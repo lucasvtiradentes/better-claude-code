@@ -15,8 +15,8 @@ importers:
         specifier: ^2.29.7
         version: 2.29.7(@types/node@24.10.1)
       tscanner:
-        specifier: ^0.0.29
-        version: 0.0.29
+        specifier: ^0.0.35
+        version: 0.0.35
       turbo:
         specifier: ^2.5.4
         version: 2.6.0
@@ -2177,28 +2177,28 @@ packages:
     resolution: {integrity: sha512-IKwZENsK7owmW1Lm5FhuHegY/SyQ8KqtL/7mTSnzoKJgfzhrrf9qwKB1rmkKkt+svUuy/Zw3uVEpZtUzQruWtA==}
     engines: {node: '>=12'}
 
-  '@tscanner/cli-darwin-arm64@0.0.29':
-    resolution: {integrity: sha512-ZkuowI+2Z6OiIt1pQ0gV5rsnX1/ENmytX8b6MCBdRVD4meJxgiSPzeLwaZZlKZq27TYCuD4VlkE5pdmbUcbHjA==}
+  '@tscanner/cli-darwin-arm64@0.0.35':
+    resolution: {integrity: sha512-IsIlqDHYE5Q3TA8dcPR9qzCbfzn1facsTIus+UjIJrjlvWa3r+YJ7CMruE4HmI4AcVHevEGrlDWhFz9AdUGEvg==}
     cpu: [arm64]
     os: [darwin]
 
-  '@tscanner/cli-darwin-x64@0.0.29':
-    resolution: {integrity: sha512-IUczg2KnJMhfPX3bn1E7ZcrlnjCVPpB7vcAH8W4oskpxmF2VxCwsO1YJnsr2RhPjPakhKa6cvWtU/9ExF6Ws9g==}
+  '@tscanner/cli-darwin-x64@0.0.35':
+    resolution: {integrity: sha512-mu4vPoSlgQGEo7ymadwxG5FS7bw9+8nG29MNNBR2oga76A0SJHI3bXaVlfk9b61oNv49giyb5MylOtJtFyJqzw==}
     cpu: [x64]
     os: [darwin]
 
-  '@tscanner/cli-linux-arm64@0.0.29':
-    resolution: {integrity: sha512-hiZjvtUbz7Cl4kxnExqmFnRBD793xPvVbRko5CM7q3uQGHq8bJIxFrFG62RKwo20QXVjXh3UmQ/LF6ipMHKZHQ==}
+  '@tscanner/cli-linux-arm64@0.0.35':
+    resolution: {integrity: sha512-5S7GdgeWILVFAh2jkp7I3/J0sBaAhXcMRk4noBhaZQ2SpUy/9GJ8/nuJLQvzlEzhCSjC25kWYBNbPkwbEfc5hg==}
     cpu: [arm64]
     os: [linux]
 
-  '@tscanner/cli-linux-x64@0.0.29':
-    resolution: {integrity: sha512-G4Jytl3GiVhbpfxfsI23gcrAq+ylP7PEXhTVfosr2AAW+AMpr1tcLJn3kdmfeNxQY+mmIceOaMOsiKlLJoWl0A==}
+  '@tscanner/cli-linux-x64@0.0.35':
+    resolution: {integrity: sha512-EwbiaiEb5J/tT7K6tPVbhcwTmcpd3vatZVN0FJhrgVsVUaZEoJxJeaVE9ZJ0vyYiNphe4MoGWJsk2u6Z2uBH/Q==}
     cpu: [x64]
     os: [linux]
 
-  '@tscanner/cli-win32-x64@0.0.29':
-    resolution: {integrity: sha512-0+mH8Bw1ieEd5sMnBnkIeZQmaq9mr3talZiLMSDBluw0cTJwsF3+r4sdr+5sGSjjRrMeYH4YazBv7ogDTVtsiQ==}
+  '@tscanner/cli-win32-x64@0.0.35':
+    resolution: {integrity: sha512-GzURdIC8E6OJqIUaFuyPihsToeWJCvafx1ES0jXT/XooS0pRrqScOAoUyaiN3136HP2o1+earZaMJxcFbqWzhw==}
     cpu: [x64]
     os: [win32]
 
@@ -3978,8 +3978,8 @@ packages:
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  tscanner@0.0.29:
-    resolution: {integrity: sha512-i/UfShgk6hCT7KN16rwzi3nGFoop1WeB583wrNlNXoLG3Mbo3CFVWmB7cWog8Az7em1kVQhYxnpifXFf78hSPQ==}
+  tscanner@0.0.35:
+    resolution: {integrity: sha512-3RJrNeL+2ZDrjbNiwK9D43rQ1qMl4ygsfXJsoh70+3Zir6HCehMn26DTyNYQJqzWUv1ZbJ3PC0dt86NeA4VaQw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -6291,19 +6291,19 @@ snapshots:
 
   '@tanstack/virtual-file-routes@1.133.19': {}
 
-  '@tscanner/cli-darwin-arm64@0.0.29':
+  '@tscanner/cli-darwin-arm64@0.0.35':
     optional: true
 
-  '@tscanner/cli-darwin-x64@0.0.29':
+  '@tscanner/cli-darwin-x64@0.0.35':
     optional: true
 
-  '@tscanner/cli-linux-arm64@0.0.29':
+  '@tscanner/cli-linux-arm64@0.0.35':
     optional: true
 
-  '@tscanner/cli-linux-x64@0.0.29':
+  '@tscanner/cli-linux-x64@0.0.35':
     optional: true
 
-  '@tscanner/cli-win32-x64@0.0.29':
+  '@tscanner/cli-win32-x64@0.0.35':
     optional: true
 
   '@types/babel__core@7.20.5':
@@ -8229,15 +8229,15 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  tscanner@0.0.29:
+  tscanner@0.0.35:
     dependencies:
       zod: 4.1.13
     optionalDependencies:
-      '@tscanner/cli-darwin-arm64': 0.0.29
-      '@tscanner/cli-darwin-x64': 0.0.29
-      '@tscanner/cli-linux-arm64': 0.0.29
-      '@tscanner/cli-linux-x64': 0.0.29
-      '@tscanner/cli-win32-x64': 0.0.29
+      '@tscanner/cli-darwin-arm64': 0.0.35
+      '@tscanner/cli-darwin-x64': 0.0.35
+      '@tscanner/cli-linux-arm64': 0.0.35
+      '@tscanner/cli-linux-x64': 0.0.35
+      '@tscanner/cli-win32-x64': 0.0.35
 
   tsconfck@2.1.2(typescript@5.9.3):
     optionalDependencies:

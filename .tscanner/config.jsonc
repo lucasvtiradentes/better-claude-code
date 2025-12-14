@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.29/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.35/schema.json",
   "rules": {
     "builtin": {
       "consistent-return": {},
@@ -61,13 +61,11 @@
       "prompt": "example-find-complexity.md",
       "mode": "content",
       "message": "Function is too complex, consider refactoring",
-      "severity": "warning",
-      "enabled": false
+      "severity": "warning"
     }
   },
   "ai": {
-    "provider": "claude",
-    "timeout": 120000
+    "provider": "claude"
   },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
@@ -75,19 +73,12 @@
   },
   "codeEditor": {
     "highlightErrors": true,
-    "highlightWarnings": false,
-    "scanIntervalSeconds": 0,
-    "aiScanIntervalSeconds": 0
-  },
-  "cli": {
-    "groupBy": "file",
-    "aiMode": "ignore",
-    "noCache": false,
-    "showSettings": true,
-    "showIssueSeverity": true,
-    "showIssueSourceLine": true,
-    "showIssueRuleName": true,
-    "showIssueDescription": false,
-    "showSummary": true
+    "highlightWarnings": true,
+    "highlightInfos": true,
+    "highlightHints": true,
+    "autoScanInterval": 0,
+    "autoAiScanInterval": 0,
+    "startupScan": "fresh",
+    "startupAiScan": "cached"
   }
 }
