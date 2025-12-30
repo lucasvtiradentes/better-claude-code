@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.35/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.1.3/schema.json",
   "rules": {
     "builtin": {
       "consistent-return": {},
@@ -37,16 +37,16 @@
       "no-var": {},
       "prefer-const": {},
       // "prefer-interface-over-type": {},
-      "prefer-nullish-coalescing": {},
+      // "prefer-nullish-coalescing": {},
       "prefer-optional-chain": {},
       "prefer-type-over-interface": {}
     },
     "regex": {
-      "example-no-console-log": {
-        "pattern": "console\\.log",
-        "message": "Remove console.log before committing",
-        "severity": "warning"
-      }
+      // "example-no-console-log": {
+      //   "pattern": "console\\.log",
+      //   "message": "Remove console.log before committing",
+      //   "severity": "warning"
+      // }
     },
     "script": {
       "example-no-debug-comments": {
