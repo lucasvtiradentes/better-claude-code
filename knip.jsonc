@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": ["src/session-view-page/webview/index.tsx", "scripts/**/*.ts"],
   "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
-  "ignore": [".tscanner/**", ".changeset/**", "src/lib/shared/shared-enums.ts"],
+  "ignore": [".tscanner/**", ".changeset/**", "src/lib/shared/shared-enums.ts", "src/lib/shared/constants.ts"],
   "ignoreBinaries": ["vsce"],
   "ignoreDependencies": ["tailwindcss", "tscanner"],
   "biome": { "config": "biome.json" },

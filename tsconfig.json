@@ -22,6 +22,6 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"include": ["src/**/*", "scripts/**/*", "esbuild.config.ts"],
+	"include": ["src/**/*", "scripts/**/*", "esbuild.config.ts", "global.d.ts"],
 	"exclude": ["node_modules", "out"]
 }

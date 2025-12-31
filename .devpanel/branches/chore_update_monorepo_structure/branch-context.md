@@ -35,7 +35,7 @@ N/A
 
 ```
 A  .devpanel/branch-context-template.md                                                                                                                  (+28 -0)
-A  .devpanel/branches/chore_update_monorepo_structure/branch-context.md                                                                                  (+481 -0)
+A  .devpanel/branches/chore_update_monorepo_structure/branch-context.md                                                                                  (+13 -7)
 A  .devpanel/branches/main/branch-context.md                                                                                                             (+40 -0)
 M  .github/actions/publish-vscode-extension/action.yml                                                                                                   (+1 -2)
 M  .github/actions/setup-and-install/action.yml                                                                                                          (+0 -2)
@@ -44,9 +44,10 @@ D  .github/image/cli.png                                                        
 M  .github/workflows/callable-ci.yml                                                                                                                     (+0 -11)
 M  .github/workflows/prs.yml                                                                                                                             (+0 -3)
 M  .github/workflows/push-to-main.yml                                                                                                                    (+0 -5)
+M  .gitignore                                                                                                                                            (+1 -0)
 A  .husky/pre-commit                                                                                                                                     (+3 -0)
 A  .lintstagedrc.json                                                                                                                                    (+4 -0)
-M  .tscanner/config.jsonc                                                                                                                                (+17 -26)
+M  .tscanner/config.jsonc                                                                                                                                (+20 -29)
 R  .tscanner/prompts/example-find-complexity.md	.tscanner/ai-rules/example-find-complexity.md                                                            (+0 -0)
 R  .tscanner/scripts/example-no-debug-comments.ts	.tscanner/script-rules/example-no-debug-comments.ts                                                    (+0 -0)
 M  README.md                                                                                                                                             (+117 -41)
@@ -446,7 +447,7 @@ R  apps/vscode-extension/src/commands/view-compaction.ts	src/commands/view-compa
 R  apps/vscode-extension/src/commands/view-details.ts	src/commands/view-details.ts                                                                       (+0 -0)
 R  apps/vscode-extension/src/common/lib/compact-service.ts	src/common/lib/compact-service.ts                                                             (+0 -0)
 R  apps/vscode-extension/src/common/lib/session-manager.ts	src/common/lib/session-manager.ts                                                             (+0 -0)
-R  apps/vscode-extension/src/common/types.ts	src/common/types.ts                                                                                         (+0 -0)
+D  apps/vscode-extension/src/common/types.ts                                                                                                             (+0 -28)
 R  apps/vscode-extension/src/common/utils/logger.ts	src/common/utils/logger.ts                                                                           (+0 -0)
 R  apps/vscode-extension/src/common/utils/workspace-detector.ts	src/common/utils/workspace-detector.ts                                                   (+0 -0)
 R  apps/vscode-extension/src/extension.ts	src/extension.ts                                                                                               (+0 -0)
@@ -472,6 +473,8 @@ R  apps/vscode-extension/src/status-bar/status-bar-manager.ts	src/status-bar/sta
 R  apps/vscode-extension/src/storage/workspace-state.ts	src/storage/workspace-state.ts                                                                   (+0 -0)
 D  apps/vscode-extension/tsconfig.json                                                                                                                   (+0 -20)
 M  biome.json                                                                                                                                            (+1 -1)
+M  esbuild.config.ts                                                                                                                                     (+3 -1)
+M  global.d.ts                                                                                                                                           (+1 -0)
 A  knip.jsonc                                                                                                                                            (+10 -0)
 M  package.json                                                                                                                                          (+294 -26)
 D  packages/node-utils/package.json                                                                                                                      (+0 -31)
@@ -525,10 +528,13 @@ D  packages/ui-components/tsconfig.json                                         
 D  packages/ui-components/tsup.config.ts                                                                                                                 (+0 -33)
 M  pnpm-lock.yaml                                                                                                                                        (+1248 -6135)
 D  pnpm-workspace.yaml                                                                                                                                   (+0 -6)
+M  scripts/install-local.ts                                                                                                                              (+1 -1)
 M  scripts/release.sh                                                                                                                                    (+2 -5)
+A  src/common/types.ts                                                                                                                                   (+23 -0)
+M  src/extension.ts                                                                                                                                      (+0 -1)
 A  src/lib/node-utils/monorepo-path-utils.ts                                                                                                             (+135 -0)
 A  src/lib/node-utils/session-list.ts                                                                                                                    (+66 -0)
-A  src/lib/shared/constants.ts                                                                                                                           (+1 -0)
+A  src/lib/shared/constants.ts                                                                                                                           (+14 -0)
 A  src/lib/shared/index.ts                                                                                                                               (+3 -0)
 A  src/lib/shared/shared-enums.ts                                                                                                                        (+4 -0)
 A  src/lib/ui-components/components/ui/dropdown-menu.tsx                                                                                                 (+53 -0)
@@ -536,13 +542,13 @@ A  src/lib/ui-components/index.ts                                               
 A  src/lib/ui-components/utils/message-patterns.ts                                                                                                       (+81 -0)
 A  src/lib/ui-components/utils/message-utils.ts                                                                                                          (+5 -0)
 D  tsconfig.base.json                                                                                                                                    (+0 -18)
-A  tsconfig.json                                                                                                                                         (+27 -0)
+A  tsconfig.json                                                                                                                                         (+1 -1)
 D  turbo.jsonc                                                                                                                                           (+0 -109)
 ```
 
-<!-- SECTION_METADATA: {"filesCount":504,"added":16,"modified":11,"deleted":406,"summary":"16A, 11M, 406D","isEmpty":false,"description":"16A, 11M, 406D"} -->
+<!-- SECTION_METADATA: {"filesCount":510,"added":17,"modified":16,"deleted":407,"summary":"17A, 16M, 407D","isEmpty":false,"description":"17A, 16M, 407D"} -->
 
 
 <!-- ------------------- -->
 
-<!-- DEVPANEL_METADATA: {"sections":{"CHANGED FILES":{"filesCount":504,"added":16,"modified":11,"deleted":406,"summary":"16A, 11M, 406D","isEmpty":false,"description":"16A, 11M, 406D"}},"lastSyncedTime":"2025-12-31T07:57:32.417Z","lastCommitMessage":"fix: biome issues","lastCommitHash":"af922b5811460a21c239e1e8b1d448d8f4e6fdd3"} -->
+<!-- DEVPANEL_METADATA: {"sections":{"CHANGED FILES":{"filesCount":510,"added":17,"modified":16,"deleted":407,"summary":"17A, 16M, 407D","isEmpty":false,"description":"17A, 16M, 407D"}},"lastSyncedTime":"2025-12-31T08:45:32.963Z","lastCommitMessage":"fix: tscanner issues","lastCommitHash":"f0d5aaabe05ff4e98a3e3bb994ff01a27b1429c0"} -->

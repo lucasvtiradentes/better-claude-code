@@ -18,7 +18,6 @@ const BCC_SESSIONS_COMPACTED_DIR = join(BCC_CONFIG_DIR, 'compacted');
 export const BCC_EXTENSION_LOG_FILE = join(USER_TMP_DIR, 'bcc_logs.txt');
 
 export const CLAUDE_CODE_DIR = join(USER_HOME_DIR, '.claude');
-export const VSCODE_EXTENSIONS_DIR = join(USER_HOME_DIR, '.vscode', 'extensions');
 
 function getCallerLocation(): string {
   const error = new Error();

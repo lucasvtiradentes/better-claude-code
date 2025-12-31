@@ -12,6 +12,7 @@ completions/
 .vscode
 .ignore
 .tanstack
+dist-dev/ 
 
 # FILES ========================================================================
 

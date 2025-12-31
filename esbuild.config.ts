@@ -5,6 +5,7 @@ import esbuild, { type BuildOptions, type Plugin } from 'esbuild';
 import postcss from 'postcss';
 
 const logger = console;
+const isDev = !process.env.CI;
 const buildDate = new Date();
 const utcMinus3 = new Date(buildDate.getTime() - 3 * 60 * 60 * 1000);
 const buildTimestamp = utcMinus3.toISOString().replace('Z', '-03:00');
@@ -21,7 +22,8 @@ const extensionBuildOptions: BuildOptions = {
   minify: false,
   logLevel: 'info',
   define: {
-    __BUILD_TIMESTAMP__: JSON.stringify(buildTimestamp)
+    __BUILD_TIMESTAMP__: JSON.stringify(buildTimestamp),
+    __IS_DEV_BUILD__: JSON.stringify(isDev)
   }
 };
 
