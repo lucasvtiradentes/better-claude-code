@@ -1,5 +1,11 @@
 import * as vscode from 'vscode';
-import { sessionCache } from '@/lib/node-utils';
+import {
+  ClaudeHelper,
+  getSessionLabels,
+  getSessionLabelsForSession,
+  sessionCache,
+  toggleSessionLabel
+} from '@/lib/node-utils';
 import { CompactService } from '../common/lib/compact-service.js';
 import { logger } from '../common/utils/logger.js';
 import type { SessionProvider } from '../sidebar/session-provider.js';
@@ -168,9 +174,6 @@ export function registerBatchOperationsCommands(
         return;
       }
 
-      const { ClaudeHelper, getSessionLabels, toggleSessionLabel, getSessionLabelsForSession } = await import(
-        '@/lib/node-utils'
-      );
       const projectName = ClaudeHelper.normalizePathForClaudeProjects(workspacePath);
 
       logger.info(`Batch add label: workspacePath=${workspacePath}`);

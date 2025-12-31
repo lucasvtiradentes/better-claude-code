@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { SessionManager } from '../common/lib/session-manager.js';
 import type { FilterCriteria, SessionListItem } from '../common/types.js';
 import { logger } from '../common/utils/logger.js';
+import { WebviewProvider } from '../session-view-page/webview-provider.js';
 import { WorkspaceState } from '../storage/workspace-state.js';
 import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
 
@@ -142,7 +143,6 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     }
 
     if (element instanceof DateGroupTreeItem) {
-      const { WebviewProvider } = await import('../session-view-page/webview-provider.js');
       const openSessionIds = new Set(WebviewProvider.getOpenSessionIds());
       const pinnedIds = this.workspaceState?.getPinnedSessions() || [];
 

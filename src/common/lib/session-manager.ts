@@ -14,6 +14,7 @@ import {
 } from '@/lib/node-utils';
 import type { DateGroup, FilterCriteria, SessionListItem, SessionStats } from '../types.js';
 import { logger } from '../utils/logger.js';
+import { CompactService } from './compact-service.js';
 
 export class SessionManager {
   private sessions: SessionListItem[] = [];
@@ -243,7 +244,6 @@ export class SessionManager {
       throw new Error(`Session ${sessionId} not found`);
     }
 
-    const { CompactService } = await import('./compact-service.js');
     const compactService = new CompactService();
 
     try {
