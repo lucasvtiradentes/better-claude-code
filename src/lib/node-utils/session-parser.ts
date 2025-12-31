@@ -47,8 +47,16 @@ export type ParsedSession = {
   images: Array<{ index: number; data: string; messageId: string }>;
 };
 
+type SessionEvent = {
+  type: MessageSource | string;
+  message?: { content?: unknown };
+  content?: unknown;
+  timestamp?: number;
+  uuid?: string;
+};
+
 export function parseSessionMessages(
-  events: any[],
+  events: SessionEvent[],
   options: ParseSessionOptions = { groupMessages: true, includeImages: true }
 ): ParsedSession {
   const messages: ParsedMessage[] = [];
@@ -61,7 +69,7 @@ export function parseSessionMessages(
       continue;
     }
 
-    if (ClaudeHelper.isUserMessage(event.type)) {
+    if (ClaudeHelper.isUserMessage(event.type as MessageSource)) {
       const textContent = extractTextContent(event.message?.content || event.content);
 
       const messageKey = createMessageKey('user', event.timestamp, textContent);
@@ -98,13 +106,13 @@ export function parseSessionMessages(
         for (const part of cleanedParts) {
           messages.push({
             id: messageId,
-            type: event.type,
+            type: event.type as MessageSource,
             content: part,
             timestamp: event.timestamp
           });
         }
       }
-    } else if (ClaudeHelper.isCCMessage(event.type)) {
+    } else if (ClaudeHelper.isCCMessage(event.type as MessageSource)) {
       if (skipNextAssistant) {
         skipNextAssistant = false;
         continue;
@@ -119,7 +127,7 @@ export function parseSessionMessages(
       if (textContent && textContent !== 'Warmup') {
         messages.push({
           id: messageId,
-          type: event.type,
+          type: event.type as MessageSource,
           content: textContent,
           timestamp: event.timestamp
         });

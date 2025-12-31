@@ -3,13 +3,20 @@ import * as vscode from 'vscode';
 import type { SessionListItem } from '@/lib/node-utils';
 import { logger } from '../common/utils/logger.js';
 import type { SessionProvider } from '../sidebar/session-provider.js';
+import type { WorkspaceState } from '../storage/workspace-state.js';
+
+type MessageFiltersState = {
+  showUserMessages: boolean;
+  showAssistantMessages: boolean;
+  showToolCalls: boolean;
+};
 
 export class WebviewProvider {
   private static panels = new Map<string, vscode.WebviewPanel>();
   private static onPanelChangeCallbacks: Array<() => void> = [];
-  private static workspaceState: any = null;
+  private static workspaceState: WorkspaceState | null = null;
 
-  static setWorkspaceState(workspaceState: any): void {
+  static setWorkspaceState(workspaceState: WorkspaceState): void {
     WebviewProvider.workspaceState = workspaceState;
   }
 
@@ -27,7 +34,7 @@ export class WebviewProvider {
     }
   }
 
-  private static broadcastFiltersUpdate(filters: any): void {
+  private static broadcastFiltersUpdate(filters: MessageFiltersState): void {
     logger.info(`[WebviewProvider] Broadcasting filters to ${WebviewProvider.panels.size} open panels`);
     for (const [sessionId, panel] of WebviewProvider.panels) {
       logger.info(`[WebviewProvider] Sending filters update to session ${sessionId}`);

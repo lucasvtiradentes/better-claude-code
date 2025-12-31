@@ -81,7 +81,7 @@ export class ClaudeHelper {
             if (typeof messageContent === 'string') {
               textContent = messageContent;
             } else if (Array.isArray(messageContent)) {
-              const textPart = messageContent.find((item: any) => item.type === 'text');
+              const textPart = messageContent.find((item: { type: string; text?: string }) => item.type === 'text');
               if (textPart?.text) {
                 textContent = textPart.text;
               }

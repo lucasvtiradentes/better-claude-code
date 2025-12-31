@@ -1,7 +1,7 @@
 import { access, readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { JsonFileCache } from './cache.js';
-import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper } from './claude-helper.js';
+import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from './claude-helper.js';
 import { MessageCountMode } from './config-manager.js';
 import { BCC_SESSIONS_CACHE_DIR, getCompactionSummaryPath } from './monorepo-path-utils.js';
 import { findCheckpointedSessions } from './session-checkpoint-utils.js';
@@ -115,8 +115,8 @@ function singlePassParsing(
       if (parsed.type === 'queue-operation') continue;
       if (parsed.summary) summary = parsed.summary;
 
-      const isUser = ClaudeHelper.isUserMessage(parsed.type as any);
-      const isCC = ClaudeHelper.isCCMessage(parsed.type as any);
+      const isUser = ClaudeHelper.isUserMessage(parsed.type as MessageSource);
+      const isCC = ClaudeHelper.isCCMessage(parsed.type as MessageSource);
 
       if (!isUser && !isCC) continue;
 

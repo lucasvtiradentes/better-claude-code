@@ -111,6 +111,10 @@ export function shouldSkipAssistantMessage(textContent: string): boolean {
   return !textContent || textContent === 'Warmup';
 }
 
-export function createMessageKey(type: 'user' | 'assistant', timestamp: any, textContent: string): string {
+export function createMessageKey(
+  type: 'user' | 'assistant',
+  timestamp: number | undefined,
+  textContent: string
+): string {
   return `${type}-${timestamp}-${textContent}`;
 }

@@ -26,7 +26,7 @@ let statusBarManager: StatusBarManager;
 let decorationProvider: SessionDecorationProvider;
 
 class SessionDecorationProvider implements vscode.FileDecorationProvider {
-  private _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri | vscode.Uri[]>();
+  private _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri | vscode.Uri[] | undefined>();
   readonly onDidChangeFileDecorations = this._onDidChangeFileDecorations.event;
 
   constructor(private provider: SessionProvider) {}
@@ -55,7 +55,7 @@ class SessionDecorationProvider implements vscode.FileDecorationProvider {
   }
 
   refresh(): void {
-    this._onDidChangeFileDecorations.fire(undefined as any);
+    this._onDidChangeFileDecorations.fire(undefined);
   }
 }
 

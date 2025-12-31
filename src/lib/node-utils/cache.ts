@@ -9,7 +9,7 @@ type CacheEntry<T> = {
 
 export class JsonFileCache {
   private cacheDir: string;
-  private memoryCache: Map<string, CacheEntry<any>> = new Map();
+  private memoryCache: Map<string, CacheEntry<unknown>> = new Map();
 
   constructor(cacheDir: string) {
     this.cacheDir = cacheDir;
