@@ -7,10 +7,11 @@ export type VSCodeAPI = {
 export type SessionImage = {
   index: number;
   data: string;
-  messageIndex: number;
+  messageId: string;
 };
 
 export type SessionMessageType = {
+  id?: string;
   type: 'user' | 'assistant';
   content: string | unknown[];
   timestamp?: number;
