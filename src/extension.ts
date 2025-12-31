@@ -1,18 +1,7 @@
 import * as vscode from 'vscode';
 import { ConfigManager } from '@/lib/node-utils';
 import { APP_NAME } from '@/lib/shared';
-import { registerAddLabelCommand } from './commands/add-label.js';
-import { registerBatchOperationsCommands } from './commands/batch-operations.js';
-import { registerCheckSessionCommands } from './commands/check-session.js';
-import { registerCompactCommand } from './commands/compact.js';
-import { registerFileOperationsCommands } from './commands/file-operations.js';
-import { registerFilterCommand } from './commands/filter.js';
-import { registerPinSessionCommand } from './commands/pin-session.js';
-import { registerRefreshCommand } from './commands/refresh.js';
-import { createShowLogsCommand } from './commands/show-logs.js';
-import { registerToggleCollapseCommand } from './commands/toggle-collapse.js';
-import { registerViewCompactionCommand } from './commands/view-compaction.js';
-import { registerViewDetailsCommand } from './commands/view-details.js';
+import { registerAllCommands } from './commands/register-all';
 import { logger } from './common/utils/logger.js';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
 import { WebviewProvider } from './session-view-page/webview-provider.js';
@@ -97,19 +86,15 @@ export async function activate(context: vscode.ExtensionContext) {
   statusBarManager = new StatusBarManager(sessionProvider);
   context.subscriptions.push(statusBarManager.getDisposable());
 
-  registerRefreshCommand(context, sessionProvider, decorationProvider);
-  registerCompactCommand(context, sessionProvider, decorationProvider, workspacePath);
-  registerViewCompactionCommand(context, workspacePath);
-  registerViewDetailsCommand(context, sessionProvider);
-  registerFilterCommand(context, sessionProvider);
-  registerFileOperationsCommands(context);
-  registerAddLabelCommand(context, sessionProvider);
-  registerToggleCollapseCommand(context, sessionProvider);
-  registerPinSessionCommand(context, sessionProvider);
-  registerCheckSessionCommands(context, sessionProvider);
-  registerBatchOperationsCommands(context, sessionProvider, decorationProvider, workspacePath);
-
-  context.subscriptions.push(createShowLogsCommand());
+  const commands = registerAllCommands({
+    context,
+    sessionProvider,
+    decorationProvider,
+    workspacePath
+  });
+  for (const cmd of commands) {
+    context.subscriptions.push(cmd);
+  }
   context.subscriptions.push(treeView);
 
   await sessionProvider.initialize(workspacePath, context);
