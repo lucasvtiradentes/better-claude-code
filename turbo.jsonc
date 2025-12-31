@@ -23,50 +23,10 @@
         "dist/**"
       ]
     },
-    "generate:swagger": {
-      "outputLogs": "new-only",
-      "dependsOn": [
-        "@better-claude-code/backend#build"
-      ],
-      "outputs": [
-        "_generated/swagger.json"
-      ],
-      "inputs": [
-        "./src/**",
-        "./scripts/generate-swagger.ts",
-        "./package.json"
-      ]
-    },
-    "generate:orval": {
-      "outputLogs": "new-only",
-      "dependsOn": [
-        "@better-claude-code/backend#generate:swagger"
-      ],
-      "outputs": [
-        "./src/api/_generated/**"
-      ],
-      "inputs": [
-        "../backend/_generated/swagger.json",
-        "./orval.config.ts",
-        "./package.json"
-      ]
-    },
-    "@better-claude-code/frontend#build": {
-      "outputLogs": "new-only",
-      "dependsOn": [
-        "^build",
-        "generate:orval"
-      ],
-      "outputs": [
-        "dist/**"
-      ]
-    },
     "better-claude-code#build": {
       "outputLogs": "new-only",
       "dependsOn": [
-        "^build",
-        "@better-claude-code/frontend#build",
-        "@better-claude-code/backend#build"
+        "^build"
       ],
       "outputs": [
         "dist/**"
