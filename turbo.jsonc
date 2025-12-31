@@ -23,15 +23,6 @@
         "dist/**"
       ]
     },
-    "better-claude-code#build": {
-      "outputLogs": "new-only",
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**"
-      ]
-    },
     "better-claude-code-vscode#build": {
       "outputLogs": "new-only",
       "dependsOn": [

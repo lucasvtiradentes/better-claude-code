@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "prepare": "turbo build --filter='./packages/*'",
-    "start": "node ./apps/cli/dist/apps/cli/src/main.js",
-    "dev": "pnpm --filter=better-claude-code dev",
+    "dev": "pnpm --filter=better-claude-code-vscode dev",
     "build": "turbo build",
     "build:vscode": "turbo build --filter=better-claude-code-vscode",
     "typecheck": "turbo typecheck",

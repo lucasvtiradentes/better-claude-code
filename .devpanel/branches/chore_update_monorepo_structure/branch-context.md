@@ -7,11 +7,13 @@ LINEAR LINK: N/A
 
 # OBJECTIVE
 
-N/A
+refatorando o monorepo atual para mudar de frontend/backend/cli/vscode-extension para ter somente uma vscode-extension
+
+pois basicamente so a extensao vai ser utilizada e ser mais prática para o usuário, reduzindo complexidade 
 
 # REQUIREMENTS
 
-N/A
+- tudo funcionar como antes
 
 # NOTES
 
@@ -19,8 +21,15 @@ N/A
 
 # TASKS
 
-- [ ] task1
-- [ ] task2
+- [x] remove apps/backend
+- [x] remove apps/frontend
+- [x] remove apps/cli
+- [x] update turbo.jsonc scripts for new structure (removed CLI reference)
+- [x] clean up .github/ folder (removed app.png and cli.png images)
+- [x] update CLAUDE.md to reflect new structure (only vscode-extension)
+- [x] update root package.json (removed CLI scripts)
+- [x] test build and typecheck - all passing
+- [x] verify packages are all needed (node-utils, shared, ui-components all used by vscode-extension)
 
 # CHANGED FILES
 
@@ -377,4 +386,4 @@ M  turbo.jsonc                                                                  
 
 <!-- ------------------- -->
 
-<!-- DEVPANEL_METADATA: {"sections":{"CHANGED FILES":{"filesCount":345,"added":3,"modified":5,"deleted":335,"summary":"3A, 5M, 335D","isEmpty":false,"description":"3A, 5M, 335D"}},"lastSyncedTime":"2025-12-31T06:33:26.280Z","lastCommitMessage":"chore: remove back and front packages","lastCommitHash":"52e9e3cdb0abb2ae26b7d28bd141c9e3bea3e35f"} -->
+<!-- DEVPANEL_METADATA: {"sections":{"CHANGED FILES":{"filesCount":345,"added":3,"modified":5,"deleted":335,"summary":"3A, 5M, 335D","isEmpty":false,"description":"3A, 5M, 335D"}},"lastSyncedTime":"2025-12-31T06:33:26.230Z","lastCommitMessage":"chore: remove back and front packages","lastCommitHash":"52e9e3cdb0abb2ae26b7d28bd141c9e3bea3e35f"} -->
