@@ -183,8 +183,8 @@ export class WebviewProvider {
                   title: `Compacting session ${session.shortId}...`,
                   cancellable: false
                 },
-                async () => {
-                  return await sessionProvider.compactSession(session.id);
+                () => {
+                  return sessionProvider.compactSession(session.id);
                 }
               );
 

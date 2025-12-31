@@ -32,8 +32,8 @@ export function registerCompactCommand(
           title: 'Compacting session...',
           cancellable: false
         },
-        async () => {
-          return await compactService.compactSession(item.session.id, workspacePath);
+        () => {
+          return compactService.compactSession(item.session.id, workspacePath);
         }
       );
 

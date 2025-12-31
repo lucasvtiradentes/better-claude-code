@@ -276,12 +276,12 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     return summaryPath;
   }
 
-  async getParsedSessionPath(sessionId: string): Promise<string | null> {
-    return await this.sessionManager.getParsedSessionPath(sessionId);
+  getParsedSessionPath(sessionId: string): Promise<string | null> {
+    return this.sessionManager.getParsedSessionPath(sessionId);
   }
 
-  async getSummaryPath(sessionId: string): Promise<string | null> {
-    return await this.sessionManager.getSummaryPath(sessionId);
+  getSummaryPath(sessionId: string): Promise<string | null> {
+    return this.sessionManager.getSummaryPath(sessionId);
   }
 
   togglePinSession(sessionId: string): boolean {
