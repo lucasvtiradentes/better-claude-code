@@ -189,9 +189,81 @@
 				"title": "Batch Operations",
 				"category": "BCC",
 				"icon": "$(checklist)"
+			},
+			{
+				"command": "bcc.showWorkspaceState",
+				"title": "Show Workspace State",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.clearWorkspaceState",
+				"title": "Clear Workspace State",
+				"category": "BCC"
 			}
 		],
 		"menus": {
+			"commandPalette": [
+				{
+					"command": "bcc.refreshSessions",
+					"when": "false"
+				},
+				{
+					"command": "bcc.compactSession",
+					"when": "false"
+				},
+				{
+					"command": "bcc.filterSessions",
+					"when": "false"
+				},
+				{
+					"command": "bcc.openSessionFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.copySessionPath",
+					"when": "false"
+				},
+				{
+					"command": "bcc.addLabel",
+					"when": "false"
+				},
+				{
+					"command": "bcc.toggleCollapseExpand",
+					"when": "false"
+				},
+				{
+					"command": "bcc.viewCompaction",
+					"when": "false"
+				},
+				{
+					"command": "bcc.togglePinSession",
+					"when": "false"
+				},
+				{
+					"command": "bcc.batchCompact",
+					"when": "false"
+				},
+				{
+					"command": "bcc.batchDelete",
+					"when": "false"
+				},
+				{
+					"command": "bcc.batchAddLabel",
+					"when": "false"
+				},
+				{
+					"command": "bcc.toggleCheckSession",
+					"when": "false"
+				},
+				{
+					"command": "bcc.clearAllChecks",
+					"when": "false"
+				},
+				{
+					"command": "bcc.batchOperationsMenu",
+					"when": "false"
+				}
+			],
 			"view/title": [
 				{
 					"command": "bcc.batchOperationsMenu",

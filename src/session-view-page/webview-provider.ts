@@ -1,24 +1,14 @@
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import type { SessionListItem } from '@/lib/node-utils';
+import type { MessageFiltersState } from '../common/schemas/workspace-state.schema';
+import { messageFiltersState } from '../common/state';
 import { logger } from '../common/utils/logger.js';
 import type { SessionProvider } from '../sidebar/session-provider.js';
-import type { WorkspaceState } from '../storage/workspace-state.js';
-
-type MessageFiltersState = {
-  showUserMessages: boolean;
-  showAssistantMessages: boolean;
-  showToolCalls: boolean;
-};
 
 export class WebviewProvider {
   private static panels = new Map<string, vscode.WebviewPanel>();
   private static onPanelChangeCallbacks: Array<() => void> = [];
-  private static workspaceState: WorkspaceState | null = null;
-
-  static setWorkspaceState(workspaceState: WorkspaceState): void {
-    WebviewProvider.workspaceState = workspaceState;
-  }
 
   static onPanelChange(callback: () => void): void {
     WebviewProvider.onPanelChangeCallbacks.push(callback);
@@ -84,11 +74,7 @@ export class WebviewProvider {
           if (message.type === 'ready') {
             logger.info(`[WebviewProvider] Received 'ready' for session ${session.shortId}`);
             const conversation = await sessionProvider.getSessionConversation(session);
-            const filters = WebviewProvider.workspaceState?.getMessageFiltersState() || {
-              showUserMessages: true,
-              showAssistantMessages: true,
-              showToolCalls: true
-            };
+            const filters = messageFiltersState.load();
             logger.info(`[WebviewProvider] Sending filters to webview: ${JSON.stringify(filters)}`);
             panel.webview.postMessage({
               type: 'sessionData',
@@ -108,10 +94,8 @@ export class WebviewProvider {
             });
           } else if (message.type === 'saveFilters') {
             logger.info(`[WebviewProvider] Received 'saveFilters': ${JSON.stringify(message.filters)}`);
-            if (WebviewProvider.workspaceState) {
-              WebviewProvider.workspaceState.setMessageFiltersState(message.filters);
-              WebviewProvider.broadcastFiltersUpdate(message.filters);
-            }
+            messageFiltersState.save(message.filters);
+            WebviewProvider.broadcastFiltersUpdate(message.filters);
           } else if (message.type === 'openImage') {
             const imageData = message.imageData as string;
             const imageIndex = message.imageIndex as number;

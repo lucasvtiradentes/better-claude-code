@@ -1,25 +1,15 @@
 import * as vscode from 'vscode';
 import { ConfigManager } from '@/lib/node-utils';
 import { APP_NAME } from '@/lib/shared';
-import { registerAddLabelCommand } from './commands/add-label.js';
-import { registerBatchOperationsCommands } from './commands/batch-operations.js';
-import { registerCheckSessionCommands } from './commands/check-session.js';
-import { registerCompactCommand } from './commands/compact.js';
-import { registerFileOperationsCommands } from './commands/file-operations.js';
-import { registerFilterCommand } from './commands/filter.js';
-import { registerPinSessionCommand } from './commands/pin-session.js';
-import { registerRefreshCommand } from './commands/refresh.js';
-import { createShowLogsCommand } from './commands/show-logs.js';
-import { registerToggleCollapseCommand } from './commands/toggle-collapse.js';
-import { registerViewCompactionCommand } from './commands/view-compaction.js';
-import { registerViewDetailsCommand } from './commands/view-details.js';
+import { registerAllCommands } from './commands/register-all';
+import { initWorkspaceState } from './common/state';
 import { logger } from './common/utils/logger.js';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
+import { Command, getCommandId } from './common/vscode/vscode-commands';
 import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
 import { DateGroupTreeItem, SessionTreeItem } from './sidebar/tree-items.js';
 import { StatusBarManager } from './status-bar/status-bar-manager.js';
-import { WorkspaceState } from './storage/workspace-state.js';
 
 let sessionProvider: SessionProvider;
 let statusBarManager: StatusBarManager;
@@ -63,6 +53,7 @@ export async function activate(context: vscode.ExtensionContext) {
   logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
 
   new ConfigManager();
+  initWorkspaceState(context);
 
   const workspacePath = getCurrentWorkspacePath();
 
@@ -71,14 +62,11 @@ export async function activate(context: vscode.ExtensionContext) {
     return;
   }
 
-  const workspaceState = new WorkspaceState(context);
-
   sessionProvider = new SessionProvider();
 
   decorationProvider = new SessionDecorationProvider(sessionProvider);
   context.subscriptions.push(vscode.window.registerFileDecorationProvider(decorationProvider));
 
-  WebviewProvider.setWorkspaceState(workspaceState);
   WebviewProvider.onPanelChange(() => {
     sessionProvider.refresh();
     decorationProvider.refresh();
@@ -97,19 +85,15 @@ export async function activate(context: vscode.ExtensionContext) {
   statusBarManager = new StatusBarManager(sessionProvider);
   context.subscriptions.push(statusBarManager.getDisposable());
 
-  registerRefreshCommand(context, sessionProvider, decorationProvider);
-  registerCompactCommand(context, sessionProvider, decorationProvider, workspacePath);
-  registerViewCompactionCommand(context, workspacePath);
-  registerViewDetailsCommand(context, sessionProvider);
-  registerFilterCommand(context, sessionProvider);
-  registerFileOperationsCommands(context);
-  registerAddLabelCommand(context, sessionProvider);
-  registerToggleCollapseCommand(context, sessionProvider);
-  registerPinSessionCommand(context, sessionProvider);
-  registerCheckSessionCommands(context, sessionProvider);
-  registerBatchOperationsCommands(context, sessionProvider, decorationProvider, workspacePath);
-
-  context.subscriptions.push(createShowLogsCommand());
+  const commands = registerAllCommands({
+    context,
+    sessionProvider,
+    decorationProvider,
+    workspacePath
+  });
+  for (const cmd of commands) {
+    context.subscriptions.push(cmd);
+  }
   context.subscriptions.push(treeView);
 
   await sessionProvider.initialize(workspacePath, context);
@@ -128,7 +112,7 @@ export async function activate(context: vscode.ExtensionContext) {
       const item = e.selection[0];
       if (item instanceof SessionTreeItem) {
         logger.info(`[TreeView] Single selection detected: ${item.session.shortId}, opening details`);
-        await vscode.commands.executeCommand('bcc.viewSessionDetails', item.session);
+        await vscode.commands.executeCommand(getCommandId(Command.ViewSessionDetails), item.session);
       }
     } else if (e.selection.length > 1) {
       logger.info(`[TreeView] Multi-selection detected: ${e.selection.length} items selected`);

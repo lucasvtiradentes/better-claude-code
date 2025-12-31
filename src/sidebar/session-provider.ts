@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import type { SessionListItem } from '@/lib/node-utils';
 import { SessionManager } from '../common/lib/session-manager.js';
+import { sessionProviderState } from '../common/state';
 import type { FilterCriteria } from '../common/types.js';
 import { logger } from '../common/utils/logger.js';
+import { ContextKey, setContextKey } from '../common/vscode/vscode-commands';
 import { WebviewProvider } from '../session-view-page/webview-provider.js';
-import { WorkspaceState } from '../storage/workspace-state.js';
 import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
 
 function normalizeGroupLabel(label: string): string {
@@ -21,41 +22,34 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   private useSmartExpansion: boolean = true;
   private expandedGroups: Set<string> = new Set();
   private itemIdCounter: number = 0;
-  private workspaceState: WorkspaceState | null = null;
   private checkedSessions: Set<string> = new Set();
 
   constructor() {
     this.sessionManager = new SessionManager();
   }
 
-  async initialize(workspacePath: string, context: vscode.ExtensionContext): Promise<void> {
+  async initialize(workspacePath: string, _context: vscode.ExtensionContext): Promise<void> {
     this.currentWorkspacePath = workspacePath;
-    this.workspaceState = new WorkspaceState(context);
     this.loadState();
     this.updateContextKeys();
     await this.refresh();
   }
 
   private loadState(): void {
-    if (!this.workspaceState) return;
-
-    const state = this.workspaceState.getSessionProviderState();
-    if (state) {
-      this.sessionManager.setGroupBy(state.groupBy);
-      this.isExpanded = state.isExpanded;
-      this.useSmartExpansion = state.useSmartExpansion ?? true;
-      this.expandedGroups = new Set(state.expandedGroups || []);
-    }
+    const state = sessionProviderState.load();
+    this.sessionManager.setGroupBy(state.groupBy);
+    this.isExpanded = state.isExpanded;
+    this.useSmartExpansion = state.useSmartExpansion ?? true;
+    this.expandedGroups = new Set(state.expandedGroups || []);
   }
 
   private saveState(): void {
-    if (!this.workspaceState) return;
-
-    this.workspaceState.setSessionProviderState({
+    sessionProviderState.save({
       groupBy: this.sessionManager.getGroupBy(),
       isExpanded: this.isExpanded,
       useSmartExpansion: this.useSmartExpansion,
-      expandedGroups: Array.from(this.expandedGroups)
+      expandedGroups: Array.from(this.expandedGroups),
+      pinnedSessions: sessionProviderState.getPinnedSessions()
     });
   }
 
@@ -145,7 +139,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
     if (element instanceof DateGroupTreeItem) {
       const openSessionIds = new Set(WebviewProvider.getOpenSessionIds());
-      const pinnedIds = this.workspaceState?.getPinnedSessions() || [];
+      const pinnedIds = sessionProviderState.getPinnedSessions();
 
       const pinnedSessions = element.dateGroup.sessions
         .filter((s) => pinnedIds.includes(s.id))
@@ -285,17 +279,13 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   }
 
   togglePinSession(sessionId: string): boolean {
-    if (!this.workspaceState) {
-      throw new Error('WorkspaceState not initialized');
-    }
-    const isPinned = this.workspaceState.togglePinSession(sessionId);
+    const isPinned = sessionProviderState.togglePinSession(sessionId);
     this._onDidChangeTreeData.fire();
     return isPinned;
   }
 
   isPinned(sessionId: string): boolean {
-    const pinnedIds = this.workspaceState?.getPinnedSessions() || [];
-    return pinnedIds.includes(sessionId);
+    return sessionProviderState.getPinnedSessions().includes(sessionId);
   }
 
   toggleCheckSession(sessionId: string): boolean {
@@ -329,6 +319,6 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   }
 
   private updateContextKeys(): void {
-    vscode.commands.executeCommand('setContext', 'bcc.hasCheckedSessions', this.hasCheckedSessions());
+    setContextKey(ContextKey.HasCheckedSessions, this.hasCheckedSessions());
   }
 }
