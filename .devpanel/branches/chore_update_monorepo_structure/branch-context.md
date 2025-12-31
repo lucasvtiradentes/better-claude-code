@@ -26,6 +26,7 @@ N/A
 
 ```
 A  .devpanel/branch-context-template.md                                                                   (+28 -0)
+A  .devpanel/branches/chore_update_monorepo_structure/branch-context.md                                   (+379 -0)
 A  .devpanel/branches/main/branch-context.md                                                              (+40 -0)
 M  .tscanner/config.jsonc                                                                                 (+16 -25)
 R  .tscanner/prompts/example-find-complexity.md	.tscanner/ai-rules/example-find-complexity.md             (+0 -0)
@@ -366,14 +367,14 @@ D  apps/frontend/src/routes/settings.tsx                                        
 D  apps/frontend/tsconfig.json                                                                            (+0 -27)
 D  apps/frontend/tsconfig.node.json                                                                       (+0 -11)
 D  apps/frontend/vite.config.ts                                                                           (+0 -21)
-M  package.json                                                                                           (+0 -1)
-M  pnpm-lock.yaml                                                                                         (+783 -5365)
+M  package.json                                                                                           (+1 -2)
+M  pnpm-lock.yaml                                                                                         (+806 -5373)
 M  turbo.jsonc                                                                                            (+1 -41)
 ```
 
-<!-- SECTION_METADATA: {"filesCount":344,"added":2,"modified":5,"deleted":335,"summary":"2A, 5M, 335D","isEmpty":false,"description":"2A, 5M, 335D"} -->
+<!-- SECTION_METADATA: {"filesCount":345,"added":3,"modified":5,"deleted":335,"summary":"3A, 5M, 335D","isEmpty":false,"description":"3A, 5M, 335D"} -->
 
 
 <!-- ------------------- -->
 
-<!-- DEVPANEL_METADATA: {"sections":{"CHANGED FILES":{"filesCount":344,"added":2,"modified":5,"deleted":335,"summary":"2A, 5M, 335D","isEmpty":false,"description":"2A, 5M, 335D"}},"lastSyncedTime":"2025-12-31T06:29:52.061Z","lastCommitMessage":"chore: update tscanner","lastCommitHash":"0e4ae943d90d842e2278a87ab3a9b5ede70077ec"} -->
+<!-- DEVPANEL_METADATA: {"sections":{"CHANGED FILES":{"filesCount":345,"added":3,"modified":5,"deleted":335,"summary":"3A, 5M, 335D","isEmpty":false,"description":"3A, 5M, 335D"}},"lastSyncedTime":"2025-12-31T06:33:26.280Z","lastCommitMessage":"chore: remove back and front packages","lastCommitHash":"52e9e3cdb0abb2ae26b7d28bd141c9e3bea3e35f"} -->
