@@ -3,10 +3,10 @@ import { join } from 'node:path';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from './claude-helper.js';
 import { generateUuid } from './uuid.js';
 
-interface MessageBlock {
+type MessageBlock = {
   type: MessageSource;
   content: string;
-}
+};
 
 export function parseSessionToMarkdown(sessionFile: string, outputFile: string, repoRoot: string): void {
   const content = readFileSync(sessionFile, 'utf-8');

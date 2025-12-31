@@ -10,29 +10,29 @@ import {
 } from './duplicated.js';
 import type { SessionListItem } from './session-list.js';
 
-export interface SessionLabel {
+export type SessionLabel = {
   id: string;
   name: string;
   color: string;
-}
+};
 
-export interface SettingsForGrouping {
+export type SettingsForGrouping = {
   sessions: {
     labels: SessionLabel[];
   };
-}
+};
 
 export type GroupBy = 'date' | 'token-percentage' | 'label';
 
-export interface SessionGroup<T = SessionListItem> {
+export type SessionGroup<T = SessionListItem> = {
   key: string;
   label: string;
   color: string | null;
   items: T[];
   totalItems: number;
-}
+};
 
-export interface GroupSessionsOptions<T = SessionListItem> {
+export type GroupSessionsOptions<T = SessionListItem> = {
   sessions: T[];
   groupBy: GroupBy;
   settings?: SettingsForGrouping;
@@ -40,7 +40,7 @@ export interface GroupSessionsOptions<T = SessionListItem> {
   getModifiedAt: (session: T) => Date;
   getTokenPercentage: (session: T) => number | undefined;
   getLabels: (session: T) => string[] | undefined;
-}
+};
 
 export function groupSessions<T = SessionListItem>(options: GroupSessionsOptions<T>): SessionGroup<T>[] {
   const { sessions, groupBy, settings, getCreatedAt, getModifiedAt, getTokenPercentage, getLabels } = options;

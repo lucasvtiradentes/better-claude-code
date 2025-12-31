@@ -1,11 +1,11 @@
 import type { SessionListItem } from '@/lib/node-utils';
 
-export interface DateGroup {
+export type DateGroup = {
   label: string;
   sessions: SessionListItem[];
-}
+};
 
-export interface FilterCriteria {
+export type FilterCriteria = {
   dateRange?: {
     start?: Date;
     end?: Date;
@@ -14,10 +14,10 @@ export interface FilterCriteria {
   maxTokens?: number;
   hasImages?: boolean;
   hasCustomCommands?: boolean;
-}
+};
 
-export interface SessionStats {
+export type SessionStats = {
   totalSessions: number;
   totalTokens: number;
   todayCount: number;
-}
+};

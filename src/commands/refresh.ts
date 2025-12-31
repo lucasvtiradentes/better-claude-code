@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import { logger } from '../common/utils/logger.js';
 import type { SessionProvider } from '../sidebar/session-provider.js';
 
-interface DecorationProvider {
+type DecorationProvider = {
   refresh(): void;
-}
+};
 
 export function registerRefreshCommand(
   context: vscode.ExtensionContext,

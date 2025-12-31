@@ -11,9 +11,9 @@ import { logger } from '../common/utils/logger.js';
 import type { SessionProvider } from '../sidebar/session-provider.js';
 import { SessionTreeItem } from '../sidebar/tree-items.js';
 
-interface DecorationProvider {
+type DecorationProvider = {
   refresh(): void;
-}
+};
 
 export function registerBatchOperationsCommands(
   context: vscode.ExtensionContext,

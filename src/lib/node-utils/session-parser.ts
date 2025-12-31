@@ -1,12 +1,12 @@
 import { ClaudeHelper, MessageSource } from './claude-helper.js';
 import { createMessageKey, extractTextContent, isValidUserMessage } from './session-helpers.js';
 
-export interface ParsedMessage {
+export type ParsedMessage = {
   id: string;
   type: MessageSource;
   content: string;
   timestamp?: number;
-}
+};
 
 function cleanCommandMessage(content: string): string {
   const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
@@ -37,15 +37,15 @@ function cleanUserMessage(content: string): string[] {
   return cleanedParts;
 }
 
-export interface ParseSessionOptions {
+export type ParseSessionOptions = {
   groupMessages?: boolean;
   includeImages?: boolean;
-}
+};
 
-export interface ParsedSession {
+export type ParsedSession = {
   messages: ParsedMessage[];
   images: Array<{ index: number; data: string; messageId: string }>;
-}
+};
 
 export function parseSessionMessages(
   events: any[],

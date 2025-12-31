@@ -1,19 +1,19 @@
 import type * as vscode from 'vscode';
 import { logger } from '../common/utils/logger.js';
 
-interface SessionProviderState {
+type SessionProviderState = {
   groupBy: 'date' | 'token-percentage' | 'label';
   isExpanded: boolean;
   useSmartExpansion: boolean;
   expandedGroups: string[];
   pinnedSessions?: string[];
-}
+};
 
-interface MessageFiltersState {
+type MessageFiltersState = {
   showUserMessages: boolean;
   showAssistantMessages: boolean;
   showToolCalls: boolean;
-}
+};
 
 const KEYS = {
   SESSION_PROVIDER: 'sessionProviderState',

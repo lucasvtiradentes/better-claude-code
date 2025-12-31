@@ -1,11 +1,11 @@
 import { mkdir, readFile, rm, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-interface CacheEntry<T> {
+type CacheEntry<T> = {
   data: T;
   timestamp: number;
   ttl?: number;
-}
+};
 
 export class JsonFileCache {
   private cacheDir: string;

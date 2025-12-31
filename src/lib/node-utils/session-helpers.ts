@@ -1,11 +1,11 @@
 export const CLAUDE_CODE_COMMANDS = ['clear', 'ide', 'model', 'compact', 'init'];
 
-interface ContentItem {
+type ContentItem = {
   type: string;
   text?: string;
   name?: string;
   input?: Record<string, unknown>;
-}
+};
 
 export function extractTextContent(content: unknown): string {
   if (typeof content === 'string') {

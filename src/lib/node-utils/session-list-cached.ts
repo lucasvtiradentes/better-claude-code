@@ -22,7 +22,7 @@ const DEFAULT_CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
 
 const sessionCache = new JsonFileCache(CACHE_DIR);
 
-export interface SessionCacheEntry {
+export type SessionCacheEntry = {
   id: string;
   title: string;
   messageCount: number;
@@ -38,9 +38,9 @@ export interface SessionCacheEntry {
   assistantMessageCount?: number;
   fileMtime: number;
   hasCompaction?: boolean;
-}
+};
 
-interface ParsedLine {
+type ParsedLine = {
   type: string;
   message?: {
     content?: unknown;
@@ -54,7 +54,7 @@ interface ParsedLine {
   timestamp?: number;
   sessionId?: string;
   summary?: string;
-}
+};
 
 function parseCommandFromContent(content: string): string | null {
   const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);

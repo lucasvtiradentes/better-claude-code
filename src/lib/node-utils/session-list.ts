@@ -10,7 +10,7 @@ export enum SessionSortBy {
   TOKEN_PERCENTAGE = 'tokenPercentage'
 }
 
-export interface SessionListOptions {
+export type SessionListOptions = {
   projectPath: string;
   limit?: number;
   page?: number;
@@ -32,9 +32,9 @@ export interface SessionListOptions {
       }>;
     };
   };
-}
+};
 
-export interface SessionListItem {
+export type SessionListItem = {
   id: string;
   title: string;
   messageCount: number;
@@ -53,9 +53,9 @@ export interface SessionListItem {
   summary?: string;
   cached?: boolean;
   hasCompaction?: boolean;
-}
+};
 
-export interface SessionListResult {
+export type SessionListResult = {
   items: SessionListItem[];
   meta?: {
     totalItems: number;
@@ -63,4 +63,4 @@ export interface SessionListResult {
     page: number;
     limit: number;
   };
-}
+};

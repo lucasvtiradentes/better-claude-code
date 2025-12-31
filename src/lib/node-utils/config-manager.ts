@@ -7,10 +7,10 @@ export enum MessageCountMode {
   EVENT = 'event'
 }
 
-export interface BccConfig {
+export type BccConfig = {
   completion_installed?: boolean;
   messages_count_mode?: MessageCountMode;
-}
+};
 
 type SupportedOS = 'linux' | 'mac' | 'windows' | 'wsl';
 
