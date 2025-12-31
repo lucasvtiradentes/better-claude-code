@@ -54,6 +54,10 @@ const webviewBuildOptions: BuildOptions = {
   sourcemap: false,
   minify: false,
   logLevel: 'info',
+  define: {
+    __BUILD_TIMESTAMP__: JSON.stringify(buildTimestamp),
+    __IS_DEV_BUILD__: JSON.stringify(isDev)
+  },
   plugins: [
     sveltePlugin({
       preprocess: [typescript()],
