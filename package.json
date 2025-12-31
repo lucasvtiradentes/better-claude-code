@@ -1,28 +1,296 @@
 {
-  "name": "better-claude-code-root",
-  "version": "0.0.1",
-  "private": true,
-  "packageManager": "pnpm@10.22.0",
-  "type": "module",
-  "scripts": {
-    "prepare": "turbo build --filter='./packages/*'",
-    "start": "node ./apps/cli/dist/apps/cli/src/main.js",
-    "dev": "npm run dev:app",
-    "dev:cli": "pnpm --filter=better-claude-code dev",
-    "dev:app": "turbo dev --filter='@better-claude-code/backend' --filter='@better-claude-code/frontend' --parallel",
-    "dev:vscode": "pnpm --filter=better-claude-code-vscode dev",
-    "build": "turbo build",
-    "build:vscode": "turbo build --filter=better-claude-code-vscode",
-    "typecheck": "turbo typecheck",
-    "format": "biome format --write .",
-    "lint": "biome check --write .",
-    "changeset": "changeset",
-    "release": "bash scripts/release.sh"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.1.2",
-    "@changesets/cli": "^2.29.7",
-    "tscanner": "^0.0.29",
-    "turbo": "^2.5.4"
-  }
+	"name": "better-claude-code-vscode",
+	"displayName": "Better Claude Code",
+	"description": "Manage and analyze Claude Code sessions directly in VS Code",
+	"version": "1.0.4",
+	"private": true,
+	"publisher": "lucasvtiradentes",
+	"icon": "resources/icon.png",
+	"packageManager": "pnpm@10.22.0",
+	"type": "module",
+	"engines": {
+		"vscode": "^1.100.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"main": "./out/extension.js",
+	"scripts": {
+		"prepare": "husky",
+		"build": "tsx esbuild.config.ts",
+		"postbuild": "tsx scripts/postbuild.ts && tsx scripts/install-local.ts",
+		"dev": "tsx esbuild.config.ts --watch",
+		"lint": "biome check .",
+		"lint:fix": "biome check --fix --unsafe .",
+		"format": "biome format --write .",
+		"typecheck": "tsc --noEmit",
+		"changeset": "changeset",
+		"release": "bash scripts/release.sh",
+		"vscode:prepublish": "pnpm run build",
+		"vscode:package": "vsce package --no-dependencies",
+		"vscode:publish": "vsce publish --no-dependencies",
+		"clean": "rimraf out dist-dev node_modules",
+		"knip": "knip"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/lucasvtiradentes/better-claude-code.git"
+	},
+	"bugs": {
+		"url": "https://github.com/lucasvtiradentes/better-claude-code/issues"
+	},
+	"homepage": "https://github.com/lucasvtiradentes/better-claude-code#readme",
+	"keywords": [
+		"claude",
+		"claude-code",
+		"ai",
+		"sessions",
+		"productivity"
+	],
+	"dependencies": {
+		"@radix-ui/react-dropdown-menu": "^2.1.16",
+		"clsx": "^2.1.1",
+		"lucide-react": "^0.552.0",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"react-syntax-highlighter": "^16.1.0",
+		"tailwind-merge": "^3.3.1"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.1.2",
+		"@changesets/cli": "^2.29.7",
+		"@tailwindcss/postcss": "^4.1.17",
+		"@types/node": "^22.18.8",
+		"@types/react": "^19.0.6",
+		"@types/react-dom": "^19.0.3",
+		"@types/react-syntax-highlighter": "^15.5.13",
+		"@types/vscode": "^1.100.0",
+		"autoprefixer": "^10.4.22",
+		"esbuild": "^0.24.2",
+		"knip": "^5.78.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^15.2.11",
+		"rimraf": "^6.0.1",
+		"postcss": "^8.5.6",
+		"tailwindcss": "^4.1.17",
+		"tscanner": "^0.1.3",
+		"tsx": "^4.20.6",
+		"typescript": "^5.7.3"
+	},
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "bccExplorer",
+					"title": "Claude Code Sessions",
+					"icon": "resources/icon.svg"
+				}
+			]
+		},
+		"views": {
+			"bccExplorer": [
+				{
+					"id": "bccSessionExplorer",
+					"name": "Sessions",
+					"contextualTitle": "Claude Code Sessions"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "bcc.refreshSessions",
+				"title": "Refresh Sessions",
+				"category": "BCC",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.compactSession",
+				"title": "Compact Session",
+				"category": "BCC",
+				"icon": "$(archive)"
+			},
+			{
+				"command": "bcc.filterSessions",
+				"title": "Group Sessions",
+				"category": "BCC",
+				"icon": "$(group-by-ref-type)"
+			},
+			{
+				"command": "bcc.openSessionFile",
+				"title": "Open Session File",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.copySessionPath",
+				"title": "Copy Session Path",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.showLogs",
+				"title": "Show Logs",
+				"category": "BCC",
+				"icon": "$(output)"
+			},
+			{
+				"command": "bcc.addLabel",
+				"title": "Add Label",
+				"category": "BCC",
+				"icon": "$(tag)"
+			},
+			{
+				"command": "bcc.toggleCollapseExpand",
+				"title": "Toggle Collapse/Expand All Groups",
+				"category": "BCC",
+				"icon": "$(fold)"
+			},
+			{
+				"command": "bcc.viewCompaction",
+				"title": "View Compaction",
+				"category": "BCC",
+				"icon": "$(eye)"
+			},
+			{
+				"command": "bcc.togglePinSession",
+				"title": "Pin/Unpin Session",
+				"category": "BCC",
+				"icon": "$(pin)"
+			},
+			{
+				"command": "bcc.batchCompact",
+				"title": "Compact Selected Sessions",
+				"category": "BCC",
+				"icon": "$(archive)"
+			},
+			{
+				"command": "bcc.batchDelete",
+				"title": "Delete Selected Sessions",
+				"category": "BCC",
+				"icon": "$(trash)"
+			},
+			{
+				"command": "bcc.batchAddLabel",
+				"title": "Add Label to Selected Sessions",
+				"category": "BCC",
+				"icon": "$(tag)"
+			},
+			{
+				"command": "bcc.toggleCheckSession",
+				"title": "Check/Uncheck Session",
+				"category": "BCC",
+				"icon": "$(check)"
+			},
+			{
+				"command": "bcc.clearAllChecks",
+				"title": "Clear All Checks",
+				"category": "BCC",
+				"icon": "$(clear-all)"
+			},
+			{
+				"command": "bcc.batchOperationsMenu",
+				"title": "Batch Operations",
+				"category": "BCC",
+				"icon": "$(checklist)"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "bcc.batchOperationsMenu",
+					"when": "view == bccSessionExplorer && bcc.hasCheckedSessions",
+					"group": "navigation@1"
+				},
+				{
+					"command": "bcc.refreshSessions",
+					"when": "view == bccSessionExplorer",
+					"group": "navigation@2"
+				},
+				{
+					"command": "bcc.filterSessions",
+					"when": "view == bccSessionExplorer",
+					"group": "navigation@3"
+				},
+				{
+					"command": "bcc.toggleCollapseExpand",
+					"when": "view == bccSessionExplorer",
+					"group": "navigation@4"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "bcc.viewCompaction",
+					"when": "view == bccSessionExplorer && viewItem == sessionItemWithCompaction",
+					"group": "inline@1"
+				},
+				{
+					"command": "bcc.addLabel",
+					"when": "view == bccSessionExplorer && viewItem == sessionItemWithCompaction",
+					"group": "inline@2"
+				},
+				{
+					"command": "bcc.togglePinSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItemWithCompaction",
+					"group": "inline@3"
+				},
+				{
+					"command": "bcc.toggleCheckSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItemWithCompaction",
+					"group": "inline@4"
+				},
+				{
+					"command": "bcc.compactSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "inline@1"
+				},
+				{
+					"command": "bcc.addLabel",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "inline@2"
+				},
+				{
+					"command": "bcc.togglePinSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "inline@3"
+				},
+				{
+					"command": "bcc.toggleCheckSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItem",
+					"group": "inline@4"
+				},
+				{
+					"command": "bcc.toggleCheckSession",
+					"when": "view == bccSessionExplorer && viewItem == sessionItemChecked",
+					"group": "inline@1"
+				},
+				{
+					"command": "bcc.batchCompact",
+					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
+					"group": "2_batch@1"
+				},
+				{
+					"command": "bcc.batchDelete",
+					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
+					"group": "2_batch@2"
+				},
+				{
+					"command": "bcc.batchAddLabel",
+					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
+					"group": "2_batch@3"
+				},
+				{
+					"command": "bcc.openSessionFile",
+					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
+					"group": "3_navigation@1"
+				},
+				{
+					"command": "bcc.copySessionPath",
+					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
+					"group": "3_navigation@2"
+				}
+			]
+		},
+		"keybindings": []
+	}
 }

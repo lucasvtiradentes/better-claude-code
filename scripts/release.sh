@@ -6,10 +6,10 @@ echo "============================================"
 
 # Step 1: Build all packages
 echo "📦 Building packages..."
-turbo build
+pnpm build
 
 # Step 2: Check if VS Code extension was bumped in the last commit
-VSCODE_PKG="apps/vscode-extension/package.json"
+VSCODE_PKG="package.json"
 echo ""
 echo "🔍 Checking VS Code extension state..."
 echo "📄 Package: $VSCODE_PKG"
@@ -79,7 +79,6 @@ if [ "$SHOULD_PUBLISH" = true ]; then
   # Build and publish extension
   echo ""
   echo "🏗️  Building VS Code extension..."
-  cd apps/vscode-extension
   pnpm build
 
   echo ""
@@ -93,8 +92,6 @@ if [ "$SHOULD_PUBLISH" = true ]; then
     echo "🔑 Using PAT from vsce login"
     vsce publish --no-dependencies
   fi
-
-  cd ../..
 
   echo ""
   echo "✅ VS Code extension v$CURRENT_VERSION published to Marketplace!"

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.29/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.1.3/schema.json",
   "rules": {
     "builtin": {
       "consistent-return": {},
@@ -8,7 +8,7 @@
       // "no-absolute-imports": {},
       // "no-alias-imports": {},
       "no-async-without-await": {},
-      "no-console": {},
+      "no-console": {"exclude": ["scripts/**/*.ts"]},
       "no-constant-condition": {},
       "no-default-export": {},
       "no-duplicate-imports": {},
@@ -19,8 +19,8 @@
       "no-empty-interface": {},
       "no-explicit-any": {},
       "no-floating-promises": {},
-      "no-forwarded-exports": {},
-      "no-implicit-any": {},
+      "no-forwarded-exports": {"exclude": ["**/index.ts"]},
+      // "no-implicit-any": {},
       "no-inferrable-types": {},
       "no-nested-require": {},
       "no-nested-ternary": {},
@@ -37,16 +37,16 @@
       "no-var": {},
       "prefer-const": {},
       // "prefer-interface-over-type": {},
-      "prefer-nullish-coalescing": {},
+      // "prefer-nullish-coalescing": {},
       "prefer-optional-chain": {},
       "prefer-type-over-interface": {}
     },
     "regex": {
-      "example-no-console-log": {
-        "pattern": "console\\.log",
-        "message": "Remove console.log before committing",
-        "severity": "warning"
-      }
+      // "example-no-console-log": {
+      //   "pattern": "console\\.log",
+      //   "message": "Remove console.log before committing",
+      //   "severity": "warning"
+      // }
     },
     "script": {
       "example-no-debug-comments": {
@@ -61,33 +61,24 @@
       "prompt": "example-find-complexity.md",
       "mode": "content",
       "message": "Function is too complex, consider refactoring",
-      "severity": "warning",
-      "enabled": false
+      "severity": "warning"
     }
   },
   "ai": {
-    "provider": "claude",
-    "timeout": 120000
+    "provider": "claude"
   },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "**/.ignore/**", "**/.turbo/**", "**/out/**", "**/.tscanner/**"]
   },
   "codeEditor": {
     "highlightErrors": true,
-    "highlightWarnings": false,
-    "scanIntervalSeconds": 0,
-    "aiScanIntervalSeconds": 0
-  },
-  "cli": {
-    "groupBy": "file",
-    "aiMode": "ignore",
-    "noCache": false,
-    "showSettings": true,
-    "showIssueSeverity": true,
-    "showIssueSourceLine": true,
-    "showIssueRuleName": true,
-    "showIssueDescription": false,
-    "showSummary": true
+    "highlightWarnings": true,
+    "highlightInfos": true,
+    "highlightHints": true,
+    "autoScanInterval": 0,
+    "autoAiScanInterval": 0,
+    "startupScan": "fresh",
+    "startupAiScan": "cached"
   }
 }
