@@ -396,8 +396,8 @@ export async function listSessionsCached(
   };
 
   const processedResults = await Promise.all(
-    filesToProcess.map((file) =>
-      processSessionFileWithCache(join(sessionsPath, file), file, normalizedPath, processOptions)
+    filesToProcess.map((sessionFile) =>
+      processSessionFileWithCache(join(sessionsPath, sessionFile), sessionFile, normalizedPath, processOptions)
     )
   );
 
@@ -432,24 +432,24 @@ export async function listSessionsCached(
     allSessions.sort((a, b) => b.createdAt - a.createdAt);
   }
 
-  const items: SessionListItem[] = allSessions.slice(0, limit).map((session) => ({
-    id: session.id,
-    title: session.title,
-    messageCount: session.messageCount,
-    createdAt: session.createdAt,
-    tokenPercentage: session.tokenPercentage,
-    imageCount: session.imageCount,
-    customCommandCount: session.customCommandCount,
-    filesOrFoldersCount: session.filesOrFoldersCount,
-    urlCount: session.urlCount,
-    labels: session.labels,
-    shortId: session.id.slice(-12),
-    userMessageCount: session.userMessageCount,
-    assistantMessageCount: session.assistantMessageCount,
-    summary: session.summary,
-    filePath: join(sessionsPath, `${session.id}.jsonl`),
-    cached: session.wasCached,
-    hasCompaction: session.hasCompaction
+  const items: SessionListItem[] = allSessions.slice(0, limit).map((s) => ({
+    id: s.id,
+    title: s.title,
+    messageCount: s.messageCount,
+    createdAt: s.createdAt,
+    tokenPercentage: s.tokenPercentage,
+    imageCount: s.imageCount,
+    customCommandCount: s.customCommandCount,
+    filesOrFoldersCount: s.filesOrFoldersCount,
+    urlCount: s.urlCount,
+    labels: s.labels,
+    shortId: s.id.slice(-12),
+    userMessageCount: s.userMessageCount,
+    assistantMessageCount: s.assistantMessageCount,
+    summary: s.summary,
+    filePath: join(sessionsPath, `${s.id}.jsonl`),
+    cached: s.wasCached,
+    hasCompaction: s.hasCompaction
   }));
 
   return { items };

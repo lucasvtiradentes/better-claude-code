@@ -168,15 +168,15 @@ export function registerBatchOperationsCommands(
     }
 
     try {
-      const workspacePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-      if (!workspacePath) {
+      const labelWorkspacePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+      if (!labelWorkspacePath) {
         vscode.window.showErrorMessage('No workspace folder found');
         return;
       }
 
-      const projectName = ClaudeHelper.normalizePathForClaudeProjects(workspacePath);
+      const projectName = ClaudeHelper.normalizePathForClaudeProjects(labelWorkspacePath);
 
-      logger.info(`Batch add label: workspacePath=${workspacePath}`);
+      logger.info(`Batch add label: workspacePath=${labelWorkspacePath}`);
       logger.info(`Batch add label: projectName=${projectName}`);
 
       const allLabels = getSessionLabels();

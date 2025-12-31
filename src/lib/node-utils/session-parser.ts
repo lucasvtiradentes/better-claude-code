@@ -139,7 +139,7 @@ export function parseSessionMessages(
         groupedMessages.push({ ...msg });
       }
     }
-    finalMessages = groupedMessages.filter((msg) => msg.content.trim().length > 0);
+    finalMessages = groupedMessages.filter((m) => m.content.trim().length > 0);
   }
 
   const images: Array<{ index: number; data: string; messageId: string }> = [];
