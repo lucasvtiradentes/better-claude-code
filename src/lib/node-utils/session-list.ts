@@ -404,7 +404,7 @@ async function processSessionFile(
   return session;
 }
 
-export async function listSessions(options: SessionListOptions): Promise<SessionListResult> {
+async function listSessions(options: SessionListOptions): Promise<SessionListResult> {
   const {
     projectPath,
     limit = 20,

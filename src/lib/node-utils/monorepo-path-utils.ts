@@ -1,30 +1,23 @@
 import { mkdirSync } from 'node:fs';
-import { homedir, platform, release, tmpdir } from 'node:os';
+import { homedir, platform, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 export enum PromptFile {
   SESSION_COMPACTION = 'session-compaction.prompt.md'
 }
 
-export const USER_HOME_DIR = homedir();
-export const USER_TMP_DIR = tmpdir();
+const USER_HOME_DIR = homedir();
+const USER_TMP_DIR = tmpdir();
 export const USER_PLATFORM = platform();
-export const USER_PLATFORM_RELEASE = release();
 
-export const BCC_CONFIG_DIR = join(USER_HOME_DIR, '.config', 'bcc');
+const BCC_CONFIG_DIR = join(USER_HOME_DIR, '.config', 'bcc');
 export const BCC_SETTINGS_PATH = join(BCC_CONFIG_DIR, 'settings.json');
-export const BCC_CACHE_DIR = join(BCC_CONFIG_DIR, 'cache');
+const BCC_CACHE_DIR = join(BCC_CONFIG_DIR, 'cache');
 export const BCC_SESSIONS_CACHE_DIR = join(BCC_CACHE_DIR, 'sessions');
-export const BCC_PROJECTS_CACHE_DIR = join(BCC_CACHE_DIR, 'projects');
-export const BCC_SESSIONS_COMPACTED_DIR = join(BCC_CONFIG_DIR, 'compacted');
+const BCC_SESSIONS_COMPACTED_DIR = join(BCC_CONFIG_DIR, 'compacted');
 export const BCC_EXTENSION_LOG_FILE = join(USER_TMP_DIR, 'bcc_logs.txt');
 
 export const CLAUDE_CODE_DIR = join(USER_HOME_DIR, '.claude');
-export const CLAUDE_CODE_SESSIONS_DIR = join(CLAUDE_CODE_DIR, 'sessions');
-export const CLAUDE_CODE_PROJECTS_DIR = join(CLAUDE_CODE_DIR, 'projects');
-export const CLAUDE_CODE_GLOBAL_CONFIG = join(CLAUDE_CODE_DIR, 'CLAUDE.md');
-export const CLAUDE_CODE_CLI_PATH = join(CLAUDE_CODE_DIR, 'local/node_modules/@anthropic-ai/claude-code/cli.js');
-
 export const VSCODE_EXTENSIONS_DIR = join(USER_HOME_DIR, '.vscode', 'extensions');
 
 function getCallerLocation(): string {
@@ -88,8 +81,6 @@ const getCallerInfo = (): {
 
 const { callerDir, isDevMode } = getCallerInfo();
 
-export const isRunningExtensionInDevMode = isDevMode;
-
 function getExtensionRoot(baseDir: string, devMode: boolean): string {
   if (!devMode) {
     if (baseDir.includes('/src/out')) {
@@ -118,7 +109,7 @@ function getExtensionRoot(baseDir: string, devMode: boolean): string {
   return baseDir;
 }
 
-export const EXTENSION_ROOT = getExtensionRoot(callerDir, isDevMode);
+const EXTENSION_ROOT = getExtensionRoot(callerDir, isDevMode);
 export const PROMPTS_FOLDER_FOR_EXTENSION = join(EXTENSION_ROOT, 'prompts');
 
 export function getPromptPathForExtension(promptFile: PromptFile): string {

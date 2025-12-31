@@ -1,10 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "entry": ["src/extension.ts", "scripts/**/*.ts"],
-  "project": ["src/**/*.ts", "scripts/**/*.ts"],
-  "ignore": [".tscanner/**", ".changeset/**"],
+  "entry": ["src/session-view-page/webview/index.tsx", "scripts/**/*.ts"],
+  "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
+  "ignore": [".tscanner/**", ".changeset/**", "src/lib/shared/shared-enums.ts"],
   "ignoreBinaries": ["vsce"],
-  "ignoreDependencies": [],
+  "ignoreDependencies": ["tailwindcss", "tscanner"],
   "biome": { "config": "biome.json" },
   "ignoreExportsUsedInFile": false
 }

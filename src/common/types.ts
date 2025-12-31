@@ -1,9 +1,6 @@
-import type { GroupBy, SessionListItem } from '@/lib/node-utils';
-import type { TimeGroup } from '@/lib/shared';
+import type { SessionListItem } from '@/lib/node-utils';
 
 export type { SessionListItem };
-export type { TimeGroup };
-export type { GroupBy };
 
 export interface DateGroup {
   label: string;

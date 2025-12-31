@@ -13,8 +13,3 @@ export function getCurrentWorkspacePath(): string | null {
   logger.info(`Current workspace: ${workspacePath}`);
   return workspacePath;
 }
-
-export function isMultiRootWorkspace(): boolean {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  return workspaceFolders ? workspaceFolders.length > 1 : false;
-}

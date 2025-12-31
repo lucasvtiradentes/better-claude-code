@@ -12,8 +12,7 @@ import {
   shouldSkipAssistantMessage,
   shouldSkipUserMessage
 } from './session-helpers.js';
-import type { SessionListItem, SessionListOptions, SessionListResult } from './session-list.js';
-import { SessionSortBy, TitleSource } from './session-list.js';
+import { SessionListItem, SessionListOptions, SessionListResult, SessionSortBy, TitleSource } from './session-list.js';
 
 const IGNORE_EMPTY_SESSIONS = true;
 const MAX_TITLE_LENGTH = 80;

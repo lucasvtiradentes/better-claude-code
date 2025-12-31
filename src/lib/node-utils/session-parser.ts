@@ -8,9 +8,6 @@ export interface ParsedMessage {
   timestamp?: number;
 }
 
-export { MessageSource } from './claude-helper.js';
-export { extractTextContent, isValidUserMessage } from './session-helpers.js';
-
 function cleanCommandMessage(content: string): string {
   const commandMatch = content.match(/<command-name>\/?([^<]+)<\/command-name>/);
   if (!commandMatch) return content;

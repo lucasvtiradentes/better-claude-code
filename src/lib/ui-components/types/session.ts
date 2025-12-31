@@ -16,12 +16,6 @@ export type PathValidation = {
   exists: boolean;
 };
 
-export type SessionLabel = {
-  id: string;
-  name: string;
-  color: string;
-};
-
 export type SessionCardData = {
   id: string;
   shortId?: string;

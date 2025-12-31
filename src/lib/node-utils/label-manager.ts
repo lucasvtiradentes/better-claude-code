@@ -96,7 +96,7 @@ export function readSettings(): AppSettings {
   return settings as AppSettings;
 }
 
-export function writeSettings(settings: AppSettings) {
+function writeSettings(settings: AppSettings) {
   writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
 }
 

@@ -1,6 +1,6 @@
 export const CLAUDE_CODE_COMMANDS = ['clear', 'ide', 'model', 'compact', 'init'];
 
-export interface ParsedSessionLine {
+interface ParsedSessionLine {
   type?: string;
   cwd?: string;
   message?: {
@@ -22,7 +22,7 @@ interface SessionValidationResult {
   title?: string;
 }
 
-export function parseSessionLine(line: string): ParsedSessionLine | null {
+function parseSessionLine(line: string): ParsedSessionLine | null {
   if (!line.trim()) return null;
 
   try {
@@ -32,11 +32,7 @@ export function parseSessionLine(line: string): ParsedSessionLine | null {
   }
 }
 
-export function extractCwd(parsed: ParsedSessionLine): string | null {
-  return parsed.cwd || null;
-}
-
-export function validateSessionFile(lines: string[]): SessionValidationResult {
+function validateSessionFile(lines: string[]): SessionValidationResult {
   let foundCwd = false;
   let cwd: string | undefined;
   let hasValidTitle = false;
@@ -189,7 +185,7 @@ export function createMessageKey(type: 'user' | 'assistant', timestamp: any, tex
   return `${type}-${timestamp}-${textContent}`;
 }
 
-export function extractSessionTitle(textContent: string): string | null {
+function extractSessionTitle(textContent: string): string | null {
   if (!textContent) return null;
 
   const allLines = textContent
