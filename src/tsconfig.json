@@ -1,5 +1,5 @@
 {
-	"extends": "../../tsconfig.base.json",
+	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
@@ -11,9 +11,9 @@
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"],
-			"@better-claude-code/ui-components": ["../../packages/ui-components/src/index.ts"],
-			"@better-claude-code/shared": ["../../packages/shared/src/index.ts"],
-			"@better-claude-code/node-utils": ["../../packages/node-utils/src/index.ts"]
+			"@better-claude-code/ui-components": ["../packages/ui-components/src/index.ts"],
+			"@better-claude-code/shared": ["../packages/shared/src/index.ts"],
+			"@better-claude-code/node-utils": ["../packages/node-utils/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "out"]

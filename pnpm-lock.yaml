@@ -21,61 +21,6 @@ importers:
         specifier: ^2.5.4
         version: 2.7.2
 
-  apps/vscode-extension:
-    dependencies:
-      '@better-claude-code/node-utils':
-        specifier: workspace:*
-        version: link:../../packages/node-utils
-      '@better-claude-code/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
-      '@better-claude-code/ui-components':
-        specifier: workspace:*
-        version: link:../../packages/ui-components
-      lucide-react:
-        specifier: ^0.552.0
-        version: 0.552.0(react@19.2.3)
-      react:
-        specifier: ^19.0.0
-        version: 19.2.3
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.2.3(react@19.2.3)
-    devDependencies:
-      '@tailwindcss/postcss':
-        specifier: ^4.1.17
-        version: 4.1.18
-      '@types/node':
-        specifier: ^22.18.8
-        version: 22.19.3
-      '@types/react':
-        specifier: ^19.0.6
-        version: 19.2.7
-      '@types/react-dom':
-        specifier: ^19.0.3
-        version: 19.2.3(@types/react@19.2.7)
-      '@types/vscode':
-        specifier: ^1.100.0
-        version: 1.107.0
-      autoprefixer:
-        specifier: ^10.4.22
-        version: 10.4.23(postcss@8.5.6)
-      esbuild:
-        specifier: ^0.24.2
-        version: 0.24.2
-      postcss:
-        specifier: ^8.5.6
-        version: 8.5.6
-      tailwindcss:
-        specifier: ^4.1.17
-        version: 4.1.18
-      tsx:
-        specifier: ^4.20.6
-        version: 4.21.0
-      typescript:
-        specifier: ^5.7.3
-        version: 5.9.3
-
   packages/node-utils:
     dependencies:
       zod:
@@ -158,6 +103,61 @@ importers:
       tsup:
         specifier: ^8.5.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  src:
+    dependencies:
+      '@better-claude-code/node-utils':
+        specifier: workspace:*
+        version: link:../packages/node-utils
+      '@better-claude-code/shared':
+        specifier: workspace:*
+        version: link:../packages/shared
+      '@better-claude-code/ui-components':
+        specifier: workspace:*
+        version: link:../packages/ui-components
+      lucide-react:
+        specifier: ^0.552.0
+        version: 0.552.0(react@19.2.3)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.3
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@tailwindcss/postcss':
+        specifier: ^4.1.17
+        version: 4.1.18
+      '@types/node':
+        specifier: ^22.18.8
+        version: 22.19.3
+      '@types/react':
+        specifier: ^19.0.6
+        version: 19.2.7
+      '@types/react-dom':
+        specifier: ^19.0.3
+        version: 19.2.3(@types/react@19.2.7)
+      '@types/vscode':
+        specifier: ^1.100.0
+        version: 1.107.0
+      autoprefixer:
+        specifier: ^10.4.22
+        version: 10.4.23(postcss@8.5.6)
+      esbuild:
+        specifier: ^0.24.2
+        version: 0.24.2
+      postcss:
+        specifier: ^8.5.6
+        version: 8.5.6
+      tailwindcss:
+        specifier: ^4.1.17
+        version: 4.1.18
+      tsx:
+        specifier: ^4.20.6
+        version: 4.21.0
       typescript:
         specifier: ^5.7.3
         version: 5.9.3

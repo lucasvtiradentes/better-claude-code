@@ -9,7 +9,7 @@ echo "📦 Building packages..."
 turbo build
 
 # Step 2: Check if VS Code extension was bumped in the last commit
-VSCODE_PKG="apps/vscode-extension/package.json"
+VSCODE_PKG="src/package.json"
 echo ""
 echo "🔍 Checking VS Code extension state..."
 echo "📄 Package: $VSCODE_PKG"
@@ -79,7 +79,7 @@ if [ "$SHOULD_PUBLISH" = true ]; then
   # Build and publish extension
   echo ""
   echo "🏗️  Building VS Code extension..."
-  cd apps/vscode-extension
+  cd src
   pnpm build
 
   echo ""
@@ -94,7 +94,7 @@ if [ "$SHOULD_PUBLISH" = true ]; then
     vsce publish --no-dependencies
   fi
 
-  cd ../..
+  cd ..
 
   echo ""
   echo "✅ VS Code extension v$CURRENT_VERSION published to Marketplace!"

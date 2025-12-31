@@ -17,8 +17,6 @@ export const BCC_CACHE_DIR = join(BCC_CONFIG_DIR, 'cache');
 export const BCC_SESSIONS_CACHE_DIR = join(BCC_CACHE_DIR, 'sessions');
 export const BCC_PROJECTS_CACHE_DIR = join(BCC_CACHE_DIR, 'projects');
 export const BCC_SESSIONS_COMPACTED_DIR = join(BCC_CONFIG_DIR, 'compacted');
-export const BCC_SERVER_LOG_FILE = join(USER_TMP_DIR, 'bcc-server.log');
-export const BCC_SERVER_PID_FILE = join(USER_TMP_DIR, 'bcc-server.pid');
 export const BCC_EXTENSION_LOG_FILE = join(USER_TMP_DIR, 'bcc_logs.txt');
 
 export const CLAUDE_CODE_DIR = join(USER_HOME_DIR, '.claude');
@@ -58,104 +56,45 @@ function getCallerLocation(): string {
 const getCallerInfo = (): {
   callerDir: string;
   isDevMode: boolean;
-  appType: 'cli' | 'backend' | 'extension' | 'unknown';
 } => {
   const callerLocation = getCallerLocation();
 
-  if (callerLocation.includes('/dist/apps/cli') || callerLocation.includes('/apps/cli/dist')) {
+  if (callerLocation.includes('/src/out')) {
     return {
       callerDir: callerLocation,
-      isDevMode: false,
-      appType: 'cli'
-    };
-  }
-
-  if (callerLocation.includes('/dist/apps/backend') || callerLocation.includes('/apps/backend/dist')) {
-    return {
-      callerDir: callerLocation,
-      isDevMode: false,
-      appType: 'backend'
-    };
-  }
-
-  if (callerLocation.includes('/apps/vscode-extension/out')) {
-    return {
-      callerDir: callerLocation,
-      isDevMode: false,
-      appType: 'extension'
+      isDevMode: false
     };
   }
 
   if (callerLocation.includes('.vscode/extensions') && callerLocation.includes('better-claude-code-vscode')) {
     return {
       callerDir: callerLocation,
-      isDevMode: false,
-      appType: 'extension'
+      isDevMode: false
     };
   }
 
-  if (callerLocation.includes('apps/cli')) {
+  if (callerLocation.includes('/src/')) {
     return {
       callerDir: callerLocation,
-      isDevMode: true,
-      appType: 'cli'
-    };
-  }
-
-  if (callerLocation.includes('apps/backend')) {
-    return {
-      callerDir: callerLocation,
-      isDevMode: true,
-      appType: 'backend'
-    };
-  }
-
-  if (callerLocation.includes('apps/vscode-extension')) {
-    return {
-      callerDir: callerLocation,
-      isDevMode: true,
-      appType: 'extension'
+      isDevMode: true
     };
   }
 
   return {
     callerDir: process.cwd(),
-    isDevMode: false,
-    appType: 'unknown'
+    isDevMode: false
   };
 };
 
-const { callerDir, isDevMode, appType } = getCallerInfo();
+const { callerDir, isDevMode } = getCallerInfo();
 
-export const isRunningCliInDevMode = isDevMode && appType === 'cli';
-export const isRunningBackendInDevMode = isDevMode && appType === 'backend';
-export const isRunningExtensionInDevMode = isDevMode && appType === 'extension';
+export const isRunningExtensionInDevMode = isDevMode;
 
-function getRepoRoot(baseDir: string, type: 'cli' | 'backend' | 'extension', devMode: boolean): string {
+function getExtensionRoot(baseDir: string, devMode: boolean): string {
   if (!devMode) {
-    if (baseDir.includes('/dist/apps/cli')) {
-      const parts = baseDir.split('/dist/apps/cli');
-      return join(parts[0], 'dist');
-    }
-
-    if (baseDir.includes('/apps/cli/dist')) {
-      const parts = baseDir.split('/apps/cli/dist');
-      return join(parts[0], 'apps/cli/dist');
-    }
-
-    if (baseDir.includes('/dist/apps/backend')) {
-      const parts = baseDir.split('/dist/apps/backend');
-      return join(parts[0], 'dist');
-    }
-
-    if (baseDir.includes('/apps/backend/dist')) {
-      const parts = baseDir.split('/apps/backend/dist');
-      return join(parts[0], 'apps/backend/dist');
-    }
-
-    if (baseDir.includes('/apps/vscode-extension/out')) {
-      const parts = baseDir.split('/apps/vscode-extension/out');
-      return join(parts[0], 'apps/vscode-extension/out');
+    if (baseDir.includes('/src/out')) {
+      const parts = baseDir.split('/src/out');
+      return join(parts[0], 'src/out');
     }
 
     if (baseDir.includes('.vscode/extensions') && baseDir.includes('better-claude-code-vscode')) {
@@ -166,13 +105,8 @@ function getRepoRoot(baseDir: string, type: 'cli' | 'backend' | 'extension', dev
     }
   }
 
-  if (baseDir.includes(`apps/${type}`)) {
-    const parts = baseDir.split(`apps/${type}`);
-    return join(parts[0]);
-  }
-
-  if (baseDir.includes('apps/')) {
-    const parts = baseDir.split(/apps\/[^/]+/);
+  if (baseDir.includes('/src/')) {
+    const parts = baseDir.split('/src/');
     return parts[0];
   }
 
@@ -184,21 +118,8 @@ function getRepoRoot(baseDir: string, type: 'cli' | 'backend' | 'extension', dev
   return baseDir;
 }
 
-export const REPO_ROOT_FROM_CLI = getRepoRoot(callerDir, 'cli', isDevMode);
-export const REPO_ROOT_FROM_BACKEND = getRepoRoot(callerDir, 'backend', isDevMode);
-export const REPO_ROOT_FROM_EXTENSION = getRepoRoot(callerDir, 'extension', isDevMode);
-
-export const PROMPTS_FOLDER_FOR_CLI = join(REPO_ROOT_FROM_CLI, 'prompts');
-export const PROMPTS_FOLDER_FOR_BACKEND = join(REPO_ROOT_FROM_BACKEND, 'prompts');
-export const PROMPTS_FOLDER_FOR_EXTENSION = join(REPO_ROOT_FROM_EXTENSION, 'prompts');
-
-export function getPromptPathForCli(promptFile: PromptFile): string {
-  return join(PROMPTS_FOLDER_FOR_CLI, promptFile);
-}
-
-export function getPromptPathForBackend(promptFile: PromptFile): string {
-  return join(PROMPTS_FOLDER_FOR_BACKEND, promptFile);
-}
+export const EXTENSION_ROOT = getExtensionRoot(callerDir, isDevMode);
+export const PROMPTS_FOLDER_FOR_EXTENSION = join(EXTENSION_ROOT, 'prompts');
 
 export function getPromptPathForExtension(promptFile: PromptFile): string {
   return join(PROMPTS_FOLDER_FOR_EXTENSION, promptFile);

@@ -19,7 +19,7 @@ runs:
 
     - name: Publish to VS Code Marketplace
       shell: bash
-      working-directory: apps/vscode-extension
+      working-directory: src
       run: vsce publish --no-dependencies --pat ${{ inputs.azure-pat }}
       env:
         VSCE_PAT: ${{ inputs.azure-pat }}
