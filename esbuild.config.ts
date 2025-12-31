@@ -2,7 +2,9 @@ import { readFile } from 'node:fs/promises';
 import tailwindcss from '@tailwindcss/postcss';
 import autoprefixer from 'autoprefixer';
 import esbuild, { type BuildOptions, type Plugin } from 'esbuild';
+import sveltePlugin from 'esbuild-svelte';
 import postcss from 'postcss';
+import { typescript } from 'svelte-preprocess';
 
 const logger = console;
 const isDev = !process.env.CI;
@@ -43,7 +45,7 @@ const postcssPlugin: Plugin = {
 };
 
 const webviewBuildOptions: BuildOptions = {
-  entryPoints: ['src/session-view-page/webview/index.tsx'],
+  entryPoints: ['src/session-view-page/webview/main.ts'],
   bundle: true,
   outfile: 'out/webview/index.js',
   format: 'iife',
@@ -52,12 +54,17 @@ const webviewBuildOptions: BuildOptions = {
   sourcemap: false,
   minify: false,
   logLevel: 'info',
-  plugins: [postcssPlugin],
-  loader: {
-    '.css': 'css'
-  },
-  external: [],
-  jsx: 'automatic'
+  plugins: [
+    sveltePlugin({
+      preprocess: [typescript()],
+      compilerOptions: {
+        css: 'injected'
+      }
+    }),
+    postcssPlugin
+  ],
+  conditions: ['svelte', 'browser'],
+  mainFields: ['svelte', 'browser', 'module', 'main']
 };
 
 async function build() {
