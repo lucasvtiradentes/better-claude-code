@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
+import type { SessionListItem } from '@/lib/node-utils';
 import { SessionManager } from '../common/lib/session-manager.js';
-import type { FilterCriteria, SessionListItem } from '../common/types.js';
+import type { FilterCriteria } from '../common/types.js';
 import { logger } from '../common/utils/logger.js';
 import { WebviewProvider } from '../session-view-page/webview-provider.js';
 import { WorkspaceState } from '../storage/workspace-state.js';

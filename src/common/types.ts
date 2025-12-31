@@ -1,7 +1,5 @@
 import type { SessionListItem } from '@/lib/node-utils';
 
-export type { SessionListItem };
-
 export interface DateGroup {
   label: string;
   sessions: SessionListItem[];

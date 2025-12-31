@@ -9,10 +9,11 @@ import {
   MessageCountMode,
   parseSessionMessages,
   readSettings,
+  type SessionListItem,
   SessionSortBy,
   TitleSource
 } from '@/lib/node-utils';
-import type { DateGroup, FilterCriteria, SessionListItem, SessionStats } from '../types.js';
+import type { DateGroup, FilterCriteria, SessionStats } from '../types.js';
 import { logger } from '../utils/logger.js';
 import { CompactService } from './compact-service.js';
 

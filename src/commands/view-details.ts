@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { SessionListItem } from '../common/types.js';
+import type { SessionListItem } from '@/lib/node-utils';
 import { logger } from '../common/utils/logger.js';
 import { WebviewProvider } from '../session-view-page/webview-provider.js';
 import type { SessionProvider } from '../sidebar/session-provider.js';
