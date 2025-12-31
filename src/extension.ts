@@ -5,6 +5,7 @@ import { registerAllCommands } from './commands/register-all';
 import { initWorkspaceState } from './common/state';
 import { logger } from './common/utils/logger.js';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
+import { Command, getCommandId } from './common/vscode/vscode-commands';
 import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
 import { DateGroupTreeItem, SessionTreeItem } from './sidebar/tree-items.js';
@@ -111,7 +112,7 @@ export async function activate(context: vscode.ExtensionContext) {
       const item = e.selection[0];
       if (item instanceof SessionTreeItem) {
         logger.info(`[TreeView] Single selection detected: ${item.session.shortId}, opening details`);
-        await vscode.commands.executeCommand('bcc.viewSessionDetails', item.session);
+        await vscode.commands.executeCommand(getCommandId(Command.ViewSessionDetails), item.session);
       }
     } else if (e.selection.length > 1) {
       logger.info(`[TreeView] Multi-selection detected: ${e.selection.length} items selected`);

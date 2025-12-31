@@ -4,6 +4,7 @@ import { SessionManager } from '../common/lib/session-manager.js';
 import { sessionProviderState } from '../common/state';
 import type { FilterCriteria } from '../common/types.js';
 import { logger } from '../common/utils/logger.js';
+import { ContextKey, setContextKey } from '../common/vscode/vscode-commands';
 import { WebviewProvider } from '../session-view-page/webview-provider.js';
 import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
 
@@ -318,6 +319,6 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   }
 
   private updateContextKeys(): void {
-    vscode.commands.executeCommand('setContext', 'bcc.hasCheckedSessions', this.hasCheckedSessions());
+    setContextKey(ContextKey.HasCheckedSessions, this.hasCheckedSessions());
   }
 }

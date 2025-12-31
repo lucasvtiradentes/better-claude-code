@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { logger } from '../../../common/utils/logger';
-import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
+import { Command, getCommandId, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { SessionProvider } from '../../../sidebar/session-provider';
@@ -59,22 +59,22 @@ async function handleBatchOperationsMenu(sessionProvider: SessionProvider) {
     {
       label: '$(archive) Compact Sessions',
       description: `Compact ${checkedCount} checked session(s)`,
-      command: 'bcc.batchCompact'
+      command: getCommandId(Command.BatchCompact)
     },
     {
       label: '$(trash) Delete Sessions',
       description: `Delete ${checkedCount} checked session(s)`,
-      command: 'bcc.batchDelete'
+      command: getCommandId(Command.BatchDelete)
     },
     {
       label: '$(tag) Add Label',
       description: `Add label to ${checkedCount} checked session(s)`,
-      command: 'bcc.batchAddLabel'
+      command: getCommandId(Command.BatchAddLabel)
     },
     {
       label: '$(clear-all) Clear Checks',
       description: `Uncheck all ${checkedCount} session(s)`,
-      command: 'bcc.clearAllChecks'
+      command: getCommandId(Command.ClearAllChecks)
     }
   ];
 

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { Command, getCommandId } from '../common/vscode/vscode-commands';
 import type { SessionProvider } from '../sidebar/session-provider.js';
 
 export class StatusBarManager {
@@ -6,7 +7,7 @@ export class StatusBarManager {
 
   constructor(private sessionProvider: SessionProvider) {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-    this.statusBarItem.command = 'bcc.refreshSessions';
+    this.statusBarItem.command = getCommandId(Command.RefreshSessions);
   }
 
   update(): void {

@@ -26,9 +26,24 @@ export enum Command {
   ViewSessionDetails = 'viewSessionDetails'
 }
 
+export enum ContextKey {
+  HasCheckedSessions = 'hasCheckedSessions'
+}
+
+function getPrefix(): string {
+  return IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+}
+
 export function getCommandId(command: Command | string): string {
-  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
-  return `${prefix}.${command}`;
+  return `${getPrefix()}.${command}`;
+}
+
+export function getContextKeyId(key: ContextKey | string): string {
+  return `${getPrefix()}.${key}`;
+}
+
+export function setContextKey(key: ContextKey, value: unknown): Thenable<unknown> {
+  return vscode.commands.executeCommand('setContext', getContextKeyId(key), value);
 }
 
 // tscanner-ignore-next-line no-explicit-any
