@@ -4,7 +4,7 @@ import type { SessionProvider } from '../sidebar/session-provider.js';
 import { SessionTreeItem } from '../sidebar/tree-items.js';
 
 export function registerPinSessionCommand(context: vscode.ExtensionContext, sessionProvider: SessionProvider): void {
-  const command = vscode.commands.registerCommand('bcc.togglePinSession', async (item: SessionTreeItem) => {
+  const command = vscode.commands.registerCommand('bcc.togglePinSession', (item: SessionTreeItem) => {
     if (!item || !(item instanceof SessionTreeItem)) {
       vscode.window.showErrorMessage('Please select a session to pin/unpin');
       return;

@@ -100,7 +100,7 @@ export class ClaudeHelper {
     }
   }
 
-  static async executePromptNonInteractively(prompt: string) {
+  static executePromptNonInteractively(prompt: string) {
     ClaudeHelper.validateClaudeBinary();
 
     const claudePath = ClaudeHelper.getClaudeBinaryPath();

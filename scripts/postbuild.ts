@@ -15,7 +15,7 @@ class PostBuild {
     this.outDir = join(this.extensionRoot, 'out');
   }
 
-  async execute() {
+  execute() {
     console.log('Running vscode-extension postbuild...');
     this.copyPrompts();
     console.log('✅ Postbuild complete!');
@@ -49,6 +49,4 @@ class PostBuild {
 }
 
 const postBuild = new PostBuild();
-postBuild.execute().catch((err) => {
-  throw new Error(err);
-});
+postBuild.execute();

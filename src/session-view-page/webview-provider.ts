@@ -38,11 +38,11 @@ export class WebviewProvider {
     }
   }
 
-  static async showSessionConversation(
+  static showSessionConversation(
     context: vscode.ExtensionContext,
     session: SessionListItem,
     sessionProvider: SessionProvider
-  ): Promise<void> {
+  ): void {
     try {
       const existingPanel = WebviewProvider.panels.get(session.id);
       if (existingPanel) {

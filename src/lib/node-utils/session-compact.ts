@@ -8,7 +8,7 @@ interface MessageBlock {
   content: string;
 }
 
-export async function parseSessionToMarkdown(sessionFile: string, outputFile: string, repoRoot: string): Promise<void> {
+export function parseSessionToMarkdown(sessionFile: string, outputFile: string, repoRoot: string): void {
   const content = readFileSync(sessionFile, 'utf-8');
   const lines = content.trim().split('\n');
 

@@ -4,31 +4,28 @@ import type { SessionProvider } from '../sidebar/session-provider.js';
 import { SessionTreeItem } from '../sidebar/tree-items.js';
 
 export function registerCheckSessionCommands(context: vscode.ExtensionContext, sessionProvider: SessionProvider): void {
-  const toggleCheckCommand = vscode.commands.registerCommand(
-    'bcc.toggleCheckSession',
-    async (item: SessionTreeItem) => {
-      if (!item || !(item instanceof SessionTreeItem)) {
-        vscode.window.showErrorMessage('Please select a session to check/uncheck');
-        return;
-      }
-
-      try {
-        const isChecked = sessionProvider.toggleCheckSession(item.session.id);
-        const action = isChecked ? 'checked' : 'unchecked';
-        logger.info(`Session ${item.session.shortId} ${action}`);
-
-        const checkedCount = sessionProvider.getCheckedSessions().length;
-        if (checkedCount > 0) {
-          vscode.window.showInformationMessage(`${checkedCount} session(s) checked`);
-        }
-      } catch (error) {
-        logger.error('Failed to toggle check session', error as Error);
-        vscode.window.showErrorMessage('Failed to toggle check session');
-      }
+  const toggleCheckCommand = vscode.commands.registerCommand('bcc.toggleCheckSession', (item: SessionTreeItem) => {
+    if (!item || !(item instanceof SessionTreeItem)) {
+      vscode.window.showErrorMessage('Please select a session to check/uncheck');
+      return;
     }
-  );
 
-  const clearAllChecksCommand = vscode.commands.registerCommand('bcc.clearAllChecks', async () => {
+    try {
+      const isChecked = sessionProvider.toggleCheckSession(item.session.id);
+      const action = isChecked ? 'checked' : 'unchecked';
+      logger.info(`Session ${item.session.shortId} ${action}`);
+
+      const checkedCount = sessionProvider.getCheckedSessions().length;
+      if (checkedCount > 0) {
+        vscode.window.showInformationMessage(`${checkedCount} session(s) checked`);
+      }
+    } catch (error) {
+      logger.error('Failed to toggle check session', error as Error);
+      vscode.window.showErrorMessage('Failed to toggle check session');
+    }
+  });
+
+  const clearAllChecksCommand = vscode.commands.registerCommand('bcc.clearAllChecks', () => {
     const checkedCount = sessionProvider.getCheckedSessions().length;
 
     if (checkedCount === 0) {
