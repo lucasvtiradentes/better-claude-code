@@ -32,9 +32,7 @@ export const App = () => {
   };
 
   const handleDeleteSession = () => {
-    console.log('[App] Delete session button clicked');
     vscode.postMessage({ type: 'deleteSession' });
-    console.log('[App] Delete session message posted');
   };
 
   const handleCompactSession = () => {

@@ -39,9 +39,7 @@ class Logger {
 
     try {
       appendFileSync(LOG_FILE_PATH, `${logMessage}\n`);
-    } catch (error) {
-      console.error('Failed to write log:', error);
-    }
+    } catch {}
   }
 
   show(): void {

@@ -8,7 +8,7 @@
       // "no-absolute-imports": {},
       // "no-alias-imports": {},
       "no-async-without-await": {},
-      "no-console": {},
+      "no-console": {"exclude": ["scripts/**/*.ts"]},
       "no-constant-condition": {},
       "no-default-export": {},
       "no-duplicate-imports": {},
@@ -69,7 +69,7 @@
   },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "**/.ignore/**", "**/.turbo/**", "**/out/**"]
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "**/.ignore/**", "**/.turbo/**", "**/out/**", "**/.tscanner/**"]
   },
   "codeEditor": {
     "highlightErrors": true,

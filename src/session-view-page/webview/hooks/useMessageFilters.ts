@@ -10,11 +10,9 @@ export const useMessageFilters = (sessionData: SessionData | null) => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: no-exp
   const initialState = useMemo(() => {
     if (sessionData?.filters) {
-      console.log('[useMessageFilters] Initializing with filters from sessionData:', sessionData.filters);
       hasReceivedFilters.current = true;
       return sessionData.filters;
     }
-    console.log('[useMessageFilters] No initial filters, waiting for data');
     return null;
   }, []);
 
@@ -25,7 +23,6 @@ export const useMessageFilters = (sessionData: SessionData | null) => {
   useEffect(() => {
     if (sessionData?.filters) {
       if (!hasReceivedFilters.current) {
-        console.log('[useMessageFilters] Received filters from extension:', sessionData.filters);
         setShowUserMessages(sessionData.filters.showUserMessages);
         setShowAssistantMessages(sessionData.filters.showAssistantMessages);
         setShowToolCalls(sessionData.filters.showToolCalls);
@@ -39,7 +36,6 @@ export const useMessageFilters = (sessionData: SessionData | null) => {
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
       if (message.type === 'filtersUpdated') {
-        console.log('[useMessageFilters] Received broadcast filters update:', message.filters);
         setShowUserMessages(message.filters.showUserMessages);
         setShowAssistantMessages(message.filters.showAssistantMessages);
         setShowToolCalls(message.filters.showToolCalls);
@@ -52,12 +48,10 @@ export const useMessageFilters = (sessionData: SessionData | null) => {
 
   useEffect(() => {
     if (!hasReceivedFilters.current) {
-      console.log('[useMessageFilters] Skipping saveFilters - not initialized yet');
       return;
     }
 
     const filters = { showUserMessages, showAssistantMessages, showToolCalls };
-    console.log('[useMessageFilters] Sending saveFilters to extension:', filters);
     vscode.postMessage({
       type: 'saveFilters',
       filters
