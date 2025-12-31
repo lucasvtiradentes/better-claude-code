@@ -3,11 +3,11 @@ import { countFilesOrFolders, filterMessages, groupMessagesByType } from '../uti
 import { vscode } from '../utils/vscode';
 import { sessionStore } from './session';
 
-export interface FilterState {
+export type FilterState = {
   showUserMessages: boolean;
   showAssistantMessages: boolean;
   showToolCalls: boolean;
-}
+};
 
 const defaultFilters: FilterState = {
   showUserMessages: true,

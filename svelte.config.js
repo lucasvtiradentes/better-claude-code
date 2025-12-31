@@ -1,5 +1,5 @@
 import { typescript } from 'svelte-preprocess';
 
-export default {
+export const config = {
   preprocess: [typescript()]
 };
