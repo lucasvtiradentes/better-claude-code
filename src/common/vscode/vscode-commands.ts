@@ -11,6 +11,8 @@ export enum Command {
   OpenSessionFile = 'openSessionFile',
   CopySessionPath = 'copySessionPath',
   ShowLogs = 'showLogs',
+  ShowWorkspaceState = 'showWorkspaceState',
+  ClearWorkspaceState = 'clearWorkspaceState',
   AddLabel = 'addLabel',
   ToggleCollapseExpand = 'toggleCollapseExpand',
   ViewCompaction = 'viewCompaction',

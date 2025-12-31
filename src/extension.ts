@@ -2,13 +2,13 @@ import * as vscode from 'vscode';
 import { ConfigManager } from '@/lib/node-utils';
 import { APP_NAME } from '@/lib/shared';
 import { registerAllCommands } from './commands/register-all';
+import { initWorkspaceState } from './common/state';
 import { logger } from './common/utils/logger.js';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
 import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
 import { DateGroupTreeItem, SessionTreeItem } from './sidebar/tree-items.js';
 import { StatusBarManager } from './status-bar/status-bar-manager.js';
-import { WorkspaceState } from './storage/workspace-state.js';
 
 let sessionProvider: SessionProvider;
 let statusBarManager: StatusBarManager;
@@ -52,6 +52,7 @@ export async function activate(context: vscode.ExtensionContext) {
   logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
 
   new ConfigManager();
+  initWorkspaceState(context);
 
   const workspacePath = getCurrentWorkspacePath();
 
@@ -60,14 +61,11 @@ export async function activate(context: vscode.ExtensionContext) {
     return;
   }
 
-  const workspaceState = new WorkspaceState(context);
-
   sessionProvider = new SessionProvider();
 
   decorationProvider = new SessionDecorationProvider(sessionProvider);
   context.subscriptions.push(vscode.window.registerFileDecorationProvider(decorationProvider));
 
-  WebviewProvider.setWorkspaceState(workspaceState);
   WebviewProvider.onPanelChange(() => {
     sessionProvider.refresh();
     decorationProvider.refresh();

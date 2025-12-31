@@ -54,5 +54,14 @@ export const VscodeHelper = {
 
   getFirstWorkspaceFolder(): vscode.WorkspaceFolder | undefined {
     return vscode.workspace.workspaceFolders?.[0];
+  },
+
+  async openUntitledDocument(content: string, language?: string): Promise<vscode.TextEditor> {
+    const doc = await vscode.workspace.openTextDocument({ content, language });
+    return vscode.window.showTextDocument(doc);
+  },
+
+  async showQuickPickStrings(items: string[], options?: vscode.QuickPickOptions): Promise<string | undefined> {
+    return vscode.window.showQuickPick(items, options);
   }
 };
