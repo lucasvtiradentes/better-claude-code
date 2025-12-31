@@ -13,6 +13,7 @@ completions/
 .ignore
 .tanstack
 dist-dev/ 
+.devpanel/branches/
 
 # FILES ========================================================================
 
