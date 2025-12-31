@@ -12,7 +12,13 @@ import {
   shouldSkipAssistantMessage,
   shouldSkipUserMessage
 } from './session-helpers.js';
-import { SessionListItem, SessionListOptions, SessionListResult, SessionSortBy, TitleSource } from './session-list.js';
+import {
+  type SessionListItem,
+  type SessionListOptions,
+  type SessionListResult,
+  SessionSortBy,
+  TitleSource
+} from './session-list.js';
 
 const IGNORE_EMPTY_SESSIONS = true;
 const MAX_TITLE_LENGTH = 80;
@@ -418,7 +424,7 @@ export async function listSessionsCached(
     }
   }
 
-  sessionCache.set(cacheKey, updatedCache, cacheTTL).catch(() => {});
+  sessionCache.set(cacheKey, updatedCache, cacheTTL).catch(() => undefined);
 
   const allSessions = [...cachedSessions, ...newSessions];
 

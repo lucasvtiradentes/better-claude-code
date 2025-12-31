@@ -1,4 +1,21 @@
-import type { SessionImage, SessionMessageType } from '@/lib/ui-components';
+export type VSCodeAPI = {
+  postMessage: (message: unknown) => void;
+  setState: (state: unknown) => void;
+  getState: () => unknown;
+};
+
+export type SessionImage = {
+  index: number;
+  data: string;
+  messageId: string;
+};
+
+export type SessionMessageType = {
+  id?: string;
+  type: 'user' | 'assistant';
+  content: string | unknown[];
+  timestamp?: number;
+};
 
 export type SessionData = {
   session: {
@@ -19,10 +36,4 @@ export type SessionData = {
     showAssistantMessages: boolean;
     showToolCalls: boolean;
   };
-};
-
-export type VSCodeAPI = {
-  postMessage: (message: unknown) => void;
-  setState: (state: unknown) => void;
-  getState: () => unknown;
 };

@@ -1,11 +1,9 @@
-import type { SessionMessageType } from '@/lib/ui-components';
+import type { FilterState } from '../stores/filters';
+import type { SessionMessageType } from '../types';
 
-export const filterMessages = (
-  messages: SessionMessageType[],
-  showUserMessages: boolean,
-  showAssistantMessages: boolean,
-  showToolCalls: boolean
-): SessionMessageType[] => {
+export const filterMessages = (messages: SessionMessageType[], filters: FilterState): SessionMessageType[] => {
+  const { showUserMessages, showAssistantMessages, showToolCalls } = filters;
+
   let filtered = messages.filter(
     (msg) => (msg.type === 'user' && showUserMessages) || (msg.type === 'assistant' && showAssistantMessages)
   );
