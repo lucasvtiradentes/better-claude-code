@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/extension.ts", "scripts/**/*.ts"],
+  "project": ["src/**/*.ts", "scripts/**/*.ts"],
+  "ignore": [".tscanner/**", ".changeset/**"],
+  "ignoreBinaries": ["vsce"],
+  "ignoreDependencies": [],
+  "biome": { "config": "biome.json" },
+  "ignoreExportsUsedInFile": false
+}

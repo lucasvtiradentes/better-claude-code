@@ -60,6 +60,7 @@ class SessionDecorationProvider implements vscode.FileDecorationProvider {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
+  // @ts-expect-error
   logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
 
   new ConfigManager();
