@@ -15,11 +15,10 @@ runs:
 
     - name: Build VS Code Extension
       shell: bash
-      run: pnpm --filter=better-claude-code-vscode build
+      run: pnpm build
 
     - name: Publish to VS Code Marketplace
       shell: bash
-      working-directory: src
       run: vsce publish --no-dependencies --pat ${{ inputs.azure-pat }}
       env:
         VSCE_PAT: ${{ inputs.azure-pat }}

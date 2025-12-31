@@ -1,0 +1,25 @@
+# FOLDERS ======================================================================
+
+node_modules/**
+src/**
+scripts/**
+.changeset/**
+.claude/**
+.devpanel/**
+.github/**
+.ignore/**
+.tscanner/**
+.vscode/**
+docs/**
+prompts/**
+
+# FILES ========================================================================
+
+.gitignore
+.branch-context.md
+tsconfig.json
+esbuild.config.ts
+pnpm-lock.yaml
+global.d.ts
+biome.json
+*.md

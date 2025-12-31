@@ -23,9 +23,6 @@ jobs:
     with:
       run_lint: true
       run_build: true
-    secrets:
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
   release:
     name: 'Release Package'
@@ -33,8 +30,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
