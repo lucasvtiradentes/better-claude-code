@@ -21,9 +21,14 @@ import {
 import { getViewId, View } from './common/vscode/vscode-views';
 import { WebviewProvider } from './session-view-page/webview-provider';
 import { StatusBarManager } from './status-bar/status-bar-manager';
+import { AgentsProvider } from './views/agents/agents-provider';
 import { CommandsProvider } from './views/commands/commands-provider';
+import { MCPServersProvider } from './views/mcp/mcp-provider';
+import { MemoryProvider } from './views/memory/memory-provider';
+import { RulesProvider } from './views/rules/rules-provider';
 import { SessionProvider } from './views/sessions/session-provider';
 import { DateGroupTreeItem, SessionTreeItem } from './views/sessions/tree-items';
+import { SkillsProvider } from './views/skills/skills-provider';
 import { createSessionWatcher } from './watchers';
 
 class SessionDecorationProvider implements FileDecorationProvider {
@@ -64,6 +69,12 @@ class ExtensionManager {
   private context!: ExtensionContext;
   private workspacePath!: string;
   private sessionProvider!: SessionProvider;
+  private commandsProvider!: CommandsProvider;
+  private skillsProvider!: SkillsProvider;
+  private agentsProvider!: AgentsProvider;
+  private mcpProvider!: MCPServersProvider;
+  private rulesProvider!: RulesProvider;
+  private memoryProvider!: MemoryProvider;
   private statusBarManager!: StatusBarManager;
   private decorationProvider!: SessionDecorationProvider;
   private treeView!: TreeView<TreeItem>;
@@ -109,6 +120,12 @@ class ExtensionManager {
 
   private initializeProviders(): void {
     this.sessionProvider = new SessionProvider();
+    this.commandsProvider = new CommandsProvider();
+    this.skillsProvider = new SkillsProvider();
+    this.agentsProvider = new AgentsProvider();
+    this.mcpProvider = new MCPServersProvider();
+    this.rulesProvider = new RulesProvider();
+    this.memoryProvider = new MemoryProvider();
     this.decorationProvider = new SessionDecorationProvider(this.sessionProvider);
     this.context.subscriptions.push(VscodeHelper.registerFileDecorationProvider(this.decorationProvider));
 
@@ -123,12 +140,43 @@ class ExtensionManager {
       treeDataProvider: this.sessionProvider
     });
 
+    this.commandsProvider.setWorkspacePath(this.workspacePath);
     const commandsView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.CommandsExplorer), {
-      treeDataProvider: new CommandsProvider()
+      treeDataProvider: this.commandsProvider
+    });
+
+    this.skillsProvider.setWorkspacePath(this.workspacePath);
+    const skillsView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.SkillsExplorer), {
+      treeDataProvider: this.skillsProvider
+    });
+
+    this.agentsProvider.setWorkspacePath(this.workspacePath);
+    const agentsView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.AgentsExplorer), {
+      treeDataProvider: this.agentsProvider
+    });
+
+    this.mcpProvider.setWorkspacePath(this.workspacePath);
+    const mcpView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.MCPServersExplorer), {
+      treeDataProvider: this.mcpProvider
+    });
+
+    this.rulesProvider.setWorkspacePath(this.workspacePath);
+    const rulesView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.RulesExplorer), {
+      treeDataProvider: this.rulesProvider
+    });
+
+    this.memoryProvider.setWorkspacePath(this.workspacePath);
+    const memoryView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.MemoryExplorer), {
+      treeDataProvider: this.memoryProvider
     });
 
     this.context.subscriptions.push(this.treeView);
     this.context.subscriptions.push(commandsView);
+    this.context.subscriptions.push(skillsView);
+    this.context.subscriptions.push(agentsView);
+    this.context.subscriptions.push(mcpView);
+    this.context.subscriptions.push(rulesView);
+    this.context.subscriptions.push(memoryView);
   }
 
   private initializeStatusBar(): void {
@@ -140,6 +188,12 @@ class ExtensionManager {
     const commands = registerAllCommands({
       context: this.context,
       sessionProvider: this.sessionProvider,
+      commandsProvider: this.commandsProvider,
+      skillsProvider: this.skillsProvider,
+      agentsProvider: this.agentsProvider,
+      mcpProvider: this.mcpProvider,
+      rulesProvider: this.rulesProvider,
+      memoryProvider: this.memoryProvider,
       decorationProvider: this.decorationProvider,
       workspacePath: this.workspacePath
     });

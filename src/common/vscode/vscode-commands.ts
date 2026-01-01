@@ -26,7 +26,21 @@ export enum Command {
   ViewSessionDetails = 'viewSessionDetails',
   OpenSettingsMenu = 'openSettingsMenu',
   OpenGlobalSettings = 'openGlobalSettings',
-  OpenGlobalInstructions = 'openGlobalInstructions'
+  OpenGlobalInstructions = 'openGlobalInstructions',
+  OpenCommandFile = 'openCommandFile',
+  RunCommandInTerminal = 'runCommandInTerminal',
+  RefreshCommands = 'refreshCommands',
+  OpenSkillFile = 'openSkillFile',
+  RefreshSkills = 'refreshSkills',
+  OpenAgentFile = 'openAgentFile',
+  RefreshAgents = 'refreshAgents',
+  ToggleMCPServer = 'toggleMCPServer',
+  GoToMCPDefinition = 'goToMCPDefinition',
+  RefreshMCPServers = 'refreshMCPServers',
+  OpenRuleFile = 'openRuleFile',
+  RefreshRules = 'refreshRules',
+  OpenMemoryFile = 'openMemoryFile',
+  RefreshMemory = 'refreshMemory'
 }
 
 export enum ContextKey {

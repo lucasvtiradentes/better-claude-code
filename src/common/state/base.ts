@@ -6,7 +6,8 @@ const WORKSPACE_STATE_KEY = `${CONTEXT_PREFIX}.workspaceState`;
 
 export enum StateKey {
   SessionProvider = 'sessionProvider',
-  MessageFilters = 'messageFilters'
+  MessageFilters = 'messageFilters',
+  MCPServers = 'mcpServers'
 }
 
 export enum StorageType {

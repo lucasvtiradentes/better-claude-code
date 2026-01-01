@@ -20,7 +20,7 @@
 	"scripts": {
 		"prepare": "husky",
 		"build": "tsx esbuild.config.ts",
-		"postbuild": "tsx scripts/postbuild.ts && tsx scripts/install-local.ts",
+		"postbuild": "tsx scripts/install-local.ts",
 		"dev": "tsx esbuild.config.ts --watch",
 		"lint": "biome check .",
 		"lint:fix": "biome check --fix --unsafe .",
@@ -96,6 +96,31 @@
 					"id": "bccCommandsExplorer",
 					"name": "Commands",
 					"contextualTitle": "Commands"
+				},
+				{
+					"id": "bccSkillsExplorer",
+					"name": "Skills",
+					"contextualTitle": "Skills"
+				},
+				{
+					"id": "bccAgentsExplorer",
+					"name": "Agents",
+					"contextualTitle": "Agents"
+				},
+				{
+					"id": "bccMCPServersExplorer",
+					"name": "MCP Servers",
+					"contextualTitle": "MCP Servers"
+				},
+				{
+					"id": "bccRulesExplorer",
+					"name": "Rules",
+					"contextualTitle": "Rules"
+				},
+				{
+					"id": "bccMemoryExplorer",
+					"name": "Memory",
+					"contextualTitle": "Memory"
 				}
 			]
 		},
@@ -203,6 +228,84 @@
 				"command": "bcc.clearWorkspaceState",
 				"title": "Clear Workspace State",
 				"category": "BCC"
+			},
+			{
+				"command": "bcc.openCommandFile",
+				"title": "Open Command",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.runCommandInTerminal",
+				"title": "Run in Terminal",
+				"category": "BCC",
+				"icon": "$(terminal)"
+			},
+			{
+				"command": "bcc.refreshCommands",
+				"title": "Refresh Commands",
+				"category": "BCC",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.openSkillFile",
+				"title": "Open Skill",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.refreshSkills",
+				"title": "Refresh Skills",
+				"category": "BCC",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.openAgentFile",
+				"title": "Open Agent",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.refreshAgents",
+				"title": "Refresh Agents",
+				"category": "BCC",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.toggleMCPServer",
+				"title": "Toggle MCP Server",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.goToMCPDefinition",
+				"title": "Go to Definition",
+				"category": "BCC",
+				"icon": "$(go-to-file)"
+			},
+			{
+				"command": "bcc.refreshMCPServers",
+				"title": "Refresh MCP Servers",
+				"category": "BCC",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.openRuleFile",
+				"title": "Open Rule",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.refreshRules",
+				"title": "Refresh Rules",
+				"category": "BCC",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.openMemoryFile",
+				"title": "Open Memory",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.refreshMemory",
+				"title": "Refresh Memory",
+				"category": "BCC",
+				"icon": "$(refresh)"
 			}
 		],
 		"menus": {
@@ -266,6 +369,62 @@
 				{
 					"command": "bcc.batchOperationsMenu",
 					"when": "false"
+				},
+				{
+					"command": "bcc.openCommandFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.runCommandInTerminal",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshCommands",
+					"when": "false"
+				},
+				{
+					"command": "bcc.openSkillFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshSkills",
+					"when": "false"
+				},
+				{
+					"command": "bcc.openAgentFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshAgents",
+					"when": "false"
+				},
+				{
+					"command": "bcc.toggleMCPServer",
+					"when": "false"
+				},
+				{
+					"command": "bcc.goToMCPDefinition",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshMCPServers",
+					"when": "false"
+				},
+				{
+					"command": "bcc.openRuleFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshRules",
+					"when": "false"
+				},
+				{
+					"command": "bcc.openMemoryFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshMemory",
+					"when": "false"
 				}
 			],
 			"view/title": [
@@ -288,6 +447,36 @@
 					"command": "bcc.toggleCollapseExpand",
 					"when": "view == bccSessionExplorer",
 					"group": "navigation@4"
+				},
+				{
+					"command": "bcc.refreshCommands",
+					"when": "view == bccCommandsExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "bcc.refreshSkills",
+					"when": "view == bccSkillsExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "bcc.refreshAgents",
+					"when": "view == bccAgentsExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "bcc.refreshMCPServers",
+					"when": "view == bccMCPServersExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "bcc.refreshRules",
+					"when": "view == bccRulesExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "bcc.refreshMemory",
+					"when": "view == bccMemoryExplorer",
+					"group": "navigation"
 				}
 			],
 			"view/item/context": [
@@ -360,6 +549,16 @@
 					"command": "bcc.copySessionPath",
 					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
 					"group": "3_navigation@2"
+				},
+				{
+					"command": "bcc.runCommandInTerminal",
+					"when": "view == bccCommandsExplorer && viewItem =~ /commandItem/",
+					"group": "inline"
+				},
+				{
+					"command": "bcc.goToMCPDefinition",
+					"when": "view == bccMCPServersExplorer && viewItem =~ /mcpServerItem/",
+					"group": "inline"
 				}
 			]
 		},
