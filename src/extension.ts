@@ -15,16 +15,13 @@ import {
   type FileDecorationProvider,
   ThemeColorClass,
   type TreeItem,
+  type TreeView,
   type Uri
 } from './common/vscode/vscode-types';
 import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
 import { DateGroupTreeItem, SessionTreeItem } from './sidebar/tree-items.js';
 import { StatusBarManager } from './status-bar/status-bar-manager.js';
-
-let sessionProvider: SessionProvider;
-let statusBarManager: StatusBarManager;
-let decorationProvider: SessionDecorationProvider;
 
 class SessionDecorationProvider implements FileDecorationProvider {
   private _onDidChangeFileDecorations = new EventEmitterClass<Uri | Uri[] | undefined>();
@@ -60,119 +57,162 @@ class SessionDecorationProvider implements FileDecorationProvider {
   }
 }
 
-export async function activate(context: ExtensionContext) {
-  logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
+class ExtensionManager {
+  private context!: ExtensionContext;
+  private workspacePath!: string;
+  private sessionProvider!: SessionProvider;
+  private statusBarManager!: StatusBarManager;
+  private decorationProvider!: SessionDecorationProvider;
+  private treeView!: TreeView<TreeItem>;
 
-  new ConfigManager();
-  initWorkspaceState(context);
+  async activate(context: ExtensionContext): Promise<void> {
+    logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
 
-  const workspacePath = getCurrentWorkspacePath();
+    this.context = context;
 
-  if (!workspacePath) {
-    logger.info('No workspace folder is open. Open a folder to view Claude Code sessions.');
-    return;
-  }
+    this.initializeCore();
 
-  sessionProvider = new SessionProvider();
-
-  decorationProvider = new SessionDecorationProvider(sessionProvider);
-  context.subscriptions.push(VscodeHelper.registerFileDecorationProvider(decorationProvider));
-
-  WebviewProvider.onPanelChange(() => {
-    sessionProvider.refresh();
-    decorationProvider.refresh();
-  });
-
-  const packageJson = context.extension.packageJSON;
-  const viewId =
-    packageJson.contributes?.views?.bccExplorer?.[0]?.id ||
-    packageJson.contributes?.views?.bccExplorerDev?.[0]?.id ||
-    'bccSessionExplorer';
-
-  const treeView = VscodeHelper.createTreeView<TreeItem>(viewId, {
-    treeDataProvider: sessionProvider
-  });
-
-  statusBarManager = new StatusBarManager(sessionProvider);
-  context.subscriptions.push(statusBarManager.getDisposable() as Disposable);
-
-  const commands = registerAllCommands({
-    context,
-    sessionProvider,
-    decorationProvider,
-    workspacePath
-  });
-  for (const cmd of commands) {
-    context.subscriptions.push(cmd);
-  }
-  context.subscriptions.push(treeView);
-
-  await sessionProvider.initialize(workspacePath, context);
-
-  statusBarManager.update();
-
-  treeView.onDidChangeVisibility(async () => {
-    if (treeView.visible) {
-      await sessionProvider.refresh();
-      statusBarManager.update();
+    const workspacePath = getCurrentWorkspacePath();
+    if (!workspacePath) {
+      logger.info('No workspace folder is open. Open a folder to view Claude Code sessions.');
+      return;
     }
-  });
+    this.workspacePath = workspacePath;
 
-  treeView.onDidChangeSelection(async (e) => {
-    if (e.selection.length === 1) {
-      const item = e.selection[0];
-      if (item instanceof SessionTreeItem) {
-        logger.info(`[TreeView] Single selection detected: ${item.session.shortId}, opening details`);
-        await VscodeHelper.executeVscodeCommand(getCommandId(Command.ViewSessionDetails), item.session);
+    this.initializeProviders();
+    this.initializeTreeView();
+    this.initializeStatusBar();
+    this.registerCommands();
+    this.setupEventListeners();
+    this.setupFileWatcher();
+
+    await this.sessionProvider.initialize(this.workspacePath, this.context);
+    this.statusBarManager.update();
+
+    logger.info(`${APP_NAME} extension activation complete`);
+  }
+
+  deactivate(): void {
+    if (this.statusBarManager) {
+      this.statusBarManager.dispose();
+    }
+    logger.info(`${APP_NAME} extension deactivated\n\n`);
+  }
+
+  private initializeCore(): void {
+    new ConfigManager();
+    initWorkspaceState(this.context);
+  }
+
+  private initializeProviders(): void {
+    this.sessionProvider = new SessionProvider();
+    this.decorationProvider = new SessionDecorationProvider(this.sessionProvider);
+    this.context.subscriptions.push(VscodeHelper.registerFileDecorationProvider(this.decorationProvider));
+
+    WebviewProvider.onPanelChange(() => {
+      this.sessionProvider.refresh();
+      this.decorationProvider.refresh();
+    });
+  }
+
+  private initializeTreeView(): void {
+    const packageJson = this.context.extension.packageJSON;
+    const viewId =
+      packageJson.contributes?.views?.bccExplorer?.[0]?.id ||
+      packageJson.contributes?.views?.bccExplorerDev?.[0]?.id ||
+      'bccSessionExplorer';
+
+    this.treeView = VscodeHelper.createTreeView<TreeItem>(viewId, {
+      treeDataProvider: this.sessionProvider
+    });
+
+    this.context.subscriptions.push(this.treeView);
+  }
+
+  private initializeStatusBar(): void {
+    this.statusBarManager = new StatusBarManager(this.sessionProvider);
+    this.context.subscriptions.push(this.statusBarManager.getDisposable() as Disposable);
+  }
+
+  private registerCommands(): void {
+    const commands = registerAllCommands({
+      context: this.context,
+      sessionProvider: this.sessionProvider,
+      decorationProvider: this.decorationProvider,
+      workspacePath: this.workspacePath
+    });
+    for (const cmd of commands) {
+      this.context.subscriptions.push(cmd);
+    }
+  }
+
+  private setupEventListeners(): void {
+    this.treeView.onDidChangeVisibility(async () => {
+      if (this.treeView.visible) {
+        await this.sessionProvider.refresh();
+        this.statusBarManager.update();
       }
-    } else if (e.selection.length > 1) {
-      logger.info(`[TreeView] Multi-selection detected: ${e.selection.length} items selected`);
-    }
-  });
+    });
 
-  treeView.onDidExpandElement((e) => {
-    if (e.element instanceof DateGroupTreeItem) {
-      sessionProvider.onGroupExpanded(e.element);
-    }
-  });
+    this.treeView.onDidChangeSelection(async (e) => {
+      if (e.selection.length === 1) {
+        const item = e.selection[0];
+        if (item instanceof SessionTreeItem) {
+          logger.info(`[TreeView] Single selection detected: ${item.session.shortId}, opening details`);
+          await VscodeHelper.executeVscodeCommand(getCommandId(Command.ViewSessionDetails), item.session);
+        }
+      } else if (e.selection.length > 1) {
+        logger.info(`[TreeView] Multi-selection detected: ${e.selection.length} items selected`);
+      }
+    });
 
-  treeView.onDidCollapseElement((e) => {
-    if (e.element instanceof DateGroupTreeItem) {
-      sessionProvider.onGroupCollapsed(e.element);
-    }
-  });
+    this.treeView.onDidExpandElement((e) => {
+      if (e.element instanceof DateGroupTreeItem) {
+        this.sessionProvider.onGroupExpanded(e.element);
+      }
+    });
 
-  const watcher = VscodeHelper.createFileSystemWatcher('**/*.jsonl');
+    this.treeView.onDidCollapseElement((e) => {
+      if (e.element instanceof DateGroupTreeItem) {
+        this.sessionProvider.onGroupCollapsed(e.element);
+      }
+    });
+  }
 
-  watcher.onDidCreate(async () => {
-    logger.info('New session file detected, refreshing...');
-    await sessionProvider.refresh();
-    decorationProvider.refresh();
-    statusBarManager.update();
-  });
+  private setupFileWatcher(): void {
+    const watcher = VscodeHelper.createFileSystemWatcher('**/*.jsonl');
 
-  watcher.onDidChange(async () => {
-    logger.info('Session file changed, refreshing...');
-    await sessionProvider.refresh();
-    decorationProvider.refresh();
-    statusBarManager.update();
-  });
+    watcher.onDidCreate(async () => {
+      logger.info('New session file detected, refreshing...');
+      await this.sessionProvider.refresh();
+      this.decorationProvider.refresh();
+      this.statusBarManager.update();
+    });
 
-  watcher.onDidDelete(async () => {
-    logger.info('Session file deleted, refreshing...');
-    await sessionProvider.refresh();
-    decorationProvider.refresh();
-    statusBarManager.update();
-  });
+    watcher.onDidChange(async () => {
+      logger.info('Session file changed, refreshing...');
+      await this.sessionProvider.refresh();
+      this.decorationProvider.refresh();
+      this.statusBarManager.update();
+    });
 
-  context.subscriptions.push(watcher);
+    watcher.onDidDelete(async () => {
+      logger.info('Session file deleted, refreshing...');
+      await this.sessionProvider.refresh();
+      this.decorationProvider.refresh();
+      this.statusBarManager.update();
+    });
 
-  logger.info(`${APP_NAME} extension activation complete`);
+    this.context.subscriptions.push(watcher);
+  }
+}
+
+const extensionManager = new ExtensionManager();
+
+export async function activate(context: ExtensionContext) {
+  await extensionManager.activate(context);
 }
 
 export function deactivate() {
-  if (statusBarManager) {
-    statusBarManager.dispose();
-  }
-  logger.info(`${APP_NAME} extension deactivated\n\n`);
+  extensionManager.deactivate();
 }
