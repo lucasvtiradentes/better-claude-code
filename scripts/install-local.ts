@@ -17,7 +17,7 @@ import {
   DEV_SUFFIX,
   EXTENSION_DISPLAY_NAME,
   EXTENSION_NAME
-} from '../src/common/utils/scripts-constants';
+} from '../src/common/constants/scripts-constants';
 
 const LOCAL_DIST_DIR = 'dist-dev';
 const VSCODE_STANDARD_CONTAINERS = ['explorer', 'scm', 'debug', 'test', 'remote'];

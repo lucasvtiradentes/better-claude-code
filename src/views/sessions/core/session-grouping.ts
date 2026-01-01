@@ -3,11 +3,11 @@ import {
   getTokenPercentageGroup,
   TIME_GROUP_LABELS,
   TIME_GROUP_ORDER,
-  type TimeGroup,
+  TimeGroup,
   TOKEN_PERCENTAGE_GROUP_LABELS,
   TOKEN_PERCENTAGE_GROUP_ORDER,
-  type TokenPercentageGroup
-} from '../../../common/utils/duplicated';
+  TokenPercentageGroup
+} from '../../../common/constants/duplicated';
 import type { SessionListItem } from './session-list';
 
 export type SessionLabel = {

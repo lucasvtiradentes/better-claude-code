@@ -1,4 +1,4 @@
-import { ClaudeHelper, MessageSource } from '../../../common/utils/claude-helper';
+import { ClaudeHelper, MessageSource } from '../../../common/lib/claude-helper';
 import { createMessageKey, extractTextContent, isValidUserMessage } from './session-helpers';
 
 export type ParsedMessage = {

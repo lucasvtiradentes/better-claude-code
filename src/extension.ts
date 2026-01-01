@@ -1,7 +1,8 @@
 import { registerAllCommands } from './commands/register-all';
+import { APP_NAME } from './common/constants/constants';
 import { logger } from './common/lib/logger';
 import { initWorkspaceState } from './common/state';
-import { APP_NAME, ConfigManager } from './common/utils';
+import { ConfigManager } from './common/utils/config-manager';
 import { getCurrentWorkspacePath } from './common/utils/functions/workspace-detector';
 import { Command, getCommandId } from './common/vscode/vscode-commands';
 import { VscodeColor } from './common/vscode/vscode-constants';

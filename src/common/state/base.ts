@@ -1,5 +1,5 @@
+import { CONTEXT_PREFIX } from '../constants/scripts-constants';
 import type { WorkspaceUIState } from '../schemas/workspace-state.schema';
-import { CONTEXT_PREFIX } from '../utils/scripts-constants';
 import type { ExtensionContext } from '../vscode/vscode-types';
 
 const WORKSPACE_STATE_KEY = `${CONTEXT_PREFIX}.workspaceState`;

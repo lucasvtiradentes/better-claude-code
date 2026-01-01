@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import type { CommandParams } from '../../commands/command-params';
-import { addDevSuffix, CONTEXT_PREFIX, IS_DEV } from '../utils';
+import { addDevSuffix, IS_DEV } from '../constants/constants';
+import { CONTEXT_PREFIX } from '../constants/scripts-constants';
 import type { Disposable } from './vscode-types';
 
 export enum Command {

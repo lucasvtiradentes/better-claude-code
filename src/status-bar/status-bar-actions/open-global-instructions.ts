@@ -1,4 +1,5 @@
-import { CLAUDE_CODE_INSTRUCTIONS_PATH, FileIOHelper } from '../../common/utils';
+import { CLAUDE_CODE_INSTRUCTIONS_PATH } from '../../common/constants/monorepo-path-utils';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Disposable } from '../../common/vscode/vscode-types';

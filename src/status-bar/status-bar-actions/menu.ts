@@ -1,4 +1,4 @@
-import { APP_NAME } from '../../common/utils';
+import { APP_NAME } from '../../common/constants/constants';
 import { Command, executeCommand, registerCommand } from '../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Disposable } from '../../common/vscode/vscode-types';

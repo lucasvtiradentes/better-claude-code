@@ -1,5 +1,6 @@
+import { getCompactionSummaryPath } from '../../../common/constants/monorepo-path-utils';
+import { ClaudeHelper } from '../../../common/lib/claude-helper';
 import { logger } from '../../../common/lib/logger';
-import { ClaudeHelper, getCompactionSummaryPath } from '../../../common/utils';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';

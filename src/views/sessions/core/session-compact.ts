@@ -1,6 +1,6 @@
-import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from '../../../common/utils/claude-helper';
+import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from '../../../common/lib/claude-helper';
+import { generateUuid } from '../../../common/utils/functions/uuid';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
-import { generateUuid } from '../../../common/utils/uuid';
 
 type MessageBlock = {
   type: MessageSource;

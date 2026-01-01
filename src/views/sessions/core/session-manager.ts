@@ -1,14 +1,14 @@
-import { logger } from '../../../common/lib/logger';
-import type { DateGroup, FilterCriteria, SessionStats } from '../../../common/types';
 import {
-  ClaudeHelper,
-  FileIOHelper,
   getCompactionDir,
   getCompactionParsedPath,
-  getCompactionSummaryPath,
-  readSettings
-} from '../../../common/utils';
+  getCompactionSummaryPath
+} from '../../../common/constants/monorepo-path-utils';
+import { ClaudeHelper } from '../../../common/lib/claude-helper';
+import { logger } from '../../../common/lib/logger';
+import type { DateGroup, FilterCriteria, SessionStats } from '../../../common/types';
 import { MessageCountMode } from '../../../common/utils/config-manager';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import { readSettings } from '../../../common/utils/label-manager';
 import { CompactService } from './compact-service';
 import { groupSessions } from './session-grouping';
 import { type SessionListItem, SessionSortBy, TitleSource } from './session-list';

@@ -1,4 +1,4 @@
-import { FileIOHelper, NodeOsHelper, NodePathHelper } from './helpers/node-helper';
+import { FileIOHelper, NodeOsHelper, NodePathHelper } from '../utils/helpers/node-helper';
 
 export enum PromptFile {
   SESSION_COMPACTION = 'session-compaction.prompt.md'

@@ -1,6 +1,6 @@
-import { APP_NAME } from '../utils/constants';
+import { APP_NAME } from '../constants/constants';
+import { BCC_EXTENSION_LOG_FILE } from '../constants/monorepo-path-utils';
 import { FileIOHelper } from '../utils/helpers/node-helper';
-import { BCC_EXTENSION_LOG_FILE } from '../utils/monorepo-path-utils';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { OutputChannel } from '../vscode/vscode-types';
 

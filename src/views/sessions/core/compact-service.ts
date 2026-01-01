@@ -1,13 +1,13 @@
-import { logger } from '../../../common/lib/logger';
 import {
-  ClaudeHelper,
   ensureCompactionDirExists,
-  FileIOHelper,
   getCompactionParsedPath,
   getCompactionSummaryPath,
   getPromptPathForExtension,
   PromptFile
-} from '../../../common/utils';
+} from '../../../common/constants/monorepo-path-utils';
+import { ClaudeHelper } from '../../../common/lib/claude-helper';
+import { logger } from '../../../common/lib/logger';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { compactSession, parseSessionToMarkdown } from './session-compact';
 
 export class CompactService {
