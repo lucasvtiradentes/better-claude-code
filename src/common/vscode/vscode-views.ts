@@ -3,7 +3,8 @@ import { addDevSuffix } from '../constants/constants';
 export enum View {
   SessionExplorer = 'bccSessionExplorer',
   CommandsExplorer = 'bccCommandsExplorer',
-  SkillsExplorer = 'bccSkillsExplorer'
+  SkillsExplorer = 'bccSkillsExplorer',
+  AgentsExplorer = 'bccAgentsExplorer'
 }
 
 export function getViewId(view: View): string {

@@ -21,6 +21,7 @@ import {
 import { getViewId, View } from './common/vscode/vscode-views';
 import { WebviewProvider } from './session-view-page/webview-provider';
 import { StatusBarManager } from './status-bar/status-bar-manager';
+import { AgentsProvider } from './views/agents/agents-provider';
 import { CommandsProvider } from './views/commands/commands-provider';
 import { SessionProvider } from './views/sessions/session-provider';
 import { DateGroupTreeItem, SessionTreeItem } from './views/sessions/tree-items';
@@ -67,6 +68,7 @@ class ExtensionManager {
   private sessionProvider!: SessionProvider;
   private commandsProvider!: CommandsProvider;
   private skillsProvider!: SkillsProvider;
+  private agentsProvider!: AgentsProvider;
   private statusBarManager!: StatusBarManager;
   private decorationProvider!: SessionDecorationProvider;
   private treeView!: TreeView<TreeItem>;
@@ -114,6 +116,7 @@ class ExtensionManager {
     this.sessionProvider = new SessionProvider();
     this.commandsProvider = new CommandsProvider();
     this.skillsProvider = new SkillsProvider();
+    this.agentsProvider = new AgentsProvider();
     this.decorationProvider = new SessionDecorationProvider(this.sessionProvider);
     this.context.subscriptions.push(VscodeHelper.registerFileDecorationProvider(this.decorationProvider));
 
@@ -138,9 +141,15 @@ class ExtensionManager {
       treeDataProvider: this.skillsProvider
     });
 
+    this.agentsProvider.setWorkspacePath(this.workspacePath);
+    const agentsView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.AgentsExplorer), {
+      treeDataProvider: this.agentsProvider
+    });
+
     this.context.subscriptions.push(this.treeView);
     this.context.subscriptions.push(commandsView);
     this.context.subscriptions.push(skillsView);
+    this.context.subscriptions.push(agentsView);
   }
 
   private initializeStatusBar(): void {
@@ -154,6 +163,7 @@ class ExtensionManager {
       sessionProvider: this.sessionProvider,
       commandsProvider: this.commandsProvider,
       skillsProvider: this.skillsProvider,
+      agentsProvider: this.agentsProvider,
       decorationProvider: this.decorationProvider,
       workspacePath: this.workspacePath
     });

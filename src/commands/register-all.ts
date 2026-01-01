@@ -1,8 +1,10 @@
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { createStatusBarCommands } from '../status-bar/status-bar-actions';
+import type { AgentsProvider } from '../views/agents/agents-provider';
 import type { CommandsProvider } from '../views/commands/commands-provider';
 import type { SessionProvider } from '../views/sessions/session-provider';
 import type { SkillsProvider } from '../views/skills/skills-provider';
+import { createAgentOperationsCommands } from './internal/agents/agent-operations';
 import { createCommandOperationsCommands } from './internal/commands/command-operations';
 import { createAddLabelCommand } from './internal/sessions/add-label';
 import { createBatchOperationsCommands } from './internal/sessions/batch-operations';
@@ -29,10 +31,19 @@ export function registerAllCommands(options: {
   sessionProvider: SessionProvider;
   commandsProvider: CommandsProvider;
   skillsProvider: SkillsProvider;
+  agentsProvider: AgentsProvider;
   decorationProvider: DecorationProvider;
   workspacePath: string;
 }): Disposable[] {
-  const { context, sessionProvider, commandsProvider, skillsProvider, decorationProvider, workspacePath } = options;
+  const {
+    context,
+    sessionProvider,
+    commandsProvider,
+    skillsProvider,
+    agentsProvider,
+    decorationProvider,
+    workspacePath
+  } = options;
 
   return [
     createRefreshSessionsCommand(sessionProvider, decorationProvider),
@@ -48,6 +59,7 @@ export function registerAllCommands(options: {
     ...createBatchOperationsCommands(sessionProvider, decorationProvider, workspacePath),
     ...createCommandOperationsCommands(commandsProvider),
     ...createSkillOperationsCommands(skillsProvider),
+    ...createAgentOperationsCommands(agentsProvider),
     ...createStatusBarCommands(),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),

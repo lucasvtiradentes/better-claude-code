@@ -101,6 +101,11 @@
 					"id": "bccSkillsExplorer",
 					"name": "Skills",
 					"contextualTitle": "Skills"
+				},
+				{
+					"id": "bccAgentsExplorer",
+					"name": "Agents",
+					"contextualTitle": "Agents"
 				}
 			]
 		},
@@ -236,6 +241,17 @@
 				"title": "Refresh Skills",
 				"category": "BCC",
 				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.openAgentFile",
+				"title": "Open Agent",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.refreshAgents",
+				"title": "Refresh Agents",
+				"category": "BCC",
+				"icon": "$(refresh)"
 			}
 		],
 		"menus": {
@@ -319,6 +335,14 @@
 				{
 					"command": "bcc.refreshSkills",
 					"when": "false"
+				},
+				{
+					"command": "bcc.openAgentFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshAgents",
+					"when": "false"
 				}
 			],
 			"view/title": [
@@ -350,6 +374,11 @@
 				{
 					"command": "bcc.refreshSkills",
 					"when": "view == bccSkillsExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "bcc.refreshAgents",
+					"when": "view == bccAgentsExplorer",
 					"group": "navigation"
 				}
 			],

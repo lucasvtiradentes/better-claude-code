@@ -31,7 +31,9 @@ export enum Command {
   RunCommandInTerminal = 'runCommandInTerminal',
   RefreshCommands = 'refreshCommands',
   OpenSkillFile = 'openSkillFile',
-  RefreshSkills = 'refreshSkills'
+  RefreshSkills = 'refreshSkills',
+  OpenAgentFile = 'openAgentFile',
+  RefreshAgents = 'refreshAgents'
 }
 
 export enum ContextKey {
