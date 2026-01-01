@@ -5,7 +5,6 @@ export * from './constants';
 export * from './duplicated';
 export * from './helpers/node-helper';
 export * from './label-manager';
-export * from './message-patterns';
 export * from './monorepo-path-utils';
 export * from './scripts-constants';
 export * from './uuid';
