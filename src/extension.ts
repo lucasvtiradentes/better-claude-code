@@ -1,8 +1,8 @@
 import { APP_NAME, ConfigManager } from '@/common/utils';
 import { registerAllCommands } from './commands/register-all';
 import { initWorkspaceState } from './common/state';
-import { logger } from './common/utils/logger.js';
-import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
+import { logger } from './common/utils/logger';
+import { getCurrentWorkspacePath } from './common/utils/workspace-detector';
 import { Command, getCommandId } from './common/vscode/vscode-commands';
 import { VscodeColor } from './common/vscode/vscode-constants';
 import { VscodeHelper } from './common/vscode/vscode-helper';
@@ -18,11 +18,11 @@ import {
   type Uri
 } from './common/vscode/vscode-types';
 import { getViewId, View } from './common/vscode/vscode-views';
-import { WebviewProvider } from './session-view-page/webview-provider.js';
-import { StatusBarManager } from './status-bar/status-bar-manager.js';
-import { CommandsProvider } from './views/commands/commands-provider.js';
-import { SessionProvider } from './views/sessions/session-provider.js';
-import { DateGroupTreeItem, SessionTreeItem } from './views/sessions/tree-items.js';
+import { WebviewProvider } from './session-view-page/webview-provider';
+import { StatusBarManager } from './status-bar/status-bar-manager';
+import { CommandsProvider } from './views/commands/commands-provider';
+import { SessionProvider } from './views/sessions/session-provider';
+import { DateGroupTreeItem, SessionTreeItem } from './views/sessions/tree-items';
 import { createSessionWatcher } from './watchers';
 
 class SessionDecorationProvider implements FileDecorationProvider {

@@ -1,5 +1,5 @@
 import { FileIOHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
-import { BCC_SETTINGS_PATH } from './monorepo-path-utils.js';
+import { BCC_SETTINGS_PATH } from './monorepo-path-utils';
 
 const SETTINGS_PATH = BCC_SETTINGS_PATH;
 

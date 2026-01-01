@@ -1,5 +1,5 @@
 import { FileIOHelper, NodeChildProcessHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
-import { CLAUDE_CODE_DIR, USER_PLATFORM } from './monorepo-path-utils.js';
+import { CLAUDE_CODE_DIR, USER_PLATFORM } from './monorepo-path-utils';
 
 export const CLAUDE_CODE_SESSION_COMPACTION_ID = 'CLAUDE_CODE_SESSION_COMPACTION_ID';
 

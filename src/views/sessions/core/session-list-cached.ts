@@ -1,23 +1,23 @@
 import { FileIOHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
-import { JsonFileCache } from '../../../common/utils/cache.js';
-import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from '../../../common/utils/claude-helper.js';
-import { MessageCountMode } from '../../../common/utils/config-manager.js';
-import { BCC_SESSIONS_CACHE_DIR, getCompactionSummaryPath } from '../../../common/utils/monorepo-path-utils.js';
-import { findCheckpointedSessions } from './session-checkpoint-utils.js';
+import { JsonFileCache } from '../../../common/utils/cache';
+import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from '../../../common/utils/claude-helper';
+import { MessageCountMode } from '../../../common/utils/config-manager';
+import { BCC_SESSIONS_CACHE_DIR, getCompactionSummaryPath } from '../../../common/utils/monorepo-path-utils';
+import { findCheckpointedSessions } from './session-checkpoint-utils';
 import {
   CLAUDE_CODE_COMMANDS,
   createMessageKey,
   extractTextContent,
   shouldSkipAssistantMessage,
   shouldSkipUserMessage
-} from './session-helpers.js';
+} from './session-helpers';
 import {
   type SessionListItem,
   type SessionListOptions,
   type SessionListResult,
   SessionSortBy,
   TitleSource
-} from './session-list.js';
+} from './session-list';
 
 const IGNORE_EMPTY_SESSIONS = true;
 const MAX_TITLE_LENGTH = 80;

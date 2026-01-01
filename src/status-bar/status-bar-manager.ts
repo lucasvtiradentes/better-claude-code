@@ -2,7 +2,7 @@ import { Command, getCommandId } from '../common/vscode/vscode-commands';
 import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, StatusBarItem } from '../common/vscode/vscode-types';
-import type { SessionProvider } from '../views/sessions/session-provider.js';
+import type { SessionProvider } from '../views/sessions/session-provider';
 
 export class StatusBarManager {
   private statusBarItem: StatusBarItem;

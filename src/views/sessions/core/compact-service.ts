@@ -7,8 +7,8 @@ import {
   getPromptPathForExtension,
   PromptFile
 } from '@/common/utils';
-import { logger } from '../../../common/utils/logger.js';
-import { compactSession, parseSessionToMarkdown } from './session-compact.js';
+import { logger } from '../../../common/utils/logger';
+import { compactSession, parseSessionToMarkdown } from './session-compact';
 
 export class CompactService {
   async compactSession(sessionId: string, workspacePath: string): Promise<string> {

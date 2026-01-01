@@ -1,6 +1,6 @@
 import { sessionProviderState } from '../../common/state';
-import type { FilterCriteria } from '../../common/types.js';
-import { logger } from '../../common/utils/logger.js';
+import type { FilterCriteria } from '../../common/types';
+import { logger } from '../../common/utils/logger';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -11,10 +11,10 @@ import {
   type TreeItem,
   type TreeItemCollapsibleState
 } from '../../common/vscode/vscode-types';
-import { WebviewProvider } from '../../session-view-page/webview-provider.js';
-import type { SessionListItem } from './core/session-list.js';
-import { SessionManager } from './core/session-manager.js';
-import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
+import { WebviewProvider } from '../../session-view-page/webview-provider';
+import type { SessionListItem } from './core/session-list';
+import { SessionManager } from './core/session-manager';
+import { DateGroupTreeItem, SessionTreeItem } from './tree-items';
 
 function normalizeGroupLabel(label: string): string {
   return label.replace(/\s*\(\d+\)$/, '');

@@ -6,14 +6,14 @@ import {
   getCompactionSummaryPath,
   readSettings
 } from '@/common/utils';
-import type { DateGroup, FilterCriteria, SessionStats } from '../../../common/types.js';
-import { MessageCountMode } from '../../../common/utils/config-manager.js';
-import { logger } from '../../../common/utils/logger.js';
-import { CompactService } from './compact-service.js';
-import { groupSessions } from './session-grouping.js';
-import { type SessionListItem, SessionSortBy, TitleSource } from './session-list.js';
-import { listSessionsCached } from './session-list-cached.js';
-import { parseSessionMessages } from './session-parser.js';
+import type { DateGroup, FilterCriteria, SessionStats } from '../../../common/types';
+import { MessageCountMode } from '../../../common/utils/config-manager';
+import { logger } from '../../../common/utils/logger';
+import { CompactService } from './compact-service';
+import { groupSessions } from './session-grouping';
+import { type SessionListItem, SessionSortBy, TitleSource } from './session-list';
+import { listSessionsCached } from './session-list-cached';
+import { parseSessionMessages } from './session-parser';
 
 export class SessionManager {
   private sessions: SessionListItem[] = [];

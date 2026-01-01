@@ -1,4 +1,4 @@
-import { DEV_SUFFIX } from './scripts-constants.js';
+import { DEV_SUFFIX } from './scripts-constants';
 
 export const APP_NAME = 'Better Claude Code';
 export const IS_DEV = __IS_DEV_BUILD__;

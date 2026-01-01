@@ -1,4 +1,4 @@
-import { MessageCountMode } from '../../../common/utils/config-manager.js';
+import { MessageCountMode } from '../../../common/utils/config-manager';
 
 export enum TitleSource {
   FIRST_USER_MESSAGE = 'first_user_message',
