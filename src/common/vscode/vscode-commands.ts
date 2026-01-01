@@ -33,7 +33,10 @@ export enum Command {
   OpenSkillFile = 'openSkillFile',
   RefreshSkills = 'refreshSkills',
   OpenAgentFile = 'openAgentFile',
-  RefreshAgents = 'refreshAgents'
+  RefreshAgents = 'refreshAgents',
+  ToggleMCPServer = 'toggleMCPServer',
+  GoToMCPDefinition = 'goToMCPDefinition',
+  RefreshMCPServers = 'refreshMCPServers'
 }
 
 export enum ContextKey {

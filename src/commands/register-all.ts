@@ -2,10 +2,12 @@ import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types
 import { createStatusBarCommands } from '../status-bar/status-bar-actions';
 import type { AgentsProvider } from '../views/agents/agents-provider';
 import type { CommandsProvider } from '../views/commands/commands-provider';
+import type { MCPServersProvider } from '../views/mcp/mcp-provider';
 import type { SessionProvider } from '../views/sessions/session-provider';
 import type { SkillsProvider } from '../views/skills/skills-provider';
 import { createAgentOperationsCommands } from './internal/agents/agent-operations';
 import { createCommandOperationsCommands } from './internal/commands/command-operations';
+import { createMCPOperationsCommands } from './internal/mcp/mcp-operations';
 import { createAddLabelCommand } from './internal/sessions/add-label';
 import { createBatchOperationsCommands } from './internal/sessions/batch-operations';
 import { createCheckSessionCommands } from './internal/sessions/check-session';
@@ -32,6 +34,7 @@ export function registerAllCommands(options: {
   commandsProvider: CommandsProvider;
   skillsProvider: SkillsProvider;
   agentsProvider: AgentsProvider;
+  mcpProvider: MCPServersProvider;
   decorationProvider: DecorationProvider;
   workspacePath: string;
 }): Disposable[] {
@@ -41,6 +44,7 @@ export function registerAllCommands(options: {
     commandsProvider,
     skillsProvider,
     agentsProvider,
+    mcpProvider,
     decorationProvider,
     workspacePath
   } = options;
@@ -60,6 +64,7 @@ export function registerAllCommands(options: {
     ...createCommandOperationsCommands(commandsProvider),
     ...createSkillOperationsCommands(skillsProvider),
     ...createAgentOperationsCommands(agentsProvider),
+    ...createMCPOperationsCommands(mcpProvider),
     ...createStatusBarCommands(),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),

@@ -42,6 +42,17 @@ export class VscodeHelper {
     return vscode.window.showTextDocument(vscode.Uri.file(filePath), options);
   }
 
+  static async openDocumentAtLine(filePath: string, lineNumber: number): Promise<TextEditor> {
+    const document = await vscode.workspace.openTextDocument(filePath);
+    const editor = await vscode.window.showTextDocument(document);
+    const line = Math.max(0, lineNumber - 1);
+    const position = new vscode.Position(line, 0);
+    const range = new vscode.Range(position, position);
+    editor.selection = new vscode.Selection(position, position);
+    editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+    return editor;
+  }
+
   static async openUntitledDocument(content: string, language?: string): Promise<TextEditor> {
     const doc = await vscode.workspace.openTextDocument({ content, language });
     return vscode.window.showTextDocument(doc);

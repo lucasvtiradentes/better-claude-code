@@ -106,6 +106,11 @@
 					"id": "bccAgentsExplorer",
 					"name": "Agents",
 					"contextualTitle": "Agents"
+				},
+				{
+					"id": "bccMCPServersExplorer",
+					"name": "MCP Servers",
+					"contextualTitle": "MCP Servers"
 				}
 			]
 		},
@@ -252,6 +257,23 @@
 				"title": "Refresh Agents",
 				"category": "BCC",
 				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.toggleMCPServer",
+				"title": "Toggle MCP Server",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.goToMCPDefinition",
+				"title": "Go to Definition",
+				"category": "BCC",
+				"icon": "$(go-to-file)"
+			},
+			{
+				"command": "bcc.refreshMCPServers",
+				"title": "Refresh MCP Servers",
+				"category": "BCC",
+				"icon": "$(refresh)"
 			}
 		],
 		"menus": {
@@ -343,6 +365,18 @@
 				{
 					"command": "bcc.refreshAgents",
 					"when": "false"
+				},
+				{
+					"command": "bcc.toggleMCPServer",
+					"when": "false"
+				},
+				{
+					"command": "bcc.goToMCPDefinition",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshMCPServers",
+					"when": "false"
 				}
 			],
 			"view/title": [
@@ -379,6 +413,11 @@
 				{
 					"command": "bcc.refreshAgents",
 					"when": "view == bccAgentsExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "bcc.refreshMCPServers",
+					"when": "view == bccMCPServersExplorer",
 					"group": "navigation"
 				}
 			],
@@ -456,6 +495,11 @@
 				{
 					"command": "bcc.runCommandInTerminal",
 					"when": "view == bccCommandsExplorer && viewItem =~ /commandItem/",
+					"group": "inline"
+				},
+				{
+					"command": "bcc.goToMCPDefinition",
+					"when": "view == bccMCPServersExplorer && viewItem =~ /mcpServerItem/",
 					"group": "inline"
 				}
 			]

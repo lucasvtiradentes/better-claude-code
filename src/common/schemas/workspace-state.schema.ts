@@ -14,9 +14,14 @@ export type MessageFiltersState = {
   showToolCalls: boolean;
 };
 
+export type MCPServersState = {
+  disabledServers: string[];
+};
+
 export type WorkspaceUIState = {
   sessionProvider?: SessionProviderState;
   messageFilters?: MessageFiltersState;
+  mcpServers?: MCPServersState;
 };
 
 export const DEFAULT_SESSION_PROVIDER_STATE: SessionProviderState = {
@@ -31,4 +36,8 @@ export const DEFAULT_MESSAGE_FILTERS_STATE: MessageFiltersState = {
   showUserMessages: true,
   showAssistantMessages: true,
   showToolCalls: true
+};
+
+export const DEFAULT_MCP_SERVERS_STATE: MCPServersState = {
+  disabledServers: []
 };
