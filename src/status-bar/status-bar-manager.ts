@@ -1,12 +1,14 @@
-import * as vscode from 'vscode';
 import { Command, getCommandId } from '../common/vscode/vscode-commands';
+import { VscodeConstants } from '../common/vscode/vscode-constants';
+import { VscodeHelper } from '../common/vscode/vscode-helper';
+import type { Disposable, StatusBarItem } from '../common/vscode/vscode-types';
 import type { SessionProvider } from '../sidebar/session-provider.js';
 
 export class StatusBarManager {
-  private statusBarItem: vscode.StatusBarItem;
+  private statusBarItem: StatusBarItem;
 
   constructor(private sessionProvider: SessionProvider) {
-    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    this.statusBarItem = VscodeHelper.createStatusBarItem(VscodeConstants.StatusBarAlignment.Left, 100);
     this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
   }
 
@@ -34,7 +36,7 @@ export class StatusBarManager {
     this.statusBarItem.show();
   }
 
-  getDisposable(): vscode.Disposable {
+  getDisposable(): Disposable {
     return this.statusBarItem;
   }
 

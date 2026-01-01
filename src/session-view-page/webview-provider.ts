@@ -1,13 +1,15 @@
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import type { SessionListItem } from '@/lib/node-utils';
 import type { MessageFiltersState } from '../common/schemas/workspace-state.schema';
 import { messageFiltersState } from '../common/state';
 import { logger } from '../common/utils/logger.js';
+import { VscodeConstants } from '../common/vscode/vscode-constants';
+import { VscodeHelper } from '../common/vscode/vscode-helper';
+import type { ExtensionContext, WebviewPanel } from '../common/vscode/vscode-types';
 import type { SessionProvider } from '../sidebar/session-provider.js';
 
 export class WebviewProvider {
-  private static panels = new Map<string, vscode.WebviewPanel>();
+  private static panels = new Map<string, WebviewPanel>();
   private static onPanelChangeCallbacks: Array<() => void> = [];
 
   static onPanelChange(callback: () => void): void {
@@ -36,7 +38,7 @@ export class WebviewProvider {
   }
 
   static showSessionConversation(
-    context: vscode.ExtensionContext,
+    context: ExtensionContext,
     session: SessionListItem,
     sessionProvider: SessionProvider
   ): void {
@@ -47,16 +49,17 @@ export class WebviewProvider {
         return;
       }
 
-      const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
+      const activeEditor = VscodeHelper.getActiveTextEditor();
+      const column = activeEditor ? activeEditor.viewColumn : undefined;
 
-      const panel = vscode.window.createWebviewPanel(
+      const panel = VscodeHelper.createWebviewPanel(
         'bccSessionConversation',
         `Session: ${session.shortId}`,
-        column || vscode.ViewColumn.One,
+        column || VscodeConstants.ViewColumn.One,
         {
           enableScripts: true,
           retainContextWhenHidden: true,
-          localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'out', 'webview'))]
+          localResourceRoots: [VscodeHelper.createFileUri(path.join(context.extensionPath, 'out', 'webview'))]
         }
       );
 
@@ -100,10 +103,10 @@ export class WebviewProvider {
             const imageData = message.imageData as string;
             const imageIndex = message.imageIndex as number;
 
-            const imagePanel = vscode.window.createWebviewPanel(
+            const imagePanel = VscodeHelper.createWebviewPanel(
               'imagePreview',
               `Image #${imageIndex}`,
-              vscode.ViewColumn.Beside,
+              VscodeConstants.ViewColumn.Beside,
               {
                 enableScripts: false,
                 retainContextWhenHidden: false
@@ -139,13 +142,14 @@ export class WebviewProvider {
           } else if (message.type === 'openRawSession') {
             const sessionPath = sessionProvider.getSessionPath(session.id);
             if (sessionPath) {
-              const doc = await vscode.workspace.openTextDocument(sessionPath);
-              await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+              await VscodeHelper.openDocumentByPath(sessionPath, {
+                viewColumn: VscodeConstants.ViewColumn.Beside
+              });
             }
           } else if (message.type === 'deleteSession') {
             logger.info(`[WebviewProvider] Delete requested for session ${session.shortId} (${session.id})`);
             try {
-              const confirmed = await vscode.window.showWarningMessage(
+              const confirmed = await VscodeHelper.showWarningMessage(
                 `Delete session ${session.shortId}? This will also delete any compaction files.`,
                 { modal: true },
                 'Delete'
@@ -160,17 +164,17 @@ export class WebviewProvider {
                 logger.info(`[WebviewProvider] Panel disposed, refreshing sidebar`);
                 await sessionProvider.refresh();
                 logger.info(`[WebviewProvider] Sidebar refreshed`);
-                vscode.window.showInformationMessage(`Session ${session.shortId} deleted successfully`);
+                VscodeHelper.showInformationMessageSimple(`Session ${session.shortId} deleted successfully`);
               }
             } catch (error) {
               logger.error(`[WebviewProvider] Delete session error: ${(error as Error).message}`, error as Error);
-              vscode.window.showErrorMessage(`Failed to delete session: ${(error as Error).message}`);
+              VscodeHelper.showErrorMessageSimple(`Failed to delete session: ${(error as Error).message}`);
             }
           } else if (message.type === 'compactSession') {
             try {
-              const summaryPath = await vscode.window.withProgress(
+              const summaryPath = await VscodeHelper.withProgress(
                 {
-                  location: vscode.ProgressLocation.Notification,
+                  location: VscodeConstants.ProgressLocation.Notification,
                   title: `Compacting session ${session.shortId}...`,
                   cancellable: false
                 },
@@ -179,31 +183,34 @@ export class WebviewProvider {
                 }
               );
 
-              vscode.window.showInformationMessage(`Session ${session.shortId} compacted successfully`);
+              VscodeHelper.showInformationMessageSimple(`Session ${session.shortId} compacted successfully`);
 
-              const doc = await vscode.workspace.openTextDocument(summaryPath);
-              await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+              await VscodeHelper.openDocumentByPath(summaryPath, {
+                viewColumn: VscodeConstants.ViewColumn.Beside
+              });
 
               await sessionProvider.refresh();
             } catch (error) {
               logger.error('Failed to compact session', error as Error);
-              vscode.window.showErrorMessage(`Failed to compact session: ${(error as Error).message}`);
+              VscodeHelper.showErrorMessageSimple(`Failed to compact session: ${(error as Error).message}`);
             }
           } else if (message.type === 'openParsed') {
             const parsedPath = await sessionProvider.getParsedSessionPath(session.id);
             if (parsedPath) {
-              const doc = await vscode.workspace.openTextDocument(parsedPath);
-              await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+              await VscodeHelper.openDocumentByPath(parsedPath, {
+                viewColumn: VscodeConstants.ViewColumn.Beside
+              });
             } else {
-              vscode.window.showWarningMessage('Parsed session file not found');
+              VscodeHelper.showWarningMessageSimple('Parsed session file not found');
             }
           } else if (message.type === 'openSummary') {
             const summaryPath = await sessionProvider.getSummaryPath(session.id);
             if (summaryPath) {
-              const doc = await vscode.workspace.openTextDocument(summaryPath);
-              await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+              await VscodeHelper.openDocumentByPath(summaryPath, {
+                viewColumn: VscodeConstants.ViewColumn.Beside
+              });
             } else {
-              vscode.window.showWarningMessage('Summary file not found');
+              VscodeHelper.showWarningMessageSimple('Summary file not found');
             }
           }
         },
@@ -214,15 +221,15 @@ export class WebviewProvider {
       panel.webview.html = WebviewProvider.getHtmlContent(context, panel.webview);
     } catch (error) {
       logger.error('Failed to show session conversation', error as Error);
-      vscode.window.showErrorMessage('Failed to display session conversation');
+      VscodeHelper.showErrorMessageSimple('Failed to display session conversation');
     }
   }
 
-  private static getHtmlContent(context: vscode.ExtensionContext, webview: vscode.Webview): string {
-    const scriptPathOnDisk = vscode.Uri.file(path.join(context.extensionPath, 'out', 'webview', 'index.js'));
+  private static getHtmlContent(context: ExtensionContext, webview: WebviewPanel['webview']): string {
+    const scriptPathOnDisk = VscodeHelper.createFileUri(path.join(context.extensionPath, 'out', 'webview', 'index.js'));
     const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
 
-    const stylePathOnDisk = vscode.Uri.file(path.join(context.extensionPath, 'out', 'webview', 'index.css'));
+    const stylePathOnDisk = VscodeHelper.createFileUri(path.join(context.extensionPath, 'out', 'webview', 'index.css'));
     const styleUri = webview.asWebviewUri(stylePathOnDisk);
 
     const cspSource = webview.cspSource;

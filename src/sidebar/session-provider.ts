@@ -1,10 +1,18 @@
-import * as vscode from 'vscode';
 import type { SessionListItem } from '@/lib/node-utils';
 import { SessionManager } from '../common/lib/session-manager.js';
 import { sessionProviderState } from '../common/state';
 import type { FilterCriteria } from '../common/types.js';
 import { logger } from '../common/utils/logger.js';
 import { ContextKey, setContextKey } from '../common/vscode/vscode-commands';
+import { VscodeConstants } from '../common/vscode/vscode-constants';
+import { ToastKind, VscodeHelper } from '../common/vscode/vscode-helper';
+import {
+  EventEmitterClass,
+  type ExtensionContext,
+  type TreeDataProvider,
+  type TreeItem,
+  type TreeItemCollapsibleState
+} from '../common/vscode/vscode-types';
 import { WebviewProvider } from '../session-view-page/webview-provider.js';
 import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
 
@@ -12,8 +20,8 @@ function normalizeGroupLabel(label: string): string {
   return label.replace(/\s*\(\d+\)$/, '');
 }
 
-export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
+export class SessionProvider implements TreeDataProvider<TreeItem> {
+  private _onDidChangeTreeData = new EventEmitterClass<TreeItem | undefined | null | void>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private sessionManager: SessionManager;
@@ -28,7 +36,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     this.sessionManager = new SessionManager();
   }
 
-  async initialize(workspacePath: string, _context: vscode.ExtensionContext): Promise<void> {
+  async initialize(workspacePath: string, _context: ExtensionContext): Promise<void> {
     this.currentWorkspacePath = workspacePath;
     this.loadState();
     this.updateContextKeys();
@@ -64,7 +72,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
       this._onDidChangeTreeData.fire();
     } catch (error) {
       logger.error('Failed to refresh sessions', error as Error);
-      vscode.window.showErrorMessage('Failed to load Claude Code sessions');
+      VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to load Claude Code sessions');
     }
   }
 
@@ -88,11 +96,11 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     this._onDidChangeTreeData.fire();
   }
 
-  getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
+  getTreeItem(element: TreeItem): TreeItem {
     return element;
   }
 
-  async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
+  async getChildren(element?: TreeItem): Promise<TreeItem[]> {
     if (!this.currentWorkspacePath) {
       return [];
     }
@@ -122,9 +130,9 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
         const normalizedLabel = normalizeGroupLabel(groupLabel);
         const isExpanded = this.expandedGroups.has(normalizedLabel);
 
-        const collapsibleState: vscode.TreeItemCollapsibleState = isExpanded
-          ? vscode.TreeItemCollapsibleState.Expanded
-          : vscode.TreeItemCollapsibleState.Collapsed;
+        const collapsibleState: TreeItemCollapsibleState = isExpanded
+          ? VscodeConstants.TreeItemCollapsibleState.Expanded
+          : VscodeConstants.TreeItemCollapsibleState.Collapsed;
 
         const item = new DateGroupTreeItem(group, collapsibleState);
         item.id = `date-group-${this.itemIdCounter}-${index}`;
@@ -147,7 +155,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
           (session) =>
             new SessionTreeItem(
               session,
-              vscode.TreeItemCollapsibleState.None,
+              VscodeConstants.TreeItemCollapsibleState.None,
               openSessionIds.has(session.id),
               true,
               this.checkedSessions.has(session.id)
@@ -160,7 +168,7 @@ export class SessionProvider implements vscode.TreeDataProvider<vscode.TreeItem>
           (session) =>
             new SessionTreeItem(
               session,
-              vscode.TreeItemCollapsibleState.None,
+              VscodeConstants.TreeItemCollapsibleState.None,
               openSessionIds.has(session.id),
               false,
               this.checkedSessions.has(session.id)

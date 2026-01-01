@@ -1,23 +1,32 @@
-import * as vscode from 'vscode';
 import type { SessionListItem } from '@/lib/node-utils';
 import type { DateGroup } from '../common/types.js';
+import { VscodeColor } from '../common/vscode/vscode-constants';
+import { VscodeHelper } from '../common/vscode/vscode-helper';
+import {
+  ThemeColorClass,
+  type ThemeIcon,
+  ThemeIconClass,
+  TreeItemClass,
+  type TreeItemCollapsibleState,
+  UriClass
+} from '../common/vscode/vscode-types';
 
-export class DateGroupTreeItem extends vscode.TreeItem {
+export class DateGroupTreeItem extends TreeItemClass {
   constructor(
     public readonly dateGroup: DateGroup,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    public readonly collapsibleState: TreeItemCollapsibleState
   ) {
     super(dateGroup.label, collapsibleState);
     this.tooltip = `${dateGroup.sessions.length} sessions`;
-    this.iconPath = new vscode.ThemeIcon('calendar');
+    this.iconPath = new ThemeIconClass('calendar');
     this.contextValue = 'dateGroup';
   }
 }
 
-export class SessionTreeItem extends vscode.TreeItem {
+export class SessionTreeItem extends TreeItemClass {
   constructor(
     public readonly session: SessionListItem,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly collapsibleState: TreeItemCollapsibleState,
     public readonly isOpen: boolean = false,
     public readonly isPinned: boolean = false,
     public readonly isChecked: boolean = false
@@ -35,31 +44,31 @@ export class SessionTreeItem extends vscode.TreeItem {
       this.contextValue = session.hasCompaction ? 'sessionItemWithCompaction' : 'sessionItem';
     }
 
-    this.resourceUri = vscode.Uri.parse(`claude-session:${session.id}`);
+    this.resourceUri = UriClass.parse(`claude-session:${session.id}`);
   }
 
-  private buildIcon(): vscode.ThemeIcon {
+  private buildIcon(): ThemeIcon {
     if (this.isChecked) {
-      return new vscode.ThemeIcon('check', new vscode.ThemeColor('charts.green'));
+      return VscodeHelper.createCustomIcon('check', VscodeColor.ChartsGreen);
     }
 
     if (this.isOpen) {
-      return new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.orange'));
+      return VscodeHelper.createCustomIcon('circle-filled', VscodeColor.ChartsOrange);
     }
 
     const tokenPercentage = this.session.tokenPercentage || 0;
 
     if (tokenPercentage >= 90) {
-      return new vscode.ThemeIcon('file-text', new vscode.ThemeColor('errorForeground'));
+      return new ThemeIconClass('file-text', new ThemeColorClass('errorForeground'));
     }
     if (tokenPercentage >= 75) {
-      return new vscode.ThemeIcon('file-text', new vscode.ThemeColor('editorWarning.foreground'));
+      return new ThemeIconClass('file-text', new ThemeColorClass('editorWarning.foreground'));
     }
     if (tokenPercentage >= 50) {
-      return new vscode.ThemeIcon('file-text', new vscode.ThemeColor('editorInfo.foreground'));
+      return new ThemeIconClass('file-text', new ThemeColorClass('editorInfo.foreground'));
     }
 
-    return new vscode.ThemeIcon('file-text');
+    return new ThemeIconClass('file-text');
   }
 
   private buildLabel(): string {

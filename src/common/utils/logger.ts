@@ -1,15 +1,16 @@
 import { appendFileSync } from 'node:fs';
-import * as vscode from 'vscode';
 import { BCC_EXTENSION_LOG_FILE } from '@/lib/node-utils';
 import { APP_NAME } from '@/lib/shared';
+import { VscodeHelper } from '../vscode/vscode-helper';
+import type { OutputChannel } from '../vscode/vscode-types';
 
 export const LOG_FILE_PATH = BCC_EXTENSION_LOG_FILE;
 
 class Logger {
-  private outputChannel: vscode.OutputChannel;
+  private outputChannel: OutputChannel;
 
   constructor() {
-    this.outputChannel = vscode.window.createOutputChannel(APP_NAME);
+    this.outputChannel = VscodeHelper.createOutputChannel(APP_NAME);
   }
 
   info(message: string): void {

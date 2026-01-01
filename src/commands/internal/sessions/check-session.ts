@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { logger } from '../../../common/utils/logger';
 import { Command, getCommandId, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -84,7 +83,7 @@ async function handleBatchOperationsMenu(sessionProvider: SessionProvider) {
   });
 
   if (selected) {
-    await vscode.commands.executeCommand(selected.command);
+    await VscodeHelper.executeVscodeCommand(selected.command);
   }
 }
 

@@ -1,12 +1,40 @@
-import type * as vscode from 'vscode';
+import * as vscode from 'vscode';
 
-export type ExtensionContext = vscode.ExtensionContext;
+export const TreeItemClass = vscode.TreeItem;
+export const EventEmitterClass = vscode.EventEmitter;
+export const ThemeIconClass = vscode.ThemeIcon;
+export const ThemeColorClass = vscode.ThemeColor;
+export const UriClass = vscode.Uri;
+
+export type CancellationToken = vscode.CancellationToken;
 export type Disposable = vscode.Disposable;
-export type TreeItem = vscode.TreeItem;
-export type Uri = vscode.Uri;
-export type TextDocument = vscode.TextDocument;
-export type ThemeColor = vscode.ThemeColor;
+export type Event<T> = vscode.Event<T>;
+export type EventEmitter<T> = vscode.EventEmitter<T>;
+export type ExtensionContext = vscode.ExtensionContext;
 export type FileDecoration = vscode.FileDecoration;
-export type WorkspaceFolder = vscode.WorkspaceFolder;
-export type StatusBarItem = vscode.StatusBarItem;
+export type FileDecorationProvider = vscode.FileDecorationProvider;
+export type FileSystemWatcher = vscode.FileSystemWatcher;
+export type OutputChannel = vscode.OutputChannel;
+export type Progress<T> = vscode.Progress<T>;
+export type ProgressOptions = vscode.ProgressOptions;
+export type QuickPickItem = vscode.QuickPickItem;
 export type QuickPickOptions = vscode.QuickPickOptions;
+export type StatusBarItem = vscode.StatusBarItem;
+export type TextDocument = vscode.TextDocument;
+export type TextDocumentShowOptions = vscode.TextDocumentShowOptions;
+export type TextEditor = vscode.TextEditor;
+export type ThemeColor = vscode.ThemeColor;
+export type ThemeIcon = vscode.ThemeIcon;
+export type TreeDataProvider<T> = vscode.TreeDataProvider<T>;
+export type TreeItem = vscode.TreeItem;
+export type TreeItemCollapsibleState = vscode.TreeItemCollapsibleState;
+export type TreeView<T> = vscode.TreeView<T>;
+export type TreeViewOptions<T> = vscode.TreeViewOptions<T>;
+export type Uri = vscode.Uri;
+export type Webview = vscode.Webview;
+export type WebviewPanel = vscode.WebviewPanel;
+export type WebviewOptions = vscode.WebviewOptions;
+export type WebviewPanelOptions = vscode.WebviewPanelOptions;
+export type WorkspaceFolder = vscode.WorkspaceFolder;
+
+export type QuickPickItemWithId<T> = QuickPickItem & { id: T };

@@ -1,10 +1,10 @@
-import * as vscode from 'vscode';
+import { VscodeHelper } from '../vscode/vscode-helper';
 import { logger } from './logger.js';
 
 export function getCurrentWorkspacePath(): string | null {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
+  const workspaceFolders = VscodeHelper.getWorkspaceFolders();
 
-  if (!workspaceFolders || workspaceFolders.length === 0) {
+  if (workspaceFolders.length === 0) {
     logger.info('No workspace folder is currently open');
     return null;
   }

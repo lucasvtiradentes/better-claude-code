@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import {
   ClaudeHelper,
   getSessionLabels,
@@ -9,6 +8,7 @@ import {
 import { CompactService } from '../../../common/lib/compact-service';
 import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
+import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { SessionProvider } from '../../../sidebar/session-provider';
@@ -35,7 +35,7 @@ async function handleBatchCompact(
     .map((id) => {
       const session = sessionProvider.getSession(id);
       if (!session) return null;
-      return new SessionTreeItem(session, vscode.TreeItemCollapsibleState.None);
+      return new SessionTreeItem(session, VscodeConstants.TreeItemCollapsibleState.None);
     })
     .filter((item): item is SessionTreeItem => item !== null);
 
@@ -54,7 +54,7 @@ async function handleBatchCompact(
 
   await VscodeHelper.withProgress(
     {
-      location: vscode.ProgressLocation.Notification,
+      location: VscodeConstants.ProgressLocation.Notification,
       title: `Compacting ${selection.length} sessions...`,
       cancellable: false
     },
@@ -105,7 +105,7 @@ async function handleBatchDelete(sessionProvider: SessionProvider) {
     .map((id) => {
       const session = sessionProvider.getSession(id);
       if (!session) return null;
-      return new SessionTreeItem(session, vscode.TreeItemCollapsibleState.None);
+      return new SessionTreeItem(session, VscodeConstants.TreeItemCollapsibleState.None);
     })
     .filter((item): item is SessionTreeItem => item !== null);
 
@@ -124,7 +124,7 @@ async function handleBatchDelete(sessionProvider: SessionProvider) {
 
   await VscodeHelper.withProgress(
     {
-      location: vscode.ProgressLocation.Notification,
+      location: VscodeConstants.ProgressLocation.Notification,
       title: `Deleting ${selection.length} sessions...`,
       cancellable: false
     },

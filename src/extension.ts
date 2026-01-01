@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { ConfigManager } from '@/lib/node-utils';
 import { APP_NAME } from '@/lib/shared';
 import { registerAllCommands } from './commands/register-all';
@@ -6,6 +5,18 @@ import { initWorkspaceState } from './common/state';
 import { logger } from './common/utils/logger.js';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
 import { Command, getCommandId } from './common/vscode/vscode-commands';
+import { VscodeColor } from './common/vscode/vscode-constants';
+import { VscodeHelper } from './common/vscode/vscode-helper';
+import {
+  type Disposable,
+  EventEmitterClass,
+  type ExtensionContext,
+  type FileDecoration,
+  type FileDecorationProvider,
+  ThemeColorClass,
+  type TreeItem,
+  type Uri
+} from './common/vscode/vscode-types';
 import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
 import { DateGroupTreeItem, SessionTreeItem } from './sidebar/tree-items.js';
@@ -15,13 +26,13 @@ let sessionProvider: SessionProvider;
 let statusBarManager: StatusBarManager;
 let decorationProvider: SessionDecorationProvider;
 
-class SessionDecorationProvider implements vscode.FileDecorationProvider {
-  private _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri | vscode.Uri[] | undefined>();
+class SessionDecorationProvider implements FileDecorationProvider {
+  private _onDidChangeFileDecorations = new EventEmitterClass<Uri | Uri[] | undefined>();
   readonly onDidChangeFileDecorations = this._onDidChangeFileDecorations.event;
 
   constructor(private provider: SessionProvider) {}
 
-  provideFileDecoration(uri: vscode.Uri): vscode.FileDecoration | undefined {
+  provideFileDecoration(uri: Uri): FileDecoration | undefined {
     if (uri.scheme !== 'claude-session') {
       return undefined;
     }
@@ -36,7 +47,7 @@ class SessionDecorationProvider implements vscode.FileDecorationProvider {
     if (session.hasCompaction) {
       return {
         badge: '✓',
-        color: new vscode.ThemeColor('charts.green'),
+        color: new ThemeColorClass(VscodeColor.ChartsGreen),
         tooltip: 'Compacted Session'
       };
     }
@@ -49,7 +60,7 @@ class SessionDecorationProvider implements vscode.FileDecorationProvider {
   }
 }
 
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate(context: ExtensionContext) {
   logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
 
   new ConfigManager();
@@ -65,7 +76,7 @@ export async function activate(context: vscode.ExtensionContext) {
   sessionProvider = new SessionProvider();
 
   decorationProvider = new SessionDecorationProvider(sessionProvider);
-  context.subscriptions.push(vscode.window.registerFileDecorationProvider(decorationProvider));
+  context.subscriptions.push(VscodeHelper.registerFileDecorationProvider(decorationProvider));
 
   WebviewProvider.onPanelChange(() => {
     sessionProvider.refresh();
@@ -78,12 +89,12 @@ export async function activate(context: vscode.ExtensionContext) {
     packageJson.contributes?.views?.bccExplorerDev?.[0]?.id ||
     'bccSessionExplorer';
 
-  const treeView = vscode.window.createTreeView(viewId, {
+  const treeView = VscodeHelper.createTreeView<TreeItem>(viewId, {
     treeDataProvider: sessionProvider
   });
 
   statusBarManager = new StatusBarManager(sessionProvider);
-  context.subscriptions.push(statusBarManager.getDisposable());
+  context.subscriptions.push(statusBarManager.getDisposable() as Disposable);
 
   const commands = registerAllCommands({
     context,
@@ -112,7 +123,7 @@ export async function activate(context: vscode.ExtensionContext) {
       const item = e.selection[0];
       if (item instanceof SessionTreeItem) {
         logger.info(`[TreeView] Single selection detected: ${item.session.shortId}, opening details`);
-        await vscode.commands.executeCommand(getCommandId(Command.ViewSessionDetails), item.session);
+        await VscodeHelper.executeVscodeCommand(getCommandId(Command.ViewSessionDetails), item.session);
       }
     } else if (e.selection.length > 1) {
       logger.info(`[TreeView] Multi-selection detected: ${e.selection.length} items selected`);
@@ -131,7 +142,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  const watcher = vscode.workspace.createFileSystemWatcher('**/*.jsonl');
+  const watcher = VscodeHelper.createFileSystemWatcher('**/*.jsonl');
 
   watcher.onDidCreate(async () => {
     logger.info('New session file detected, refreshing...');
