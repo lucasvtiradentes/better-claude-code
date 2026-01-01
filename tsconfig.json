@@ -18,5 +18,5 @@
 		"types": ["node", "vscode"]
 	},
 	"include": ["src/**/*", "scripts/**/*", "esbuild.config.ts", "global.d.ts"],
-	"exclude": ["node_modules", "out"]
+	"exclude": ["node_modules", "out", "src/session-view-page/webview"]
 }

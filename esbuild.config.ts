@@ -60,7 +60,7 @@ const webviewBuildOptions: BuildOptions = {
   },
   plugins: [
     sveltePlugin({
-      preprocess: [typescript()],
+      preprocess: [typescript({ tsconfigFile: './tsconfig.webview.json' })],
       compilerOptions: {
         css: 'injected'
       }
