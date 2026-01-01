@@ -181,4 +181,8 @@ export class VscodeHelper {
   static getExtensionPath(context: vscode.ExtensionContext): string {
     return context.extensionPath;
   }
+
+  static createTerminal(name: string): vscode.Terminal {
+    return vscode.window.createTerminal(name);
+  }
 }

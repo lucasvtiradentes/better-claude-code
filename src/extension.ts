@@ -64,6 +64,7 @@ class ExtensionManager {
   private context!: ExtensionContext;
   private workspacePath!: string;
   private sessionProvider!: SessionProvider;
+  private commandsProvider!: CommandsProvider;
   private statusBarManager!: StatusBarManager;
   private decorationProvider!: SessionDecorationProvider;
   private treeView!: TreeView<TreeItem>;
@@ -109,6 +110,7 @@ class ExtensionManager {
 
   private initializeProviders(): void {
     this.sessionProvider = new SessionProvider();
+    this.commandsProvider = new CommandsProvider();
     this.decorationProvider = new SessionDecorationProvider(this.sessionProvider);
     this.context.subscriptions.push(VscodeHelper.registerFileDecorationProvider(this.decorationProvider));
 
@@ -123,8 +125,9 @@ class ExtensionManager {
       treeDataProvider: this.sessionProvider
     });
 
+    this.commandsProvider.setWorkspacePath(this.workspacePath);
     const commandsView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.CommandsExplorer), {
-      treeDataProvider: new CommandsProvider()
+      treeDataProvider: this.commandsProvider
     });
 
     this.context.subscriptions.push(this.treeView);
@@ -140,6 +143,7 @@ class ExtensionManager {
     const commands = registerAllCommands({
       context: this.context,
       sessionProvider: this.sessionProvider,
+      commandsProvider: this.commandsProvider,
       decorationProvider: this.decorationProvider,
       workspacePath: this.workspacePath
     });

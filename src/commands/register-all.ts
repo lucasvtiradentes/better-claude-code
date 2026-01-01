@@ -1,6 +1,8 @@
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { createStatusBarCommands } from '../status-bar/status-bar-actions';
+import type { CommandsProvider } from '../views/commands/commands-provider';
 import type { SessionProvider } from '../views/sessions/session-provider';
+import { createCommandOperationsCommands } from './internal/commands/command-operations';
 import { createAddLabelCommand } from './internal/sessions/add-label';
 import { createBatchOperationsCommands } from './internal/sessions/batch-operations';
 import { createCheckSessionCommands } from './internal/sessions/check-session';
@@ -23,10 +25,11 @@ type DecorationProvider = {
 export function registerAllCommands(options: {
   context: ExtensionContext;
   sessionProvider: SessionProvider;
+  commandsProvider: CommandsProvider;
   decorationProvider: DecorationProvider;
   workspacePath: string;
 }): Disposable[] {
-  const { context, sessionProvider, decorationProvider, workspacePath } = options;
+  const { context, sessionProvider, commandsProvider, decorationProvider, workspacePath } = options;
 
   return [
     createRefreshSessionsCommand(sessionProvider, decorationProvider),
@@ -40,6 +43,7 @@ export function registerAllCommands(options: {
     ...createFileOperationsCommands(),
     ...createCheckSessionCommands(sessionProvider),
     ...createBatchOperationsCommands(sessionProvider, decorationProvider, workspacePath),
+    ...createCommandOperationsCommands(commandsProvider),
     ...createStatusBarCommands(),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),

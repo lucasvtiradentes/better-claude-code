@@ -203,6 +203,23 @@
 				"command": "bcc.clearWorkspaceState",
 				"title": "Clear Workspace State",
 				"category": "BCC"
+			},
+			{
+				"command": "bcc.openCommandFile",
+				"title": "Open Command",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.runCommandInTerminal",
+				"title": "Run in Terminal",
+				"category": "BCC",
+				"icon": "$(terminal)"
+			},
+			{
+				"command": "bcc.refreshCommands",
+				"title": "Refresh Commands",
+				"category": "BCC",
+				"icon": "$(refresh)"
 			}
 		],
 		"menus": {
@@ -266,6 +283,18 @@
 				{
 					"command": "bcc.batchOperationsMenu",
 					"when": "false"
+				},
+				{
+					"command": "bcc.openCommandFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.runCommandInTerminal",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshCommands",
+					"when": "false"
 				}
 			],
 			"view/title": [
@@ -288,6 +317,11 @@
 					"command": "bcc.toggleCollapseExpand",
 					"when": "view == bccSessionExplorer",
 					"group": "navigation@4"
+				},
+				{
+					"command": "bcc.refreshCommands",
+					"when": "view == bccCommandsExplorer",
+					"group": "navigation"
 				}
 			],
 			"view/item/context": [
@@ -360,6 +394,11 @@
 					"command": "bcc.copySessionPath",
 					"when": "view == bccSessionExplorer && (viewItem == sessionItem || viewItem == sessionItemWithCompaction)",
 					"group": "3_navigation@2"
+				},
+				{
+					"command": "bcc.runCommandInTerminal",
+					"when": "view == bccCommandsExplorer && viewItem =~ /commandItem/",
+					"group": "inline"
 				}
 			]
 		},

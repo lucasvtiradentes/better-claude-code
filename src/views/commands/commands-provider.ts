@@ -1,33 +1,23 @@
-import { VscodeConstants } from '../../common/vscode/vscode-constants';
-import {
-  EventEmitterClass,
-  ThemeIconClass,
-  type TreeDataProvider,
-  type TreeItem,
-  TreeItemClass
-} from '../../common/vscode/vscode-types';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import { BaseResourceProvider } from '../_base/base-resource-provider';
+import type { ResourceInfo } from '../_base/base-tree-item';
+import { CommandTreeItem } from './tree-items';
 
-class PlaceholderTreeItem extends TreeItemClass {
-  constructor() {
-    super('To be implemented', VscodeConstants.TreeItemCollapsibleState.None);
-    this.iconPath = new ThemeIconClass('info');
-    this.contextValue = 'placeholder';
-  }
-}
-
-export class CommandsProvider implements TreeDataProvider<TreeItem> {
-  private _onDidChangeTreeData = new EventEmitterClass<TreeItem | undefined | null | void>();
-  readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-
-  getTreeItem(element: TreeItem): TreeItem {
-    return element;
+export class CommandsProvider extends BaseResourceProvider<CommandTreeItem> {
+  getLocalDirName(): string {
+    return '.claude/commands';
   }
 
-  async getChildren(): Promise<TreeItem[]> {
-    return [new PlaceholderTreeItem()];
+  getGlobalDirPath(): string {
+    return path.join(os.homedir(), '.claude', 'commands');
   }
 
-  refresh(): void {
-    this._onDidChangeTreeData.fire();
+  getFileExtension(): string {
+    return '.md';
+  }
+
+  createTreeItem(info: ResourceInfo): CommandTreeItem {
+    return new CommandTreeItem(info);
   }
 }

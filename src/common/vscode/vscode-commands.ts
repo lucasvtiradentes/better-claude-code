@@ -26,7 +26,10 @@ export enum Command {
   ViewSessionDetails = 'viewSessionDetails',
   OpenSettingsMenu = 'openSettingsMenu',
   OpenGlobalSettings = 'openGlobalSettings',
-  OpenGlobalInstructions = 'openGlobalInstructions'
+  OpenGlobalInstructions = 'openGlobalInstructions',
+  OpenCommandFile = 'openCommandFile',
+  RunCommandInTerminal = 'runCommandInTerminal',
+  RefreshCommands = 'refreshCommands'
 }
 
 export enum ContextKey {

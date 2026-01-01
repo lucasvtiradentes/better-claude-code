@@ -121,4 +121,8 @@ export class ClaudeHelper {
       });
     });
   }
+
+  static getSlashCommandTerminalCommand(commandName: string): string {
+    return `claude --dangerously-skip-permissions /${commandName}`;
+  }
 }
