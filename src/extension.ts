@@ -22,6 +22,7 @@ import { WebviewProvider } from './session-view-page/webview-provider.js';
 import { SessionProvider } from './sidebar/session-provider.js';
 import { DateGroupTreeItem, SessionTreeItem } from './sidebar/tree-items.js';
 import { StatusBarManager } from './status-bar/status-bar-manager.js';
+import { createSessionWatcher } from './watchers';
 
 class SessionDecorationProvider implements FileDecorationProvider {
   private _onDidChangeFileDecorations = new EventEmitterClass<Uri | Uri[] | undefined>();
@@ -180,27 +181,12 @@ class ExtensionManager {
   }
 
   private setupFileWatcher(): void {
-    const watcher = VscodeHelper.createFileSystemWatcher('**/*.jsonl');
-
-    watcher.onDidCreate(async () => {
-      logger.info('New session file detected, refreshing...');
-      await this.sessionProvider.refresh();
-      this.decorationProvider.refresh();
-      this.statusBarManager.update();
-    });
-
-    watcher.onDidChange(async () => {
-      logger.info('Session file changed, refreshing...');
-      await this.sessionProvider.refresh();
-      this.decorationProvider.refresh();
-      this.statusBarManager.update();
-    });
-
-    watcher.onDidDelete(async () => {
-      logger.info('Session file deleted, refreshing...');
-      await this.sessionProvider.refresh();
-      this.decorationProvider.refresh();
-      this.statusBarManager.update();
+    const watcher = createSessionWatcher({
+      onRefresh: async () => {
+        await this.sessionProvider.refresh();
+        this.decorationProvider.refresh();
+        this.statusBarManager.update();
+      }
     });
 
     this.context.subscriptions.push(watcher);
