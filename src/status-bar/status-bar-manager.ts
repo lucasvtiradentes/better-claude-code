@@ -7,7 +7,7 @@ export class StatusBarManager {
 
   constructor(private sessionProvider: SessionProvider) {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-    this.statusBarItem.command = getCommandId(Command.RefreshSessions);
+    this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
   }
 
   update(): void {
@@ -23,7 +23,13 @@ export class StatusBarManager {
       this.statusBarItem.text += ` (${stats.todayCount} today)`;
     }
 
-    this.statusBarItem.tooltip = `Total Sessions: ${stats.totalSessions}\nToday: ${stats.todayCount}\nTotal Token Usage: ${stats.totalTokens}%\n\nClick to refresh`;
+    const tooltipContent = [
+      `Total Sessions: ${stats.totalSessions}`,
+      `Today: ${stats.todayCount}`,
+      `Total Token Usage: ${stats.totalTokens}%`,
+      `Click to refresh`
+    ];
+    this.statusBarItem.tooltip = tooltipContent.join('\n');
 
     this.statusBarItem.show();
   }

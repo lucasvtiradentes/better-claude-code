@@ -1,5 +1,6 @@
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import type { SessionProvider } from '../sidebar/session-provider';
+import { createStatusBarCommands } from '../status-bar/status-bar-actions';
 import { createAddLabelCommand } from './internal/sessions/add-label';
 import { createBatchOperationsCommands } from './internal/sessions/batch-operations';
 import { createCheckSessionCommands } from './internal/sessions/check-session';
@@ -39,6 +40,7 @@ export function registerAllCommands(options: {
     ...createFileOperationsCommands(),
     ...createCheckSessionCommands(sessionProvider),
     ...createBatchOperationsCommands(sessionProvider, decorationProvider, workspacePath),
+    ...createStatusBarCommands(),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),
     createClearWorkspaceStateCommand()

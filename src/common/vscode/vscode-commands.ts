@@ -23,7 +23,10 @@ export enum Command {
   ToggleCheckSession = 'toggleCheckSession',
   ClearAllChecks = 'clearAllChecks',
   BatchOperationsMenu = 'batchOperationsMenu',
-  ViewSessionDetails = 'viewSessionDetails'
+  ViewSessionDetails = 'viewSessionDetails',
+  OpenSettingsMenu = 'openSettingsMenu',
+  OpenGlobalSettings = 'openGlobalSettings',
+  OpenGlobalInstructions = 'openGlobalInstructions'
 }
 
 export enum ContextKey {

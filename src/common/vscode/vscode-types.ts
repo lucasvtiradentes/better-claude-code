@@ -7,3 +7,6 @@ export type Uri = vscode.Uri;
 export type TextDocument = vscode.TextDocument;
 export type ThemeColor = vscode.ThemeColor;
 export type FileDecoration = vscode.FileDecoration;
+export type WorkspaceFolder = vscode.WorkspaceFolder;
+export type StatusBarItem = vscode.StatusBarItem;
+export type QuickPickOptions = vscode.QuickPickOptions;
