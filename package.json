@@ -20,7 +20,7 @@
 	"scripts": {
 		"prepare": "husky",
 		"build": "tsx esbuild.config.ts",
-		"postbuild": "tsx scripts/postbuild.ts && tsx scripts/install-local.ts",
+		"postbuild": "tsx scripts/install-local.ts",
 		"dev": "tsx esbuild.config.ts --watch",
 		"lint": "biome check .",
 		"lint:fix": "biome check --fix --unsafe .",
