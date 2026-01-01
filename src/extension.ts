@@ -24,6 +24,8 @@ import { StatusBarManager } from './status-bar/status-bar-manager';
 import { AgentsProvider } from './views/agents/agents-provider';
 import { CommandsProvider } from './views/commands/commands-provider';
 import { MCPServersProvider } from './views/mcp/mcp-provider';
+import { MemoryProvider } from './views/memory/memory-provider';
+import { RulesProvider } from './views/rules/rules-provider';
 import { SessionProvider } from './views/sessions/session-provider';
 import { DateGroupTreeItem, SessionTreeItem } from './views/sessions/tree-items';
 import { SkillsProvider } from './views/skills/skills-provider';
@@ -71,6 +73,8 @@ class ExtensionManager {
   private skillsProvider!: SkillsProvider;
   private agentsProvider!: AgentsProvider;
   private mcpProvider!: MCPServersProvider;
+  private rulesProvider!: RulesProvider;
+  private memoryProvider!: MemoryProvider;
   private statusBarManager!: StatusBarManager;
   private decorationProvider!: SessionDecorationProvider;
   private treeView!: TreeView<TreeItem>;
@@ -120,6 +124,8 @@ class ExtensionManager {
     this.skillsProvider = new SkillsProvider();
     this.agentsProvider = new AgentsProvider();
     this.mcpProvider = new MCPServersProvider();
+    this.rulesProvider = new RulesProvider();
+    this.memoryProvider = new MemoryProvider();
     this.decorationProvider = new SessionDecorationProvider(this.sessionProvider);
     this.context.subscriptions.push(VscodeHelper.registerFileDecorationProvider(this.decorationProvider));
 
@@ -154,11 +160,23 @@ class ExtensionManager {
       treeDataProvider: this.mcpProvider
     });
 
+    this.rulesProvider.setWorkspacePath(this.workspacePath);
+    const rulesView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.RulesExplorer), {
+      treeDataProvider: this.rulesProvider
+    });
+
+    this.memoryProvider.setWorkspacePath(this.workspacePath);
+    const memoryView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.MemoryExplorer), {
+      treeDataProvider: this.memoryProvider
+    });
+
     this.context.subscriptions.push(this.treeView);
     this.context.subscriptions.push(commandsView);
     this.context.subscriptions.push(skillsView);
     this.context.subscriptions.push(agentsView);
     this.context.subscriptions.push(mcpView);
+    this.context.subscriptions.push(rulesView);
+    this.context.subscriptions.push(memoryView);
   }
 
   private initializeStatusBar(): void {
@@ -174,6 +192,8 @@ class ExtensionManager {
       skillsProvider: this.skillsProvider,
       agentsProvider: this.agentsProvider,
       mcpProvider: this.mcpProvider,
+      rulesProvider: this.rulesProvider,
+      memoryProvider: this.memoryProvider,
       decorationProvider: this.decorationProvider,
       workspacePath: this.workspacePath
     });

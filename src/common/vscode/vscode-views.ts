@@ -5,7 +5,9 @@ export enum View {
   CommandsExplorer = 'bccCommandsExplorer',
   SkillsExplorer = 'bccSkillsExplorer',
   AgentsExplorer = 'bccAgentsExplorer',
-  MCPServersExplorer = 'bccMCPServersExplorer'
+  MCPServersExplorer = 'bccMCPServersExplorer',
+  RulesExplorer = 'bccRulesExplorer',
+  MemoryExplorer = 'bccMemoryExplorer'
 }
 
 export function getViewId(view: View): string {

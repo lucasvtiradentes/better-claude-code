@@ -36,7 +36,11 @@ export enum Command {
   RefreshAgents = 'refreshAgents',
   ToggleMCPServer = 'toggleMCPServer',
   GoToMCPDefinition = 'goToMCPDefinition',
-  RefreshMCPServers = 'refreshMCPServers'
+  RefreshMCPServers = 'refreshMCPServers',
+  OpenRuleFile = 'openRuleFile',
+  RefreshRules = 'refreshRules',
+  OpenMemoryFile = 'openMemoryFile',
+  RefreshMemory = 'refreshMemory'
 }
 
 export enum ContextKey {

@@ -111,6 +111,16 @@
 					"id": "bccMCPServersExplorer",
 					"name": "MCP Servers",
 					"contextualTitle": "MCP Servers"
+				},
+				{
+					"id": "bccRulesExplorer",
+					"name": "Rules",
+					"contextualTitle": "Rules"
+				},
+				{
+					"id": "bccMemoryExplorer",
+					"name": "Memory",
+					"contextualTitle": "Memory"
 				}
 			]
 		},
@@ -274,6 +284,28 @@
 				"title": "Refresh MCP Servers",
 				"category": "BCC",
 				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.openRuleFile",
+				"title": "Open Rule",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.refreshRules",
+				"title": "Refresh Rules",
+				"category": "BCC",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.openMemoryFile",
+				"title": "Open Memory",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.refreshMemory",
+				"title": "Refresh Memory",
+				"category": "BCC",
+				"icon": "$(refresh)"
 			}
 		],
 		"menus": {
@@ -377,6 +409,22 @@
 				{
 					"command": "bcc.refreshMCPServers",
 					"when": "false"
+				},
+				{
+					"command": "bcc.openRuleFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshRules",
+					"when": "false"
+				},
+				{
+					"command": "bcc.openMemoryFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshMemory",
+					"when": "false"
 				}
 			],
 			"view/title": [
@@ -418,6 +466,16 @@
 				{
 					"command": "bcc.refreshMCPServers",
 					"when": "view == bccMCPServersExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "bcc.refreshRules",
+					"when": "view == bccRulesExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "bcc.refreshMemory",
+					"when": "view == bccMemoryExplorer",
 					"group": "navigation"
 				}
 			],
