@@ -2,6 +2,7 @@ import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types
 import { createStatusBarCommands } from '../status-bar/status-bar-actions';
 import type { CommandsProvider } from '../views/commands/commands-provider';
 import type { SessionProvider } from '../views/sessions/session-provider';
+import type { SkillsProvider } from '../views/skills/skills-provider';
 import { createCommandOperationsCommands } from './internal/commands/command-operations';
 import { createAddLabelCommand } from './internal/sessions/add-label';
 import { createBatchOperationsCommands } from './internal/sessions/batch-operations';
@@ -14,6 +15,7 @@ import { createViewSessionDetailsCommand } from './internal/sessions/view-detail
 import { createFilterSessionsCommand } from './internal/sidebar/filter';
 import { createRefreshSessionsCommand } from './internal/sidebar/refresh';
 import { createToggleCollapseExpandCommand } from './internal/sidebar/toggle-collapse';
+import { createSkillOperationsCommands } from './internal/skills/skill-operations';
 import { createClearWorkspaceStateCommand } from './public/clear-workspace-state';
 import { createShowLogsCommand } from './public/show-logs';
 import { createShowWorkspaceStateCommand } from './public/show-workspace-state';
@@ -26,10 +28,11 @@ export function registerAllCommands(options: {
   context: ExtensionContext;
   sessionProvider: SessionProvider;
   commandsProvider: CommandsProvider;
+  skillsProvider: SkillsProvider;
   decorationProvider: DecorationProvider;
   workspacePath: string;
 }): Disposable[] {
-  const { context, sessionProvider, commandsProvider, decorationProvider, workspacePath } = options;
+  const { context, sessionProvider, commandsProvider, skillsProvider, decorationProvider, workspacePath } = options;
 
   return [
     createRefreshSessionsCommand(sessionProvider, decorationProvider),
@@ -44,6 +47,7 @@ export function registerAllCommands(options: {
     ...createCheckSessionCommands(sessionProvider),
     ...createBatchOperationsCommands(sessionProvider, decorationProvider, workspacePath),
     ...createCommandOperationsCommands(commandsProvider),
+    ...createSkillOperationsCommands(skillsProvider),
     ...createStatusBarCommands(),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),

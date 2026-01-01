@@ -96,6 +96,11 @@
 					"id": "bccCommandsExplorer",
 					"name": "Commands",
 					"contextualTitle": "Commands"
+				},
+				{
+					"id": "bccSkillsExplorer",
+					"name": "Skills",
+					"contextualTitle": "Skills"
 				}
 			]
 		},
@@ -220,6 +225,17 @@
 				"title": "Refresh Commands",
 				"category": "BCC",
 				"icon": "$(refresh)"
+			},
+			{
+				"command": "bcc.openSkillFile",
+				"title": "Open Skill",
+				"category": "BCC"
+			},
+			{
+				"command": "bcc.refreshSkills",
+				"title": "Refresh Skills",
+				"category": "BCC",
+				"icon": "$(refresh)"
 			}
 		],
 		"menus": {
@@ -295,6 +311,14 @@
 				{
 					"command": "bcc.refreshCommands",
 					"when": "false"
+				},
+				{
+					"command": "bcc.openSkillFile",
+					"when": "false"
+				},
+				{
+					"command": "bcc.refreshSkills",
+					"when": "false"
 				}
 			],
 			"view/title": [
@@ -321,6 +345,11 @@
 				{
 					"command": "bcc.refreshCommands",
 					"when": "view == bccCommandsExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "bcc.refreshSkills",
+					"when": "view == bccSkillsExplorer",
 					"group": "navigation"
 				}
 			],

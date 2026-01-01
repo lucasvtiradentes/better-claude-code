@@ -24,6 +24,7 @@ import { StatusBarManager } from './status-bar/status-bar-manager';
 import { CommandsProvider } from './views/commands/commands-provider';
 import { SessionProvider } from './views/sessions/session-provider';
 import { DateGroupTreeItem, SessionTreeItem } from './views/sessions/tree-items';
+import { SkillsProvider } from './views/skills/skills-provider';
 import { createSessionWatcher } from './watchers';
 
 class SessionDecorationProvider implements FileDecorationProvider {
@@ -65,6 +66,7 @@ class ExtensionManager {
   private workspacePath!: string;
   private sessionProvider!: SessionProvider;
   private commandsProvider!: CommandsProvider;
+  private skillsProvider!: SkillsProvider;
   private statusBarManager!: StatusBarManager;
   private decorationProvider!: SessionDecorationProvider;
   private treeView!: TreeView<TreeItem>;
@@ -111,6 +113,7 @@ class ExtensionManager {
   private initializeProviders(): void {
     this.sessionProvider = new SessionProvider();
     this.commandsProvider = new CommandsProvider();
+    this.skillsProvider = new SkillsProvider();
     this.decorationProvider = new SessionDecorationProvider(this.sessionProvider);
     this.context.subscriptions.push(VscodeHelper.registerFileDecorationProvider(this.decorationProvider));
 
@@ -130,8 +133,14 @@ class ExtensionManager {
       treeDataProvider: this.commandsProvider
     });
 
+    this.skillsProvider.setWorkspacePath(this.workspacePath);
+    const skillsView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.SkillsExplorer), {
+      treeDataProvider: this.skillsProvider
+    });
+
     this.context.subscriptions.push(this.treeView);
     this.context.subscriptions.push(commandsView);
+    this.context.subscriptions.push(skillsView);
   }
 
   private initializeStatusBar(): void {
@@ -144,6 +153,7 @@ class ExtensionManager {
       context: this.context,
       sessionProvider: this.sessionProvider,
       commandsProvider: this.commandsProvider,
+      skillsProvider: this.skillsProvider,
       decorationProvider: this.decorationProvider,
       workspacePath: this.workspacePath
     });

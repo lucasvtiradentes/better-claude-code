@@ -29,7 +29,9 @@ export enum Command {
   OpenGlobalInstructions = 'openGlobalInstructions',
   OpenCommandFile = 'openCommandFile',
   RunCommandInTerminal = 'runCommandInTerminal',
-  RefreshCommands = 'refreshCommands'
+  RefreshCommands = 'refreshCommands',
+  OpenSkillFile = 'openSkillFile',
+  RefreshSkills = 'refreshSkills'
 }
 
 export enum ContextKey {
