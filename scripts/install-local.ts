@@ -17,7 +17,7 @@ import {
   DEV_SUFFIX,
   EXTENSION_DISPLAY_NAME,
   EXTENSION_NAME
-} from '@/lib/shared/scripts-constants';
+} from '../src/common/constants/scripts-constants';
 
 const LOCAL_DIST_DIR = 'dist-dev';
 const VSCODE_STANDARD_CONTAINERS = ['explorer', 'scm', 'debug', 'test', 'remote'];
@@ -303,11 +303,19 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
   }
 
   if (contributes.commands) {
-    const commands = contributes.commands as Array<{ command: string; title?: string; enablement?: string }>;
+    const commands = contributes.commands as Array<{
+      command: string;
+      title?: string;
+      category?: string;
+      enablement?: string;
+    }>;
     for (const cmd of commands) {
       cmd.command = transformCommand(cmd.command);
       if (cmd.title) {
         cmd.title = transformTitle(cmd.title);
+      }
+      if (cmd.category) {
+        cmd.category = addDevLabel(cmd.category);
       }
       if (cmd.enablement) {
         cmd.enablement = transformContextKey(cmd.enablement);

@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"lib": ["ES2022", "DOM"],
+		"moduleResolution": "Bundler",
+		"verbatimModuleSyntax": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"isolatedModules": true
+	},
+	"include": ["src/session-view-page/webview/**/*"]
+}

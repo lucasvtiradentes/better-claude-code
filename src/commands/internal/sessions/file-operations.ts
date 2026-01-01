@@ -1,9 +1,8 @@
-import * as vscode from 'vscode';
-import { logger } from '../../../common/utils/logger';
+import { logger } from '../../../common/lib/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { SessionTreeItem } from '../../../sidebar/tree-items';
+import { SessionTreeItem } from '../../../views/sessions/tree-items';
 
 export type OpenSessionFileParams = SessionTreeItem;
 export type CopySessionPathParams = SessionTreeItem;
@@ -20,8 +19,7 @@ async function handleOpenSessionFile(item: OpenSessionFileParams) {
   }
 
   try {
-    const document = await vscode.workspace.openTextDocument(item.session.filePath);
-    await vscode.window.showTextDocument(document);
+    await VscodeHelper.openDocumentByPath(item.session.filePath);
     logger.info(`Opened session file: ${item.session.filePath}`);
   } catch (error) {
     logger.error('Failed to open session file', error as Error);
@@ -41,7 +39,7 @@ async function handleCopySessionPath(item: CopySessionPathParams) {
   }
 
   try {
-    await vscode.env.clipboard.writeText(item.session.filePath);
+    await VscodeHelper.writeToClipboard(item.session.filePath);
     VscodeHelper.showToastMessage(ToastKind.Info, 'Session path copied to clipboard');
     logger.info(`Copied session path: ${item.session.filePath}`);
   } catch (error) {

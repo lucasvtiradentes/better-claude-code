@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { addDevSuffix, IS_DEV } from '@/lib/shared';
-import { CONTEXT_PREFIX } from '@/lib/shared/scripts-constants';
 import type { CommandParams } from '../../commands/command-params';
+import { addDevSuffix, IS_DEV } from '../constants/constants';
+import { CONTEXT_PREFIX } from '../constants/scripts-constants';
 import type { Disposable } from './vscode-types';
 
 export enum Command {
@@ -23,7 +23,10 @@ export enum Command {
   ToggleCheckSession = 'toggleCheckSession',
   ClearAllChecks = 'clearAllChecks',
   BatchOperationsMenu = 'batchOperationsMenu',
-  ViewSessionDetails = 'viewSessionDetails'
+  ViewSessionDetails = 'viewSessionDetails',
+  OpenSettingsMenu = 'openSettingsMenu',
+  OpenGlobalSettings = 'openGlobalSettings',
+  OpenGlobalInstructions = 'openGlobalInstructions'
 }
 
 export enum ContextKey {
@@ -38,7 +41,7 @@ export function getCommandId(command: Command | string): string {
   return `${getPrefix()}.${command}`;
 }
 
-export function getContextKeyId(key: ContextKey | string): string {
+function getContextKeyId(key: ContextKey | string): string {
   return `${getPrefix()}.${key}`;
 }
 

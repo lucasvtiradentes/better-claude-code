@@ -1,4 +1,3 @@
-import { MESSAGE_PATTERNS } from '../../../lib/shared';
 import { MESSAGE_COLORS } from './message-colors';
 import {
   detectCommand,
@@ -11,7 +10,8 @@ import {
   formatToolPath,
   formatToolWithQuote,
   formatUltrathink,
-  formatUrl
+  formatUrl,
+  MESSAGE_PATTERNS
 } from './message-patterns';
 
 export enum FormatterSource {

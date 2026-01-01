@@ -1,11 +1,11 @@
-import * as vscode from 'vscode';
-import { sessionCache } from '@/lib/node-utils';
-import { CompactService } from '../../../common/lib/compact-service';
-import { logger } from '../../../common/utils/logger';
+import { logger } from '../../../common/lib/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
+import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
-import type { SessionProvider } from '../../../sidebar/session-provider';
-import { SessionTreeItem } from '../../../sidebar/tree-items';
+import { sessionCache } from '../../../views/sessions/core';
+import { CompactService } from '../../../views/sessions/core/compact-service';
+import type { SessionProvider } from '../../../views/sessions/session-provider';
+import { SessionTreeItem } from '../../../views/sessions/tree-items';
 
 export type CompactSessionParams = SessionTreeItem;
 
@@ -30,7 +30,7 @@ async function handleCompactSession(
 
     const result = await VscodeHelper.withProgress(
       {
-        location: vscode.ProgressLocation.Notification,
+        location: VscodeConstants.ProgressLocation.Notification,
         title: 'Compacting session...',
         cancellable: false
       },
@@ -42,8 +42,7 @@ async function handleCompactSession(
 
     await sessionCache.clear();
 
-    const doc = await vscode.workspace.openTextDocument(result);
-    await vscode.window.showTextDocument(doc, { preview: false });
+    await VscodeHelper.openDocumentByPath(result, { preview: false });
 
     await sessionProvider.refresh();
     decorationProvider.refresh();

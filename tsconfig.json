@@ -1,9 +1,9 @@
 {
 	"compilerOptions": {
 		"target": "ES2022",
-		"module": "ESNext",
+		"module": "Node16",
 		"lib": ["ES2022", "DOM"],
-		"moduleResolution": "Bundler",
+		"moduleResolution": "Node16",
 		"resolveJsonModule": true,
 		"allowJs": true,
 		"strict": true,
@@ -11,17 +11,12 @@
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": true,
-		"verbatimModuleSyntax": true,
 		"declaration": false,
 		"declarationMap": false,
 		"sourceMap": false,
 		"outDir": "./out",
-		"types": ["node", "vscode"],
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["./src/*"]
-		}
+		"types": ["node", "vscode"]
 	},
 	"include": ["src/**/*", "scripts/**/*", "esbuild.config.ts", "global.d.ts"],
-	"exclude": ["node_modules", "out"]
+	"exclude": ["node_modules", "out", "src/session-view-page/webview"]
 }

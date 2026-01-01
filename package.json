@@ -7,7 +7,6 @@
 	"publisher": "lucasvtiradentes",
 	"icon": "resources/icon.png",
 	"packageManager": "pnpm@10.22.0",
-	"type": "module",
 	"engines": {
 		"vscode": "^1.100.0"
 	},
@@ -92,6 +91,11 @@
 					"id": "bccSessionExplorer",
 					"name": "Sessions",
 					"contextualTitle": "Claude Code Sessions"
+				},
+				{
+					"id": "bccCommandsExplorer",
+					"name": "Commands",
+					"contextualTitle": "Commands"
 				}
 			]
 		},

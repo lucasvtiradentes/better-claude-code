@@ -1,4 +1,4 @@
-import { CONTEXT_PREFIX } from '@/lib/shared/scripts-constants';
+import { CONTEXT_PREFIX } from '../constants/scripts-constants';
 import type { WorkspaceUIState } from '../schemas/workspace-state.schema';
 import type { ExtensionContext } from '../vscode/vscode-types';
 

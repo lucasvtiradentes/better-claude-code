@@ -1,9 +1,10 @@
-import * as vscode from 'vscode';
-import { ClaudeHelper, getCompactionSummaryPath } from '@/lib/node-utils';
-import { logger } from '../../../common/utils/logger';
+import { getCompactionSummaryPath } from '../../../common/constants/monorepo-path-utils';
+import { ClaudeHelper } from '../../../common/lib/claude-helper';
+import { logger } from '../../../common/lib/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
+import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
-import { SessionTreeItem } from '../../../sidebar/tree-items';
+import { SessionTreeItem } from '../../../views/sessions/tree-items';
 
 export type ViewCompactionParams = SessionTreeItem;
 
@@ -24,11 +25,9 @@ async function handleViewCompaction(item: ViewCompactionParams, workspacePath: s
 
     logger.info(`Opening compaction summary: ${summaryPath}`);
 
-    const uri = vscode.Uri.file(summaryPath);
-    const doc = await vscode.workspace.openTextDocument(uri);
-    await vscode.window.showTextDocument(doc, {
+    await VscodeHelper.openDocumentByPath(summaryPath, {
       preview: false,
-      viewColumn: vscode.ViewColumn.Active
+      viewColumn: VscodeConstants.ViewColumn.Active
     });
   } catch (error) {
     logger.error('Failed to open compaction summary', error as Error);

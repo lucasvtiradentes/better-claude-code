@@ -1,18 +1,14 @@
-import * as vscode from 'vscode';
-import {
-  ClaudeHelper,
-  getSessionLabels,
-  getSessionLabelsForSession,
-  sessionCache,
-  toggleSessionLabel
-} from '@/lib/node-utils';
-import { CompactService } from '../../../common/lib/compact-service';
-import { logger } from '../../../common/utils/logger';
+import { ClaudeHelper } from '../../../common/lib/claude-helper';
+import { logger } from '../../../common/lib/logger';
+import { getSessionLabels, getSessionLabelsForSession, toggleSessionLabel } from '../../../common/utils/label-manager';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
+import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import type { SessionProvider } from '../../../sidebar/session-provider';
-import { SessionTreeItem } from '../../../sidebar/tree-items';
+import { sessionCache } from '../../../views/sessions/core';
+import { CompactService } from '../../../views/sessions/core/compact-service';
+import type { SessionProvider } from '../../../views/sessions/session-provider';
+import { SessionTreeItem } from '../../../views/sessions/tree-items';
 
 type DecorationProvider = {
   refresh(): void;
@@ -35,7 +31,7 @@ async function handleBatchCompact(
     .map((id) => {
       const session = sessionProvider.getSession(id);
       if (!session) return null;
-      return new SessionTreeItem(session, vscode.TreeItemCollapsibleState.None);
+      return new SessionTreeItem(session, VscodeConstants.TreeItemCollapsibleState.None);
     })
     .filter((item): item is SessionTreeItem => item !== null);
 
@@ -54,7 +50,7 @@ async function handleBatchCompact(
 
   await VscodeHelper.withProgress(
     {
-      location: vscode.ProgressLocation.Notification,
+      location: VscodeConstants.ProgressLocation.Notification,
       title: `Compacting ${selection.length} sessions...`,
       cancellable: false
     },
@@ -105,7 +101,7 @@ async function handleBatchDelete(sessionProvider: SessionProvider) {
     .map((id) => {
       const session = sessionProvider.getSession(id);
       if (!session) return null;
-      return new SessionTreeItem(session, vscode.TreeItemCollapsibleState.None);
+      return new SessionTreeItem(session, VscodeConstants.TreeItemCollapsibleState.None);
     })
     .filter((item): item is SessionTreeItem => item !== null);
 
@@ -124,7 +120,7 @@ async function handleBatchDelete(sessionProvider: SessionProvider) {
 
   await VscodeHelper.withProgress(
     {
-      location: vscode.ProgressLocation.Notification,
+      location: VscodeConstants.ProgressLocation.Notification,
       title: `Deleting ${selection.length} sessions...`,
       cancellable: false
     },

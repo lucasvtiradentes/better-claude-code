@@ -1,27 +1,38 @@
-import * as vscode from 'vscode';
-import { ConfigManager } from '@/lib/node-utils';
-import { APP_NAME } from '@/lib/shared';
 import { registerAllCommands } from './commands/register-all';
+import { APP_NAME } from './common/constants/constants';
+import { logger } from './common/lib/logger';
 import { initWorkspaceState } from './common/state';
-import { logger } from './common/utils/logger.js';
-import { getCurrentWorkspacePath } from './common/utils/workspace-detector.js';
+import { ConfigManager } from './common/utils/config-manager';
+import { getCurrentWorkspacePath } from './common/utils/functions/workspace-detector';
 import { Command, getCommandId } from './common/vscode/vscode-commands';
-import { WebviewProvider } from './session-view-page/webview-provider.js';
-import { SessionProvider } from './sidebar/session-provider.js';
-import { DateGroupTreeItem, SessionTreeItem } from './sidebar/tree-items.js';
-import { StatusBarManager } from './status-bar/status-bar-manager.js';
+import { VscodeColor } from './common/vscode/vscode-constants';
+import { VscodeHelper } from './common/vscode/vscode-helper';
+import {
+  type Disposable,
+  EventEmitterClass,
+  type ExtensionContext,
+  type FileDecoration,
+  type FileDecorationProvider,
+  ThemeColorClass,
+  type TreeItem,
+  type TreeView,
+  type Uri
+} from './common/vscode/vscode-types';
+import { getViewId, View } from './common/vscode/vscode-views';
+import { WebviewProvider } from './session-view-page/webview-provider';
+import { StatusBarManager } from './status-bar/status-bar-manager';
+import { CommandsProvider } from './views/commands/commands-provider';
+import { SessionProvider } from './views/sessions/session-provider';
+import { DateGroupTreeItem, SessionTreeItem } from './views/sessions/tree-items';
+import { createSessionWatcher } from './watchers';
 
-let sessionProvider: SessionProvider;
-let statusBarManager: StatusBarManager;
-let decorationProvider: SessionDecorationProvider;
-
-class SessionDecorationProvider implements vscode.FileDecorationProvider {
-  private _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri | vscode.Uri[] | undefined>();
+class SessionDecorationProvider implements FileDecorationProvider {
+  private _onDidChangeFileDecorations = new EventEmitterClass<Uri | Uri[] | undefined>();
   readonly onDidChangeFileDecorations = this._onDidChangeFileDecorations.event;
 
   constructor(private provider: SessionProvider) {}
 
-  provideFileDecoration(uri: vscode.Uri): vscode.FileDecoration | undefined {
+  provideFileDecoration(uri: Uri): FileDecoration | undefined {
     if (uri.scheme !== 'claude-session') {
       return undefined;
     }
@@ -36,7 +47,7 @@ class SessionDecorationProvider implements vscode.FileDecorationProvider {
     if (session.hasCompaction) {
       return {
         badge: '✓',
-        color: new vscode.ThemeColor('charts.green'),
+        color: new ThemeColorClass(VscodeColor.ChartsGreen),
         tooltip: 'Compacted Session'
       };
     }
@@ -49,119 +60,146 @@ class SessionDecorationProvider implements vscode.FileDecorationProvider {
   }
 }
 
-export async function activate(context: vscode.ExtensionContext) {
-  logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
+class ExtensionManager {
+  private context!: ExtensionContext;
+  private workspacePath!: string;
+  private sessionProvider!: SessionProvider;
+  private statusBarManager!: StatusBarManager;
+  private decorationProvider!: SessionDecorationProvider;
+  private treeView!: TreeView<TreeItem>;
 
-  new ConfigManager();
-  initWorkspaceState(context);
+  async activate(context: ExtensionContext): Promise<void> {
+    logger.info(`${APP_NAME} extension is now active (built at ${__BUILD_TIMESTAMP__})`);
 
-  const workspacePath = getCurrentWorkspacePath();
+    this.context = context;
 
-  if (!workspacePath) {
-    logger.info('No workspace folder is open. Open a folder to view Claude Code sessions.');
-    return;
-  }
+    this.initializeCore();
 
-  sessionProvider = new SessionProvider();
-
-  decorationProvider = new SessionDecorationProvider(sessionProvider);
-  context.subscriptions.push(vscode.window.registerFileDecorationProvider(decorationProvider));
-
-  WebviewProvider.onPanelChange(() => {
-    sessionProvider.refresh();
-    decorationProvider.refresh();
-  });
-
-  const packageJson = context.extension.packageJSON;
-  const viewId =
-    packageJson.contributes?.views?.bccExplorer?.[0]?.id ||
-    packageJson.contributes?.views?.bccExplorerDev?.[0]?.id ||
-    'bccSessionExplorer';
-
-  const treeView = vscode.window.createTreeView(viewId, {
-    treeDataProvider: sessionProvider
-  });
-
-  statusBarManager = new StatusBarManager(sessionProvider);
-  context.subscriptions.push(statusBarManager.getDisposable());
-
-  const commands = registerAllCommands({
-    context,
-    sessionProvider,
-    decorationProvider,
-    workspacePath
-  });
-  for (const cmd of commands) {
-    context.subscriptions.push(cmd);
-  }
-  context.subscriptions.push(treeView);
-
-  await sessionProvider.initialize(workspacePath, context);
-
-  statusBarManager.update();
-
-  treeView.onDidChangeVisibility(async () => {
-    if (treeView.visible) {
-      await sessionProvider.refresh();
-      statusBarManager.update();
+    const workspacePath = getCurrentWorkspacePath();
+    if (!workspacePath) {
+      logger.info('No workspace folder is open. Open a folder to view Claude Code sessions.');
+      return;
     }
-  });
+    this.workspacePath = workspacePath;
 
-  treeView.onDidChangeSelection(async (e) => {
-    if (e.selection.length === 1) {
-      const item = e.selection[0];
-      if (item instanceof SessionTreeItem) {
-        logger.info(`[TreeView] Single selection detected: ${item.session.shortId}, opening details`);
-        await vscode.commands.executeCommand(getCommandId(Command.ViewSessionDetails), item.session);
+    this.initializeProviders();
+    this.initializeTreeView();
+    this.initializeStatusBar();
+    this.registerCommands();
+    this.setupEventListeners();
+    this.setupFileWatcher();
+
+    await this.sessionProvider.initialize(this.workspacePath, this.context);
+    this.statusBarManager.update();
+
+    logger.info(`${APP_NAME} extension activation complete`);
+  }
+
+  deactivate(): void {
+    if (this.statusBarManager) {
+      this.statusBarManager.dispose();
+    }
+    logger.info(`${APP_NAME} extension deactivated\n\n`);
+  }
+
+  private initializeCore(): void {
+    new ConfigManager();
+    initWorkspaceState(this.context);
+  }
+
+  private initializeProviders(): void {
+    this.sessionProvider = new SessionProvider();
+    this.decorationProvider = new SessionDecorationProvider(this.sessionProvider);
+    this.context.subscriptions.push(VscodeHelper.registerFileDecorationProvider(this.decorationProvider));
+
+    WebviewProvider.onPanelChange(() => {
+      this.sessionProvider.refresh();
+      this.decorationProvider.refresh();
+    });
+  }
+
+  private initializeTreeView(): void {
+    this.treeView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.SessionExplorer), {
+      treeDataProvider: this.sessionProvider
+    });
+
+    const commandsView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.CommandsExplorer), {
+      treeDataProvider: new CommandsProvider()
+    });
+
+    this.context.subscriptions.push(this.treeView);
+    this.context.subscriptions.push(commandsView);
+  }
+
+  private initializeStatusBar(): void {
+    this.statusBarManager = new StatusBarManager(this.sessionProvider);
+    this.context.subscriptions.push(this.statusBarManager.getDisposable() as Disposable);
+  }
+
+  private registerCommands(): void {
+    const commands = registerAllCommands({
+      context: this.context,
+      sessionProvider: this.sessionProvider,
+      decorationProvider: this.decorationProvider,
+      workspacePath: this.workspacePath
+    });
+    for (const cmd of commands) {
+      this.context.subscriptions.push(cmd);
+    }
+  }
+
+  private setupEventListeners(): void {
+    this.treeView.onDidChangeVisibility(async () => {
+      if (this.treeView.visible) {
+        await this.sessionProvider.refresh();
+        this.statusBarManager.update();
       }
-    } else if (e.selection.length > 1) {
-      logger.info(`[TreeView] Multi-selection detected: ${e.selection.length} items selected`);
-    }
-  });
+    });
 
-  treeView.onDidExpandElement((e) => {
-    if (e.element instanceof DateGroupTreeItem) {
-      sessionProvider.onGroupExpanded(e.element);
-    }
-  });
+    this.treeView.onDidChangeSelection(async (e) => {
+      if (e.selection.length === 1) {
+        const item = e.selection[0];
+        if (item instanceof SessionTreeItem) {
+          logger.info(`[TreeView] Single selection detected: ${item.session.shortId}, opening details`);
+          await VscodeHelper.executeVscodeCommand(getCommandId(Command.ViewSessionDetails), item.session);
+        }
+      } else if (e.selection.length > 1) {
+        logger.info(`[TreeView] Multi-selection detected: ${e.selection.length} items selected`);
+      }
+    });
 
-  treeView.onDidCollapseElement((e) => {
-    if (e.element instanceof DateGroupTreeItem) {
-      sessionProvider.onGroupCollapsed(e.element);
-    }
-  });
+    this.treeView.onDidExpandElement((e) => {
+      if (e.element instanceof DateGroupTreeItem) {
+        this.sessionProvider.onGroupExpanded(e.element);
+      }
+    });
 
-  const watcher = vscode.workspace.createFileSystemWatcher('**/*.jsonl');
+    this.treeView.onDidCollapseElement((e) => {
+      if (e.element instanceof DateGroupTreeItem) {
+        this.sessionProvider.onGroupCollapsed(e.element);
+      }
+    });
+  }
 
-  watcher.onDidCreate(async () => {
-    logger.info('New session file detected, refreshing...');
-    await sessionProvider.refresh();
-    decorationProvider.refresh();
-    statusBarManager.update();
-  });
+  private setupFileWatcher(): void {
+    const watcher = createSessionWatcher({
+      onRefresh: async () => {
+        await this.sessionProvider.refresh();
+        this.decorationProvider.refresh();
+        this.statusBarManager.update();
+      }
+    });
 
-  watcher.onDidChange(async () => {
-    logger.info('Session file changed, refreshing...');
-    await sessionProvider.refresh();
-    decorationProvider.refresh();
-    statusBarManager.update();
-  });
+    this.context.subscriptions.push(watcher);
+  }
+}
 
-  watcher.onDidDelete(async () => {
-    logger.info('Session file deleted, refreshing...');
-    await sessionProvider.refresh();
-    decorationProvider.refresh();
-    statusBarManager.update();
-  });
+const extensionManager = new ExtensionManager();
 
-  context.subscriptions.push(watcher);
-
-  logger.info(`${APP_NAME} extension activation complete`);
+export async function activate(context: ExtensionContext) {
+  await extensionManager.activate(context);
 }
 
 export function deactivate() {
-  if (statusBarManager) {
-    statusBarManager.dispose();
-  }
-  logger.info(`${APP_NAME} extension deactivated\n\n`);
+  extensionManager.deactivate();
 }

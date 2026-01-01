@@ -1,4 +1,4 @@
-import type { SessionListItem } from '@/lib/node-utils';
+import type { SessionListItem } from '../views/sessions/core';
 
 export type DateGroup = {
   label: string;

@@ -1,4 +1,4 @@
-import { LOG_FILE_PATH } from '../../common/utils/logger';
+import { LOG_FILE_PATH } from '../../common/lib/logger';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 
