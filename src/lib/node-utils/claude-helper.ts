@@ -1,6 +1,4 @@
-import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { FileIOHelper, NodeChildProcessHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
 import { CLAUDE_CODE_DIR, USER_PLATFORM } from './monorepo-path-utils.js';
 
 export const CLAUDE_CODE_SESSION_COMPACTION_ID = 'CLAUDE_CODE_SESSION_COMPACTION_ID';
@@ -16,19 +14,19 @@ export class ClaudeHelper {
   }
 
   static getProjectsDir() {
-    return join(CLAUDE_CODE_DIR, 'projects');
+    return NodePathHelper.join(CLAUDE_CODE_DIR, 'projects');
   }
 
   static getProjectDir(projectName: string) {
-    return join(ClaudeHelper.getProjectsDir(), projectName);
+    return NodePathHelper.join(ClaudeHelper.getProjectsDir(), projectName);
   }
 
   static getSessionPath(projectName: string, sessionId: string) {
-    return join(ClaudeHelper.getProjectDir(projectName), `${sessionId}.jsonl`);
+    return NodePathHelper.join(ClaudeHelper.getProjectDir(projectName), `${sessionId}.jsonl`);
   }
 
   static getSessionMetadataPath(projectName: string, sessionId: string) {
-    return join(ClaudeHelper.getProjectDir(projectName), '.metadata', `${sessionId}.json`);
+    return NodePathHelper.join(ClaudeHelper.getProjectDir(projectName), '.metadata', `${sessionId}.json`);
   }
 
   static getSessionsPath(projectName: string) {
@@ -41,9 +39,9 @@ export class ClaudeHelper {
     switch (currentPlatform) {
       case 'darwin':
       case 'linux':
-        return join(CLAUDE_CODE_DIR, 'local', 'claude');
+        return NodePathHelper.join(CLAUDE_CODE_DIR, 'local', 'claude');
       case 'win32':
-        return join(CLAUDE_CODE_DIR, 'local', 'claude.exe');
+        return NodePathHelper.join(CLAUDE_CODE_DIR, 'local', 'claude.exe');
       default:
         throw new Error(`Unsupported platform: ${currentPlatform}`);
     }
@@ -52,7 +50,7 @@ export class ClaudeHelper {
   static validateClaudeBinary() {
     const claudePath = ClaudeHelper.getClaudeBinaryPath();
 
-    if (!existsSync(claudePath)) {
+    if (!FileIOHelper.fileExists(claudePath)) {
       throw new Error(`Claude Code binary not found at: ${claudePath}`);
     }
   }
@@ -106,7 +104,7 @@ export class ClaudeHelper {
     const claudePath = ClaudeHelper.getClaudeBinaryPath();
 
     return new Promise<void>((resolve, reject) => {
-      const child = spawn(claudePath, ['--dangerously-skip-permissions', '-p', prompt], {
+      const child = NodeChildProcessHelper.spawn(claudePath, ['--dangerously-skip-permissions', '-p', prompt], {
         stdio: 'inherit'
       });
 

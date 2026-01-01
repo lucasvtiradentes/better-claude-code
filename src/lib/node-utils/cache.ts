@@ -1,5 +1,4 @@
-import { mkdir, readFile, rm, unlink, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { FileIOHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
 
 type CacheEntry<T> = {
   data: T;
@@ -16,7 +15,7 @@ export class JsonFileCache {
   }
 
   private getCachePath(key: string): string {
-    return join(this.cacheDir, `${key}.json`);
+    return NodePathHelper.join(this.cacheDir, `${key}.json`);
   }
 
   async get<T>(key: string, defaultValue?: T): Promise<T | undefined> {
@@ -30,7 +29,7 @@ export class JsonFileCache {
 
     try {
       const filePath = this.getCachePath(key);
-      const content = await readFile(filePath, 'utf-8');
+      const content = await FileIOHelper.readFileAsync(filePath);
       const entry: CacheEntry<T> = JSON.parse(content);
 
       if (!entry.ttl || Date.now() - entry.timestamp < entry.ttl) {
@@ -52,21 +51,21 @@ export class JsonFileCache {
     this.memoryCache.set(key, entry);
 
     const filePath = this.getCachePath(key);
-    await mkdir(dirname(filePath), { recursive: true });
-    await writeFile(filePath, JSON.stringify(entry), 'utf-8');
+    await FileIOHelper.mkdirAsync(NodePathHelper.dirname(filePath), { recursive: true });
+    await FileIOHelper.writeFileAsync(filePath, JSON.stringify(entry));
   }
 
   async delete(key: string): Promise<void> {
     this.memoryCache.delete(key);
     try {
-      await unlink(this.getCachePath(key));
+      await FileIOHelper.unlinkAsync(this.getCachePath(key));
     } catch {}
   }
 
   async clear(): Promise<void> {
     this.memoryCache.clear();
     try {
-      await rm(this.cacheDir, { recursive: true, force: true });
+      await FileIOHelper.rmAsync(this.cacheDir, { recursive: true, force: true });
     } catch {}
   }
 }

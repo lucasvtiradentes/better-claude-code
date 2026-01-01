@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { FileIOHelper } from '@/common/utils/helpers/node-helper';
 import {
   ClaudeHelper,
   compactSession,
@@ -30,7 +30,7 @@ export class CompactService {
 
       logger.info('Step 2/2: Compacting via Claude Code...');
       const promptTemplatePath = getPromptPathForExtension(PromptFile.SESSION_COMPACTION);
-      const promptTemplate = readFileSync(promptTemplatePath, 'utf-8');
+      const promptTemplate = FileIOHelper.readFile(promptTemplatePath);
       await compactSession(parsedFile, summaryFile, promptTemplate, workspacePath);
       logger.info(`Summary saved to: ${summaryFile}`);
 

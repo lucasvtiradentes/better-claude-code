@@ -1,4 +1,4 @@
-import { access, readFile, rm, unlink } from 'node:fs/promises';
+import { FileIOHelper } from '@/common/utils/helpers/node-helper';
 import {
   ClaudeHelper,
   getCompactionDir,
@@ -181,7 +181,7 @@ export class SessionManager {
     }
 
     try {
-      const content = await readFile(session.filePath, 'utf-8');
+      const content = await FileIOHelper.readFileAsync(session.filePath);
       const lines = content.split('\n').filter((l) => l.trim());
       const events = lines
         .map((line) => {
@@ -215,7 +215,7 @@ export class SessionManager {
     }
 
     try {
-      await unlink(sessionPath);
+      await FileIOHelper.unlinkAsync(sessionPath);
       logger.info(`Deleted session file: ${sessionPath}`);
 
       if (this.currentWorkspacePath) {
@@ -223,7 +223,7 @@ export class SessionManager {
         const compactionDir = getCompactionDir(normalizedPath, sessionId);
 
         try {
-          await rm(compactionDir, { recursive: true, force: true });
+          await FileIOHelper.rmAsync(compactionDir, { recursive: true, force: true });
           logger.info(`Deleted compaction directory: ${compactionDir}`);
         } catch (error) {
           logger.warn(
@@ -270,7 +270,7 @@ export class SessionManager {
     const parsedPath = getCompactionParsedPath(normalizedPath, sessionId);
 
     try {
-      await access(parsedPath);
+      await FileIOHelper.accessAsync(parsedPath);
       return parsedPath;
     } catch {
       return null;
@@ -284,7 +284,7 @@ export class SessionManager {
     const summaryPath = getCompactionSummaryPath(normalizedPath, sessionId);
 
     try {
-      await access(summaryPath);
+      await FileIOHelper.accessAsync(summaryPath);
       return summaryPath;
     } catch {
       return null;

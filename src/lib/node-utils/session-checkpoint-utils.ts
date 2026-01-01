@@ -1,12 +1,11 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { FileIOHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
 
 export async function findCheckpointedSessions(sessionFiles: string[], sessionsPath: string): Promise<Set<string>> {
   const originalSessionsToHide = new Set<string>();
 
   const checkPromises = sessionFiles.map(async (file) => {
-    const filePath = join(sessionsPath, file);
-    const content = await readFile(filePath, 'utf-8');
+    const filePath = NodePathHelper.join(sessionsPath, file);
+    const content = await FileIOHelper.readFileAsync(filePath);
     const lines = content.split('\n').filter((l) => l.trim());
 
     const currentSessionId = file.replace('.jsonl', '');

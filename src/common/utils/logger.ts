@@ -1,8 +1,8 @@
-import { appendFileSync } from 'node:fs';
 import { BCC_EXTENSION_LOG_FILE } from '@/lib/node-utils';
 import { APP_NAME } from '@/lib/shared';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { OutputChannel } from '../vscode/vscode-types';
+import { FileIOHelper } from './helpers/node-helper';
 
 export const LOG_FILE_PATH = BCC_EXTENSION_LOG_FILE;
 
@@ -39,7 +39,7 @@ class Logger {
     this.outputChannel.appendLine(logMessage);
 
     try {
-      appendFileSync(LOG_FILE_PATH, `${logMessage}\n`);
+      FileIOHelper.appendFile(LOG_FILE_PATH, `${logMessage}\n`);
     } catch {}
   }
 

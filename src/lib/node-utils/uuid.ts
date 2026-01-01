@@ -1,5 +1,5 @@
-import { randomUUID } from 'node:crypto';
+import { NodeCryptoHelper } from '@/common/utils/helpers/node-helper';
 
 export function generateUuid() {
-  return randomUUID();
+  return NodeCryptoHelper.randomUUID();
 }

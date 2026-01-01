@@ -1,4 +1,4 @@
-import * as path from 'node:path';
+import { NodePathHelper } from '@/common/utils/helpers/node-helper';
 import type { SessionListItem } from '@/lib/node-utils';
 import type { MessageFiltersState } from '../common/schemas/workspace-state.schema';
 import { messageFiltersState } from '../common/state';
@@ -59,7 +59,7 @@ export class WebviewProvider {
         {
           enableScripts: true,
           retainContextWhenHidden: true,
-          localResourceRoots: [VscodeHelper.createFileUri(path.join(context.extensionPath, 'out', 'webview'))]
+          localResourceRoots: [VscodeHelper.createFileUri(NodePathHelper.join(context.extensionPath, 'out', 'webview'))]
         }
       );
 
@@ -226,10 +226,14 @@ export class WebviewProvider {
   }
 
   private static getHtmlContent(context: ExtensionContext, webview: WebviewPanel['webview']): string {
-    const scriptPathOnDisk = VscodeHelper.createFileUri(path.join(context.extensionPath, 'out', 'webview', 'index.js'));
+    const scriptPathOnDisk = VscodeHelper.createFileUri(
+      NodePathHelper.join(context.extensionPath, 'out', 'webview', 'index.js')
+    );
     const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
 
-    const stylePathOnDisk = VscodeHelper.createFileUri(path.join(context.extensionPath, 'out', 'webview', 'index.css'));
+    const stylePathOnDisk = VscodeHelper.createFileUri(
+      NodePathHelper.join(context.extensionPath, 'out', 'webview', 'index.css')
+    );
     const styleUri = webview.asWebviewUri(stylePathOnDisk);
 
     const cspSource = webview.cspSource;

@@ -1,5 +1,4 @@
-import { access, readdir, readFile, stat } from 'node:fs/promises';
-import { join } from 'node:path';
+import { FileIOHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
 import { JsonFileCache } from './cache.js';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from './claude-helper.js';
 import { MessageCountMode } from './config-manager.js';
@@ -277,7 +276,7 @@ async function processSessionFileWithCache(
     settings?: SessionListOptions['settings'];
   }
 ): Promise<SessionCacheEntry | null> {
-  const content = await readFile(filePath, 'utf-8');
+  const content = await FileIOHelper.readFileAsync(filePath);
   const lines = content.trim().split('\n').filter(Boolean);
 
   if (ClaudeHelper.isCompactionSession(lines)) return null;
@@ -292,7 +291,7 @@ async function processSessionFileWithCache(
     return null;
   }
 
-  const stats = await stat(filePath);
+  const stats = await FileIOHelper.statAsync(filePath);
   const sessionId = file.replace('.jsonl', '');
 
   const entry: SessionCacheEntry = {
@@ -330,7 +329,7 @@ async function processSessionFileWithCache(
 
   const summaryPath = getCompactionSummaryPath(projectName, sessionId);
   try {
-    await access(summaryPath);
+    await FileIOHelper.accessAsync(summaryPath);
     entry.hasCompaction = true;
   } catch {
     entry.hasCompaction = false;
@@ -363,7 +362,7 @@ export async function listSessionsCached(
   const cacheKey = `project-${normalizedPath.replace(/\//g, '-')}`;
   const cachedData = skipCache ? {} : (await sessionCache.get<Record<string, SessionCacheEntry>>(cacheKey)) || {};
 
-  const files = await readdir(sessionsPath);
+  const files = await FileIOHelper.readdirAsync(sessionsPath);
   let sessionFiles = files.filter((f) => f.endsWith('.jsonl') && !f.startsWith('agent-'));
 
   const checkpointedOriginals = await findCheckpointedSessions(sessionFiles, sessionsPath);
@@ -371,7 +370,7 @@ export async function listSessionsCached(
 
   const fileMtimes = await Promise.all(
     sessionFiles.map(async (file) => {
-      const stats = await stat(join(sessionsPath, file));
+      const stats = await FileIOHelper.statAsync(NodePathHelper.join(sessionsPath, file));
       return { file, mtime: stats.mtimeMs };
     })
   );
@@ -403,7 +402,12 @@ export async function listSessionsCached(
 
   const processedResults = await Promise.all(
     filesToProcess.map((sessionFile) =>
-      processSessionFileWithCache(join(sessionsPath, sessionFile), sessionFile, normalizedPath, processOptions)
+      processSessionFileWithCache(
+        NodePathHelper.join(sessionsPath, sessionFile),
+        sessionFile,
+        normalizedPath,
+        processOptions
+      )
     )
   );
 
@@ -453,7 +457,7 @@ export async function listSessionsCached(
     userMessageCount: s.userMessageCount,
     assistantMessageCount: s.assistantMessageCount,
     summary: s.summary,
-    filePath: join(sessionsPath, `${s.id}.jsonl`),
+    filePath: NodePathHelper.join(sessionsPath, `${s.id}.jsonl`),
     cached: s.wasCached,
     hasCompaction: s.hasCompaction
   }));

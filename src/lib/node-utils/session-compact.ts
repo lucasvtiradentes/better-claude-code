@@ -1,5 +1,4 @@
-import { existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { FileIOHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from './claude-helper.js';
 import { generateUuid } from './uuid.js';
 
@@ -9,7 +8,7 @@ type MessageBlock = {
 };
 
 export function parseSessionToMarkdown(sessionFile: string, outputFile: string, repoRoot: string): void {
-  const content = readFileSync(sessionFile, 'utf-8');
+  const content = FileIOHelper.readFile(sessionFile);
   const lines = content.trim().split('\n');
 
   const messages: MessageBlock[] = [];
@@ -155,7 +154,7 @@ export function parseSessionToMarkdown(sessionFile: string, outputFile: string, 
     }
   }
 
-  writeFileSync(outputFile, markdown, 'utf-8');
+  FileIOHelper.writeFile(outputFile, markdown);
 }
 
 export async function compactSession(
@@ -172,23 +171,23 @@ export async function compactSession(
 
   await ClaudeHelper.executePromptNonInteractively(prompt);
 
-  if (!existsSync(outputFile)) {
+  if (!FileIOHelper.fileExists(outputFile)) {
     throw new Error(`Summary file was not created at ${outputFile}`);
   }
 
   const normalized = ClaudeHelper.normalizePathForClaudeProjects(currentDir);
-  const projectDir = join(ClaudeHelper.getProjectsDir(), normalized);
+  const projectDir = NodePathHelper.join(ClaudeHelper.getProjectsDir(), normalized);
 
-  if (!existsSync(projectDir)) {
+  if (!FileIOHelper.fileExists(projectDir)) {
     return;
   }
 
-  const compactionSessions = readdirSync(projectDir)
+  const compactionSessions = FileIOHelper.readDirectory(projectDir)
     .filter((file) => file.endsWith('.jsonl'))
-    .map((file) => join(projectDir, file))
+    .map((file) => NodePathHelper.join(projectDir, file))
     .filter((file) => {
       try {
-        const content = readFileSync(file, 'utf-8');
+        const content = FileIOHelper.readFile(file);
         return content.includes(`${CLAUDE_CODE_SESSION_COMPACTION_ID}: ${cleanupUuid}`);
       } catch {
         return false;
@@ -196,6 +195,6 @@ export async function compactSession(
     });
 
   for (const session of compactionSessions) {
-    unlinkSync(session);
+    FileIOHelper.deleteFile(session);
   }
 }

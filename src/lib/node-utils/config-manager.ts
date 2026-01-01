@@ -1,6 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { homedir, platform, release } from 'node:os';
-import { join } from 'node:path';
+import { FileIOHelper, NodeOsHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
 
 export enum MessageCountMode {
   TURN = 'turn',
@@ -18,11 +16,11 @@ const DEFAULT_MESSAGE_COUNT_MODE = MessageCountMode.EVENT;
 const APP_CLI_NAME = 'bcc';
 
 function getUserOS(): SupportedOS {
-  const platformOs = platform();
+  const platformOs = NodeOsHelper.platform();
 
   if (platformOs === 'linux') {
     try {
-      const releaseInfo = release().toLowerCase();
+      const releaseInfo = NodeOsHelper.release().toLowerCase();
       if (releaseInfo.includes('microsoft') || releaseInfo.includes('wsl')) {
         return 'wsl';
       }
@@ -38,16 +36,16 @@ function getUserOS(): SupportedOS {
 
 function getConfigDirectory(): string {
   const userOS = getUserOS();
-  const homeDir = homedir();
+  const homeDir = NodeOsHelper.homedir();
 
   switch (userOS) {
     case 'linux':
     case 'wsl':
-      return join(homeDir, '.config', APP_CLI_NAME);
+      return NodePathHelper.join(homeDir, '.config', APP_CLI_NAME);
     case 'mac':
-      return join(homeDir, 'Library', 'Preferences', APP_CLI_NAME);
+      return NodePathHelper.join(homeDir, 'Library', 'Preferences', APP_CLI_NAME);
     case 'windows':
-      return join(homeDir, 'AppData', 'Roaming', APP_CLI_NAME);
+      return NodePathHelper.join(homeDir, 'AppData', 'Roaming', APP_CLI_NAME);
     default:
       throw new Error(`Unsupported OS: ${userOS}`);
   }
@@ -55,7 +53,7 @@ function getConfigDirectory(): string {
 
 const CONFIG_PATHS = {
   configDir: getConfigDirectory(),
-  defaultConfigFile: join(getConfigDirectory(), 'config.json')
+  defaultConfigFile: NodePathHelper.join(getConfigDirectory(), 'config.json')
 };
 
 export class ConfigManager {
@@ -66,9 +64,7 @@ export class ConfigManager {
   }
 
   private ensureConfigDirectory() {
-    if (!existsSync(CONFIG_PATHS.configDir)) {
-      mkdirSync(CONFIG_PATHS.configDir, { recursive: true });
-    }
+    FileIOHelper.ensureDirectoryExists(CONFIG_PATHS.configDir);
   }
 
   private loadConfig(): BccConfig {
@@ -76,12 +72,12 @@ export class ConfigManager {
       return this.config;
     }
 
-    if (!existsSync(CONFIG_PATHS.defaultConfigFile)) {
+    if (!FileIOHelper.fileExists(CONFIG_PATHS.defaultConfigFile)) {
       this.createDefaultConfig();
     }
 
     try {
-      const data = readFileSync(CONFIG_PATHS.defaultConfigFile, 'utf-8');
+      const data = FileIOHelper.readFile(CONFIG_PATHS.defaultConfigFile);
       const parsedConfig: BccConfig = JSON.parse(data);
       this.config = parsedConfig;
       return parsedConfig;
@@ -94,14 +90,14 @@ export class ConfigManager {
     const defaultConfig: BccConfig = {
       messages_count_mode: DEFAULT_MESSAGE_COUNT_MODE
     };
-    writeFileSync(CONFIG_PATHS.defaultConfigFile, JSON.stringify(defaultConfig, null, 2));
+    FileIOHelper.writeFile(CONFIG_PATHS.defaultConfigFile, JSON.stringify(defaultConfig, null, 2));
   }
 
   private saveConfig() {
     if (!this.config) {
       throw new Error('No config to save');
     }
-    writeFileSync(CONFIG_PATHS.defaultConfigFile, JSON.stringify(this.config, null, 2));
+    FileIOHelper.writeFile(CONFIG_PATHS.defaultConfigFile, JSON.stringify(this.config, null, 2));
   }
 
   markCompletionInstalled() {

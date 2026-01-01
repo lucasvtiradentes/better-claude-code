@@ -1,5 +1,4 @@
-import { accessSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { FileIOHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
 import { BCC_SETTINGS_PATH } from './monorepo-path-utils.js';
 
 const SETTINGS_PATH = BCC_SETTINGS_PATH;
@@ -65,16 +64,16 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 function ensureSettingsFile() {
   try {
-    mkdirSync(dirname(SETTINGS_PATH), { recursive: true });
-    accessSync(SETTINGS_PATH);
+    FileIOHelper.ensureDirectoryExists(NodePathHelper.dirname(SETTINGS_PATH));
+    FileIOHelper.accessSync(SETTINGS_PATH);
   } catch {
-    writeFileSync(SETTINGS_PATH, JSON.stringify(DEFAULT_SETTINGS, null, 2));
+    FileIOHelper.writeFile(SETTINGS_PATH, JSON.stringify(DEFAULT_SETTINGS, null, 2));
   }
 }
 
 export function readSettings(): AppSettings {
   ensureSettingsFile();
-  const content = readFileSync(SETTINGS_PATH, 'utf-8');
+  const content = FileIOHelper.readFile(SETTINGS_PATH);
   const settings = JSON.parse(content) as Partial<AppSettings>;
 
   let needsUpdate = false;
@@ -97,7 +96,7 @@ export function readSettings(): AppSettings {
 }
 
 function writeSettings(settings: AppSettings) {
-  writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  FileIOHelper.writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2));
 }
 
 export function getSessionLabels(): SessionLabelSettings[] {
