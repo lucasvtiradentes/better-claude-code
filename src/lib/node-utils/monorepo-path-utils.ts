@@ -109,7 +109,9 @@ function getExtensionRoot(baseDir: string, devMode: boolean): string {
 }
 
 const EXTENSION_ROOT = getExtensionRoot(callerDir, isDevMode);
-export const PROMPTS_FOLDER_FOR_EXTENSION = join(EXTENSION_ROOT, 'prompts');
+export const PROMPTS_FOLDER_FOR_EXTENSION = isDevMode
+  ? join(EXTENSION_ROOT, 'resources')
+  : join(EXTENSION_ROOT, '..', 'resources');
 
 export function getPromptPathForExtension(promptFile: PromptFile): string {
   return join(PROMPTS_FOLDER_FOR_EXTENSION, promptFile);
