@@ -1,5 +1,4 @@
-import { ConfigManager } from '@/lib/node-utils';
-import { APP_NAME } from '@/lib/shared';
+import { APP_NAME, ConfigManager } from '@/common/utils';
 import { registerAllCommands } from './commands/register-all';
 import { initWorkspaceState } from './common/state';
 import { logger } from './common/utils/logger.js';

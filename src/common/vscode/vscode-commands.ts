@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import { addDevSuffix, IS_DEV } from '@/lib/shared';
-import { CONTEXT_PREFIX } from '@/lib/shared/scripts-constants';
+import { addDevSuffix, CONTEXT_PREFIX, IS_DEV } from '@/common/utils';
 import type { CommandParams } from '../../commands/command-params';
 import type { Disposable } from './vscode-types';
 

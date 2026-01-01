@@ -1,8 +1,8 @@
 import { FileIOHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
-import { JsonFileCache } from './cache.js';
-import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from './claude-helper.js';
-import { MessageCountMode } from './config-manager.js';
-import { BCC_SESSIONS_CACHE_DIR, getCompactionSummaryPath } from './monorepo-path-utils.js';
+import { JsonFileCache } from '../../../common/utils/cache.js';
+import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from '../../../common/utils/claude-helper.js';
+import { MessageCountMode } from '../../../common/utils/config-manager.js';
+import { BCC_SESSIONS_CACHE_DIR, getCompactionSummaryPath } from '../../../common/utils/monorepo-path-utils.js';
 import { findCheckpointedSessions } from './session-checkpoint-utils.js';
 import {
   CLAUDE_CODE_COMMANDS,

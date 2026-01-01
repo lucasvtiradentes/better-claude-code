@@ -1,4 +1,3 @@
-import type { SessionListItem } from '@/lib/node-utils';
 import type { DateGroup } from '../../common/types.js';
 import { VscodeColor } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -10,6 +9,7 @@ import {
   type TreeItemCollapsibleState,
   UriClass
 } from '../../common/vscode/vscode-types';
+import type { SessionListItem } from './core/session-list.js';
 
 export class DateGroupTreeItem extends TreeItemClass {
   constructor(

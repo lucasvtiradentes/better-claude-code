@@ -1,5 +1,4 @@
-import { BCC_EXTENSION_LOG_FILE } from '@/lib/node-utils';
-import { APP_NAME } from '@/lib/shared';
+import { APP_NAME, BCC_EXTENSION_LOG_FILE } from '@/common/utils';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { OutputChannel } from '../vscode/vscode-types';
 import { FileIOHelper } from './helpers/node-helper';

@@ -1,4 +1,4 @@
-import type { SessionListItem } from '@/lib/node-utils';
+import type { SessionListItem } from '@/views/sessions/core';
 import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';

@@ -1,4 +1,4 @@
-import { MESSAGE_PATTERNS } from '../../../lib/shared';
+import { MESSAGE_PATTERNS } from '../../../common/utils/message-patterns.js';
 import { MESSAGE_COLORS } from './message-colors';
 
 function escapeHtml(text: string) {

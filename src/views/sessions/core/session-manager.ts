@@ -1,21 +1,19 @@
-import { FileIOHelper } from '@/common/utils/helpers/node-helper';
 import {
   ClaudeHelper,
+  FileIOHelper,
   getCompactionDir,
   getCompactionParsedPath,
   getCompactionSummaryPath,
-  groupSessions,
-  listSessionsCached,
-  MessageCountMode,
-  parseSessionMessages,
-  readSettings,
-  type SessionListItem,
-  SessionSortBy,
-  TitleSource
-} from '@/lib/node-utils';
-import type { DateGroup, FilterCriteria, SessionStats } from '../../common/types.js';
-import { logger } from '../../common/utils/logger.js';
+  readSettings
+} from '@/common/utils';
+import type { DateGroup, FilterCriteria, SessionStats } from '../../../common/types.js';
+import { MessageCountMode } from '../../../common/utils/config-manager.js';
+import { logger } from '../../../common/utils/logger.js';
 import { CompactService } from './compact-service.js';
+import { groupSessions } from './session-grouping.js';
+import { type SessionListItem, SessionSortBy, TitleSource } from './session-list.js';
+import { listSessionsCached } from './session-list-cached.js';
+import { parseSessionMessages } from './session-parser.js';
 
 export class SessionManager {
   private sessions: SessionListItem[] = [];

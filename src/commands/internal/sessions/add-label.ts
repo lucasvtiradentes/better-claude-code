@@ -1,4 +1,4 @@
-import { ClaudeHelper, getSessionLabels, getSessionLabelsForSession, toggleSessionLabel } from '@/lib/node-utils';
+import { ClaudeHelper, getSessionLabels, getSessionLabelsForSession, toggleSessionLabel } from '@/common/utils';
 import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';

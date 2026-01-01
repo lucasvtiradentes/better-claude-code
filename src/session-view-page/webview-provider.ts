@@ -1,5 +1,5 @@
 import { NodePathHelper } from '@/common/utils/helpers/node-helper';
-import type { SessionListItem } from '@/lib/node-utils';
+import type { SessionListItem } from '@/views/sessions/core';
 import type { MessageFiltersState } from '../common/schemas/workspace-state.schema';
 import { logger } from '../common/utils/logger';
 import { VscodeConstants } from '../common/vscode/vscode-constants';

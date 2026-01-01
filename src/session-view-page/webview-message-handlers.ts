@@ -1,4 +1,4 @@
-import type { SessionListItem } from '@/lib/node-utils';
+import type { SessionListItem } from '@/views/sessions/core';
 import type { MessageFiltersState } from '../common/schemas/workspace-state.schema';
 import { messageFiltersState } from '../common/state';
 import { logger } from '../common/utils/logger';

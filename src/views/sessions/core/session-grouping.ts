@@ -7,7 +7,7 @@ import {
   TOKEN_PERCENTAGE_GROUP_LABELS,
   TOKEN_PERCENTAGE_GROUP_ORDER,
   type TokenPercentageGroup
-} from './duplicated.js';
+} from '../../../common/utils/duplicated.js';
 import type { SessionListItem } from './session-list.js';
 
 export type SessionLabel = {

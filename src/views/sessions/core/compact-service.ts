@@ -1,15 +1,14 @@
-import { FileIOHelper } from '@/common/utils/helpers/node-helper';
 import {
   ClaudeHelper,
-  compactSession,
   ensureCompactionDirExists,
+  FileIOHelper,
   getCompactionParsedPath,
   getCompactionSummaryPath,
   getPromptPathForExtension,
-  PromptFile,
-  parseSessionToMarkdown
-} from '@/lib/node-utils';
-import { logger } from '../../common/utils/logger.js';
+  PromptFile
+} from '@/common/utils';
+import { logger } from '../../../common/utils/logger.js';
+import { compactSession, parseSessionToMarkdown } from './session-compact.js';
 
 export class CompactService {
   async compactSession(sessionId: string, workspacePath: string): Promise<string> {
