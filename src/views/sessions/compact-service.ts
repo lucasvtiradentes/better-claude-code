@@ -9,7 +9,7 @@ import {
   PromptFile,
   parseSessionToMarkdown
 } from '@/lib/node-utils';
-import { logger } from '../utils/logger.js';
+import { logger } from '../../common/utils/logger.js';
 
 export class CompactService {
   async compactSession(sessionId: string, workspacePath: string): Promise<string> {

@@ -13,8 +13,8 @@ import {
   SessionSortBy,
   TitleSource
 } from '@/lib/node-utils';
-import type { DateGroup, FilterCriteria, SessionStats } from '../types.js';
-import { logger } from '../utils/logger.js';
+import type { DateGroup, FilterCriteria, SessionStats } from '../../common/types.js';
+import { logger } from '../../common/utils/logger.js';
 import { CompactService } from './compact-service.js';
 
 export class SessionManager {

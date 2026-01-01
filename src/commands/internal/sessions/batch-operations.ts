@@ -5,12 +5,12 @@ import {
   sessionCache,
   toggleSessionLabel
 } from '@/lib/node-utils';
-import { CompactService } from '../../../common/lib/compact-service';
 import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
+import { CompactService } from '../../../views/sessions/compact-service';
 import type { SessionProvider } from '../../../views/sessions/session-provider';
 import { SessionTreeItem } from '../../../views/sessions/tree-items';
 

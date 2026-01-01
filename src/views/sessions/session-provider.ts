@@ -1,5 +1,4 @@
 import type { SessionListItem } from '@/lib/node-utils';
-import { SessionManager } from '../../common/lib/session-manager.js';
 import { sessionProviderState } from '../../common/state';
 import type { FilterCriteria } from '../../common/types.js';
 import { logger } from '../../common/utils/logger.js';
@@ -14,6 +13,7 @@ import {
   type TreeItemCollapsibleState
 } from '../../common/vscode/vscode-types';
 import { WebviewProvider } from '../../session-view-page/webview-provider.js';
+import { SessionManager } from './session-manager.js';
 import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
 
 function normalizeGroupLabel(label: string): string {
