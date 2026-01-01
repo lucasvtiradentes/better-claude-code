@@ -303,11 +303,19 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
   }
 
   if (contributes.commands) {
-    const commands = contributes.commands as Array<{ command: string; title?: string; enablement?: string }>;
+    const commands = contributes.commands as Array<{
+      command: string;
+      title?: string;
+      category?: string;
+      enablement?: string;
+    }>;
     for (const cmd of commands) {
       cmd.command = transformCommand(cmd.command);
       if (cmd.title) {
         cmd.title = transformTitle(cmd.title);
+      }
+      if (cmd.category) {
+        cmd.category = addDevLabel(cmd.category);
       }
       if (cmd.enablement) {
         cmd.enablement = transformContextKey(cmd.enablement);

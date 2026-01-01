@@ -92,6 +92,11 @@
 					"id": "bccSessionExplorer",
 					"name": "Sessions",
 					"contextualTitle": "Claude Code Sessions"
+				},
+				{
+					"id": "bccCommandsExplorer",
+					"name": "Commands",
+					"contextualTitle": "Commands"
 				}
 			]
 		},

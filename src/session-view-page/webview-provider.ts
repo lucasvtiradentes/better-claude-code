@@ -5,7 +5,7 @@ import { logger } from '../common/utils/logger';
 import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { ExtensionContext, WebviewPanel } from '../common/vscode/vscode-types';
-import type { SessionProvider } from '../sidebar/session-provider';
+import type { SessionProvider } from '../views/sessions/session-provider';
 import { createMessageHandler } from './webview-message-handlers';
 import { getSessionPanelHtml } from './webview-templates';
 

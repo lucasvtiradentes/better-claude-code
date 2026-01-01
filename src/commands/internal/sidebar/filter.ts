@@ -1,7 +1,7 @@
 import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
-import type { SessionProvider } from '../../../sidebar/session-provider';
+import type { SessionProvider } from '../../../views/sessions/session-provider';
 
 async function handleFilterSessions(sessionProvider: SessionProvider) {
   try {

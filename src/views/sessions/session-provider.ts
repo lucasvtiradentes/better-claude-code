@@ -1,19 +1,19 @@
 import type { SessionListItem } from '@/lib/node-utils';
-import { SessionManager } from '../common/lib/session-manager.js';
-import { sessionProviderState } from '../common/state';
-import type { FilterCriteria } from '../common/types.js';
-import { logger } from '../common/utils/logger.js';
-import { ContextKey, setContextKey } from '../common/vscode/vscode-commands';
-import { VscodeConstants } from '../common/vscode/vscode-constants';
-import { ToastKind, VscodeHelper } from '../common/vscode/vscode-helper';
+import { SessionManager } from '../../common/lib/session-manager.js';
+import { sessionProviderState } from '../../common/state';
+import type { FilterCriteria } from '../../common/types.js';
+import { logger } from '../../common/utils/logger.js';
+import { ContextKey, setContextKey } from '../../common/vscode/vscode-commands';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import {
   EventEmitterClass,
   type ExtensionContext,
   type TreeDataProvider,
   type TreeItem,
   type TreeItemCollapsibleState
-} from '../common/vscode/vscode-types';
-import { WebviewProvider } from '../session-view-page/webview-provider.js';
+} from '../../common/vscode/vscode-types';
+import { WebviewProvider } from '../../session-view-page/webview-provider.js';
 import { DateGroupTreeItem, SessionTreeItem } from './tree-items.js';
 
 function normalizeGroupLabel(label: string): string {

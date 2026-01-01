@@ -18,10 +18,12 @@ import {
   type TreeView,
   type Uri
 } from './common/vscode/vscode-types';
+import { getViewId, View } from './common/vscode/vscode-views';
 import { WebviewProvider } from './session-view-page/webview-provider.js';
-import { SessionProvider } from './sidebar/session-provider.js';
-import { DateGroupTreeItem, SessionTreeItem } from './sidebar/tree-items.js';
 import { StatusBarManager } from './status-bar/status-bar-manager.js';
+import { CommandsProvider } from './views/commands/commands-provider.js';
+import { SessionProvider } from './views/sessions/session-provider.js';
+import { DateGroupTreeItem, SessionTreeItem } from './views/sessions/tree-items.js';
 import { createSessionWatcher } from './watchers';
 
 class SessionDecorationProvider implements FileDecorationProvider {
@@ -117,17 +119,16 @@ class ExtensionManager {
   }
 
   private initializeTreeView(): void {
-    const packageJson = this.context.extension.packageJSON;
-    const viewId =
-      packageJson.contributes?.views?.bccExplorer?.[0]?.id ||
-      packageJson.contributes?.views?.bccExplorerDev?.[0]?.id ||
-      'bccSessionExplorer';
-
-    this.treeView = VscodeHelper.createTreeView<TreeItem>(viewId, {
+    this.treeView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.SessionExplorer), {
       treeDataProvider: this.sessionProvider
     });
 
+    const commandsView = VscodeHelper.createTreeView<TreeItem>(getViewId(View.CommandsExplorer), {
+      treeDataProvider: new CommandsProvider()
+    });
+
     this.context.subscriptions.push(this.treeView);
+    this.context.subscriptions.push(commandsView);
   }
 
   private initializeStatusBar(): void {

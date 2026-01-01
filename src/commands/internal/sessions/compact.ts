@@ -4,8 +4,8 @@ import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
-import type { SessionProvider } from '../../../sidebar/session-provider';
-import { SessionTreeItem } from '../../../sidebar/tree-items';
+import type { SessionProvider } from '../../../views/sessions/session-provider';
+import { SessionTreeItem } from '../../../views/sessions/tree-items';
 
 export type CompactSessionParams = SessionTreeItem;
 

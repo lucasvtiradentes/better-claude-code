@@ -2,7 +2,7 @@ import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { SessionTreeItem } from '../../../sidebar/tree-items';
+import { SessionTreeItem } from '../../../views/sessions/tree-items';
 
 export type OpenSessionFileParams = SessionTreeItem;
 export type CopySessionPathParams = SessionTreeItem;
