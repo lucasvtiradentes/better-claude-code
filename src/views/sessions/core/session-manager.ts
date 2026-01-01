@@ -1,3 +1,4 @@
+import { logger } from '../../../common/lib/logger';
 import type { DateGroup, FilterCriteria, SessionStats } from '../../../common/types';
 import {
   ClaudeHelper,
@@ -8,7 +9,6 @@ import {
   readSettings
 } from '../../../common/utils';
 import { MessageCountMode } from '../../../common/utils/config-manager';
-import { logger } from '../../../common/utils/logger';
 import { CompactService } from './compact-service';
 import { groupSessions } from './session-grouping';
 import { type SessionListItem, SessionSortBy, TitleSource } from './session-list';

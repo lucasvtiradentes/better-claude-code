@@ -1,5 +1,5 @@
-import { VscodeHelper } from '../vscode/vscode-helper';
-import { logger } from './logger';
+import { logger } from '../../lib/logger';
+import { VscodeHelper } from '../../vscode/vscode-helper';
 
 export function getCurrentWorkspacePath(): string | null {
   const workspaceFolders = VscodeHelper.getWorkspaceFolders();

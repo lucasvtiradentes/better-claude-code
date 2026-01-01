@@ -1,4 +1,4 @@
-import { logger } from '../../../common/utils/logger';
+import { logger } from '../../../common/lib/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';

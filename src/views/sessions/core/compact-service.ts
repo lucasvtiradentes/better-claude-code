@@ -1,3 +1,4 @@
+import { logger } from '../../../common/lib/logger';
 import {
   ClaudeHelper,
   ensureCompactionDirExists,
@@ -7,7 +8,6 @@ import {
   getPromptPathForExtension,
   PromptFile
 } from '../../../common/utils';
-import { logger } from '../../../common/utils/logger';
 import { compactSession, parseSessionToMarkdown } from './session-compact';
 
 export class CompactService {

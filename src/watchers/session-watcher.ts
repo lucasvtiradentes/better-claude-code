@@ -1,4 +1,4 @@
-import { logger } from '../common/utils/logger';
+import { logger } from '../common/lib/logger';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable } from '../common/vscode/vscode-types';
 

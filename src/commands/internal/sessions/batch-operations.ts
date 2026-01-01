@@ -1,5 +1,5 @@
+import { logger } from '../../../common/lib/logger';
 import { ClaudeHelper, getSessionLabels, getSessionLabelsForSession, toggleSessionLabel } from '../../../common/utils';
-import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';

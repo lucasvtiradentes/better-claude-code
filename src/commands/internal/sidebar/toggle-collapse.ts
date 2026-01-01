@@ -1,4 +1,4 @@
-import { logger } from '../../../common/utils/logger';
+import { logger } from '../../../common/lib/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { SessionProvider } from '../../../views/sessions/session-provider';
 

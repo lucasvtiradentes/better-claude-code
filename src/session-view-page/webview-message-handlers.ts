@@ -1,6 +1,6 @@
+import { logger } from '../common/lib/logger';
 import type { MessageFiltersState } from '../common/schemas/workspace-state.schema';
 import { messageFiltersState } from '../common/state';
-import { logger } from '../common/utils/logger';
 import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { WebviewPanel } from '../common/vscode/vscode-types';

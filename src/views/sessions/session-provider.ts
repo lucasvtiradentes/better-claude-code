@@ -1,6 +1,6 @@
+import { logger } from '../../common/lib/logger';
 import { sessionProviderState } from '../../common/state';
 import type { FilterCriteria } from '../../common/types';
-import { logger } from '../../common/utils/logger';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';

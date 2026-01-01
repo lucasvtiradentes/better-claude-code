@@ -1,4 +1,4 @@
-import { JsonFileCache } from '../../../common/utils/cache';
+import { JsonFileCache } from '../../../common/lib/cache';
 import { CLAUDE_CODE_SESSION_COMPACTION_ID, ClaudeHelper, MessageSource } from '../../../common/utils/claude-helper';
 import { MessageCountMode } from '../../../common/utils/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
