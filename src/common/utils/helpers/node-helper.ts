@@ -30,7 +30,7 @@ import {
   sep
 } from 'node:path';
 
-export const UTF_ENCODING: BufferEncoding = 'utf-8';
+const UTF_ENCODING: BufferEncoding = 'utf-8';
 
 export class NodePathHelper {
   static join(...paths: string[]): string {

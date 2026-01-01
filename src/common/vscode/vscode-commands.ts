@@ -40,7 +40,7 @@ export function getCommandId(command: Command | string): string {
   return `${getPrefix()}.${command}`;
 }
 
-export function getContextKeyId(key: ContextKey | string): string {
+function getContextKeyId(key: ContextKey | string): string {
   return `${getPrefix()}.${key}`;
 }
 

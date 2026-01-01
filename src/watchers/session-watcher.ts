@@ -2,7 +2,7 @@ import { logger } from '../common/utils/logger';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable } from '../common/vscode/vscode-types';
 
-export type RefreshCallback = () => void | Promise<void>;
+type RefreshCallback = () => void | Promise<void>;
 
 type SessionWatcherCallbacks = {
   onRefresh: RefreshCallback;

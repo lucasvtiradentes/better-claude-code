@@ -109,7 +109,7 @@ function getExtensionRoot(baseDir: string, devMode: boolean): string {
 }
 
 const EXTENSION_ROOT = getExtensionRoot(callerDir, isDevMode);
-export const PROMPTS_FOLDER_FOR_EXTENSION = isDevMode
+const PROMPTS_FOLDER_FOR_EXTENSION = isDevMode
   ? NodePathHelper.join(EXTENSION_ROOT, 'resources')
   : NodePathHelper.join(EXTENSION_ROOT, '..', 'resources');
 

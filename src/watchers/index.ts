@@ -1,1 +1,1 @@
-export { createSessionWatcher, type RefreshCallback } from './session-watcher';
+export { createSessionWatcher } from './session-watcher';
