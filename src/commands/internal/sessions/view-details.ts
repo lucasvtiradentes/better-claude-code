@@ -1,9 +1,9 @@
-import type { SessionListItem } from '@/views/sessions/core';
 import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { ExtensionContext } from '../../../common/vscode/vscode-types';
 import { WebviewProvider } from '../../../session-view-page/webview-provider';
+import type { SessionListItem } from '../../../views/sessions/core';
 import type { SessionProvider } from '../../../views/sessions/session-provider';
 import { SessionTreeItem } from '../../../views/sessions/tree-items';
 

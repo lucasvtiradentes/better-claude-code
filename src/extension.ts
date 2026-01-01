@@ -1,6 +1,6 @@
-import { APP_NAME, ConfigManager } from '@/common/utils';
 import { registerAllCommands } from './commands/register-all';
 import { initWorkspaceState } from './common/state';
+import { APP_NAME, ConfigManager } from './common/utils';
 import { logger } from './common/utils/logger';
 import { getCurrentWorkspacePath } from './common/utils/workspace-detector';
 import { Command, getCommandId } from './common/vscode/vscode-commands';

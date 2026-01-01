@@ -1,4 +1,4 @@
-import { ClaudeHelper, getCompactionSummaryPath } from '@/common/utils';
+import { ClaudeHelper, getCompactionSummaryPath } from '../../../common/utils';
 import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';

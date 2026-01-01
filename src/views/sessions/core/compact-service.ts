@@ -6,7 +6,7 @@ import {
   getCompactionSummaryPath,
   getPromptPathForExtension,
   PromptFile
-} from '@/common/utils';
+} from '../../../common/utils';
 import { logger } from '../../../common/utils/logger';
 import { compactSession, parseSessionToMarkdown } from './session-compact';
 

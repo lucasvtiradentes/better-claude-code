@@ -1,10 +1,10 @@
-import type { SessionListItem } from '@/views/sessions/core';
 import type { MessageFiltersState } from '../common/schemas/workspace-state.schema';
 import { messageFiltersState } from '../common/state';
 import { logger } from '../common/utils/logger';
 import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { WebviewPanel } from '../common/vscode/vscode-types';
+import type { SessionListItem } from '../views/sessions/core';
 import type { SessionProvider } from '../views/sessions/session-provider';
 import { getImagePreviewHtml } from './webview-templates';
 

@@ -1,4 +1,4 @@
-import { FileIOHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
+import { FileIOHelper, NodePathHelper } from './helpers/node-helper';
 
 type CacheEntry<T> = {
   data: T;

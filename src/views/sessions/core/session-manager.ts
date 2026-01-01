@@ -1,3 +1,4 @@
+import type { DateGroup, FilterCriteria, SessionStats } from '../../../common/types';
 import {
   ClaudeHelper,
   FileIOHelper,
@@ -5,8 +6,7 @@ import {
   getCompactionParsedPath,
   getCompactionSummaryPath,
   readSettings
-} from '@/common/utils';
-import type { DateGroup, FilterCriteria, SessionStats } from '../../../common/types';
+} from '../../../common/utils';
 import { MessageCountMode } from '../../../common/utils/config-manager';
 import { logger } from '../../../common/utils/logger';
 import { CompactService } from './compact-service';

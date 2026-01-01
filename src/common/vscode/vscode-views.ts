@@ -1,4 +1,4 @@
-import { addDevSuffix } from '@/common/utils';
+import { addDevSuffix } from '../utils';
 
 export enum View {
   SessionExplorer = 'bccSessionExplorer',

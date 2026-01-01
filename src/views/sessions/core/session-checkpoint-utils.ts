@@ -1,4 +1,4 @@
-import { FileIOHelper, NodePathHelper } from '@/common/utils/helpers/node-helper';
+import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 
 export async function findCheckpointedSessions(sessionFiles: string[], sessionsPath: string): Promise<Set<string>> {
   const originalSessionsToHide = new Set<string>();

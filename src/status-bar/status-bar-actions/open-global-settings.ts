@@ -1,4 +1,4 @@
-import { CLAUDE_CODE_SETTINGS_PATH, FileIOHelper } from '@/common/utils';
+import { CLAUDE_CODE_SETTINGS_PATH, FileIOHelper } from '../../common/utils';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Disposable } from '../../common/vscode/vscode-types';

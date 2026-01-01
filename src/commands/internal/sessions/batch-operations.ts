@@ -1,10 +1,10 @@
-import { ClaudeHelper, getSessionLabels, getSessionLabelsForSession, toggleSessionLabel } from '@/common/utils';
-import { sessionCache } from '@/views/sessions/core';
+import { ClaudeHelper, getSessionLabels, getSessionLabelsForSession, toggleSessionLabel } from '../../../common/utils';
 import { logger } from '../../../common/utils/logger';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
+import { sessionCache } from '../../../views/sessions/core';
 import { CompactService } from '../../../views/sessions/core/compact-service';
 import type { SessionProvider } from '../../../views/sessions/session-provider';
 import { SessionTreeItem } from '../../../views/sessions/tree-items';

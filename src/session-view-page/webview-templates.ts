@@ -1,4 +1,4 @@
-import { NodePathHelper } from '@/common/utils/helpers/node-helper';
+import { NodePathHelper } from '../common/utils/helpers/node-helper';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { ExtensionContext, Uri, WebviewPanel } from '../common/vscode/vscode-types';
 

@@ -1,7 +1,8 @@
-import { APP_NAME, BCC_EXTENSION_LOG_FILE } from '@/common/utils';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { OutputChannel } from '../vscode/vscode-types';
+import { APP_NAME } from './constants';
 import { FileIOHelper } from './helpers/node-helper';
+import { BCC_EXTENSION_LOG_FILE } from './monorepo-path-utils';
 
 export const LOG_FILE_PATH = BCC_EXTENSION_LOG_FILE;
 
